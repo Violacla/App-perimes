@@ -51,8 +51,35 @@
       if (isSignedIn) {
         authorizeButton.style.display = 'none';
         signoutButton.style.display = 'inline-block';
+        appendButton.style.display = 'inline-block';
+        content.textContent = 'Connecté. Prêt à ajouter une ligne.';
+      } else {
+        authorizeButton.style.display = 'inline-block';
+        signoutButton.style.display = 'none';
+        appendButton.style.display = 'none';
+        content.textContent = 'Déconnecté.';
+      }
+    }
 
-    };
+    function appendRow() {
+      const values = [
+        ["NomExemple", "PrenomExemple", new Date().toLocaleString()]
+      ];
+      const body = { values: values };
+
+      gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: "USER_ENTERED",
+        resource: body
+      }).then(response => {
+        content.textContent = 'Ligne ajoutée avec succès ! Détails :\n' + JSON.stringify(response.result.updates, null, 2);
+      }).catch(error => {
+        content.textContent = 'Erreur lors de l\'ajout : ' + (error.result?.error?.message || error.message);
+      });
+    }
+
+    handleClientLoad();
   </script>
 </body>
 </html>
