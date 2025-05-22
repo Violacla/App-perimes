@@ -1,16 +1,45 @@
 <!DOCTYPE html>
 <html>
-<head><title>Test bouton</title></head>
+<head>
+  <title>Google Identity Services Demo</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
 <body>
-  <button id="authorize_button">Connexion</button>
+  <h2>Connexion Google avec GIS</h2>
+
+  <!-- Bouton Google Sign In -->
+  <div id="g_id_onload"
+       data-client_id="896851814479-3ptbunq6dp62seo6s2unq0uff4vvvirq.apps.googleusercontent.com"
+       data-login_uri="https://TON-NOM-UTILISATEUR.github.io/TON-DEPOT/"
+       data-auto_prompt="false">
+  </div>
+
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="outline"
+       data-text="signin_with"
+       data-shape="rectangular"
+       data-logo_alignment="left">
+  </div>
+
+  <pre id="content"></pre>
+
   <script>
+    function handleCredentialResponse(response) {
+      document.getElementById('content').textContent = 'ID Token reçu :\n' + response.credential;
+      console.log('ID Token:', response.credential);
+    }
+
     window.onload = () => {
-      const btn = document.getElementById('authorize_button');
-      console.log('Bouton:', btn);
-      btn.onclick = () => {
-        console.log('Bouton connexion cliqué !');
-        alert('Bouton fonctionne');
-      };
+      google.accounts.id.initialize({
+        client_id: '896851814479-3ptbunq6dp62seo6s2unq0uff4vvvirq.apps.googleusercontent.com',
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(
+        document.querySelector('.g_id_signin'),
+        { theme: "outline", size: "large" }
+      );
     };
   </script>
 </body>
