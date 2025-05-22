@@ -1,119 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Google Sheets API avec GIS</title>
+  <meta charset="UTF-8" />
+  <title>App Google Sheets - Connexion</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://apis.google.com/js/api.js" async defer></script>
   <style>
-    #authorize_button, #signout_button {
-      display: inline-block;
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-    }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; }
+    button { padding: 10px 20px; font-size: 16px; margin-right: 10px; cursor: pointer; }
+    pre { background: #f4f4f4; padding: 15px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <h2>Connexion Google Sheets API avec GIS</h2>
+  <h1>Connexion Google Sheets API</h1>
 
-  <div id="g_id_signin"></div>
-
-  <button id="authorize_button" style="display:none;">Autoriser l’accès Google Sheets</button>
+  <button id="authorize_button" style="display:none;">Connexion</button>
   <button id="signout_button" style="display:none;">Déconnexion</button>
 
-  <pre id="content" style="white-space: pre-wrap; margin-top: 20px;"></pre>
+  <pre id="content"></pre>
 
   <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-    const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
-    const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly';
-
+    const API_KEY = 'AIzaSyBHLlV9AXg7Wpyl3flKZ2PaRBCt9fCv0eg';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE/edit?gid=0#gid=0';
     const RANGE = 'A1:E20';
 
     let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
+    let accessToken = null;
 
     const authorizeButton = document.getElementById('authorize_button');
     const signoutButton = document.getElementById('signout_button');
     const content = document.getElementById('content');
 
-    function gapiLoaded() {
-      gapi.load('client', initializeGapiClient);
+    // Charge la bibliothèque gapi
+    function loadGapiClient() {
+      return new Promise((resolve) => {
+        gapi.load('client', resolve);
+      });
     }
 
-    async function initializeGapiClient() {
+    // Initialise gapi client avec API Key et discovery doc
+    async function initGapiClient() {
       await gapi.client.init({
-        discoveryDocs: DISCOVERY_DOCS,
+        apiKey: API_KEY,
+        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
       });
-      gapiInited = true;
-      maybeEnableButtons();
+      authorizeButton.style.display = 'block';
     }
 
-    function gisLoaded() {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: (tokenResponse) => {
-          if (tokenResponse.error) {
-            content.textContent = 'Erreur token : ' + tokenResponse.error;
-            return;
-          }
-          authorizeButton.style.display = 'none';
-          signoutButton.style.display = 'inline-block';
-          content.textContent = 'Token d\'accès obtenu.\nChargement des données...';
-          listSheetsData();
-        },
-      });
-      gisInited = true;
-      maybeEnableButtons();
-    }
-
-    function maybeEnableButtons() {
-      if (gapiInited && gisInited) {
-        authorizeButton.style.display = 'inline-block';
-      }
-    }
-
-    function handleAuthClick() {
-      tokenClient.requestAccessToken();
-    }
-
-    function handleSignoutClick() {
-      const token = gapi.client.getToken();
-      if (token) {
-        google.accounts.oauth2.revoke(token.access_token);
-        gapi.client.setToken(null);
-        content.textContent = 'Déconnecté.';
-        authorizeButton.style.display = 'inline-block';
-        signoutButton.style.display = 'none';
-      }
-    }
-
-    async function listSheetsData() {
-      try {
-        const response = await gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: SPREADSHEET_ID,
-          range: RANGE,
-        });
+    // Appelle l'API Sheets pour récupérer les données
+    function callSheetsApi() {
+      gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+      }).then(response => {
         const rows = response.result.values;
         if (!rows || rows.length === 0) {
           content.textContent = 'Aucune donnée trouvée.';
           return;
         }
         content.textContent = rows.map(row => row.join(' | ')).join('\n');
-      } catch (err) {
-        content.textContent = 'Erreur API : ' + err.message;
-      }
+      }, error => {
+        content.textContent = 'Erreur API : ' + (error.result?.error.message || JSON.stringify(error));
+      });
     }
 
-    authorizeButton.onclick = handleAuthClick;
-    signoutButton.onclick = handleSignoutClick;
+    // Initialisation au chargement de la page
+    window.onload = async () => {
+      await loadGapiClient();
+      await initGapiClient();
 
-    window.onload = () => {
-      gapiLoaded();
-      gisLoaded();
+      // Initialise le client OAuth2
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+        callback: (resp) => {
+          if (resp.error) {
+            content.textContent = 'Erreur OAuth : ' + resp.error;
+            return;
+          }
+          accessToken = resp.access_token;
+          gapi.client.setToken({ access_token: accessToken });
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'inline-block';
+          callSheetsApi();
+        },
+      });
+
+      authorizeButton.onclick = () => {
+        tokenClient.requestAccessToken();
+      };
+
+      signoutButton.onclick = () => {
+        if (accessToken) {
+          google.accounts.oauth2.revoke(accessToken);
+          accessToken = null;
+          content.textContent = '';
+          authorizeButton.style.display = 'inline-block';
+          signoutButton.style.display = 'none';
+        }
+      };
     };
   </script>
 </body>
