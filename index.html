@@ -25,7 +25,6 @@
 
   <script>
     const CLIENT_ID = '896851814479-3ptbunq6dp62seo6s2unq0uff4vvvirq.apps.googleusercontent.com';
-    const API_KEY = ''; // (optionnel) si tu as une API key
     const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
     const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 
@@ -40,21 +39,18 @@
     const signoutButton = document.getElementById('signout_button');
     const content = document.getElementById('content');
 
-    // Chargement et initialisation de gapi client
     function gapiLoaded() {
       gapi.load('client', initializeGapiClient);
     }
 
     async function initializeGapiClient() {
       await gapi.client.init({
-        apiKey: API_KEY,
         discoveryDocs: DISCOVERY_DOCS,
       });
       gapiInited = true;
       maybeEnableButtons();
     }
 
-    // Initialisation de Google Identity Services token client
     function gisLoaded() {
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
@@ -81,12 +77,10 @@
     }
 
     function handleAuthClick() {
-      // Demande du token avec consentement utilisateur
       tokenClient.requestAccessToken();
     }
 
     function handleSignoutClick() {
-      // Révoquer le token d’accès
       const token = gapi.client.getToken();
       if (token) {
         google.accounts.oauth2.revoke(token.access_token);
@@ -114,11 +108,9 @@
       }
     }
 
-    // Boutons
     authorizeButton.onclick = handleAuthClick;
     signoutButton.onclick = handleSignoutClick;
 
-    // Chargement des librairies
     window.onload = () => {
       gapiLoaded();
       gisLoaded();
