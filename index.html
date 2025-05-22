@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Google Sheets API avec GIS (écriture)</title>
+  <title>App Google Sheets - Écriture avec GIS</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
@@ -11,122 +11,127 @@
 </head>
 <body>
   <h2>Connexion Google Sheets API - Écriture de données</h2>
-  
-  <button id="login_button">Connexion</button>
-  <button id="logout_button" style="display:none;">Déconnexion</button>
+  <div id="g_id_onload"
+       data-client_id="TON_CLIENT_ID_ICI"
+       data-context="use"
+       data-ux_mode="popup"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+  <div id="buttonDiv"></div>
+  <button id="signout_button" style="display:none;">Déconnexion</button>
   <button id="append_button" style="display:none;">Ajouter une ligne</button>
-  
-  <pre id="content" style="white-space: pre-wrap; margin-top: 20px;"></pre>
+  <pre id="content" style="margin-top:20px; white-space: pre-wrap;"></pre>
 
   <script>
-    const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+    const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com'; // Remplace par ton Client ID
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-    const RANGE = 'Stock!A1:C1'; // modifie selon ta feuille
+    const RANGE = 'Feuille1!A:C'; // Ton range, modifie si besoin
 
-    const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+    let tokenClient;
+    let accessToken = null;
 
-    const loginButton = document.getElementById('login_button');
-    const logoutButton = document.getElementById('logout_button');
+    const signoutButton = document.getElementById('signout_button');
     const appendButton = document.getElementById('append_button');
     const content = document.getElementById('content');
 
-    let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
-    let accessToken = null;
-
-    // 1. Chargement et initialisation de la Google API client library
+    // Chargement API client
     function gapiLoaded() {
       gapi.load('client', initializeGapiClient);
     }
 
     async function initializeGapiClient() {
       await gapi.client.init({
-        apiKey: '', // Optionnel si pas besoin d'API Key
+        apiKey: 'TA_CLE_API_QUI_NE_SERT_PAS_A_L_AUTH', // optionnel, mais recommandé
         discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
       });
-      gapiInited = true;
+      content.textContent = 'API Google Sheets chargée.';
       maybeEnableButtons();
     }
 
-    // 2. Initialisation Google Identity Services
+    // Fonction appelée à la connexion Google Identity Services
+    function handleCredentialResponse(response) {
+      // On obtient un JWT ID token (ne sert pas ici pour API Sheets)
+      // Il faut demander un token d'accès avec tokenClient.requestAccessToken()
+    }
+
+    // Initialisation du token client OAuth 2.0 GIS
     function gisLoaded() {
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: '', // on définit après
+        scope: 'https://www.googleapis.com/auth/spreadsheets',
+        callback: '', // callback sera appelé plus tard
       });
-      gisInited = true;
       maybeEnableButtons();
     }
 
-    // Activer boutons si init finies
     function maybeEnableButtons() {
-      if (gapiInited && gisInited) {
-        loginButton.disabled = false;
+      if (gapi.client && tokenClient) {
+        document.getElementById('buttonDiv').innerHTML = '';
+        const btn = document.createElement('button');
+        btn.textContent = accessToken ? 'Reconnecter' : 'Connexion';
+        btn.onclick = handleAuthClick;
+        document.getElementById('buttonDiv').appendChild(btn);
+
+        signoutButton.style.display = accessToken ? 'inline-block' : 'none';
+        appendButton.style.display = accessToken ? 'inline-block' : 'none';
       }
     }
 
-    loginButton.onclick = () => {
+    function handleAuthClick() {
       tokenClient.callback = async (resp) => {
-        if (resp.error !== undefined) {
-          content.textContent = 'Erreur de connexion : ' + resp.error;
+        if (resp.error) {
+          content.textContent = 'Erreur lors de la connexion : ' + resp.error;
           return;
         }
         accessToken = resp.access_token;
-        content.textContent = 'Connecté avec succès !\nToken : ' + accessToken;
-        loginButton.style.display = 'none';
-        logoutButton.style.display = 'inline-block';
-        appendButton.style.display = 'inline-block';
+        gapi.client.setToken({access_token: accessToken});
+        content.textContent = 'Connecté !';
+        maybeEnableButtons();
       };
 
       if (!accessToken) {
-        // Demande le token d'accès
-        tokenClient.requestAccessToken({ prompt: 'consent' });
+        // Demande d'autorisation avec popup
+        tokenClient.requestAccessToken({prompt: 'consent'});
       } else {
-        // Renouvelle token sans prompt
-        tokenClient.requestAccessToken({ prompt: '' });
+        // Demande de renouvellement silencieux du token
+        tokenClient.requestAccessToken({prompt: ''});
       }
-    };
+    }
 
-    logoutButton.onclick = () => {
+    signoutButton.onclick = () => {
       accessToken = null;
-      google.accounts.oauth2.revoke(accessToken);
+      gapi.client.setToken(null);
       content.textContent = 'Déconnecté.';
-      loginButton.style.display = 'inline-block';
-      logoutButton.style.display = 'none';
-      appendButton.style.display = 'none';
+      maybeEnableButtons();
     };
 
     appendButton.onclick = async () => {
       if (!accessToken) {
-        content.textContent = 'Vous devez être connecté.';
+        content.textContent = 'Veuillez vous connecter d’abord.';
         return;
       }
+      const values = [
+        ["NomExemple", "PrenomExemple", new Date().toLocaleString()]
+      ];
+      const body = { values };
       try {
-        gapi.client.setToken({ access_token: accessToken });
-        const values = [
-          ["NomExemple", "PrenomExemple", new Date().toLocaleString()]
-        ];
         const response = await gapi.client.sheets.spreadsheets.values.append({
           spreadsheetId: SPREADSHEET_ID,
           range: RANGE,
-          valueInputOption: "USER_ENTERED",
-          resource: { values }
+          valueInputOption: 'USER_ENTERED',
+          resource: body,
         });
-        content.textContent = 'Ligne ajoutée avec succès !\n' + JSON.stringify(response.result.updates, null, 2);
+        content.textContent = 'Ligne ajoutée ! Détails :\n' + JSON.stringify(response.result.updates, null, 2);
       } catch (err) {
-        content.textContent = 'Erreur lors de l\'ajout : ' + err.message;
+        content.textContent = 'Erreur API : ' + JSON.stringify(err.result?.error || err, null, 2);
       }
     };
 
-    // Chargement des librairies
     window.onload = () => {
-      loginButton.disabled = true;
       gapiLoaded();
       gisLoaded();
     };
   </script>
 </body>
 </html>
-
