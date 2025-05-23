@@ -2,16 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Suivi App Périmés - Google Sheets</title>
+  <title>Suivi des périmés</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
-  <h2>Connexion Google Sheets API + Opérateur</h2>
+  <h2>Connexion Google Sheets API + Formulaire</h2>
 
   <button id="btn-login" style="display:none;">Se connecter</button>
   <button id="btn-logout" style="display:none;">Déconnexion</button>
-  <button id="btn-append" style="display:none;">Ajouter une ligne</button>
 
   <div id="operator-form" style="display:none; margin-top: 20px;">
     <label for="operator">Sélectionnez votre nom :</label>
@@ -20,14 +19,25 @@
       <option value="Op1">Op1</option>
       <option value="Op2">Op2</option>
       <option value="Op3">Op3</option>
-      <option value="Op3">Op4</option>
-      <option value="Op3">Op5</option>
-      <option value="Op3">Op6</option>
-      <option value="Op3">Op7</option>
-      <option value="Op3">Op8</option>
-      <option value="Op3">Op9</option>
+      <option value="Op4">Op4</option>
+      <option value="Op5">Op5</option>
+      <option value="Op6">Op5</option>
+      <option value="Op7">Op5</option>
+      <option value="Op8">Op5</option>
+      <option value="Op9">Op5</option>
     </select>
     <button id="btn-confirm-operator">Valider</button>
+  </div>
+
+  <div id="formulaire" style="display:none; margin-top: 20px;">
+    <h3>Ajouter un produit</h3>
+    <label>Date entrée : <input type="date" id="date-entree" /></label><br />
+    <label>Nom boîte : <input type="text" id="nom-boite" /></label><br />
+    <label>Nombre de boîtes : <input type="number" id="nb-boites" /></label><br />
+    <label>Zone géographique : <input type="text" id="zone" /></label><br />
+    <label>Nb vendues : <input type="number" id="nb-vendu" /></label><br />
+    <label>Nb promos : <input type="number" id="nb-promo" /></label><br />
+    <button id="btn-submit">Envoyer au tableau</button>
   </div>
 
   <pre id="status"></pre>
@@ -35,17 +45,17 @@
   <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-    const RANGE = 'Feuille1!';
+    const RANGE = 'Feuille1';
     const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
     const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
     const btnLogin = document.getElementById('btn-login');
     const btnLogout = document.getElementById('btn-logout');
-    const btnAppend = document.getElementById('btn-append');
     const status = document.getElementById('status');
     const operatorForm = document.getElementById('operator-form');
     const operatorSelect = document.getElementById('operator');
     const btnConfirmOperator = document.getElementById('btn-confirm-operator');
+    const formulaire = document.getElementById('formulaire');
 
     let tokenClient;
     let gapiInited = false;
@@ -53,20 +63,16 @@
     let accessToken = null;
     let operatorName = null;
 
-    // 1. Charger client Google
     function gapiLoaded() {
       gapi.load('client', initializeGapiClient);
     }
 
     async function initializeGapiClient() {
-      await gapi.client.init({
-        discoveryDocs: DISCOVERY_DOCS,
-      });
+      await gapi.client.init({ discoveryDocs: DISCOVERY_DOCS });
       gapiInited = true;
       maybeEnableButtons();
     }
 
-    // 2. Charger Google Identity Services
     function gisLoaded() {
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
@@ -101,8 +107,8 @@
       operatorName = null;
       btnLogin.style.display = 'inline-block';
       btnLogout.style.display = 'none';
-      btnAppend.style.display = 'none';
       operatorForm.style.display = 'none';
+      formulaire.style.display = 'none';
       status.textContent = 'Déconnecté.';
     };
 
@@ -114,19 +120,38 @@
       }
       operatorName = selected;
       operatorForm.style.display = 'none';
-      btnAppend.style.display = 'inline-block';
+      formulaire.style.display = 'block';
       btnLogout.style.display = 'inline-block';
-      status.textContent = 'Bienvenue ' + operatorName + '. Vous pouvez maintenant ajouter une ligne.';
+      status.textContent = 'Bienvenue ' + operatorName + '. Remplissez le formulaire.';
     };
 
-    btnAppend.onclick = async () => {
-      if (!accessToken || !operatorName) {
-        status.textContent = 'Veuillez vous connecter et valider un nom.';
+    document.getElementById('btn-submit').onclick = async () => {
+      const dateEntree = document.getElementById('date-entree').value;
+      const nom = document.getElementById('nom-boite').value;
+      const nb = document.getElementById('nb-boites').value;
+      const zone = document.getElementById('zone').value;
+      const vendu = document.getElementById('nb-vendu').value;
+      const promo = document.getElementById('nb-promo').value;
+
+      if (!dateEntree || !nom || !nb || !zone || !vendu || !promo) {
+        alert("Merci de remplir tous les champs !");
         return;
       }
 
+      const dateAujourdHui = new Date().toLocaleDateString();
+
       try {
-        const values = [[operatorName, "ProduitTest", new Date().toLocaleString()]];
+        const values = [[
+          operatorName,
+          dateAujourdHui,
+          dateEntree,
+          nom,
+          parseInt(nb),
+          zone,
+          parseInt(vendu),
+          parseInt(promo)
+        ]];
+
         const response = await gapi.client.sheets.spreadsheets.values.append({
           spreadsheetId: SPREADSHEET_ID,
           range: RANGE,
@@ -134,9 +159,18 @@
           insertDataOption: 'INSERT_ROWS',
           resource: { values }
         });
-        status.textContent = '✅ Ligne ajoutée !\n' + JSON.stringify(response.result.updates, null, 2);
+
+        status.textContent = '✅ Données envoyées !\n' + JSON.stringify(response.result.updates, null, 2);
+        
+        // Réinitialiser formulaire
+        document.getElementById('date-entree').value = '';
+        document.getElementById('nom-boite').value = '';
+        document.getElementById('nb-boites').value = '';
+        document.getElementById('zone').value = '';
+        document.getElementById('nb-vendu').value = '';
+        document.getElementById('nb-promo').value = '';
       } catch (err) {
-        status.textContent = 'Erreur : ' + (err.result?.error?.message || err.message);
+        status.textContent = '❌ Erreur : ' + (err.result?.error?.message || err.message);
       }
     };
 
