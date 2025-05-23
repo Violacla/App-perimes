@@ -523,19 +523,53 @@ btnNotif.addEventListener('click', () => {
     alert('Aucune donnée à afficher.');
     return;
   }
-  // Exemple : produits périmés (date avant aujourd'hui)
-  const todayStr = new Date().toISOString().slice(0,10);
-  const expired = data.filter(d => d.date < todayStr);
-  if (expired.length === 0) {
-    alert('Aucun produit périmé actuellement.');
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth(); // 0 = janvier, 4 = mai
+
+  // Calculer les 3 prochains mois
+  // On veut les produits dont la date est dans les mois suivants (month +1, +2, +3)
+  // On va comparer uniquement année et mois de la date produit
+
+  const isInNext3Months = (dateStr) => {
+    // dateStr format "YYYY-MM-DD"
+    const d = new Date(dateStr);
+    if (isNaN(d)) return false;
+
+    const year = d.getFullYear();
+    const month = d.getMonth();
+
+    // On vérifie si la date est dans l'un des 3 mois suivants (exclu mois actuel)
+    for (let i = 1; i <= 3; i++) {
+      // Calcul du mois + i en tenant compte du passage d'année
+      let checkMonth = (currentMonth + i) % 12;
+      let checkYear = currentYear + Math.floor((currentMonth + i) / 12);
+      if (year === checkYear && month === checkMonth) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Filtrer les produits qui périment dans les 3 mois suivants
+  const next3MonthsProducts = data.filter(d => isInNext3Months(d.date));
+
+  if (next3MonthsProducts.length === 0) {
+    alert('Aucun produit ne périme dans les 3 mois suivants.');
     return;
   }
+
+  // Trier par date croissante
+  next3MonthsProducts.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // Afficher dans la popup
   notifTableBody.innerHTML = '';
-  expired.forEach(d => {
+  next3MonthsProducts.forEach(d => {
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${d.product}</td><td>${d.date}</td><td>${d.qty}</td><td>${d.zone}</td><td>${d.sold}</td><td>${d.promo}</td>`;
     notifTableBody.appendChild(tr);
   });
+
   notifPopup.style.display = 'flex';
 });
 
