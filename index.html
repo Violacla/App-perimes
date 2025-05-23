@@ -53,7 +53,6 @@
     /* Table */
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; }
-    input, select { margin: 5px; }
     tbody tr td:nth-child(1) {
       display: none; /* Cache la colonne Opérateur */
     }
@@ -126,16 +125,17 @@
   <div id="top-bar">
     <div class="left">
       <h1>Gestion Périmé - Pharmacie du Libron</h1>
-      <select id="operator">
+      <select id="operator" disabled>
         <option value="">-- Choisir Opérateur --</option>
         <option>Op1</option>
         <option>Op2</option>
         <option>Op3</option>
         <option>Op4</option>
       </select>
-      <button id="btn-confirm-operator">Valider</button>
+      <button id="btn-confirm-operator" disabled>Valider</button>
     </div>
     <div class="right">
+      <button id="btn-login">Connexion Google</button>
       <button id="btn-notifications" title="Notifications">🔔</button>
       <button id="btn-history" title="Historique">📜</button>
       <button id="btn-logout" style="display:none;" title="Déconnexion">🚪</button>
@@ -207,9 +207,16 @@
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
+        if (tokenResponse.error !== undefined) {
+          console.error(tokenResponse.error);
+          alert("Erreur de connexion Google.");
+          return;
+        }
         accessToken = tokenResponse.access_token;
         document.getElementById('operator').disabled = false;
         document.getElementById('btn-confirm-operator').disabled = false;
+        document.getElementById('btn-login').style.display = 'none';
+        document.getElementById('btn-logout').style.display = 'inline-block';
         document.getElementById('status').textContent = 'Connecté. Choisissez un opérateur.';
       },
     });
@@ -219,16 +226,21 @@
 
   function maybeEnableButtons() {
     if (gapiInited && gisInited) {
-      document.getElementById('btn-login').style.display = 'inline-block';
+      document.getElementById('btn-login').disabled = false;
     }
   }
+
+  document.getElementById('btn-login').onclick = () => {
+    if (accessToken === null) {
+      tokenClient.requestAccessToken();
+    }
+  };
 
   document.getElementById('btn-confirm-operator').onclick = () => {
     const op = document.getElementById('operator').value;
     if (!op) return alert("Choisir un opérateur");
     operatorName = op;
     document.getElementById('entry-form').style.display = 'block';
-    document.getElementById('btn-logout').style.display = 'inline-block';
     document.getElementById('status').textContent = `Opérateur : ${operatorName}`;
     loadSheet();
   };
@@ -236,8 +248,11 @@
   document.getElementById('btn-logout').onclick = () => {
     accessToken = null; operatorName = null;
     document.getElementById('operator').value = '';
+    document.getElementById('operator').disabled = true;
+    document.getElementById('btn-confirm-operator').disabled = true;
     document.getElementById('entry-form').style.display = 'none';
     document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('btn-login').style.display = 'inline-block';
     document.getElementById('status').textContent = 'Déconnecté.';
   };
 
@@ -311,125 +326,3 @@
       if (monthFilter) {
         // on compare YYYY-MM
         matchMonth = dateText.startsWith(monthFilter);
-      }
-      row.style.display = (matchZone && matchMonth) ? '' : 'none';
-    });
-  }
-
-  // Affiche notifications popup avec périmés des 3 prochains mois (tous les 15 du mois)
-  document.getElementById("btn-notifications").onclick = async function () {
-    const now = new Date();
-    if (now.getDate() < 15) {
-      alert("Les notifications sont disponibles seulement à partir du 15 du mois.");
-      return;
-    }
-    if (!accessToken) {
-      alert("Veuillez vous connecter d'abord.");
-      return;
-    }
-
-    // Récupérer données de la feuille
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE
-      });
-      const rows = res.result.values || [];
-      if (rows.length < 2) {
-        alert("Pas de données.");
-        return;
-      }
-
-      const nowYear = now.getFullYear();
-      const nowMonth = now.getMonth(); // 0-indexé
-
-      // Calcul des 3 mois complets suivants : M+1, M+2, M+3
-      let monthsToShow = [];
-      for(let i=1; i<=3; i++) {
-        let date = new Date(nowYear, nowMonth + i, 1);
-        monthsToShow.push({year: date.getFullYear(), month: date.getMonth()});
-      }
-
-      // Grouper périmés par mois (format "MM/YYYY")
-      let perimesByMonth = {};
-
-      // Parcours données et filtre périmés dans les mois sélectionnés
-      rows.slice(1).forEach(row => {
-        // row : [Op, produit, date, qty, zone, sold, promo]
-        let dateStr = row[2];
-        if (!dateStr) return;
-        let d = new Date(dateStr);
-        if (isNaN(d)) return;
-
-        const y = d.getFullYear();
-        const m = d.getMonth();
-
-        // Vérifie si dans un des mois sélectionnés
-        if (monthsToShow.some(mm => mm.year === y && mm.month === m)) {
-          const key = ("0"+(m+1)).slice(-2) + "/" + y;
-          if (!perimesByMonth[key]) perimesByMonth[key] = [];
-          perimesByMonth[key].push(row);
-        }
-      });
-
-      // Construire HTML liste triée par mois
-      const notifList = document.getElementById('notification-list');
-      notifList.innerHTML = '';
-
-      // Trier les mois par date croissante
-      monthsToShow.sort((a,b) => a.year - b.year || a.month - b.month);
-
-      monthsToShow.forEach(({year, month}) => {
-        const key = ("0"+(month+1)).slice(-2) + "/" + year;
-        const perimes = perimesByMonth[key] || [];
-
-        const liTitle = document.createElement('li');
-        liTitle.textContent = key;
-        liTitle.classList.add('title');
-        notifList.appendChild(liTitle);
-
-        if(perimes.length === 0) {
-          const liNone = document.createElement('li');
-          liNone.textContent = 'Aucun produit périmé ce mois.';
-          notifList.appendChild(liNone);
-        } else {
-          perimes.forEach(row => {
-            const li = document.createElement('li');
-            li.textContent = `Produit: ${row[1]}, Date: ${row[2]}, Qté: ${row[3]}, Zone: ${row[4]}`;
-            notifList.appendChild(li);
-          });
-        }
-      });
-
-      // Afficher modal
-      document.getElementById('notification-modal').style.display = 'block';
-
-    } catch(e) {
-      alert("Erreur lors de la récupération des données : " + e.message);
-    }
-  };
-
-  // Lancement automatique notifications si jour >= 15 au chargement
-  window.onload = function() {
-    gapiLoaded();
-    gisLoaded();
-
-    // Par défaut, désactivation opérateur tant que pas connecté
-    document.getElementById('operator').disabled = true;
-    document.getElementById('btn-confirm-operator').disabled = true;
-
-    const now = new Date();
-    if (now.getDate() >= 15) {
-      // Attendre la connexion Google avant d'appeler les notif
-      // Ici on attend 2s, tu peux ajuster ou améliorer en ajoutant un event callback
-      setTimeout(() => {
-        if(accessToken) {
-          document.getElementById('btn-notifications').click();
-        }
-      }, 2000);
-    }
-  }
-</script>
-
-</body>
-</html>
