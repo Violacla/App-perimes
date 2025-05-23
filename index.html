@@ -17,7 +17,7 @@
   <button id="btn-login" style="display:none;">Se connecter</button>
   <button id="btn-logout" style="display:none;">Déconnexion</button>
 
-  <div id="operator-form" style="display:none;">
+  <div id="operator-form" style="display:block;">
     <label>Nom Opérateur :</label>
     <select id="operator">
       <option value="">-- Choisir --</option>
@@ -29,7 +29,7 @@
     <button id="btn-confirm-operator">Valider</button>
   </div>
 
-  <div id="entry-form" style="display:none; margin-top: 20px;">
+  <div id="entry-form" style="display:block; margin-top: 20px;">
     <h3>Ajouter un produit</h3>
     <input type="date" id="date" />
     <input type="text" id="product" placeholder="Nom Boîte" />
@@ -80,6 +80,8 @@
           accessToken = tokenResponse.access_token;
           document.getElementById('operator-form').style.display = 'block';
           document.getElementById('btn-login').style.display = 'none';
+          document.getElementById('btn-logout').style.display = 'inline-block';
+          loadSheet();
         },
       });
       gisInited = true;
@@ -95,29 +97,34 @@
       accessToken = null; operatorName = null;
       document.getElementById('btn-login').style.display = 'inline-block';
       document.getElementById('btn-logout').style.display = 'none';
-      document.getElementById('entry-form').style.display = 'none';
+      document.getElementById('entry-form').style.display = 'block';
       document.getElementById('status').textContent = 'Déconnecté.';
+      document.querySelector('#data-table tbody').innerHTML = '';
     };
 
     document.getElementById('btn-confirm-operator').onclick = () => {
       const op = document.getElementById('operator').value;
       if (!op) return alert("Choisir un opérateur");
       operatorName = op;
-      document.getElementById('operator-form').style.display = 'none';
-      document.getElementById('btn-logout').style.display = 'inline-block';
-      document.getElementById('entry-form').style.display = 'block';
-      loadSheet();
+      alert("Opérateur sélectionné : " + operatorName);
+      // On ne cache plus entry-form, on laisse visible
     };
 
     document.getElementById('btn-add').onclick = async () => {
+      if (!accessToken) return alert("Veuillez vous connecter à Google.");
+      if (!operatorName) return alert("Veuillez sélectionner un opérateur.");
+
+      const product = document.getElementById('product').value.trim();
+      if (!product) return alert("Le nom du produit est obligatoire.");
+
       const values = [[
         operatorName,
-        document.getElementById('product').value,
+        product,
         document.getElementById('date').value || new Date().toISOString().split('T')[0],
-        parseInt(document.getElementById('qty').value),
-        document.getElementById('zone').value,
-        parseInt(document.getElementById('sold').value),
-        parseInt(document.getElementById('promo').value),
+        parseInt(document.getElementById('qty').value) || 0,
+        document.getElementById('zone').value.trim(),
+        parseInt(document.getElementById('sold').value) || 0,
+        parseInt(document.getElementById('promo').value) || 0,
       ]];
       try {
         await gapi.client.sheets.spreadsheets.values.append({
@@ -134,6 +141,7 @@
     };
 
     async function loadSheet() {
+      if (!accessToken) return;
       const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
       const rows = res.result.values || [];
       const tbody = document.querySelector('#data-table tbody');
@@ -163,7 +171,11 @@
       });
     }
 
-    window.onload = () => { gapiLoaded(); gisLoaded(); };
+    window.onload = () => { 
+      gapiLoaded(); 
+      gisLoaded();
+      // Le formulaire d'ajout est visible par défaut, pas besoin de changer le display ici
+    };
   </script>
 </body>
 </html>
