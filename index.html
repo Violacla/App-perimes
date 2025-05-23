@@ -2,39 +2,58 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Suivi des périmés - Table visible</title>
+  <title>Suivi App Périmés - Google Sheets</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
-    table, th, td {
-      border: 1px solid black;
-      border-collapse: collapse;
-      padding: 6px;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    input, select { margin: 5px; }
   </style>
 </head>
 <body>
-  <h2>Connexion Google Sheets API + Table visible & modifiable</h2>
+  <h2>Connexion Google Sheets API + Opérateur</h2>
 
   <button id="btn-login" style="display:none;">Se connecter</button>
   <button id="btn-logout" style="display:none;">Déconnexion</button>
 
-  <div id="filters" style="display:none;">
-    <label>Filtrer par zone : <input type="text" id="filter-zone"></label>
-    <label>Filtrer par date (jj/mm/aaaa) : <input type="text" id="filter-date"></label>
-    <button onclick="applyFilters()">Appliquer</button>
+  <div id="operator-form" style="display:none;">
+    <label>Nom Opérateur :</label>
+    <select id="operator">
+      <option value="">-- Choisir --</option>
+      <option>Op1</option>
+      <option>Op2</option>
+      <option>Op3</option>
+      <option>Op4</option>
+    </select>
+    <button id="btn-confirm-operator">Valider</button>
   </div>
 
-  <div id="table-wrapper" style="margin-top: 20px; display:none;">
-    <h3>Données du tableau</h3>
-    <table id="data-table">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
+  <div id="entry-form" style="display:none; margin-top: 20px;">
+    <h3>Ajouter un produit</h3>
+    <input type="date" id="date" />
+    <input type="text" id="product" placeholder="Nom Boîte" />
+    <input type="number" id="qty" placeholder="Nb Boîtes" />
+    <input type="text" id="zone" placeholder="Zone" />
+    <input type="number" id="sold" placeholder="Nb vendus" />
+    <input type="number" id="promo" placeholder="Nb promo" />
+    <button id="btn-add">Ajouter la ligne</button>
   </div>
+
+  <div>
+    <label>Filtrer Zone :</label>
+    <input type="text" id="filter-zone" />
+    <label>Date après :</label>
+    <input type="date" id="filter-date" />
+    <button onclick="filterTable()">Filtrer</button>
+  </div>
+
+  <table id="data-table">
+    <thead>
+      <tr><th>Opérateur</th><th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <pre id="status"></pre>
 
@@ -42,25 +61,13 @@
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
     const RANGE = 'Feuille1';
-    const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
     const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-    let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
-    let accessToken = null;
-    let dataCache = [];
+    let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
 
-    const btnLogin = document.getElementById('btn-login');
-    const btnLogout = document.getElementById('btn-logout');
-    const status = document.getElementById('status');
-
-    function gapiLoaded() {
-      gapi.load('client', initializeGapiClient);
-    }
-
+    function gapiLoaded() { gapi.load('client', initializeGapiClient); }
     async function initializeGapiClient() {
-      await gapi.client.init({ discoveryDocs: DISCOVERY_DOCS });
+      await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
       gapiInited = true;
       maybeEnableButtons();
     }
@@ -70,15 +77,9 @@
         client_id: CLIENT_ID,
         scope: SCOPES,
         callback: (tokenResponse) => {
-          if (tokenResponse.error) {
-            status.textContent = 'Erreur auth : ' + tokenResponse.error;
-            return;
-          }
           accessToken = tokenResponse.access_token;
-          status.textContent = 'Connecté.';
-          btnLogin.style.display = 'none';
-          btnLogout.style.display = 'inline-block';
-          loadSheetData();
+          document.getElementById('operator-form').style.display = 'block';
+          document.getElementById('btn-login').style.display = 'none';
         },
       });
       gisInited = true;
@@ -86,109 +87,83 @@
     }
 
     function maybeEnableButtons() {
-      if (gapiInited && gisInited) {
-        btnLogin.style.display = 'inline-block';
-      }
+      if (gapiInited && gisInited) document.getElementById('btn-login').style.display = 'inline-block';
     }
 
-    btnLogin.onclick = () => tokenClient.requestAccessToken();
-
-    btnLogout.onclick = () => {
-      accessToken = null;
-      document.getElementById('data-table').innerHTML = '';
-      document.getElementById('table-wrapper').style.display = 'none';
-      btnLogout.style.display = 'none';
-      btnLogin.style.display = 'inline-block';
-      document.getElementById('filters').style.display = 'none';
-      status.textContent = 'Déconnecté.';
+    document.getElementById('btn-login').onclick = () => tokenClient.requestAccessToken();
+    document.getElementById('btn-logout').onclick = () => {
+      accessToken = null; operatorName = null;
+      document.getElementById('btn-login').style.display = 'inline-block';
+      document.getElementById('btn-logout').style.display = 'none';
+      document.getElementById('entry-form').style.display = 'none';
+      document.getElementById('status').textContent = 'Déconnecté.';
     };
 
-    async function loadSheetData() {
+    document.getElementById('btn-confirm-operator').onclick = () => {
+      const op = document.getElementById('operator').value;
+      if (!op) return alert("Choisir un opérateur");
+      operatorName = op;
+      document.getElementById('operator-form').style.display = 'none';
+      document.getElementById('btn-logout').style.display = 'inline-block';
+      document.getElementById('entry-form').style.display = 'block';
+      loadSheet();
+    };
+
+    document.getElementById('btn-add').onclick = async () => {
+      const values = [[
+        operatorName,
+        document.getElementById('product').value,
+        document.getElementById('date').value || new Date().toISOString().split('T')[0],
+        parseInt(document.getElementById('qty').value),
+        document.getElementById('zone').value,
+        parseInt(document.getElementById('sold').value),
+        parseInt(document.getElementById('promo').value),
+      ]];
       try {
-        const res = await gapi.client.sheets.spreadsheets.values.get({
+        await gapi.client.sheets.spreadsheets.values.append({
           spreadsheetId: SPREADSHEET_ID,
-          range: RANGE
+          range: RANGE,
+          valueInputOption: 'USER_ENTERED',
+          resource: { values }
         });
-        dataCache = res.result.values;
-        displayTable(dataCache);
-      } catch (err) {
-        status.textContent = 'Erreur chargement : ' + err.message;
+        loadSheet();
+        document.getElementById('status').textContent = 'Ajouté !';
+      } catch (e) {
+        document.getElementById('status').textContent = 'Erreur : ' + e.message;
       }
-    }
+    };
 
-    function displayTable(data) {
-      if (!data || data.length === 0) return;
-      document.getElementById('filters').style.display = 'block';
-      document.getElementById('table-wrapper').style.display = 'block';
-
-      const table = document.getElementById('data-table');
-      const thead = table.querySelector('thead');
-      const tbody = table.querySelector('tbody');
-      thead.innerHTML = '';
+    async function loadSheet() {
+      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
+      const rows = res.result.values || [];
+      const tbody = document.querySelector('#data-table tbody');
       tbody.innerHTML = '';
-
-      const headerRow = document.createElement('tr');
-      data[0].forEach(h => {
-        const th = document.createElement('th');
-        th.textContent = h;
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-
-      for (let i = 1; i < data.length; i++) {
-        const row = document.createElement('tr');
-        data[i].forEach((cell, j) => {
+      rows.slice(1).forEach(row => {
+        const tr = document.createElement('tr');
+        for (let i = 0; i < 7; i++) {
           const td = document.createElement('td');
           td.contentEditable = true;
-          td.textContent = cell;
-          td.dataset.row = i + 1;
-          td.dataset.col = j;
-          td.addEventListener('blur', handleCellEdit);
-          row.appendChild(td);
-        });
-        tbody.appendChild(row);
-      }
+          td.textContent = row[i] || '';
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
     }
 
-    async function handleCellEdit(event) {
-      const cell = event.target;
-      const rowIndex = parseInt(cell.dataset.row);
-      const colIndex = parseInt(cell.dataset.col);
-      const newValue = cell.textContent;
-      const colLetter = String.fromCharCode(65 + colIndex);
-      const cellRef = `${colLetter}${rowIndex}`;
-
-      try {
-        await gapi.client.sheets.spreadsheets.values.update({
-          spreadsheetId: SPREADSHEET_ID,
-          range: `Feuille1!${cellRef}`,
-          valueInputOption: 'USER_ENTERED',
-          resource: { values: [[newValue]] }
-        });
-        status.textContent = `Cellule ${cellRef} mise à jour.`;
-      } catch (err) {
-        status.textContent = `Erreur modification cellule : ${err.message}`;
-      }
-    }
-
-    function applyFilters() {
+    window.filterTable = function() {
       const zone = document.getElementById('filter-zone').value.toLowerCase();
       const date = document.getElementById('filter-date').value;
-
-      const filtered = dataCache.filter((row, i) => {
-        if (i === 0) return true;
-        const zoneMatch = !zone || (row[5] && row[5].toLowerCase().includes(zone));
-        const dateMatch = !date || (row[2] && row[2].includes(date));
-        return zoneMatch && dateMatch;
+      const rows = document.querySelectorAll('#data-table tbody tr');
+      rows.forEach(row => {
+        const zoneText = row.cells[4].textContent.toLowerCase();
+        const dateText = row.cells[2].textContent;
+        const matchZone = !zone || zoneText.includes(zone);
+        const matchDate = !date || new Date(dateText) >= new Date(date);
+        row.style.display = (matchZone && matchDate) ? '' : 'none';
       });
-
-      displayTable(filtered);
     }
 
-    window.onload = () => {
-      gapiLoaded();
-      gisLoaded();
-    };
+    window.onload = () => { gapiLoaded(); gisLoaded(); };
   </script>
 </body>
 </html>
