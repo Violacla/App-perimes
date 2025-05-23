@@ -9,10 +9,10 @@
       margin: 0; padding: 0;
       background: #f9f9f9;
     }
-    /* Bandeau bleu en haut */
+    /* Bandeau bleu glacé en haut */
     header {
-      background: #bcd7ed;
-      color: #0b2e59;
+      background: #0b2e59; /* bleu glacé */
+      color: white;
       height: 50px;
       display: flex;
       align-items: center;
@@ -34,11 +34,15 @@
       font-weight: 700;
       margin: 0;
       user-select: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
     button, select {
-      background: white;
-      border: 1px solid #0b2e59;
-      color: #0b2e59;
+      background: transparent;
+      border: 1px solid white;
+      color: white;
       border-radius: 3px;
       padding: 5px 10px;
       cursor: pointer;
@@ -47,19 +51,37 @@
       align-items: center;
       gap: 6px;
       font-size: 14px;
+      transition: background-color 0.3s, color 0.3s;
     }
     button:hover, select:hover {
-      background: #99c1e8;
-      color: #fff;
-      border-color: #074070;
+      background: white;
+      color: #0b2e59;
+      border-color: white;
     }
     button svg {
       width: 16px;
       height: 16px;
-      fill: #0b2e59;
+      fill: white;
+      transition: fill 0.3s;
     }
     button:hover svg {
-      fill: #fff;
+      fill: #0b2e59;
+    }
+    /* Logo rond */
+    .logo-circle {
+      width: 32px;
+      height: 32px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b2e59;
+      font-weight: bold;
+      font-size: 18px;
+      user-select: none;
+      margin-left: 15px;
+      flex-shrink: 0;
     }
     /* Tableau principal */
     table {
@@ -171,9 +193,9 @@
   <header>
     <div class="left">
       <button id="btn-home" title="Retour à l'accueil" aria-label="Retour à l'accueil">
-        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="width:22px;height:22px;fill:#0b2e59;">
-          <path d="M32 12l20 20h-6v20h-28v-20h-6z" stroke="#0b2e59" stroke-width="2" fill="none" />
-          <path d="M26 32v12h12v-12" fill="#0b2e59"/>
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="width:22px;height:22px;">
+          <path d="M32 12l20 20h-6v20h-28v-20h-6z" stroke="white" stroke-width="2" fill="none" />
+          <path d="M26 32v12h12v-12" fill="white"/>
         </svg>
       </button>
       <h1>Gestion Perimé - Pharmacie du Libron</h1>
@@ -186,16 +208,17 @@
       </select>
       <button id="btn-confirm-operator" title="Valider opérateur">Valider</button>
     </div>
-    <div class="right">
+    <div class="right" style="display:flex; align-items:center; gap: 10px;">
+      <div class="logo-circle" aria-label="Logo Pharmacie">P</div>
       <button id="btn-notification" title="Notifications">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:16px;height:16px;fill:#0b2e59;">
-          <path d="M12 22c1.1 0 2-.89 2-1.99h-4c0 1.1.9 1.99 2 1.99zM18 16v-5c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.99 2H20l-2-2z"/>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:16px;height:16px;">
+          <path d="M12 22c1.1 0 2-.89 2-1.99h-4c0 1.1.9 1.99 2 1.99zM18 16v-5c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.99 2H20l-2-2z" fill="white"/>
         </svg>
         Notifications
       </button>
       <button id="btn-history" title="Historique">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:16px;height:16px;fill:#0b2e59;">
-          <path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7v3l4-4-4-4v3z"/>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:16px;height:16px;">
+          <path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7v3l4-4-4-4v3z" fill="white"/>
         </svg>
         Historique
       </button>
@@ -209,181 +232,125 @@
         <tr>
           <th>Date</th>
           <th>Boîte</th>
-          <th>Nb Boîtes</th>
-          <th>Zone</th>
-          <th>Nb vendus</th>
-          <th>Nb promo</th>
+          <th>Nb Perimé</th>
+          <th>Nb Retiré</th>
+          <th>Nb Dispo</th>
+          <th>Remarque</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Lignes générées par JS -->
+        <tr>
+          <td>01/03/2025</td>
+          <td>Paracétamol</td>
+          <td>5</td>
+          <td class="editable" contenteditable="true" aria-label="Modifier le nombre retiré">2</td>
+          <td>3</td>
+          <td class="editable" contenteditable="true" aria-label="Modifier la remarque">Attention emballage abîmé</td>
+        </tr>
+        <tr>
+          <td>10/03/2025</td>
+          <td>Ibuprofène</td>
+          <td>10</td>
+          <td class="editable" contenteditable="true">0</td>
+          <td>10</td>
+          <td class="editable" contenteditable="true"></td>
+        </tr>
+        <tr>
+          <td>15/03/2025</td>
+          <td>Amoxicilline</td>
+          <td>3</td>
+          <td class="editable" contenteditable="true">1</td>
+          <td>2</td>
+          <td class="editable" contenteditable="true">Contrôle à refaire</td>
+        </tr>
       </tbody>
     </table>
   </main>
 
+  <!-- Popup Notification -->
   <div id="notification-popup" role="dialog" aria-modal="true" aria-labelledby="notif-title" aria-describedby="notif-desc">
     <div class="header">
       <span id="notif-title">Notifications des périmés (3 mois)</span>
       <div>
         <button id="btn-print" title="Imprimer" aria-label="Imprimer la liste des notifications" style="margin-right:8px;">
-          🖨️ Imprimer
+          Imprimé
         </button>
         <button class="close-popup" aria-label="Fermer la fenêtre">&times;</button>
       </div>
     </div>
     <div class="content" id="notif-desc">
-      <!-- Contenu dynamique -->
+      <!-- Exemple de contenu notifications par mois -->
+      <div class="month-section">
+        <h4>Mars 2025</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Boîte</th>
+              <th>Nb Perimé</th>
+              <th>Nb Retiré</th>
+              <th>Nb Dispo</th>
+              <th>Remarque</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>01/03/2025</td>
+              <td>Paracétamol</td>
+              <td>5</td>
+              <td>2</td>
+              <td>3</td>
+              <td>Attention emballage abîmé</td>
+            </tr>
+            <tr>
+              <td>10/03/2025</td>
+              <td>Ibuprofène</td>
+              <td>10</td>
+              <td>0</td>
+              <td>10</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>15/03/2025</td>
+              <td>Amoxicilline</td>
+              <td>3</td>
+              <td>1</td>
+              <td>2</td>
+              <td>Contrôle à refaire</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-<script>
-  // données exemples (remplacer par la vraie source)
-  const products = [
-    {date: '2025-06-10', product: 'Paracetamol', qty: 100, zone: 'A', sold: 50, promo: 10},
-    {date: '2025-06-15', product: 'Ibuprofen', qty: 200, zone: 'B', sold: 75, promo: 20},
-    {date: '2025-07-05', product: 'Aspirine', qty: 150, zone: 'A', sold: 60, promo: 15},
-    {date: '2025-07-20', product: 'Doliprane', qty: 100, zone: 'C', sold: 40, promo: 5},
-    {date: '2025-08-10', product: 'Amoxicilline', qty: 300, zone: 'B', sold: 150, promo: 30},
-    {date: '2025-08-25', product: 'Voltaren', qty: 80, zone: 'A', sold: 35, promo: 7}
-  ];
+  <script>
+    // Afficher/cacher popup notification
+    const btnNotif = document.getElementById('btn-notification');
+    const popup = document.getElementById('notification-popup');
+    const btnClose = popup.querySelector('.close-popup');
+    const btnPrint = document.getElementById('btn-print');
 
-  const tableBody = document.querySelector("#product-table tbody");
-
-  function renderTable(data) {
-    tableBody.innerHTML = '';
-    data.forEach((p, idx) => {
-      const tr = document.createElement('tr');
-      tr.tabIndex = 0;
-      if(idx % 2 === 1) tr.style.backgroundColor = 'rgba(188, 215, 237, 0.15)';
-      tr.addEventListener('click', () => {
-        [...tableBody.querySelectorAll('tr')].forEach(r => r.classList.remove('selected'));
-        tr.classList.add('selected');
-      });
-      tr.innerHTML = `
-        <td>${p.date}</td>
-        <td contenteditable="true" class="editable">${p.product}</td>
-        <td contenteditable="true" class="editable">${p.qty}</td>
-        <td contenteditable="true" class="editable">${p.zone}</td>
-        <td contenteditable="true" class="editable">${p.sold}</td>
-        <td contenteditable="true" class="editable">${p.promo}</td>
-      `;
-      tr.querySelectorAll('.editable').forEach((td, i) => {
-        td.addEventListener('blur', () => {
-          let val = td.innerText.trim();
-          switch(i) {
-            case 1: p.product = val; break;
-            case 2: p.qty = parseInt(val) || 0; td.innerText = p.qty; break;
-            case 3: p.zone = val; break;
-            case 4: p.sold = parseInt(val) || 0; td.innerText = p.sold; break;
-            case 5: p.promo = parseInt(val) || 0; td.innerText = p.promo; break;
-          }
-        });
-      });
-      tableBody.appendChild(tr);
+    btnNotif.addEventListener('click', () => {
+      popup.style.display = 'flex';
     });
-  }
-
-  renderTable(products);
-
-  // Notification popup
-  const btnNotif = document.getElementById('btn-notification');
-  const notifPopup = document.getElementById('notification-popup');
-  const notifContent = notifPopup.querySelector('.content');
-  const closePopupBtn = notifPopup.querySelector('.close-popup');
-  const btnPrint = document.getElementById('btn-print');
-
-  btnNotif.addEventListener('click', () => {
-    notifContent.innerHTML = ''; 
-
-    // Calcul des 3 mois à afficher à partir du 15 du mois courant
-    const today = new Date();
-    const year = today.getFullYear();
-    let month = today.getMonth();
-
-    if(today.getDate() >= 15) month++;
-
-    // On récupère 3 mois complets
-    const monthsToShow = [];
-    for(let i=0; i<3; i++) {
-      monthsToShow.push(new Date(year, month + i, 1));
-    }
-
-    // Construction HTML pour chaque mois
-    monthsToShow.forEach(m => {
-      const monthNum = m.getMonth();
-      const yearNum = m.getFullYear();
-
-      // Filtrer les produits pour ce mois/année
-      const filtered = products.filter(p => {
-        const d = new Date(p.date);
-        return d.getMonth() === monthNum && d.getFullYear() === yearNum;
-      });
-
-      // Section mois
-      const monthSection = document.createElement('div');
-      monthSection.className = 'month-section';
-
-      const title = document.createElement('h4');
-      title.textContent = m.toLocaleString('fr-FR', {month:'long', year:'numeric'});
-      monthSection.appendChild(title);
-
-      if(filtered.length === 0) {
-        const p = document.createElement('p');
-        p.textContent = 'Aucun produit périmé';
-        monthSection.appendChild(p);
-      } else {
-        // Création tableau
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        thead.innerHTML = `<tr>
-          <th>Date</th><th>Boîte</th><th>Nb Boîtes</th><th>Zone</th><th>Nb vendus</th><th>Nb promo</th>
-        </tr>`;
-        table.appendChild(thead);
-
-        const tbody = document.createElement('tbody');
-        filtered.forEach(p => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${p.date}</td>
-            <td>${p.product}</td>
-            <td>${p.qty}</td>
-            <td>${p.zone}</td>
-            <td>${p.sold}</td>
-            <td>${p.promo}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-        table.appendChild(tbody);
-        monthSection.appendChild(table);
-      }
-      notifContent.appendChild(monthSection);
+    btnClose.addEventListener('click', () => {
+      popup.style.display = 'none';
     });
 
-    notifPopup.style.display = 'flex';
-  });
+    // Imprimer uniquement la popup notification
+    btnPrint.addEventListener('click', () => {
+      window.print();
+    });
 
-  closePopupBtn.addEventListener('click', () => {
-    notifPopup.style.display = 'none';
-  });
-
-  btnPrint.addEventListener('click', () => {
-    window.print();
-  });
-
-  // Retour accueil
-  document.getElementById('btn-home').addEventListener('click', () => {
-    window.location.reload();
-  });
-
-  // Déconnexion simple
-  document.getElementById('btn-logout').addEventListener('click', () => {
-    alert('Déconnexion effectuée');
-  });
-
-  // Historique (à compléter)
-  document.getElementById('btn-history').addEventListener('click', () => {
-    alert('Historique à développer');
-  });
-</script>
+    // Gestion de l'édition dans la table principale
+    const editableCells = document.querySelectorAll('td.editable');
+    editableCells.forEach(cell => {
+      cell.addEventListener('input', () => {
+        // Ici tu peux ajouter sauvegarde, validation, etc.
+        console.log('Contenu modifié:', cell.textContent);
+      });
+    });
+  </script>
 </body>
 </html>
