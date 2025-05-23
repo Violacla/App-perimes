@@ -1,35 +1,491 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Gestion Périmé - Pharmacie du Libron</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <style>
-    body {
-      margin: 0; font-family: Arial, sans-serif;
+<meta charset="UTF-8" />
+<title>Gestion Périmé - Pharmacie du Libron</title>
+
+<!-- Google API scripts -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
+
+<style>
+  body {
+    margin: 0; font-family: Arial, sans-serif;
+  }
+  /* Bandeau bleu en haut */
+  #top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #004080;
+    color: white;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  #top-bar h1 {
+    font-size: 18px;
+    margin: 0;
+  }
+  #top-bar .left, #top-bar .right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  #top-bar button {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+  #top-bar button:hover {
+    background: rgba(255,255,255,0.2);
+  }
+  #operator {
+    font-size: 16px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border: none;
+  }
+
+  /* Table styles */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+  }
+  tbody tr td:nth-child(1) {
+    display: none; /* Masque la colonne Opérateur */
+  }
+  tbody tr td {
+    white-space: nowrap;
+  }
+
+  /* Formulaire ajout */
+  #entry-form {
+    margin-top: 20px;
+  }
+
+  /* Modal notification */
+  #notification-modal {
+    display:none;
+    position:fixed;
+    top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    z-index: 9999;
+    overflow-y: auto;
+  }
+  #notification-modal > div {
+    background:#fff;
+    width:80%;
+    max-width:600px;
+    margin: 80px auto 40px;
+    padding: 20px 30px 40px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+  #notification-modal h3 {
+    margin-top: 0;
+    font-size: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+  }
+  #notification-list {
+    list-style:none;
+    padding-left: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 16px;
+  }
+  #notification-list li {
+    margin: 6px 0;
+  }
+  #notification-list li.title {
+    font-weight: bold;
+    margin-top: 15px;
+    font-size: 17px;
+    color: #004080;
+  }
+  #notification-modal button.close-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #666;
+    font-weight: bold;
+    line-height: 1;
+  }
+  #notification-modal button.close-btn:hover {
+    color: #000;
+  }
+</style>
+</head>
+<body>
+
+<div id="top-bar">
+  <div class="left">
+    <h1>Gestion Périmé - Pharmacie du Libron</h1>
+    <select id="operator" disabled>
+      <option value="">-- Choisir Opérateur --</option>
+      <option>Op1</option>
+      <option>Op2</option>
+      <option>Op3</option>
+      <option>Op4</option>
+    </select>
+    <button id="btn-confirm-operator" disabled>Valider</button>
+  </div>
+  <div class="right">
+    <button id="btn-login">Connexion Google</button>
+    <button id="btn-notifications" title="Notifications" style="display:none;">🔔</button>
+    <button id="btn-history" title="Historique" style="display:none;">📜</button>
+    <button id="btn-logout" style="display:none;" title="Déconnexion">🚪</button>
+  </div>
+</div>
+
+<div id="entry-form" style="display:none;">
+  <h3>Ajouter un produit</h3>
+  <input type="date" id="date" />
+  <input type="text" id="product" placeholder="Nom Boîte" />
+  <input type="number" id="qty" placeholder="Nb Boîtes" />
+  <input type="text" id="zone" placeholder="Zone" />
+  <input type="number" id="sold" placeholder="Nb vendus" />
+  <input type="number" id="promo" placeholder="Nb promo" />
+  <button id="btn-add">Ajouter la ligne</button>
+</div>
+
+<div style="margin-top: 20px;">
+  <label>Filtrer Zone :</label>
+  <input type="text" id="filter-zone" />
+  <label>Mois (MM/YYYY) :</label>
+  <input type="month" id="filter-month" />
+  <button id="btn-filter">Filtrer</button>
+</div>
+
+<table id="data-table">
+  <thead>
+    <tr>
+      <th>Opérateur</th>
+      <th>Produit</th>
+      <th>Date</th>
+      <th>Qté</th>
+      <th>Zone</th>
+      <th>Vendues</th>
+      <th>Promo</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<pre id="status"></pre>
+
+<!-- Modal notifications -->
+<div id="notification-modal">
+  <div>
+    <h3>Produits périmés à venir (3 mois)</h3>
+    <ul id="notification-list"></ul>
+    <button class="close-btn" onclick="closeNotification()">✖</button>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+const RANGE = 'Feuille1';
+const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
+let sheetData = [];
+
+// Chargement API Google
+function gapiLoaded() { gapi.load('client', initializeGapiClient); }
+async function initializeGapiClient() {
+  await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
+  gapiInited = true;
+  maybeEnableButtons();
+}
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (tokenResponse) => {
+      if (tokenResponse.error !== undefined) {
+        console.error(tokenResponse.error);
+        alert("Erreur de connexion Google.");
+        return;
+      }
+      accessToken = tokenResponse.access_token;
+      document.getElementById('operator').disabled = false;
+      document.getElementById('btn-confirm-operator').disabled = false;
+      document.getElementById('btn-login').style.display = 'none';
+      document.getElementById('btn-logout').style.display = 'inline-block';
+      document.getElementById('btn-notifications').style.display = 'inline-block';
+      document.getElementById('btn-history').style.display = 'inline-block';
+      document.getElementById('status').textContent = 'Connecté. Choisissez un opérateur.';
+    },
+  });
+}
+
+function maybeEnableButtons() {
+  if (gapiInited && gisInited) {
+    document.getElementById('btn-login').disabled = false;
+  }
+}
+
+// Connexion Google
+document.getElementById('btn-login').onclick = () => {
+  if (!accessToken) {
+    tokenClient.requestAccessToken({prompt: 'consent'});
+  }
+};
+
+// Valider opérateur
+document.getElementById('btn-confirm-operator').onclick = () => {
+  const opSelect = document.getElementById('operator');
+  if (!opSelect.value) {
+    alert('Choisissez un opérateur.');
+    return;
+  }
+  operatorName = opSelect.value;
+  document.getElementById('entry-form').style.display = 'block';
+  loadSheetData();
+  document.getElementById('status').textContent = `Opérateur : ${operatorName}`;
+};
+
+// Déconnexion
+document.getElementById('btn-logout').onclick = () => {
+  accessToken = null;
+  operatorName = null;
+  sheetData = [];
+  document.getElementById('operator').disabled = true;
+  document.getElementById('operator').value = "";
+  document.getElementById('btn-confirm-operator').disabled = true;
+  document.getElementById('btn-login').style.display = 'inline-block';
+  document.getElementById('btn-logout').style.display = 'none';
+  document.getElementById('btn-notifications').style.display = 'none';
+  document.getElementById('btn-history').style.display = 'none';
+  document.getElementById('entry-form').style.display = 'none';
+  clearTable();
+  document.getElementById('status').textContent = 'Déconnecté.';
+};
+
+// Charger les données de la feuille
+async function loadSheetData() {
+  if (!accessToken) return;
+  gapi.client.setToken({access_token: accessToken});
+  try {
+    const response = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE,
+    });
+    sheetData = response.result.values || [];
+    renderTable(sheetData);
+    checkNotifications();
+  } catch(err) {
+    console.error(err);
+    alert('Erreur lors du chargement des données.');
+  }
+}
+
+function clearTable() {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
+}
+
+// Affiche tableau (cache colonne opérateur)
+function renderTable(data) {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
+  // Ligne titre ignorée (en-tête)
+  data.slice(1).forEach(row => {
+    const tr = document.createElement('tr');
+    // Colonne opérateur cachée mais ajoutée dans le tr (utile pour filtre)
+    row.forEach((cell, idx) => {
+      const td = document.createElement('td');
+      td.textContent = cell;
+      if (idx === 0) td.style.display = 'none';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// Ajouter une ligne dans Google Sheet
+document.getElementById('btn-add').onclick = async () => {
+  if (!operatorName) {
+    alert("Connectez-vous et choisissez un opérateur d'abord.");
+    return;
+  }
+  const date = document.getElementById('date').value;
+  const product = document.getElementById('product').value.trim();
+  const qty = document.getElementById('qty').value;
+  const zone = document.getElementById('zone').value.trim();
+  const sold = document.getElementById('sold').value;
+  const promo = document.getElementById('promo').value;
+
+  if (!date || !product || !qty || !zone) {
+    alert('Veuillez remplir au moins la date, produit, quantité et zone.');
+    return;
+  }
+
+  const newRow = [operatorName, product, date, qty, zone, sold || 0, promo || 0];
+  try {
+    gapi.client.setToken({access_token: accessToken});
+    await gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE,
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      resource: { values: [newRow] }
+    });
+    alert('Ligne ajoutée avec succès.');
+    // Recharge données
+    loadSheetData();
+    // Reset form
+    document.getElementById('date').value = '';
+    document.getElementById('product').value = '';
+    document.getElementById('qty').value = '';
+    document.getElementById('zone').value = '';
+    document.getElementById('sold').value = '';
+    document.getElementById('promo').value = '';
+  } catch(err) {
+    console.error(err);
+    alert('Erreur lors de l\'ajout.');
+  }
+};
+
+// Filtrer tableau par zone + mois
+document.getElementById('btn-filter').onclick = () => {
+  const zoneFilter = document.getElementById('filter-zone').value.toLowerCase();
+  const monthFilter = document.getElementById('filter-month').value; // format YYYY-MM
+
+  const tbody = document.querySelector('#data-table tbody');
+  const rows = tbody.querySelectorAll('tr');
+
+  rows.forEach(tr => {
+    const cells = tr.children;
+    const zone = cells[4].textContent.toLowerCase();
+    const date = cells[2].textContent; // format YYYY-MM-DD
+    let show = true;
+    if (zoneFilter && !zone.includes(zoneFilter)) show = false;
+    if (monthFilter) {
+      if (!date.startsWith(monthFilter)) show = false;
     }
-    /* Bandeau */
-    #top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #004080;
-      color: white;
-      padding: 10px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    tr.style.display = show ? '' : 'none';
+  });
+};
+
+// Notification popup avec périmés
+function checkNotifications() {
+  if (!sheetData.length) return;
+
+  const notifList = document.getElementById('notification-list');
+  notifList.innerHTML = '';
+
+  const today = new Date();
+  const day = today.getDate();
+
+  // Si on est avant le 15, on affiche notifications des mois n+1, n+2, n+3
+  // Si on est >= 15, on affiche aussi les mois n+1, n+2, n+3
+  // Simplification: on prend mois suivant à partir du 15
+
+  let startMonth = today.getMonth();
+  let startYear = today.getFullYear();
+
+  if (day >= 15) {
+    startMonth++;
+    if (startMonth > 11) {
+      startMonth = 0;
+      startYear++;
     }
-    #top-bar h1 {
-      font-size: 18px;
-      margin: 0;
+  }
+
+  // Mois à couvrir : startMonth, startMonth+1, startMonth+2
+  let monthsToCheck = [];
+  for(let i=0; i<3; i++) {
+    let m = startMonth + i;
+    let y = startYear;
+    if (m > 11) {
+      m -= 12;
+      y++;
     }
-    #top-bar .left, #top-bar .right {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    #top-bar button {
-      background: transparent;
-      bord
+    monthsToCheck.push({month: m, year: y});
+  }
+
+  // Grouper les lignes périmées par mois
+  let notifByMonth = {};
+
+  // Ligne d'en-tête ignorée
+  sheetData.slice(1).forEach(row => {
+    let dateStr = row[2]; // format attendu YYYY-MM-DD
+    if (!dateStr) return;
+    const d = new Date(dateStr);
+    monthsToCheck.forEach(({month, year}) => {
+      if (d.getFullYear() === year && d.getMonth() === month) {
+        const key = `${year}-${(month+1).toString().padStart(2,'0')}`;
+        if (!notifByMonth[key]) notifByMonth[key] = [];
+        notifByMonth[key].push(row);
+      }
+    });
+  });
+
+  if (Object.keys(notifByMonth).length === 0) return; // Pas de notif
+
+  // Construire liste notifications
+  for(const key of Object.keys(notifByMonth).sort()) {
+    const [year, month] = key.split('-');
+    const monthName = new Date(year, month-1).toLocaleString('fr-FR', {month:'long'});
+    const liTitle = document.createElement('li');
+    liTitle.className = 'title';
+    liTitle.textContent = `Mois ${monthName} ${year}`;
+    notifList.appendChild(liTitle);
+
+    notifByMonth[key].forEach(row => {
+      const prod = row[1];
+      const date = row[2];
+      const qty = row[3];
+      const zone = row[4];
+      const li = document.createElement('li');
+      li.textContent = `${prod} (Zone: ${zone}) - Date: ${date} - Qté: ${qty}`;
+      notifList.appendChild(li);
+    });
+  }
+
+  document.getElementById('notification-modal').style.display = 'block';
+}
+
+document.getElementById('btn-notifications').onclick = () => {
+  checkNotifications();
+};
+
+// Fermer popup notifications
+function closeNotification() {
+  document.getElementById('notification-modal').style.display = 'none';
+}
+
+// Initialisation des APIs Google
+window.onload = () => {
+  document.getElementById('btn-login').disabled = true;
+};
+window.addEventListener('load', () => {
+  gapiLoaded();
+  gisLoaded();
+  gisInited = true;
+  maybeEnableButtons();
+});
+</script>
+
+</body>
+</html>
+
