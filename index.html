@@ -9,14 +9,11 @@
   :root {
     --bleu-glacial: #bcd7ed;
   }
-
   body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f9f9f9;
   }
-
-  /* Bandeau bleu glacial */
   header {
     background-color: var(--bleu-glacial);
     color: #0a2f51;
@@ -27,18 +24,15 @@
     font-weight: bold;
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   }
-
   #header-left {
     display: flex;
     align-items: center;
     gap: 20px;
   }
-
   #header-left > h1 {
     margin: 0;
     font-size: 1.3em;
   }
-
   button {
     cursor: pointer;
     border: none;
@@ -52,32 +46,22 @@
   button:hover {
     background-color: rgba(255 255 255 / 0.3);
   }
-
-  /* Icons with emoji for simplicity */
   .icon {
     font-size: 1.2em;
     margin-right: 6px;
   }
-
-  /* Header right buttons */
   #header-right {
     display: flex;
     gap: 15px;
     align-items: center;
   }
-
-  /* Operator form */
   #operator-form {
     margin-left: 10px;
   }
-
-  /* Layout */
   main {
     display: flex;
     margin: 20px;
   }
-
-  /* Form to add entries on right */
   #entry-form {
     width: 320px;
     background: white;
@@ -109,8 +93,6 @@
   #entry-form button:hover {
     background-color: #a6c6e1;
   }
-
-  /* Table styles */
   table {
     border-collapse: collapse;
     width: 100%;
@@ -119,29 +101,20 @@
     border-radius: 6px;
     overflow: hidden;
   }
-
   th, td {
     border: 1px solid #ccc;
     padding: 8px 10px;
     text-align: center;
   }
-
-  /* Alternate row background with 15% opacity bleu glacial */
   tbody tr:nth-child(odd) {
     background-color: rgba(188, 215, 237, 0.15);
   }
-
-  /* Selected row highlight 50% opacity */
   tbody tr.selected {
     background-color: rgba(188, 215, 237, 0.5) !important;
   }
-
-  /* Editable cells */
   tbody td {
     cursor: text;
   }
-
-  /* Filter section */
   #filters {
     margin: 20px;
     display: flex;
@@ -167,15 +140,11 @@
   #filters button:hover {
     background-color: #a6c6e1;
   }
-
-  /* Status text */
   #status {
     margin: 10px 20px;
     font-weight: bold;
     color: #0a2f51;
   }
-
-  /* Notification popup modal */
   #notification-popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -190,7 +159,6 @@
     display: none;
     flex-direction: column;
   }
-
   #notification-popup header {
     background-color: var(--bleu-glacial);
     color: #0a2f51;
@@ -201,7 +169,6 @@
     justify-content: space-between;
     align-items: center;
   }
-
   #notification-popup header button {
     background: transparent;
     border: none;
@@ -209,12 +176,10 @@
     cursor: pointer;
     color: #0a2f51;
   }
-
   #notification-popup .content {
     padding: 15px 20px;
     overflow-y: auto;
   }
-
   #notification-popup table {
     width: 100%;
     border-collapse: collapse;
@@ -227,8 +192,6 @@
   #notification-popup tbody tr:nth-child(odd) {
     background-color: rgba(188, 215, 237, 0.15);
   }
-
-  /* Print styles */
   @media print {
     body * {
       visibility: hidden;
@@ -290,7 +253,6 @@
     <table id="data-table" tabindex="0" aria-label="Données des produits périmés">
       <thead>
         <tr>
-          <!-- Ne PAS afficher colonne opérateur -->
           <th>Produit</th>
           <th>Date</th>
           <th>Qté</th>
@@ -311,341 +273,289 @@
     <input type="text" id="product" placeholder="Nom Boîte" />
     <input type="number" id="qty" placeholder="Nb Boîtes" min="0" />
     <input type="text" id="zone" placeholder="Zone" />
-    <input type="number" id="sold" placeholder="Nb vendus" min="0" />
-    <input type="number" id="promo" placeholder="Nb promo" min="0" />
-    <button id="btn-add">Ajouter la ligne</button>
+    <input type="number" id="sold" placeholder="Vendu" min="0" />
+    <input type="number" id="promo" placeholder="Promo" min="0" />
+    <button onclick="addRow()">Ajouter</button>
   </div>
 </main>
 
-<!-- Notification Popup -->
 <div id="notification-popup" role="dialog" aria-modal="true" aria-labelledby="notif-title">
   <header>
-    <span id="notif-title">Notifications - Produits périmés</span>
-    <div>
-      <button id="print-notif" title="Imprimer">🖨️</button>
-      <button id="close-notif" title="Fermer">✖️</button>
-    </div>
+    <span id="notif-title">Notifications</span>
+    <button id="close-notif" aria-label="Fermer">✖</button>
   </header>
   <div class="content">
-    <!-- Table notifications insérées ici -->
+    <table>
+      <thead><tr><th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th></tr></thead>
+      <tbody id="notif-table-body"></tbody>
+    </table>
+    <button id="print-notif">Imprimer</button>
   </div>
 </div>
 
 <script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'Feuille1';
-  const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+// Variables globales
+let data = [];
+let userProfile = null;
+let tokenClient;
+let gapiInited = false;
+let gisInited = false;
 
-  let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
+const CLIENT_ID = '137591384765-9cvvkmv7ggf7qu7l0etqlhhcp1qijr9d.apps.googleusercontent.com';
+const API_KEY = 'AIzaSyAzERf3SxfYHyaj5VQ3DwiEWxTPpHC4Tps';
+const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-  function gapiLoaded() { gapi.load('client', initializeGapiClient); }
-  async function initializeGapiClient() {
-    await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
-    gapiInited = true;
-    maybeEnableButtons();
+// ID de la feuille Google Sheets
+const SPREADSHEET_ID = "1E8H3bNSnkG8DmDBO9g6rE9T32Kp-V5Kno5hlnwDdQYk";
+
+// Elements DOM
+const btnLogin = document.getElementById('btn-login');
+const btnLogout = document.getElementById('btn-logout');
+const btnNotif = document.getElementById('btn-notif');
+const btnHistory = document.getElementById('btn-history');
+const notifPopup = document.getElementById('notification-popup');
+const closeNotifBtn = document.getElementById('close-notif');
+const notifTableBody = document.getElementById('notif-table-body');
+const printNotifBtn = document.getElementById('print-notif');
+const operatorForm = document.getElementById('operator-form');
+const btnConfirmOperator = document.getElementById('btn-confirm-operator');
+const operatorSelect = document.getElementById('operator');
+const entryForm = document.getElementById('entry-form');
+const dataTable = document.getElementById('data-table').querySelector('tbody');
+const statusElem = document.getElementById('status');
+
+// Init Google API client
+function gapiLoaded() {
+  gapi.load('client', initializeGapiClient);
+}
+async function initializeGapiClient() {
+  await gapi.client.init({
+    apiKey: API_KEY,
+    discoveryDocs: DISCOVERY_DOCS,
+  });
+  gapiInited = true;
+  maybeEnableButtons();
+}
+
+// Init Google Identity Services (GIS)
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: '', // defined later
+  });
+  gisInited = true;
+  maybeEnableButtons();
+}
+
+function maybeEnableButtons() {
+  if (gapiInited && gisInited) {
+    btnLogin.disabled = false;
+  }
+}
+
+// Handle login
+btnLogin.addEventListener('click', () => {
+  tokenClient.callback = async (resp) => {
+    if (resp.error) {
+      alert('Erreur lors de la connexion : ' + resp.error);
+      return;
+    }
+    btnLogin.style.display = 'none';
+    btnLogout.style.display = 'inline-block';
+    operatorForm.style.display = 'block';
+    statusElem.textContent = 'Connecté, veuillez choisir un opérateur.';
+    await loadUserProfile();
+    await loadSheetData();
+  };
+
+  if (gapi.client.getToken() === null) {
+    // Prompt the user to select account and consent
+    tokenClient.requestAccessToken({prompt: 'consent'});
+  } else {
+    // Skip consent prompt
+    tokenClient.requestAccessToken({prompt: ''});
+  }
+});
+
+// Logout
+btnLogout.addEventListener('click', () => {
+  google.accounts.oauth2.revoke(gapi.client.getToken().access_token);
+  gapi.client.setToken(null);
+  userProfile = null;
+  data = [];
+  dataTable.innerHTML = '';
+  statusElem.textContent = '';
+  btnLogin.style.display = 'inline-block';
+  btnLogout.style.display = 'none';
+  operatorForm.style.display = 'none';
+  entryForm.style.display = 'none';
+});
+
+// Confirm operator selection
+btnConfirmOperator.addEventListener('click', () => {
+  const op = operatorSelect.value;
+  if (!op) {
+    alert('Veuillez choisir un opérateur.');
+    return;
+  }
+  operatorForm.style.display = 'none';
+  entryForm.style.display = 'block';
+  statusElem.textContent = `Opérateur sélectionné : ${op}`;
+});
+
+// Load user profile info (dummy for now)
+async function loadUserProfile() {
+  // Ici on pourrait appeler Google People API ou autre si besoin
+  userProfile = {name: "Utilisateur"};
+}
+
+// Charger les données depuis Google Sheets
+async function loadSheetData() {
+  statusElem.textContent = "Chargement des données...";
+  try {
+    const response = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Feuille1!A:F',
+    });
+    const rows = response.result.values || [];
+    data = rows.slice(1).map(r => ({
+      product: r[0] || '',
+      date: r[1] || '',
+      qty: Number(r[2]) || 0,
+      zone: r[3] || '',
+      sold: Number(r[4]) || 0,
+      promo: Number(r[5]) || 0,
+    }));
+    displayData(data);
+    statusElem.textContent = `Données chargées : ${data.length} lignes`;
+  } catch (err) {
+    statusElem.textContent = 'Erreur chargement données : ' + err.message;
+  }
+}
+
+// Affiche les données dans le tableau HTML
+function displayData(dataToShow) {
+  dataTable.innerHTML = '';
+  dataToShow.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.product}</td>
+      <td>${row.date}</td>
+      <td>${row.qty}</td>
+      <td>${row.zone}</td>
+      <td>${row.sold}</td>
+      <td>${row.promo}</td>
+    `;
+    dataTable.appendChild(tr);
+  });
+}
+
+// Ajouter une nouvelle ligne depuis le formulaire
+async function addRow() {
+  const date = document.getElementById('date').value;
+  const product = document.getElementById('product').value.trim();
+  const qty = Number(document.getElementById('qty').value);
+  const zone = document.getElementById('zone').value.trim();
+  const sold = Number(document.getElementById('sold').value);
+  const promo = Number(document.getElementById('promo').value);
+
+  if (!date || !product || isNaN(qty) || !zone || isNaN(sold) || isNaN(promo)) {
+    alert('Veuillez remplir correctement tous les champs.');
+    return;
   }
 
-  function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: (tokenResponse) => {
-        accessToken = tokenResponse.access_token;
-        document.getElementById('operator-form').style.display = 'inline-flex';
-        document.getElementById('btn-login').style.display = 'none';
-        setStatus('Connecté. Choisissez un opérateur.');
+  // Ajout dans Google Sheets
+  try {
+    await gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Feuille1!A:F',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [[product, date, qty, zone, sold, promo]],
       },
     });
-    gisInited = true;
-    maybeEnableButtons();
+    statusElem.textContent = 'Produit ajouté avec succès.';
+    // Mise à jour locale
+    data.push({product, date, qty, zone, sold, promo});
+    displayData(data);
+    clearEntryForm();
+  } catch (err) {
+    alert('Erreur lors de l\'ajout : ' + err.message);
   }
+}
 
-  function maybeEnableButtons() {
-    if (gapiInited && gisInited) {
-      document.getElementById('btn-login').style.display = 'inline-block';
-    }
+function clearEntryForm() {
+  document.getElementById('date').value = '';
+  document.getElementById('product').value = '';
+  document.getElementById('qty').value = '';
+  document.getElementById('zone').value = '';
+  document.getElementById('sold').value = '';
+  document.getElementById('promo').value = '';
+}
+
+// Filtrer le tableau selon zone et mois
+function filterTable() {
+  const zoneFilter = document.getElementById('filter-zone').value.trim().toLowerCase();
+  const monthFilter = document.getElementById('filter-month').value; // format "YYYY-MM"
+  let filtered = data;
+  if (zoneFilter) {
+    filtered = filtered.filter(d => d.zone.toLowerCase().includes(zoneFilter));
   }
-
-  function setStatus(msg) {
-    document.getElementById('status').textContent = msg;
+  if (monthFilter) {
+    filtered = filtered.filter(d => d.date.startsWith(monthFilter));
   }
+  displayData(filtered);
+  statusElem.textContent = `Affichage filtré : ${filtered.length} lignes`;
+}
 
-  document.getElementById('btn-login').onclick = () => {
-    tokenClient.requestAccessToken();
-  };
+function clearFilter() {
+  document.getElementById('filter-zone').value = '';
+  document.getElementById('filter-month').value = '';
+  displayData(data);
+  statusElem.textContent = `Affichage complet : ${data.length} lignes`;
+}
 
-  document.getElementById('btn-logout').onclick = () => {
-    accessToken = null; operatorName = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
-    document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('entry-form').style.display = 'none';
-    clearTable();
-    setStatus('Déconnecté.');
-  };
-
-  document.getElementById('btn-confirm-operator').onclick = () => {
-    const op = document.getElementById('operator').value;
-    if (!op) return alert("Choisir un opérateur");
-    operatorName = op;
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('btn-logout').style.display = 'inline-block';
-    document.getElementById('entry-form').style.display = 'block';
-    loadSheet();
-  };
-
-  document.getElementById('btn-add').onclick = async () => {
-    if(!operatorName) {
-      alert("Veuillez vous connecter et choisir un opérateur");
-      return;
-    }
-    const dateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
-    const productVal = document.getElementById('product').value.trim();
-    const qtyVal = parseInt(document.getElementById('qty').value);
-    const zoneVal = document.getElementById('zone').value.trim();
-    const soldVal = parseInt(document.getElementById('sold').value);
-    const promoVal = parseInt(document.getElementById('promo').value);
-
-    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
-      alert("Veuillez remplir tous les champs correctement.");
-      return;
-    }
-
-    const values = [[
-      operatorName,
-      productVal,
-      dateVal,
-      qtyVal,
-      zoneVal,
-      soldVal,
-      promoVal,
-    ]];
-
-    try {
-      await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values }
-      });
-      loadSheet();
-      setStatus('Ligne ajoutée avec succès !');
-      // Clear form inputs
-      document.getElementById('product').value = '';
-      document.getElementById('qty').value = '';
-      document.getElementById('zone').value = '';
-      document.getElementById('sold').value = '';
-      document.getElementById('promo').value = '';
-      document.getElementById('date').value = '';
-    } catch (e) {
-      setStatus('Erreur : ' + e.message);
-    }
-  };
-
-  // Load sheet data, exclude operator from table display
-  async function loadSheet() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
-      const rows = res.result.values || [];
-      renderTable(rows);
-    } catch (e) {
-      setStatus("Erreur de chargement : " + e.message);
-    }
+// Afficher les notifications de produits périmés (exemple)
+btnNotif.addEventListener('click', () => {
+  if (data.length === 0) {
+    alert('Aucune donnée à afficher.');
+    return;
   }
-
-  function clearTable() {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
+  // Exemple : produits périmés (date avant aujourd'hui)
+  const todayStr = new Date().toISOString().slice(0,10);
+  const expired = data.filter(d => d.date < todayStr);
+  if (expired.length === 0) {
+    alert('Aucun produit périmé actuellement.');
+    return;
   }
+  notifTableBody.innerHTML = '';
+  expired.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.product}</td><td>${d.date}</td><td>${d.qty}</td><td>${d.zone}</td><td>${d.sold}</td><td>${d.promo}</td>`;
+    notifTableBody.appendChild(tr);
+  });
+  notifPopup.style.display = 'flex';
+});
 
-  // Render table without opérateur column (index 0)
-  function renderTable(rows) {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
-    rows.slice(1).forEach((row, i) => {
-      const tr = document.createElement('tr');
-      // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
-      // We skip opérateur (col 0)
-      const cols = [1, 2, 3, 4, 5, 6];
-      cols.forEach(colIndex => {
-        const td = document.createElement('td');
-        td.textContent = row[colIndex] || '';
-        td.contentEditable = true;
-        td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
-        td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
-        td.addEventListener('blur', onCellEdit);
-        tr.appendChild(td);
-      });
-      tr.addEventListener('click', () => {
-        // Unselect all
-        document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-        tr.classList.add('selected');
-      });
-      tbody.appendChild(tr);
-    });
-  }
+// Fermer la popup notification
+closeNotifBtn.addEventListener('click', () => {
+  notifPopup.style.display = 'none';
+});
 
-  // Update cell in Google Sheets on edit
-  async function onCellEdit(e) {
-    if(!operatorName) return;
-    const td = e.target;
-    const newValue = td.textContent.trim();
-    const row = td.dataset.row;
-    const col = td.dataset.col;
+// Impression de la notification
+printNotifBtn.addEventListener('click', () => {
+  window.print();
+});
 
-    try {
-      await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `Feuille1!${columnToLetter(col)}${row}`,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: [[newValue]] }
-      });
-      setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
-    } catch (err) {
-      setStatus('Erreur mise à jour : ' + err.message);
-    }
-  }
-
-  // Convert number to letter for column (1->A, 2->B ...)
-  function columnToLetter(column) {
-    let temp, letter = '';
-    while(column > 0) {
-      temp = (column - 1) % 26;
-      letter = String.fromCharCode(temp + 65) + letter;
-      column = (column - temp - 1) / 26;
-    }
-    return letter;
-  }
-
-  // Filtering function on main table
-  function filterTable() {
-    const zoneFilter = document.getElementById('filter-zone').value.toLowerCase();
-    const monthFilter = document.getElementById('filter-month').value; // format yyyy-mm
-
-    const tbody = document.querySelector('#data-table tbody');
-    Array.from(tbody.rows).forEach(row => {
-      const zone = row.cells[3].textContent.toLowerCase(); // zone col index 3 in displayed table
-      const date = row.cells[1].textContent; // date col index 1
-      let show = true;
-      if(zoneFilter && !zone.includes(zoneFilter)) show = false;
-      if(monthFilter) {
-        const [y,m] = monthFilter.split('-');
-        if(!date.startsWith(`${y}-${m}`)) show = false;
-      }
-      row.style.display = show ? '' : 'none';
-    });
-  }
-  function clearFilter() {
-    document.getElementById('filter-zone').value = '';
-    document.getElementById('filter-month').value = '';
-    filterTable();
-  }
-
-  // Notification popup logic
-  const notifPopup = document.getElementById('notification-popup');
-  const notifContent = notifPopup.querySelector('.content');
-  document.getElementById('btn-notif').onclick = () => {
-    if(!operatorName) {
-      alert("Connectez-vous et choisissez un opérateur pour voir les notifications.");
-      return;
-    }
-    loadNotifications();
-    notifPopup.style.display = 'flex';
-  };
-  document.getElementById('close-notif').onclick = () => {
-    notifPopup.style.display = 'none';
-  };
-  document.getElementById('print-notif').onclick = () => {
-    window.print();
-  };
-
-  // Load notifications: produit périmé pour les 3 mois à partir du 15 du mois en cours triés par mois
-  async function loadNotifications() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({spreadsheetId: SPREADSHEET_ID, range: RANGE});
-      const rows = res.result.values || [];
-      const header = rows[0];
-      const data = rows.slice(1);
-
-      // Col indices
-      // opérateur 0, produit 1, date 2, qty 3, zone 4, vendues 5, promo 6
-      // Exclure opérateur dans notif table too
-
-      // Get today's date and build array of 3 months from 15th
-      const now = new Date();
-      const notifDates = [];
-      for(let i=0; i<3; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() + i, 15);
-        notifDates.push(d);
-      }
-
-      // Group by year-month string "YYYY-MM"
-      const grouped = {};
-      notifDates.forEach(d => {
-        const ym = d.toISOString().slice(0,7);
-        grouped[ym] = [];
-      });
-
-      // Filter rows with dates close or expired (assuming date column format YYYY-MM-DD)
-      data.forEach(row => {
-        const dateStr = row[2];
-        if(!dateStr) return;
-        const d = new Date(dateStr);
-        if(isNaN(d)) return;
-
-        // We consider products expired or close if date <= 15 of next 3 months
-        notifDates.forEach(notifDate => {
-          if(d <= notifDate) {
-            const ym = notifDate.toISOString().slice(0,7);
-            if(grouped[ym]) grouped[ym].push(row);
-          }
-        });
-      });
-
-      // Build HTML table grouped by month
-      let html = '';
-      for(const ym of Object.keys(grouped)) {
-        html += `<h3>${formatMonthYear(ym)}</h3>`;
-        if(grouped[ym].length === 0) {
-          html += '<p>Aucun produit périmé ou proche de la date pour ce mois.</p>';
-          continue;
-        }
-        html += `<table>
-          <thead>
-            <tr>
-              <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-            </tr>
-          </thead><tbody>`;
-        grouped[ym].forEach(row => {
-          html += '<tr>';
-          // skip opérateur (col 0)
-          [1,2,3,4,5,6].forEach(ci => {
-            html += `<td>${row[ci] || ''}</td>`;
-          });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-      }
-
-      notifContent.innerHTML = html;
-
-    } catch(e) {
-      notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
-    }
-  }
-
-  function formatMonthYear(ym) {
-    const [y,m] = ym.split('-');
-    const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-    return months[parseInt(m,10)-1] + ' ' + y;
-  }
-
-  // Load GAPI & GIS on window load
-  window.onload = () => {
-    gapiLoaded();
-    gisLoaded();
-  };
+// Initialisation (chargement des API Google)
+window.onload = () => {
+  // Charger Google API client
+  gapiLoaded();
+  // Charger Google Identity Services
+  gisLoaded();
+};
 </script>
 
 </body>
