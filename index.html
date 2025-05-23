@@ -132,11 +132,6 @@
         <option>Op2</option>
         <option>Op3</option>
         <option>Op4</option>
-        <option>Op5</option>
-        <option>Op6</option>
-        <option>Op7</option>
-        <option>Op8</option>
-        <option>Op9</option>
       </select>
       <button id="btn-confirm-operator">Valider</button>
     </div>
@@ -248,4 +243,193 @@
 
   document.getElementById('btn-add').onclick = async () => {
     if (!operatorName) {
-     
+      alert("Veuillez d'abord choisir un opérateur.");
+      return;
+    }
+    const dateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+    const values = [[
+      operatorName,
+      document.getElementById('product').value,
+      dateVal,
+      parseInt(document.getElementById('qty').value) || 0,
+      document.getElementById('zone').value,
+      parseInt(document.getElementById('sold').value) || 0,
+      parseInt(document.getElementById('promo').value) || 0,
+    ]];
+    try {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values }
+      });
+      loadSheet();
+      document.getElementById('status').textContent = 'Ajouté !';
+      // Reset form fields
+      ['date','product','qty','zone','sold','promo'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    } catch (e) {
+      document.getElementById('status').textContent = 'Erreur : ' + e.message;
+    }
+  };
+
+  async function loadSheet() {
+    if (!accessToken) return;
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE
+      });
+      const rows = res.result.values || [];
+      const tbody = document.querySelector('#data-table tbody');
+      tbody.innerHTML = '';
+      rows.slice(1).forEach(row => {
+        const tr = document.createElement('tr');
+        for (let i = 0; i < 7; i++) {
+          const td = document.createElement('td');
+          td.contentEditable = true;
+          td.textContent = row[i] || '';
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      document.getElementById('status').textContent = 'Erreur chargement : ' + e.message;
+    }
+  }
+
+  window.filterTable = function() {
+    const zone = document.getElementById('filter-zone').value.toLowerCase();
+    const monthFilter = document.getElementById('filter-month').value; // format "YYYY-MM"
+    const rows = document.querySelectorAll('#data-table tbody tr');
+    rows.forEach(row => {
+      const zoneText = row.cells[4].textContent.toLowerCase();
+      const dateText = row.cells[2].textContent; // format yyyy-mm-dd
+      let matchZone = !zone || zoneText.includes(zone);
+      let matchMonth = true;
+      if (monthFilter) {
+        // on compare YYYY-MM
+        matchMonth = dateText.startsWith(monthFilter);
+      }
+      row.style.display = (matchZone && matchMonth) ? '' : 'none';
+    });
+  }
+
+  // Affiche notifications popup avec périmés des 3 prochains mois (tous les 15 du mois)
+  document.getElementById("btn-notifications").onclick = async function () {
+    const now = new Date();
+    if (now.getDate() < 15) {
+      alert("Les notifications sont disponibles seulement à partir du 15 du mois.");
+      return;
+    }
+    if (!accessToken) {
+      alert("Veuillez vous connecter d'abord.");
+      return;
+    }
+
+    // Récupérer données de la feuille
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE
+      });
+      const rows = res.result.values || [];
+      if (rows.length < 2) {
+        alert("Pas de données.");
+        return;
+      }
+
+      const nowYear = now.getFullYear();
+      const nowMonth = now.getMonth(); // 0-indexé
+
+      // Calcul des 3 mois complets suivants : M+1, M+2, M+3
+      let monthsToShow = [];
+      for(let i=1; i<=3; i++) {
+        let date = new Date(nowYear, nowMonth + i, 1);
+        monthsToShow.push({year: date.getFullYear(), month: date.getMonth()});
+      }
+
+      // Grouper périmés par mois (format "MM/YYYY")
+      let perimesByMonth = {};
+
+      // Parcours données et filtre périmés dans les mois sélectionnés
+      rows.slice(1).forEach(row => {
+        // row : [Op, produit, date, qty, zone, sold, promo]
+        let dateStr = row[2];
+        if (!dateStr) return;
+        let d = new Date(dateStr);
+        if (isNaN(d)) return;
+
+        const y = d.getFullYear();
+        const m = d.getMonth();
+
+        // Vérifie si dans un des mois sélectionnés
+        if (monthsToShow.some(mm => mm.year === y && mm.month === m)) {
+          const key = ("0"+(m+1)).slice(-2) + "/" + y;
+          if (!perimesByMonth[key]) perimesByMonth[key] = [];
+          perimesByMonth[key].push(row);
+        }
+      });
+
+      // Construire HTML liste triée par mois
+      const notifList = document.getElementById('notification-list');
+      notifList.innerHTML = '';
+
+      // Trier les mois par date croissante
+      monthsToShow.sort((a,b) => a.year - b.year || a.month - b.month);
+
+      monthsToShow.forEach(({year, month}) => {
+        const key = ("0"+(month+1)).slice(-2) + "/" + year;
+        const perimes = perimesByMonth[key] || [];
+
+        const liTitle = document.createElement('li');
+        liTitle.textContent = key;
+        liTitle.classList.add('title');
+        notifList.appendChild(liTitle);
+
+        if(perimes.length === 0) {
+          const liNone = document.createElement('li');
+          liNone.textContent = 'Aucun produit périmé ce mois.';
+          notifList.appendChild(liNone);
+        } else {
+          perimes.forEach(row => {
+            const li = document.createElement('li');
+            li.textContent = `Produit: ${row[1]}, Date: ${row[2]}, Qté: ${row[3]}, Zone: ${row[4]}`;
+            notifList.appendChild(li);
+          });
+        }
+      });
+
+      // Afficher modal
+      document.getElementById('notification-modal').style.display = 'block';
+
+    } catch(e) {
+      alert("Erreur lors de la récupération des données : " + e.message);
+    }
+  };
+
+  // Lancement automatique notifications si jour >= 15 au chargement
+  window.onload = function() {
+    gapiLoaded();
+    gisLoaded();
+
+    // Par défaut, désactivation opérateur tant que pas connecté
+    document.getElementById('operator').disabled = true;
+    document.getElementById('btn-confirm-operator').disabled = true;
+
+    const now = new Date();
+    if (now.getDate() >= 15) {
+      // Attendre la connexion Google avant d'appeler les notif
+      // Ici on attend 2s, tu peux ajuster ou améliorer en ajoutant un event callback
+      setTimeout(() => {
+        if(accessToken) {
+          document.getElementById('btn-notifications').click();
+        }
+      }, 2000);
+    }
+  }
+</script>
+
+</body>
+</html>
