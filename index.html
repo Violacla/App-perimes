@@ -6,30 +6,75 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
+    body { margin: 0; font-family: sans-serif; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #00796B;
+      color: white;
+      padding: 10px 20px;
+    }
+
+    .header-left h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .header-left select {
+      margin-left: 10px;
+      padding: 5px;
+    }
+
+    .header-right button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; }
     input, select { margin: 5px; }
+
+    #entry-form, #operator-form {
+      padding: 10px 20px;
+    }
+
+    #status {
+      margin: 20px;
+    }
   </style>
 </head>
 <body>
-  <h2>Connexion Google Sheets API + Opérateur</h2>
-
-  <button id="btn-login" style="display:none;">Se connecter</button>
-  <button id="btn-logout" style="display:none;">Déconnexion</button>
-
-  <div id="operator-form" style="display:block;">
-    <label>Nom Opérateur :</label>
-    <select id="operator">
-      <option value="">-- Choisir --</option>
-      <option>Op1</option>
-      <option>Op2</option>
-      <option>Op3</option>
-      <option>Op4</option>
-    </select>
-    <button id="btn-confirm-operator">Valider</button>
+  <!-- Bandeau -->
+  <div class="header">
+    <div class="header-left">
+      <h2>Gestion Périmé - Pharmacie du Libron</h2>
+      <select id="operator">
+        <option value="">-- Choisir Opérateur --</option>
+        <option>Op1</option>
+        <option>Op2</option>
+        <option>Op3</option>
+        <option>Op4</option>
+      </select>
+      <button id="btn-confirm-operator" style="margin-left: 5px;">Valider</button>
+    </div>
+    <div class="header-right">
+      <button title="Notifications">🔔</button>
+      <button title="Historique">📜</button>
+      <button id="btn-logout" style="display:none;" title="Déconnexion">🔓</button>
+    </div>
   </div>
 
-  <div id="entry-form" style="display:block; margin-top: 20px;">
+  <!-- Connexion -->
+  <button id="btn-login" style="margin: 10px; display:none;">Se connecter</button>
+
+  <!-- Formulaire d'ajout -->
+  <div id="entry-form" style="display:block;">
     <h3>Ajouter un produit</h3>
     <input type="date" id="date" />
     <input type="text" id="product" placeholder="Nom Boîte" />
@@ -40,7 +85,8 @@
     <button id="btn-add">Ajouter la ligne</button>
   </div>
 
-  <div>
+  <!-- Filtres -->
+  <div style="padding: 0 20px;">
     <label>Filtrer Zone :</label>
     <input type="text" id="filter-zone" />
     <label>Mois (MM/YYYY) :</label>
@@ -48,6 +94,7 @@
     <button onclick="filterTable()">Filtrer</button>
   </div>
 
+  <!-- Tableau -->
   <table id="data-table">
     <thead>
       <tr>
@@ -64,6 +111,7 @@
 
   <pre id="status"></pre>
 
+  <!-- JS Google Sheets -->
   <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
@@ -85,7 +133,6 @@
         scope: SCOPES,
         callback: (tokenResponse) => {
           accessToken = tokenResponse.access_token;
-          document.getElementById('operator-form').style.display = 'block';
           document.getElementById('btn-login').style.display = 'none';
           document.getElementById('btn-logout').style.display = 'inline-block';
           loadSheet();
@@ -100,6 +147,7 @@
     }
 
     document.getElementById('btn-login').onclick = () => tokenClient.requestAccessToken();
+
     document.getElementById('btn-logout').onclick = () => {
       accessToken = null; operatorName = null;
       document.getElementById('btn-login').style.display = 'inline-block';
@@ -182,7 +230,7 @@
 
         row.style.display = (matchZone && matchMonth) ? '' : 'none';
       });
-    }
+    };
 
     window.onload = () => {
       gapiLoaded();
