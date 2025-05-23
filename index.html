@@ -25,11 +25,6 @@
       <option>Op2</option>
       <option>Op3</option>
       <option>Op4</option>
-      <option>Op5</option>
-      <option>Op6</option>
-      <option>Op7</option>
-      <option>Op8</option>
-      <option>Op9</option>
     </select>
     <button id="btn-confirm-operator">Valider</button>
   </div>
@@ -48,15 +43,14 @@
   <div>
     <label>Filtrer Zone :</label>
     <input type="text" id="filter-zone" />
-    <label>Date après :</label>
-    <input type="date" id="filter-date" />
+    <label>Mois (MM/YYYY) :</label>
+    <input type="text" id="filter-month" placeholder="ex: 06/2025" />
     <button onclick="filterTable()">Filtrer</button>
   </div>
 
   <table id="data-table">
     <thead>
       <tr>
-        <!-- On enlève la colonne opérateur dans l'affichage -->
         <th>Produit</th>
         <th>Date</th>
         <th>Qté</th>
@@ -110,7 +104,6 @@
       accessToken = null; operatorName = null;
       document.getElementById('btn-login').style.display = 'inline-block';
       document.getElementById('btn-logout').style.display = 'none';
-      document.getElementById('entry-form').style.display = 'block';
       document.getElementById('status').textContent = 'Déconnecté.';
       document.querySelector('#data-table tbody').innerHTML = '';
     };
@@ -120,7 +113,6 @@
       if (!op) return alert("Choisir un opérateur");
       operatorName = op;
       alert("Opérateur sélectionné : " + operatorName);
-      // Ne cache pas le formulaire d'ajout pour garder visible la saisie
     };
 
     document.getElementById('btn-add').onclick = async () => {
@@ -159,10 +151,8 @@
       const rows = res.result.values || [];
       const tbody = document.querySelector('#data-table tbody');
       tbody.innerHTML = '';
-      // On saute la ligne d'en-tête Google Sheet (slice(1))
       rows.slice(1).forEach(row => {
         const tr = document.createElement('tr');
-        // Commencer à 1 pour sauter l'opérateur dans l'affichage
         for (let i = 1; i <= 6; i++) {
           const td = document.createElement('td');
           td.contentEditable = true;
@@ -173,21 +163,29 @@
       });
     }
 
-    window.filterTable = function() {
+    window.filterTable = function () {
       const zone = document.getElementById('filter-zone').value.toLowerCase();
-      const date = document.getElementById('filter-date').value;
+      const filterMonth = document.getElementById('filter-month').value.trim(); // Format MM/YYYY
+
       const rows = document.querySelectorAll('#data-table tbody tr');
       rows.forEach(row => {
-        const zoneText = row.cells[3].textContent.toLowerCase(); // zone est colonne 4 dans sheet, ici index 3 (car on a retiré opérateur)
-        const dateText = row.cells[1].textContent; // date est colonne 2 dans sheet, ici index 1
+        const zoneText = row.cells[3].textContent.toLowerCase(); // zone
+        const dateText = row.cells[1].textContent; // date
+
+        const rowDate = new Date(dateText);
+        const rowMonth = (rowDate.getMonth() + 1).toString().padStart(2, '0');
+        const rowYear = rowDate.getFullYear();
+        const rowMonthYear = `${rowMonth}/${rowYear}`;
+
         const matchZone = !zone || zoneText.includes(zone);
-        const matchDate = !date || new Date(dateText) >= new Date(date);
-        row.style.display = (matchZone && matchDate) ? '' : 'none';
+        const matchMonth = !filterMonth || rowMonthYear === filterMonth;
+
+        row.style.display = (matchZone && matchMonth) ? '' : 'none';
       });
     }
 
-    window.onload = () => { 
-      gapiLoaded(); 
+    window.onload = () => {
+      gapiLoaded();
       gisLoaded();
     };
   </script>
