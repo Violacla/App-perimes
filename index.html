@@ -2,42 +2,38 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Suivi des périmés</title>
+  <title>Suivi des périmés - Table visible</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 6px;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
-  <h2>Connexion Google Sheets API + Formulaire</h2>
+  <h2>Connexion Google Sheets API + Table visible & modifiable</h2>
 
   <button id="btn-login" style="display:none;">Se connecter</button>
   <button id="btn-logout" style="display:none;">Déconnexion</button>
 
-  <div id="operator-form" style="display:none; margin-top: 20px;">
-    <label for="operator">Sélectionnez votre nom :</label>
-    <select id="operator">
-      <option value="">-- Choisir --</option>
-      <option value="Op1">Op1</option>
-      <option value="Op2">Op2</option>
-      <option value="Op3">Op3</option>
-      <option value="Op4">Op4</option>
-      <option value="Op5">Op5</option>
-      <option value="Op6">Op6</option>
-      <option value="Op7">Op7</option>
-      <option value="Op8">Op8</option>
-      <option value="Op9">Op9</option>
-    </select>
-    <button id="btn-confirm-operator">Valider</button>
+  <div id="filters" style="display:none;">
+    <label>Filtrer par zone : <input type="text" id="filter-zone"></label>
+    <label>Filtrer par date (jj/mm/aaaa) : <input type="text" id="filter-date"></label>
+    <button onclick="applyFilters()">Appliquer</button>
   </div>
 
-  <div id="formulaire" style="display:none; margin-top: 20px;">
-    <h3>Ajouter un produit</h3>
-    <label>Date entrée : <input type="date" id="date-entree" /></label><br />
-    <label>Nom boîte : <input type="text" id="nom-boite" /></label><br />
-    <label>Nombre de boîtes : <input type="number" id="nb-boites" /></label><br />
-    <label>Zone géographique : <input type="text" id="zone" /></label><br />
-    <label>Nb vendues : <input type="number" id="nb-vendu" /></label><br />
-    <label>Nb promos : <input type="number" id="nb-promo" /></label><br />
-    <button id="btn-submit">Envoyer au tableau</button>
+  <div id="table-wrapper" style="margin-top: 20px; display:none;">
+    <h3>Données du tableau</h3>
+    <table id="data-table">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <pre id="status"></pre>
@@ -49,19 +45,15 @@
     const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
     const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-    const btnLogin = document.getElementById('btn-login');
-    const btnLogout = document.getElementById('btn-logout');
-    const status = document.getElementById('status');
-    const operatorForm = document.getElementById('operator-form');
-    const operatorSelect = document.getElementById('operator');
-    const btnConfirmOperator = document.getElementById('btn-confirm-operator');
-    const formulaire = document.getElementById('formulaire');
-
     let tokenClient;
     let gapiInited = false;
     let gisInited = false;
     let accessToken = null;
-    let operatorName = null;
+    let dataCache = [];
+
+    const btnLogin = document.getElementById('btn-login');
+    const btnLogout = document.getElementById('btn-logout');
+    const status = document.getElementById('status');
 
     function gapiLoaded() {
       gapi.load('client', initializeGapiClient);
@@ -83,9 +75,10 @@
             return;
           }
           accessToken = tokenResponse.access_token;
-          status.textContent = 'Connecté. Veuillez choisir votre nom.';
-          operatorForm.style.display = 'block';
+          status.textContent = 'Connecté.';
           btnLogin.style.display = 'none';
+          btnLogout.style.display = 'inline-block';
+          loadSheetData();
         },
       });
       gisInited = true;
@@ -98,81 +91,99 @@
       }
     }
 
-    btnLogin.onclick = () => {
-      tokenClient.requestAccessToken();
-    };
+    btnLogin.onclick = () => tokenClient.requestAccessToken();
 
     btnLogout.onclick = () => {
       accessToken = null;
-      operatorName = null;
-      btnLogin.style.display = 'inline-block';
+      document.getElementById('data-table').innerHTML = '';
+      document.getElementById('table-wrapper').style.display = 'none';
       btnLogout.style.display = 'none';
-      operatorForm.style.display = 'none';
-      formulaire.style.display = 'none';
+      btnLogin.style.display = 'inline-block';
+      document.getElementById('filters').style.display = 'none';
       status.textContent = 'Déconnecté.';
     };
 
-    btnConfirmOperator.onclick = () => {
-      const selected = operatorSelect.value;
-      if (!selected) {
-        alert("Merci de sélectionner un nom.");
-        return;
+    async function loadSheetData() {
+      try {
+        const res = await gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId: SPREADSHEET_ID,
+          range: RANGE
+        });
+        dataCache = res.result.values;
+        displayTable(dataCache);
+      } catch (err) {
+        status.textContent = 'Erreur chargement : ' + err.message;
       }
-      operatorName = selected;
-      operatorForm.style.display = 'none';
-      formulaire.style.display = 'block';
-      btnLogout.style.display = 'inline-block';
-      status.textContent = 'Bienvenue ' + operatorName + '. Remplissez le formulaire.';
-    };
+    }
 
-    document.getElementById('btn-submit').onclick = async () => {
-      const dateEntree = document.getElementById('date-entree').value;
-      const nom = document.getElementById('nom-boite').value;
-      const nb = document.getElementById('nb-boites').value;
-      const zone = document.getElementById('zone').value;
-      const vendu = document.getElementById('nb-vendu').value;
-      const promo = document.getElementById('nb-promo').value;
+    function displayTable(data) {
+      if (!data || data.length === 0) return;
+      document.getElementById('filters').style.display = 'block';
+      document.getElementById('table-wrapper').style.display = 'block';
 
-      if (!dateEntree || !nom || !nb || !zone || !vendu || !promo) {
-        alert("Merci de remplir tous les champs !");
-        return;
+      const table = document.getElementById('data-table');
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      const headerRow = document.createElement('tr');
+      data[0].forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+
+      for (let i = 1; i < data.length; i++) {
+        const row = document.createElement('tr');
+        data[i].forEach((cell, j) => {
+          const td = document.createElement('td');
+          td.contentEditable = true;
+          td.textContent = cell;
+          td.dataset.row = i + 1;
+          td.dataset.col = j;
+          td.addEventListener('blur', handleCellEdit);
+          row.appendChild(td);
+        });
+        tbody.appendChild(row);
       }
+    }
 
-      const dateAujourdHui = new Date().toLocaleDateString();
+    async function handleCellEdit(event) {
+      const cell = event.target;
+      const rowIndex = parseInt(cell.dataset.row);
+      const colIndex = parseInt(cell.dataset.col);
+      const newValue = cell.textContent;
+      const colLetter = String.fromCharCode(65 + colIndex);
+      const cellRef = `${colLetter}${rowIndex}`;
 
       try {
-        const values = [[
-          operatorName,
-          dateAujourdHui,
-          dateEntree,
-          nom,
-          parseInt(nb),
-          zone,
-          parseInt(vendu),
-          parseInt(promo)
-        ]];
-
-        const response = await gapi.client.sheets.spreadsheets.values.append({
+        await gapi.client.sheets.spreadsheets.values.update({
           spreadsheetId: SPREADSHEET_ID,
-          range: RANGE,
+          range: `Feuille1!${cellRef}`,
           valueInputOption: 'USER_ENTERED',
-          insertDataOption: 'INSERT_ROWS',
-          resource: { values }
+          resource: { values: [[newValue]] }
         });
-
-        status.textContent = '✅ Données envoyées !\n' + JSON.stringify(response.result.updates, null, 2);
-        
-        // Réinitialiser formulaire
-        document.getElementById('date-entree').value = '';
-        document.getElementById('nom-boite').value = '';
-        document.getElementById('nb-boites').value = '';
-        document.getElementById('zone').value = '';
-        document.getElementById('nb-vendu').value = '';
-        document.getElementById('nb-promo').value = '';
+        status.textContent = `Cellule ${cellRef} mise à jour.`;
       } catch (err) {
-        status.textContent = '❌ Erreur : ' + (err.result?.error?.message || err.message);
+        status.textContent = `Erreur modification cellule : ${err.message}`;
       }
-    };
+    }
+
+    function applyFilters() {
+      const zone = document.getElementById('filter-zone').value.toLowerCase();
+      const date = document.getElementById('filter-date').value;
+
+      const filtered = dataCache.filter((row, i) => {
+        if (i === 0) return true;
+        const zoneMatch = !zone || (row[5] && row[5].toLowerCase().includes(zone));
+        const dateMatch = !date || (row[2] && row[2].includes(date));
+        return zoneMatch && dateMatch;
+      });
+
+      displayTable(filtered);
+    }
 
     window.onload = () => {
       gapiLoaded();
