@@ -1,356 +1,652 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Gestion Perimé - Pharmacie du Libron</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: #f9f9f9;
+<meta charset="UTF-8" />
+<title>Gestion Perimé - Pharmacie du Libron</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<style>
+  :root {
+    --bleu-glacial: #bcd7ed;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+  }
+
+  /* Bandeau bleu glacial */
+  header {
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  }
+
+  #header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  #header-left > h1 {
+    margin: 0;
+    font-size: 1.3em;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-size: 1em;
+    color: #0a2f51;
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: rgba(255 255 255 / 0.3);
+  }
+
+  /* Icons with emoji for simplicity */
+  .icon {
+    font-size: 1.2em;
+    margin-right: 6px;
+  }
+
+  /* Header right buttons */
+  #header-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  /* Operator form */
+  #operator-form {
+    margin-left: 10px;
+  }
+
+  /* Layout */
+  main {
+    display: flex;
+    margin: 20px;
+  }
+
+  /* Form to add entries on right */
+  #entry-form {
+    width: 320px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    margin-left: 20px;
+  }
+  #entry-form h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+  #entry-form input {
+    width: 100%;
+    margin: 6px 0;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  #entry-form button {
+    width: 100%;
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  #entry-form button:hover {
+    background-color: #a6c6e1;
+  }
+
+  /* Table styles */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  /* Alternate row background with 15% opacity bleu glacial */
+  tbody tr:nth-child(odd) {
+    background-color: rgba(188, 215, 237, 0.15);
+  }
+
+  /* Selected row highlight 50% opacity */
+  tbody tr.selected {
+    background-color: rgba(188, 215, 237, 0.5) !important;
+  }
+
+  /* Editable cells */
+  tbody td {
+    cursor: text;
+  }
+
+  /* Filter section */
+  #filters {
+    margin: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+  }
+  #filters label {
+    font-weight: bold;
+  }
+  #filters input, #filters button {
+    padding: 5px 8px;
+    font-size: 1em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  #filters button {
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #filters button:hover {
+    background-color: #a6c6e1;
+  }
+
+  /* Status text */
+  #status {
+    margin: 10px 20px;
+    font-weight: bold;
+    color: #0a2f51;
+  }
+
+  /* Notification popup modal */
+  #notification-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+  }
+
+  #notification-popup header {
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #notification-popup header button {
+    background: transparent;
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    color: #0a2f51;
+  }
+
+  #notification-popup .content {
+    padding: 15px 20px;
+    overflow-y: auto;
+  }
+
+  #notification-popup table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #notification-popup th, #notification-popup td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  #notification-popup tbody tr:nth-child(odd) {
+    background-color: rgba(188, 215, 237, 0.15);
+  }
+
+  /* Print styles */
+  @media print {
+    body * {
+      visibility: hidden;
     }
-    /* Bandeau bleu glacé en haut */
-    header {
-      background: #0b2e59; /* bleu glacé */
-      color: white;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    #notification-popup, #notification-popup * {
+      visibility: visible;
     }
-    header .left,
-    header .right {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    header h1 {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 0;
-      user-select: none;
-      color: white;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    button, select {
-      background: transparent;
-      border: 1px solid white;
-      color: white;
-      border-radius: 3px;
-      padding: 5px 10px;
-      cursor: pointer;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    button:hover, select:hover {
-      background: white;
-      color: #0b2e59;
-      border-color: white;
-    }
-    button svg {
-      width: 16px;
-      height: 16px;
-      fill: white;
-      transition: fill 0.3s;
-    }
-    button:hover svg {
-      fill: #0b2e59;
-    }
-    /* Logo rond */
-    .logo-circle {
-      width: 32px;
-      height: 32px;
-      background: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #0b2e59;
-      font-weight: bold;
-      font-size: 18px;
-      user-select: none;
-      margin-left: 15px;
-      flex-shrink: 0;
-    }
-    /* Tableau principal */
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-      font-size: 14px;
-    }
-    tbody tr:nth-child(even) {
-      background-color: rgba(188, 215, 237, 0.15); /* #bcd7ed opacity 15% */
-    }
-    tbody tr.selected {
-      background-color: rgba(188, 215, 237, 0.5); /* #bcd7ed opacity 50% */
-    }
-    td.editable {
-      cursor: text;
-      background: #f0f8ff;
-    }
-    td.editable:focus {
-      outline: 2px solid #0b2e59;
-      background: #e0f0ff;
-    }
-    /* Popup Notification */
     #notification-popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border: 2px solid #0b2e59;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      width: 600px;
-      max-height: 70vh;
-      overflow-y: auto;
-      display: none;
-      flex-direction: column;
-      border-radius: 8px;
-      z-index: 1500;
-      padding: 10px;
-    }
-    #notification-popup .header {
-      background: #0b2e59;
-      color: white;
-      padding: 10px;
-      font-weight: bold;
-      font-size: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-    }
-    #notification-popup .header button.close-popup {
-      background: transparent;
-      border: none;
-      font-size: 20px;
-      color: white;
-      cursor: pointer;
-      line-height: 1;
-    }
-    #notification-popup .content {
-      padding: 10px;
-      font-size: 14px;
-      color: #0b2e59;
-    }
-    #notification-popup table {
+      position: static;
+      transform: none;
+      box-shadow: none;
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
+      max-height: none;
+      overflow: visible;
+      border-radius: 0;
     }
-    #notification-popup th, #notification-popup td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: left;
-      font-size: 13px;
+    #notification-popup header button,
+    #notification-popup #print-notif {
+      display: none;
     }
-    #notification-popup tbody tr:nth-child(even) {
-      background-color: rgba(188, 215, 237, 0.15);
-    }
-    #notification-popup .month-section {
-      margin-bottom: 20px;
-    }
-    /* Imprimer uniquement le popup */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #notification-popup, #notification-popup * {
-        visibility: visible;
-      }
-      #notification-popup {
-        position: static;
-        transform: none;
-        width: 100%;
-        max-height: none;
-        box-shadow: none;
-        border: none;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="left">
-      <button id="btn-home" title="Retour à l'accueil" aria-label="Retour à l'accueil">
-        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="width:22px;height:22px;">
-          <path d="M32 12l20 20h-6v20h-28v-20h-6z" stroke="white" stroke-width="2" fill="none" />
-          <path d="M26 32v12h12v-12" fill="white"/>
-        </svg>
-      </button>
-      <h1>Gestion Perimé - Pharmacie du Libron</h1>
-      <select id="operator" title="Choisir un opérateur" aria-label="Choisir un opérateur">
-        <option value="">-- Choisir Opérateur --</option>
+
+<header>
+  <div id="header-left">
+    <h1>Gestion Perimé - Pharmacie du Libron</h1>
+    <div id="operator-form" style="display:none;">
+      <select id="operator">
+        <option value="">-- Choisir opérateur --</option>
         <option>Op1</option>
         <option>Op2</option>
         <option>Op3</option>
         <option>Op4</option>
       </select>
-      <button id="btn-confirm-operator" title="Valider opérateur">Valider</button>
+      <button id="btn-confirm-operator">Valider</button>
     </div>
-    <div class="right" style="display:flex; align-items:center; gap: 10px;">
-      <div class="logo-circle" aria-label="Logo Pharmacie">P</div>
-      <button id="btn-notification" title="Notifications">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:16px;height:16px;">
-          <path d="M12 22c1.1 0 2-.89 2-1.99h-4c0 1.1.9 1.99 2 1.99zM18 16v-5c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.99 2H20l-2-2z" fill="white"/>
-        </svg>
-        Notifications
-      </button>
-      <button id="btn-history" title="Historique">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:16px;height:16px;">
-          <path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7v3l4-4-4-4v3z" fill="white"/>
-        </svg>
-        Historique
-      </button>
-      <button id="btn-logout" title="Déconnexion">Déconnexion</button>
-    </div>
-  </header>
+    <button id="btn-login" style="display:inline-block;">Se connecter</button>
+  </div>
+  <div id="header-right">
+    <button id="btn-notif" title="Notifications">🔔 Notifications</button>
+    <button id="btn-history" title="Historique">📜 Historique</button>
+    <button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
+  </div>
+</header>
 
-  <main style="padding:15px; max-width: 900px; margin: auto;">
-    <table id="product-table" aria-label="Tableau des produits périmés">
+<main>
+  <div style="flex-grow:1;">
+    <div id="filters">
+      <label for="filter-zone">Filtrer Zone :</label>
+      <input type="text" id="filter-zone" placeholder="Ex: Zone A" />
+      <label for="filter-month">Mois (MM/YYYY) :</label>
+      <input type="month" id="filter-month" />
+      <button onclick="filterTable()">Filtrer</button>
+      <button onclick="clearFilter()">Réinitialiser</button>
+    </div>
+
+    <table id="data-table" tabindex="0" aria-label="Données des produits périmés">
       <thead>
         <tr>
+          <!-- Ne PAS afficher colonne opérateur -->
+          <th>Produit</th>
           <th>Date</th>
-          <th>Boîte</th>
-          <th>Nb Perimé</th>
-          <th>Nb Retiré</th>
-          <th>Nb Dispo</th>
-          <th>Remarque</th>
+          <th>Qté</th>
+          <th>Zone</th>
+          <th>Vendues</th>
+          <th>Promo</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>01/03/2025</td>
-          <td>Paracétamol</td>
-          <td>5</td>
-          <td class="editable" contenteditable="true" aria-label="Modifier le nombre retiré">2</td>
-          <td>3</td>
-          <td class="editable" contenteditable="true" aria-label="Modifier la remarque">Attention emballage abîmé</td>
-        </tr>
-        <tr>
-          <td>10/03/2025</td>
-          <td>Ibuprofène</td>
-          <td>10</td>
-          <td class="editable" contenteditable="true">0</td>
-          <td>10</td>
-          <td class="editable" contenteditable="true"></td>
-        </tr>
-        <tr>
-          <td>15/03/2025</td>
-          <td>Amoxicilline</td>
-          <td>3</td>
-          <td class="editable" contenteditable="true">1</td>
-          <td>2</td>
-          <td class="editable" contenteditable="true">Contrôle à refaire</td>
-        </tr>
-      </tbody>
+      <tbody></tbody>
     </table>
-  </main>
 
-  <!-- Popup Notification -->
-  <div id="notification-popup" role="dialog" aria-modal="true" aria-labelledby="notif-title" aria-describedby="notif-desc">
-    <div class="header">
-      <span id="notif-title">Notifications des périmés (3 mois)</span>
-      <div>
-        <button id="btn-print" title="Imprimer" aria-label="Imprimer la liste des notifications" style="margin-right:8px;">
-          Imprimé
-        </button>
-        <button class="close-popup" aria-label="Fermer la fenêtre">&times;</button>
-      </div>
-    </div>
-    <div class="content" id="notif-desc">
-      <!-- Exemple de contenu notifications par mois -->
-      <div class="month-section">
-        <h4>Mars 2025</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Boîte</th>
-              <th>Nb Perimé</th>
-              <th>Nb Retiré</th>
-              <th>Nb Dispo</th>
-              <th>Remarque</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>01/03/2025</td>
-              <td>Paracétamol</td>
-              <td>5</td>
-              <td>2</td>
-              <td>3</td>
-              <td>Attention emballage abîmé</td>
-            </tr>
-            <tr>
-              <td>10/03/2025</td>
-              <td>Ibuprofène</td>
-              <td>10</td>
-              <td>0</td>
-              <td>10</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>15/03/2025</td>
-              <td>Amoxicilline</td>
-              <td>3</td>
-              <td>1</td>
-              <td>2</td>
-              <td>Contrôle à refaire</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <pre id="status"></pre>
   </div>
 
-  <script>
-    // Afficher/cacher popup notification
-    const btnNotif = document.getElementById('btn-notification');
-    const popup = document.getElementById('notification-popup');
-    const btnClose = popup.querySelector('.close-popup');
-    const btnPrint = document.getElementById('btn-print');
+  <div id="entry-form" style="display:none;">
+    <h3>Ajouter un produit</h3>
+    <input type="date" id="date" />
+    <input type="text" id="product" placeholder="Nom Boîte" />
+    <input type="number" id="qty" placeholder="Nb Boîtes" min="0" />
+    <input type="text" id="zone" placeholder="Zone" />
+    <input type="number" id="sold" placeholder="Nb vendus" min="0" />
+    <input type="number" id="promo" placeholder="Nb promo" min="0" />
+    <button id="btn-add">Ajouter la ligne</button>
+  </div>
+</main>
 
-    btnNotif.addEventListener('click', () => {
-      popup.style.display = 'flex';
-    });
-    btnClose.addEventListener('click', () => {
-      popup.style.display = 'none';
-    });
+<!-- Notification Popup -->
+<div id="notification-popup" role="dialog" aria-modal="true" aria-labelledby="notif-title">
+  <header>
+    <span id="notif-title">Notifications - Produits périmés</span>
+    <div>
+      <button id="print-notif" title="Imprimer">🖨️</button>
+      <button id="close-notif" title="Fermer">✖️</button>
+    </div>
+  </header>
+  <div class="content">
+    <!-- Table notifications insérées ici -->
+  </div>
+</div>
 
-    // Imprimer uniquement la popup notification
-    btnPrint.addEventListener('click', () => {
-      window.print();
-    });
+<script>
+  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+  const RANGE = 'Feuille1';
+  const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-    // Gestion de l'édition dans la table principale
-    const editableCells = document.querySelectorAll('td.editable');
-    editableCells.forEach(cell => {
-      cell.addEventListener('input', () => {
-        // Ici tu peux ajouter sauvegarde, validation, etc.
-        console.log('Contenu modifié:', cell.textContent);
+  let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
+
+  function gapiLoaded() { gapi.load('client', initializeGapiClient); }
+  async function initializeGapiClient() {
+    await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
+    gapiInited = true;
+    maybeEnableButtons();
+  }
+
+  function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: (tokenResponse) => {
+        accessToken = tokenResponse.access_token;
+        document.getElementById('operator-form').style.display = 'inline-flex';
+        document.getElementById('btn-login').style.display = 'none';
+        setStatus('Connecté. Choisissez un opérateur.');
+      },
+    });
+    gisInited = true;
+    maybeEnableButtons();
+  }
+
+  function maybeEnableButtons() {
+    if (gapiInited && gisInited) {
+      document.getElementById('btn-login').style.display = 'inline-block';
+    }
+  }
+
+  function setStatus(msg) {
+    document.getElementById('status').textContent = msg;
+  }
+
+  document.getElementById('btn-login').onclick = () => {
+    tokenClient.requestAccessToken();
+  };
+
+  document.getElementById('btn-logout').onclick = () => {
+    accessToken = null; operatorName = null;
+    document.getElementById('btn-login').style.display = 'inline-block';
+    document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('entry-form').style.display = 'none';
+    clearTable();
+    setStatus('Déconnecté.');
+  };
+
+  document.getElementById('btn-confirm-operator').onclick = () => {
+    const op = document.getElementById('operator').value;
+    if (!op) return alert("Choisir un opérateur");
+    operatorName = op;
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    document.getElementById('entry-form').style.display = 'block';
+    loadSheet();
+  };
+
+  document.getElementById('btn-add').onclick = async () => {
+    if(!operatorName) {
+      alert("Veuillez vous connecter et choisir un opérateur");
+      return;
+    }
+    const dateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+    const productVal = document.getElementById('product').value.trim();
+    const qtyVal = parseInt(document.getElementById('qty').value);
+    const zoneVal = document.getElementById('zone').value.trim();
+    const soldVal = parseInt(document.getElementById('sold').value);
+    const promoVal = parseInt(document.getElementById('promo').value);
+
+    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
+      alert("Veuillez remplir tous les champs correctement.");
+      return;
+    }
+
+    const values = [[
+      operatorName,
+      productVal,
+      dateVal,
+      qtyVal,
+      zoneVal,
+      soldVal,
+      promoVal,
+    ]];
+
+    try {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values }
       });
+      loadSheet();
+      setStatus('Ligne ajoutée avec succès !');
+      // Clear form inputs
+      document.getElementById('product').value = '';
+      document.getElementById('qty').value = '';
+      document.getElementById('zone').value = '';
+      document.getElementById('sold').value = '';
+      document.getElementById('promo').value = '';
+      document.getElementById('date').value = '';
+    } catch (e) {
+      setStatus('Erreur : ' + e.message);
+    }
+  };
+
+  // Load sheet data, exclude operator from table display
+  async function loadSheet() {
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
+      const rows = res.result.values || [];
+      renderTable(rows);
+    } catch (e) {
+      setStatus("Erreur de chargement : " + e.message);
+    }
+  }
+
+  function clearTable() {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+  }
+
+  // Render table without opérateur column (index 0)
+  function renderTable(rows) {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+    rows.slice(1).forEach((row, i) => {
+      const tr = document.createElement('tr');
+      // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
+      // We skip opérateur (col 0)
+      const cols = [1, 2, 3, 4, 5, 6];
+      cols.forEach(colIndex => {
+        const td = document.createElement('td');
+        td.textContent = row[colIndex] || '';
+        td.contentEditable = true;
+        td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
+        td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
+        td.addEventListener('blur', onCellEdit);
+        tr.appendChild(td);
+      });
+      tr.addEventListener('click', () => {
+        // Unselect all
+        document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+        tr.classList.add('selected');
+      });
+      tbody.appendChild(tr);
     });
-  </script>
+  }
+
+  // Update cell in Google Sheets on edit
+  async function onCellEdit(e) {
+    if(!operatorName) return;
+    const td = e.target;
+    const newValue = td.textContent.trim();
+    const row = td.dataset.row;
+    const col = td.dataset.col;
+
+    try {
+      await gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `Feuille1!${columnToLetter(col)}${row}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [[newValue]] }
+      });
+      setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
+    } catch (err) {
+      setStatus('Erreur mise à jour : ' + err.message);
+    }
+  }
+
+  // Convert number to letter for column (1->A, 2->B ...)
+  function columnToLetter(column) {
+    let temp, letter = '';
+    while(column > 0) {
+      temp = (column - 1) % 26;
+      letter = String.fromCharCode(temp + 65) + letter;
+      column = (column - temp - 1) / 26;
+    }
+    return letter;
+  }
+
+  // Filtering function on main table
+  function filterTable() {
+    const zoneFilter = document.getElementById('filter-zone').value.toLowerCase();
+    const monthFilter = document.getElementById('filter-month').value; // format yyyy-mm
+
+    const tbody = document.querySelector('#data-table tbody');
+    Array.from(tbody.rows).forEach(row => {
+      const zone = row.cells[3].textContent.toLowerCase(); // zone col index 3 in displayed table
+      const date = row.cells[1].textContent; // date col index 1
+      let show = true;
+      if(zoneFilter && !zone.includes(zoneFilter)) show = false;
+      if(monthFilter) {
+        const [y,m] = monthFilter.split('-');
+        if(!date.startsWith(`${y}-${m}`)) show = false;
+      }
+      row.style.display = show ? '' : 'none';
+    });
+  }
+  function clearFilter() {
+    document.getElementById('filter-zone').value = '';
+    document.getElementById('filter-month').value = '';
+    filterTable();
+  }
+
+  // Notification popup logic
+  const notifPopup = document.getElementById('notification-popup');
+  const notifContent = notifPopup.querySelector('.content');
+  document.getElementById('btn-notif').onclick = () => {
+    if(!operatorName) {
+      alert("Connectez-vous et choisissez un opérateur pour voir les notifications.");
+      return;
+    }
+    loadNotifications();
+    notifPopup.style.display = 'flex';
+  };
+  document.getElementById('close-notif').onclick = () => {
+    notifPopup.style.display = 'none';
+  };
+  document.getElementById('print-notif').onclick = () => {
+    window.print();
+  };
+
+  // Load notifications: produit périmé pour les 3 mois à partir du 15 du mois en cours triés par mois
+  async function loadNotifications() {
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({spreadsheetId: SPREADSHEET_ID, range: RANGE});
+      const rows = res.result.values || [];
+      const header = rows[0];
+      const data = rows.slice(1);
+
+      // Col indices
+      // opérateur 0, produit 1, date 2, qty 3, zone 4, vendues 5, promo 6
+      // Exclure opérateur dans notif table too
+
+      // Get today's date and build array of 3 months from 15th
+      const now = new Date();
+      const notifDates = [];
+      for(let i=0; i<3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 15);
+        notifDates.push(d);
+      }
+
+      // Group by year-month string "YYYY-MM"
+      const grouped = {};
+      notifDates.forEach(d => {
+        const ym = d.toISOString().slice(0,7);
+        grouped[ym] = [];
+      });
+
+      // Filter rows with dates close or expired (assuming date column format YYYY-MM-DD)
+      data.forEach(row => {
+        const dateStr = row[2];
+        if(!dateStr) return;
+        const d = new Date(dateStr);
+        if(isNaN(d)) return;
+
+        // We consider products expired or close if date <= 15 of next 3 months
+        notifDates.forEach(notifDate => {
+          if(d <= notifDate) {
+            const ym = notifDate.toISOString().slice(0,7);
+            if(grouped[ym]) grouped[ym].push(row);
+          }
+        });
+      });
+
+      // Build HTML table grouped by month
+      let html = '';
+      for(const ym of Object.keys(grouped)) {
+        html += `<h3>${formatMonthYear(ym)}</h3>`;
+        if(grouped[ym].length === 0) {
+          html += '<p>Aucun produit périmé ou proche de la date pour ce mois.</p>';
+          continue;
+        }
+        html += `<table>
+          <thead>
+            <tr>
+              <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+            </tr>
+          </thead><tbody>`;
+        grouped[ym].forEach(row => {
+          html += '<tr>';
+          // skip opérateur (col 0)
+          [1,2,3,4,5,6].forEach(ci => {
+            html += `<td>${row[ci] || ''}</td>`;
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+      }
+
+      notifContent.innerHTML = html;
+
+    } catch(e) {
+      notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
+    }
+  }
+
+  function formatMonthYear(ym) {
+    const [y,m] = ym.split('-');
+    const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    return months[parseInt(m,10)-1] + ' ' + y;
+  }
+
+  // Load GAPI & GIS on window load
+  window.onload = () => {
+    gapiLoaded();
+    gisLoaded();
+  };
+</script>
+
 </body>
 </html>
