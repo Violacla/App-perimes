@@ -595,60 +595,13 @@
         if(isNaN(d)) return;
 
         // We consider products expired or close if date <= 15 of next 3 months
-        btnNotif.addEventListener('click', () => {
-  if (data.length === 0) {
-    alert('Aucune donnée à afficher.');
-    return;
-  }
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth(); // 0 = janvier, 4 = mai
-
-  // Calculer les 3 prochains mois
-  // On veut les produits dont la date est dans les mois suivants (month +1, +2, +3)
-  // On va comparer uniquement année et mois de la date produit
-
-  const isInNext3Months = (dateStr) => {
-    // dateStr format "YYYY-MM-DD"
-    const d = new Date(dateStr);
-    if (isNaN(d)) return false;
-
-    const year = d.getFullYear();
-    const month = d.getMonth();
-
-    // On vérifie si la date est dans l'un des 3 mois suivants (exclu mois actuel)
-    for (let i = 1; i <= 3; i++) {
-      // Calcul du mois + i en tenant compte du passage d'année
-      let checkMonth = (currentMonth + i) % 12;
-      let checkYear = currentYear + Math.floor((currentMonth + i) / 12);
-      if (year === checkYear && month === checkMonth) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  // Filtrer les produits qui périment dans les 3 mois suivants
-  const next3MonthsProducts = data.filter(d => isInNext3Months(d.date));
-
-  if (next3MonthsProducts.length === 0) {
-    alert('Aucun produit ne périme dans les 3 mois suivants.');
-    return;
-  }
-
-  // Trier par date croissante
-  next3MonthsProducts.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-  // Afficher dans la popup
-  notifTableBody.innerHTML = '';
-  next3MonthsProducts.forEach(d => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${d.product}</td><td>${d.date}</td><td>${d.qty}</td><td>${d.zone}</td><td>${d.sold}</td><td>${d.promo}</td>`;
-    notifTableBody.appendChild(tr);
-  });
-
-  notifPopup.style.display = 'flex';
-});
+        notifDates.forEach(notifDate => {
+          if(d <= notifDate) {
+            const ym = notifDate.toISOString().slice(0,7);
+            if(grouped[ym]) grouped[ym].push(row);
+          }
+        });
+      });
 
       // Build HTML table grouped by month
       let html = '';
