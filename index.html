@@ -2,189 +2,320 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Gestion Périmé - Pharmacie du Libron</title>
+  <title>Gestion Perimé - Pharmacie du Libron</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: #f9f9f9;
+    /* Reset simple */
+    body, html {
+      margin: 0; padding: 0; font-family: Arial, sans-serif; background: #f9f9f9;
     }
+
+    /* Bandeau bleu */
     header {
-      background-color: #0d6efd;
+      background: #1e3a8a; /* bleu foncé */
       color: white;
-      padding: 12px 20px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 10;
     }
     header h1 {
+      font-weight: 700;
+      font-size: 1.3rem;
       margin: 0;
-      font-size: 1.4em;
-      user-select: none;
     }
-    .left-buttons, .right-buttons {
+
+    /* Boutons du header */
+    .header-buttons {
       display: flex;
+      gap: 12px;
       align-items: center;
-      gap: 10px;
     }
     button {
-      cursor: pointer;
+      background: transparent;
       border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      font-size: 0.9em;
-      background: white;
-      color: #0d6efd;
-      transition: background-color 0.3s, color 0.3s;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     button:hover {
-      background-color: #0b5ed7;
-      color: white;
+      background: rgba(255 255 255 / 0.2);
     }
-    button:disabled {
-      background: #ccc;
-      color: #666;
-      cursor: default;
+    button:focus {
+      outline: 2px solid #fff;
+    }
+
+    /* Icones simples en SVG intégrées */
+    button svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    /* Layout principal */
+    main {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    /* Formulaire ajout produit à droite */
+    #entry-form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgb(30 58 138 / 0.2);
+      flex: 0 0 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.95rem;
+    }
+    #entry-form h3 {
+      margin: 0 0 10px 0;
+      color: #1e3a8a;
+    }
+    #entry-form input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    #entry-form button {
+      background: #1e3a8a;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #entry-form button:hover {
+      background: #3b5bd1;
+    }
+
+    /* Tableau */
+    #table-container {
+      flex: 1;
+      overflow-x: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgb(30 58 138 / 0.15);
+      padding: 10px;
     }
     table {
       border-collapse: collapse;
       width: 100%;
-      margin-top: 20px;
-      background: white;
+      font-size: 0.95rem;
+      user-select: none;
     }
     th, td {
       border: 1px solid #ccc;
-      padding: 8px;
+      padding: 8px 12px;
       text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background: #1e3a8a;
+      color: white;
+      font-weight: 600;
       user-select: none;
     }
-    input, select {
-      margin: 5px;
-      padding: 6px 8px;
-      font-size: 1em;
-      border-radius: 4px;
+
+    /* Cacher la colonne opérateur */
+    th.operator, td.operator {
+      display: none;
+    }
+
+    /* Ligne sur 2 bleu glacial */
+    tbody tr:nth-child(even) {
+      background-color: rgba(173, 216, 230, 0.15);
+    }
+
+    /* Ligne sélectionnée surlignée */
+    tbody tr.selected {
+      background-color: #b0d4ff !important;
+      color: #000;
+    }
+
+    /* Rendre certaines cellules éditables (nombres) */
+    td.editable {
+      cursor: text;
+      background-color: #fffbe6;
+    }
+    td.editable:focus {
+      outline: 2px solid #1e3a8a;
+      background-color: #e0e7ff;
+    }
+
+    /* Form filtre */
+    #filter-form {
+      margin: 10px 0 0 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+    }
+    #filter-form input, #filter-form button {
+      padding: 6px 10px;
+      border-radius: 5px;
       border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    #filter-form button {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+    #filter-form button:hover {
+      background: #3b5bd1;
     }
 
-    /* Masquer colonne opérateur complètement */
-    #data-table th.operator-col,
-    #data-table td.operator-col {
-      display: none;
+    /* Status area */
+    #status {
+      margin-top: 10px;
+      min-height: 20px;
+      font-style: italic;
+      color: #1e3a8a;
     }
 
-    /* Popup notifications centrée */
-    #popup-notif {
-      display: none;
+    /* Notification popup */
+    #notification-popup {
       position: fixed;
       top: 50%;
       left: 50%;
-      width: 400px;
-      max-height: 500px;
-      overflow-y: auto;
-      background: white;
-      border: 1px solid #0d6efd;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      padding: 20px 20px 40px 20px;
       transform: translate(-50%, -50%);
-      z-index: 2000;
+      background: white;
+      max-height: 70vh;
+      width: 400px;
+      overflow-y: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(30, 58, 138, 0.5);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
     }
-    #popup-notif .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      font-size: 22px;
-      font-weight: bold;
-      cursor: pointer;
-      color: #0d6efd;
-      user-select: none;
-    }
-    #popup-notif h3 {
-      margin-top: 0;
-      color: #0d6efd;
-    }
-    #popup-notif table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    #popup-notif th, #popup-notif td {
-      border: 1px solid #ccc;
-      padding: 6px 8px;
-      font-size: 0.9em;
-      text-align: center;
-    }
-    #btn-print-notif {
-      margin-bottom: 10px;
-      padding: 6px 12px;
-      background: #0d6efd;
+    #notification-popup header {
+      background: #1e3a8a;
       color: white;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #notification-popup header button.close-popup {
+      background: transparent;
       border: none;
-      border-radius: 4px;
+      color: white;
+      font-size: 1.2rem;
       cursor: pointer;
-      font-size: 0.95em;
+      font-weight: 900;
+      line-height: 1;
     }
-    #btn-print-notif:hover {
-      background: #0b5ed7;
+    #notification-popup .content {
+      padding: 15px 20px;
+      font-size: 0.95rem;
+      overflow-y: auto;
+      max-height: 400px;
+    }
+    #notification-popup .month-group {
+      margin-bottom: 15px;
+    }
+    #notification-popup .month-group h4 {
+      margin: 10px 0 5px 0;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 3px;
+      color: #1e3a8a;
+    }
+    #notification-popup .month-group ul {
+      margin: 0; padding-left: 20px;
+      list-style-type: disc;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    #notification-popup .month-group ul li {
+      margin-bottom: 5px;
     }
 
-    #status {
-      margin-top: 10px;
-      font-style: italic;
-      color: #555;
-      padding-left: 10px;
-    }
-
-    /* Style cellule éditable */
-    td.editable {
-      cursor: pointer;
-      background-color: #f0f8ff;
-      user-select: text;
-    }
-    td.editable:hover {
-      background-color: #d0e4ff;
-    }
-    td.editable input[type="number"] {
-      width: 80px;
-      font-size: 1em;
-      padding: 2px 4px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="left-buttons">
-      <h1>Gestion Périmé - Pharmacie du Libron</h1>
-      <button id="btn-choose-operator" style="margin-left:20px;">Choix Opérateur</button>
-    </div>
-    <div class="right-buttons">
-      <button id="btn-notif" title="Notifications">🔔</button>
-      <button id="btn-history" title="Historique">⏳</button>
-      <button id="btn-logout" title="Déconnexion" style="display:none;">🔒 Déconnexion</button>
-    </div>
-  </header>
 
-  <div id="operator-form" style="display:none; padding: 10px;">
-    <label>Nom Opérateur :</label>
-    <select id="operator">
-      <option value="">-- Choisir --</option>
-      <option>Op1</option>
-      <option>Op2</option>
-      <option>Op3</option>
-      <option>Op4</option>
-    </select>
-    <button id="btn-confirm-operator">Valider</button>
+<header>
+  <h1>Gestion Perimé - Pharmacie du Libron</h1>
+  <div class="header-buttons">
+    <button id="btn-operator-select" title="Choix opérateur">
+      <!-- Icon utilisateur -->
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      Opérateur
+    </button>
+    <button id="btn-notification" title="Notifications">
+      <!-- Icon notification bell -->
+      <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.89 2-1.99h-4c0 1.1.9 1.99 2 1.99zM18 16v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5S10.5 3.17 10.5 4v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      Notifications
+    </button>
+    <button id="btn-history" title="Historique">
+      <!-- Icon historique / clock -->
+      <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 1 0 8.7 6.9l-1.43-1.43A7 7 0 1 1 12 5v5l4 2-1 1.73-5-3V5z"/></svg>
+      Historique
+    </button>
+    <button id="btn-logout" title="Déconnexion" style="display:none;">
+      <!-- Icon déconnexion -->
+      <svg viewBox="0 0 24 24"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8v2h8v14h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      Déconnexion
+    </button>
   </div>
+</header>
 
-  <div id="entry-form" style="display:none; margin-top: 20px; padding: 0 10px;">
+<main>
+
+  <!-- Conteneur tableau -->
+  <section id="table-container">
+    <div id="filter-form">
+      <label for="filter-zone">Filtrer Zone :</label>
+      <input type="text" id="filter-zone" placeholder="Zone" />
+      <label for="filter-month">Filtrer Mois (MM/YYYY) :</label>
+      <input type="month" id="filter-month" />
+      <button id="btn-filter">Filtrer</button>
+      <button id="btn-clear-filter" title="Tout afficher">✕</button>
+    </div>
+    <table id="data-table" >
+      <thead>
+        <tr>
+          <th class="operator">Opérateur</th> <!-- caché -->
+          <th>Produit</th>
+          <th>Date</th>
+          <th>Qté</th>
+          <th>Zone</th>
+          <th>Vendues</th>
+          <th>Promo</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <pre id="status"></pre>
+  </section>
+
+  <!-- Formulaire ajout produit -->
+  <section id="entry-form" style="display:none;">
     <h3>Ajouter un produit</h3>
     <input type="date" id="date" />
     <input type="text" id="product" placeholder="Nom Boîte" />
@@ -193,433 +324,332 @@
     <input type="number" id="sold" placeholder="Nb vendus" />
     <input type="number" id="promo" placeholder="Nb promo" />
     <button id="btn-add">Ajouter la ligne</button>
+  </section>
+
+</main>
+
+<!-- Popup notifications -->
+<div id="notification-popup" role="dialog" aria-modal="true" aria-labelledby="notif-title">
+  <header>
+    <span id="notif-title">Notifications des périmés</span>
+    <button class="close-popup" aria-label="Fermer popup">&times;</button>
+  </header>
+  <div class="content">
+    <!-- Contenu dynamique -->
   </div>
+</div>
 
-  <div style="padding: 10px;">
-    <label>Filtrer Zone :</label>
-    <input type="text" id="filter-zone" />
-    <label>Mois (MM/YYYY) :</label>
-    <input type="text" id="filter-month" placeholder="ex: 06/2025" />
-    <button onclick="filterTable()">Filtrer</button>
-  </div>
+<script>
+  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+  const RANGE = 'Feuille1';
+  const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th class="operator-col">Opérateur</th>
-        <th>Produit</th>
-        <th>Date</th>
-        <th>Qté</th>
-        <th>Zone</th>
-        <th>Vendues</th>
-        <th>Promo</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
 
-  <pre id="status"></pre>
+  // Load gapi client
+  function gapiLoaded() { gapi.load('client', initializeGapiClient); }
+  async function initializeGapiClient() {
+    await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
+    gapiInited = true;
+    maybeEnableButtons();
+  }
 
-  <!-- Popup notification -->
-  <div id="popup-notif">
-    <span class="close-btn" title="Fermer">&times;</span>
-    <h3>Produits périmés 3 mois suivants</h3>
-    <button id="btn-print-notif">Imprimer</button>
-    <div id="notif-content">Chargement...</div>
-  </div>
-
-  <script>
-    const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-    const RANGE = 'Feuille1';
-    const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
-
-    let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
-    let sheetRows = []; // Contiendra les données brutes avec opérateur pour modification
-
-    // Chargement des APIs Google
-    function gapiLoaded() { gapi.load('client', initializeGapiClient); }
-    async function initializeGapiClient() {
-      await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
-      gapiInited = true;
-      maybeEnableButtons();
-    }
-    function gisLoaded() {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: (tokenResponse) => {
-          if (tokenResponse.error) {
-            document.getElementById('status').textContent = 'Erreur d\'authentification';
-            return;
-          }
-          accessToken = tokenResponse.access_token;
-          document.getElementById('operator-form').style.display = 'block';
-          document.getElementById('btn-choose-operator').style.display = 'none';
-          document.getElementById('btn-logout').style.display = 'inline-block';
-          document.getElementById('status').textContent = 'Connecté. Choisissez un opérateur.';
-        },
-      });
-      gisInited = true;
-      maybeEnableButtons();
-    }
-    function maybeEnableButtons() {
-      if (gapiInited && gisInited) {
-        document.getElementById('btn-choose-operator').disabled = false;
-      }
-    }
-
-    // Event bouton connexion choix opérateur
-    document.getElementById('btn-choose-operator').onclick = () => {
-      if (!accessToken) {
-        tokenClient.requestAccessToken();
-      } else {
-        document.getElementById('operator-form').style.display = 'block';
-        document.getElementById('entry-form').style.display = 'none';
-      }
-    };
-
-    // Confirmation opérateur
-    document.getElementById('btn-confirm-operator').onclick = () => {
-      const op = document.getElementById('operator').value;
-      if (!op) return alert("Choisir un opérateur");
-      operatorName = op;
-      document.getElementById('operator-form').style.display = 'none';
-      document.getElementById('entry-form').style.display = 'block';
-      loadSheet();
-      document.getElementById('status').textContent = `Connecté en tant que : ${operatorName}`;
-    };
-
-    // Déconnexion
-    document.getElementById('btn-logout').onclick = () => {
-      accessToken = null;
-      operatorName = null;
-      sheetRows = [];
-      document.getElementById('btn-choose-operator').style.display = 'inline-block';
-      document.getElementById('btn-logout').style.display = 'none';
-      document.getElementById('operator-form').style.display = 'none';
-      document.getElementById('entry-form').style.display = 'none';
-      document.getElementById('status').textContent = "Déconnecté.";
-      clearTable();
-    };
-
-    // Charger données de la feuille Google Sheets
-    async function loadSheet() {
-      if (!accessToken) return;
-      gapi.client.setToken({ access_token: accessToken });
-      try {
-        const response = await gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: SPREADSHEET_ID,
-          range: RANGE,
-        });
-        const values = response.result.values || [];
-        // On stocke les données ligne par ligne (y compris opérateur) dans sheetRows pour modif
-        sheetRows = values.map((row, i) => ({
-          rowIndex: i + 1, // Ligne dans la feuille (1-based)
-          operator: row[0] || '',
-          product: row[1] || '',
-          date: row[2] || '',
-          qty: row[3] || '',
-          zone: row[4] || '',
-          sold: row[5] || '',
-          promo: row[6] || ''
-        }));
-        refreshTable();
-      } catch (e) {
-        document.getElementById('status').textContent = "Erreur chargement feuille : " + e.message;
-      }
-    }
-
-    // Rafraîchir tableau affiché (filtrage inclus)
-    function refreshTable() {
-      const tbody = document.querySelector('#data-table tbody');
-      tbody.innerHTML = '';
-      let filtered = sheetRows;
-
-      // Filtrer sur opérateur (unique)
-      if (operatorName) filtered = filtered.filter(r => r.operator === operatorName);
-
-      // Filtrer zone et mois
-      const zoneFilter = document.getElementById('filter-zone').value.trim().toLowerCase();
-      if(zoneFilter) {
-        filtered = filtered.filter(r => r.zone.toLowerCase().includes(zoneFilter));
-      }
-      const monthFilter = document.getElementById('filter-month').value.trim();
-      if(monthFilter) {
-        filtered = filtered.filter(r => {
-          if(!r.date) return false;
-          // format date en ISO "yyyy-mm-dd"
-          let d = new Date(r.date);
-          if(isNaN(d)) return false;
-          const m = ("0"+(d.getMonth()+1)).slice(-2);
-          const y = d.getFullYear();
-          return monthFilter === `${m}/${y}`;
-        });
-      }
-
-      for(let row of filtered) {
-        const tr = document.createElement('tr');
-
-        // Colonne opérateur cachée (mais présente pour garder alignement)
-        const tdOp = document.createElement('td');
-        tdOp.className = 'operator-col';
-        tdOp.textContent = row.operator;
-        tr.appendChild(tdOp);
-
-        // Produit
-        const tdProd = document.createElement('td');
-        tdProd.textContent = row.product;
-        tr.appendChild(tdProd);
-
-        // Date
-        const tdDate = document.createElement('td');
-        tdDate.textContent = row.date;
-        tr.appendChild(tdDate);
-
-        // Qté éditable
-        const tdQty = document.createElement('td');
-        tdQty.className = 'editable';
-        tdQty.dataset.field = 'qty';
-        tdQty.dataset.rowIndex = row.rowIndex;
-        tdQty.textContent = row.qty;
-        tr.appendChild(tdQty);
-
-        // Zone
-        const tdZone = document.createElement('td');
-        tdZone.textContent = row.zone;
-        tr.appendChild(tdZone);
-
-        // Vendues éditable
-        const tdSold = document.createElement('td');
-        tdSold.className = 'editable';
-        tdSold.dataset.field = 'sold';
-        tdSold.dataset.rowIndex = row.rowIndex;
-        tdSold.textContent = row.sold;
-        tr.appendChild(tdSold);
-
-        // Promo éditable
-        const tdPromo = document.createElement('td');
-        tdPromo.className = 'editable';
-        tdPromo.dataset.field = 'promo';
-        tdPromo.dataset.rowIndex = row.rowIndex;
-        tdPromo.textContent = row.promo;
-        tr.appendChild(tdPromo);
-
-        tbody.appendChild(tr);
-      }
-    }
-
-    // Vider tableau (ex déconnexion)
-    function clearTable() {
-      document.querySelector('#data-table tbody').innerHTML = '';
-    }
-
-    // Ajouter une nouvelle ligne (bouton ajouter)
-    document.getElementById('btn-add').onclick = async () => {
-      if (!accessToken) return alert("Vous devez être connecté");
-      const date = document.getElementById('date').value;
-      const product = document.getElementById('product').value.trim();
-      const qty = document.getElementById('qty').value.trim();
-      const zone = document.getElementById('zone').value.trim();
-      const sold = document.getElementById('sold').value.trim();
-      const promo = document.getElementById('promo').value.trim();
-      if (!date || !product || !qty || !zone) return alert("Veuillez remplir au moins date, produit, qtée, zone");
-
-      const newRow = [operatorName, product, date, qty, zone, sold || '0', promo || '0'];
-
-      try {
-        gapi.client.setToken({ access_token: accessToken });
-        await gapi.client.sheets.spreadsheets.values.append({
-          spreadsheetId: SPREADSHEET_ID,
-          range: RANGE,
-          valueInputOption: "USER_ENTERED",
-          insertDataOption: "INSERT_ROWS",
-          resource: {
-            values: [newRow]
-          }
-        });
-        document.getElementById('status').textContent = "Ligne ajoutée.";
-        // Rafraîchir données
-        await loadSheet();
-
-        // Clear form
-        document.getElementById('date').value = '';
-        document.getElementById('product').value = '';
-        document.getElementById('qty').value = '';
-        document.getElementById('zone').value = '';
-        document.getElementById('sold').value = '';
-        document.getElementById('promo').value = '';
-      } catch (e) {
-        alert("Erreur ajout ligne : " + e.message);
-      }
-    };
-
-    // Edition inline des cellules Qté, Vendues, Promo
-    document.querySelector('#data-table tbody').addEventListener('click', function(e) {
-      const td = e.target.closest('td.editable');
-      if(!td) return;
-
-      if(td.querySelector('input')) return; // déjà en édition
-
-      const oldValue = td.textContent;
-      td.textContent = '';
-
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.min = '0';
-      input.value = oldValue || '0';
-      td.appendChild(input);
-      input.focus();
-
-      // Gestion sortie de champ (blur ou entrée)
-      function save() {
-        let val = input.value.trim();
-        if(val === '' || isNaN(val) || Number(val) < 0) val = '0';
-        td.removeChild(input);
-        td.textContent = val;
-
-        // Mise à jour dans sheetRows et Google Sheets
-        const rowIndex = parseInt(td.dataset.rowIndex, 10);
-        const field = td.dataset.field;
-
-        // Trouver ligne dans sheetRows
-        const row = sheetRows.find(r => r.rowIndex === rowIndex);
-        if(!row) return;
-
-        row[field] = val;
-
-        updateSheetCell(rowIndex, field, val);
-      }
-
-      input.onblur = save;
-      input.onkeydown = function(ev) {
-        if(ev.key === 'Enter') {
-          input.blur();
-        }
-        if(ev.key === 'Escape') {
-          td.removeChild(input);
-          td.textContent = oldValue;
-        }
-      };
+  // Load Google Identity Services
+  function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: (tokenResponse) => {
+        accessToken = tokenResponse.access_token;
+        document.getElementById('operator-select-container').style.display = 'none';
+        document.getElementById('btn-logout').style.display = 'inline-block';
+        document.getElementById('entry-form').style.display = 'block';
+        document.getElementById('btn-operator-select').style.display = 'none';
+        showOperatorSelection();
+      },
     });
+    gisInited = true;
+    maybeEnableButtons();
+  }
 
-    // Mappage champ à colonne Google Sheet (0-based)
-    const fieldToCol = {
-      qty: 3,
-      sold: 5,
-      promo: 6
-    };
+  function maybeEnableButtons() {
+    if (gapiInited && gisInited) {
+      document.getElementById('btn-operator-select').style.display = 'inline-flex';
+    }
+  }
 
-    // Mise à jour d'une cellule dans Google Sheets via API
-    async function updateSheetCell(rowIndex, field, value) {
-      if(!accessToken) return;
+  // Gestion boutons dans le header
+  document.getElementById('btn-logout').onclick = () => {
+    accessToken = null;
+    operatorName = null;
+    document.getElementById('entry-form').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('btn-operator-select').style.display = 'inline-flex';
+    document.getElementById('status').textContent = 'Déconnecté.';
+    clearTable();
+  };
+
+  // Opérateur: On clique sur bouton Opérateur pour choisir
+  document.getElementById('btn-operator-select').onclick = () => {
+    showOperatorSelection();
+  };
+
+  // Affiche popup choix opérateur (simple prompt)
+  function showOperatorSelection() {
+    const op = prompt("Choisir opérateur (ex: Op1, Op2, Op3, Op4) :");
+    if (!op) return alert("Opérateur obligatoire.");
+    operatorName = op;
+    document.getElementById('entry-form').style.display = 'block';
+    document.getElementById('status').textContent = 'Connecté en tant que : ' + operatorName;
+    loadSheet();
+  }
+
+  // Ajouter une ligne dans Google Sheets
+  document.getElementById('btn-add').onclick = async () => {
+    if (!operatorName) return alert("Veuillez choisir un opérateur d'abord.");
+    const values = [[
+      operatorName,
+      document.getElementById('product').value,
+      document.getElementById('date').value || new Date().toISOString().split('T')[0],
+      parseInt(document.getElementById('qty').value) || 0,
+      document.getElementById('zone').value,
+      parseInt(document.getElementById('sold').value) || 0,
+      parseInt(document.getElementById('promo').value) || 0,
+    ]];
+    try {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values }
+      });
+      document.getElementById('status').textContent = 'Ajouté !';
+      clearEntryForm();
+      loadSheet();
+    } catch (e) {
+      document.getElementById('status').textContent = 'Erreur : ' + e.message;
+    }
+  };
+
+  function clearEntryForm() {
+    document.getElementById('product').value = '';
+    document.getElementById('date').value = '';
+    document.getElementById('qty').value = '';
+    document.getElementById('zone').value = '';
+    document.getElementById('sold').value = '';
+    document.getElementById('promo').value = '';
+  }
+
+  // Charger les données Google Sheets
+  async function loadSheet() {
+    if (!accessToken) {
+      // On doit d'abord demander l'accès
+      tokenClient.requestAccessToken();
+      return;
+    }
+    try {
+      gapi.client.setToken({ access_token: accessToken });
+      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
+      const rows = res.result.values || [];
+      fillTable(rows);
+    } catch (e) {
+      document.getElementById('status').textContent = 'Erreur chargement : ' + e.message;
+    }
+  }
+
+  // Vide et remplit tableau, sans afficher opérateur
+  function fillTable(rows) {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+    rows.forEach((r,i) => {
+      if (r.length < 7) return; // sécurité
+      const tr = document.createElement('tr');
+
+      // On saute opérateur (r[0])
+      // Colonnes visibles : Produit (1), Date (2), Qté (3), Zone (4), Vendues (5), Promo (6)
+      const cells = [r[1], r[2], r[3], r[4], r[5], r[6]];
+
+      // Création cellules
+      // Index 2=Qté, 4=Vendues, 5=Promo à rendre éditables
+      cells.forEach((c, idx) => {
+        const td = document.createElement('td');
+        td.textContent = c;
+        // Editable sur Qté, Vendues, Promo
+        if (idx === 2 || idx === 4 || idx === 5) {
+          td.contentEditable = 'true';
+          td.classList.add('editable');
+          td.dataset.row = i;
+          td.dataset.col = idx + 1; // col dans feuille : 3, 6, 7 respectivement (+1 car opérateur caché col1)
+        }
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Gestion édition cellule : sauvegarde dans la feuille Google Sheets
+  document.querySelector('#data-table tbody').addEventListener('blur', async (e) => {
+    if (!e.target.classList.contains('editable')) return;
+    const td = e.target;
+    const row = parseInt(td.dataset.row);
+    const col = parseInt(td.dataset.col);
+    const newValue = td.textContent.trim();
+
+    try {
+      if (!accessToken) throw new Error("Non connecté");
       gapi.client.setToken({ access_token: accessToken });
 
-      const colIndex = fieldToCol[field];
-      if(colIndex === undefined) return;
+      // On récupère toutes les données pour avoir la ligne entière
+      const res = await gapi.client.sheets.spreadsheets.values.get({spreadsheetId: SPREADSHEET_ID, range: RANGE});
+      let rows = res.result.values || [];
+      if (row >= rows.length) throw new Error("Ligne introuvable");
+      if (!rows[row]) rows[row] = [];
 
-      // Adresse cellule ex: D2 (col 3 => D, ligne 2)
-      const colLetter = String.fromCharCode('A'.charCodeAt(0) + colIndex);
-      const cellAddress = `${colLetter}${rowIndex}`;
+      rows[row][col] = newValue;
 
-      try {
-        await gapi.client.sheets.spreadsheets.values.update({
-          spreadsheetId: SPREADSHEET_ID,
-          range: `${RANGE}!${cellAddress}`,
-          valueInputOption: "USER_ENTERED",
-          resource: { values: [[value]] }
-        });
-        document.getElementById('status').textContent = `Mise à jour OK ligne ${rowIndex}, champ ${field}`;
-      } catch(e) {
-        document.getElementById('status').textContent = "Erreur mise à jour : " + e.message;
-      }
-    }
-
-    // Filtrer tableau
-    function filterTable() {
-      refreshTable();
-    }
-
-    // Notification popup
-    const popup = document.getElementById('popup-notif');
-    document.getElementById('btn-notif').onclick = async () => {
-      if(!accessToken) {
-        alert("Connectez-vous d'abord");
-        return;
-      }
-      popup.style.display = 'block';
-      await loadNotification();
-    };
-    popup.querySelector('.close-btn').onclick = () => popup.style.display = 'none';
-
-    // Imprimer notification
-    document.getElementById('btn-print-notif').onclick = () => {
-      const content = document.getElementById('notif-content').innerHTML;
-      const printWindow = window.open('', '', 'width=600,height=600');
-      printWindow.document.write('<html><head><title>Impression périmés</title></head><body>');
-      printWindow.document.write(content);
-      printWindow.document.write('</body></html>');
-      printWindow.document.close();
-      printWindow.print();
-    };
-
-    // Charger notifications périmés (sur 3 mois à partir du 15 du mois courant)
-    async function loadNotification() {
-      const notifContent = document.getElementById('notif-content');
-      notifContent.innerHTML = "Chargement...";
-      if(sheetRows.length === 0) {
-        await loadSheet();
-      }
-
-      const today = new Date();
-      const checkDate = new Date(today.getFullYear(), today.getMonth(), 15);
-      // 3 mois suivants
-      const limitDate = new Date(checkDate.getFullYear(), checkDate.getMonth() + 3, 0);
-
-      // Filtrer périmés entre checkDate et limitDate
-      const filtered = sheetRows.filter(r => {
-        if(!r.date) return false;
-        let d = new Date(r.date);
-        if(isNaN(d)) return false;
-        return d >= checkDate && d <= limitDate;
+      // Mise à jour ligne complète
+      const updateRange = `${RANGE}!A${row+1}:G${row+1}`;
+      await gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: updateRange,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [rows[row]] }
       });
 
-      if(filtered.length === 0) {
-        notifContent.innerHTML = "<p>Aucun produit périmé dans les 3 mois.</p>";
-        return;
-      }
-
-      // Grouper par mois
-      const groups = {};
-      filtered.forEach(r => {
-        const d = new Date(r.date);
-        const key = `${("0"+(d.getMonth()+1)).slice(-2)}/${d.getFullYear()}`;
-        if(!groups[key]) groups[key] = [];
-        groups[key].push(r);
-      });
-
-      let html = '';
-      for(let month in groups) {
-        html += `<h4>${month}</h4><table><thead><tr>
-          <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-          </tr></thead><tbody>`;
-        groups[month].forEach(r => {
-          html += `<tr>
-            <td>${r.product}</td><td>${r.date}</td><td>${r.qty}</td><td>${r.zone}</td><td>${r.sold}</td><td>${r.promo}</td>
-          </tr>`;
-        });
-        html += '</tbody></table>';
-      }
-      notifContent.innerHTML = html;
+      document.getElementById('status').textContent = 'Modifié avec succès.';
+    } catch (err) {
+      document.getElementById('status').textContent = 'Erreur modification : ' + err.message;
+      // Reload table to fix bad edit
+      loadSheet();
     }
+  }, true);
 
-    window.onload = () => {
-      document.getElementById('btn-choose-operator').disabled = true;
-      // Charger Google API
-      gapiLoaded();
-      gisLoaded();
+  // Gestion sélection ligne au clic
+  document.querySelector('#data-table tbody').addEventListener('click', (e) => {
+    let tr = e.target.closest('tr');
+    if (!tr) return;
+
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.querySelectorAll('tr.selected').forEach(r => r.classList.remove('selected'));
+    tr.classList.add('selected');
+  });
+
+  // Notification popup gestion
+  const notifPopup = document.getElementById('notification-popup');
+  const notifContent = notifPopup.querySelector('.content');
+
+  document.getElementById('btn-notification').onclick = () => {
+    showNotificationPopup();
+  };
+  notifPopup.querySelector('.close-popup').onclick = () => {
+    notifPopup.style.display = 'none';
+  };
+
+  // Générer la liste périmés pour juin, juillet, août (exemple)
+  function getPerimesList(rows) {
+    const perimes = { '06': [], '07': [], '08': [] }; // clefs mois au format MM
+    const now = new Date();
+
+    // Filtrer lignes où date est dans juin/juillet/août (année actuelle)
+    const currentYear = now.getFullYear();
+
+    rows.forEach(r => {
+      if (r.length < 7) return;
+      const dateStr = r[2];
+      if (!dateStr) return;
+
+      // Extrait mois et année
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+      const y = d.getFullYear();
+      const m = (d.getMonth()+1).toString().padStart(2, '0');
+
+      if (y === currentYear && perimes[m]) {
+        perimes[m].push(r[1] + " (" + dateStr + ")");
+      }
+    });
+    return perimes;
+  }
+
+  async function showNotificationPopup() {
+    if (!accessToken) {
+      alert("Connectez-vous d'abord !");
+      return;
     }
-  </script>
+    try {
+      gapi.client.setToken({ access_token: accessToken });
+      const res = await gapi.client.sheets.spreadsheets.values.get({spreadsheetId: SPREADSHEET_ID, range: RANGE});
+      const rows = res.result.values || [];
+
+      const perimes = getPerimesList(rows);
+
+      // Affichage trié par mois
+      notifContent.innerHTML = '';
+      for (const m of ['06', '07', '08']) {
+        const div = document.createElement('div');
+        div.classList.add('month-group');
+        const monthName = new Date(new Date().getFullYear(), parseInt(m)-1, 1).toLocaleString('fr-FR', {month: 'long'});
+        div.innerHTML = `<h4>${monthName}</h4>`;
+        if (perimes[m].length) {
+          const ul = document.createElement('ul');
+          perimes[m].forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            ul.appendChild(li);
+          });
+          div.appendChild(ul);
+        } else {
+          div.innerHTML += '<p>Aucun produit périmé</p>';
+        }
+        notifContent.appendChild(div);
+      }
+      notifPopup.style.display = 'flex';
+    } catch (e) {
+      alert("Erreur chargement notifications : " + e.message);
+    }
+  }
+
+  // Filtre tableau
+  document.getElementById('btn-filter').onclick = () => {
+    const zoneFilter = document.getElementById('filter-zone').value.toLowerCase().trim();
+    const monthFilter = document.getElementById('filter-month').value; // format yyyy-MM
+
+    const tbody = document.querySelector('#data-table tbody');
+    Array.from(tbody.rows).forEach(row => {
+      const zone = row.cells[3].textContent.toLowerCase();
+      const dateVal = row.cells[1].textContent;
+
+      let show = true;
+      if (zoneFilter && !zone.includes(zoneFilter)) show = false;
+      if (monthFilter) {
+        const [y,m] = monthFilter.split('-');
+        if (!dateVal.startsWith(`${y}-${m}`)) show = false;
+      }
+      row.style.display = show ? '' : 'none';
+    });
+  };
+  document.getElementById('btn-clear-filter').onclick = () => {
+    document.getElementById('filter-zone').value = '';
+    document.getElementById('filter-month').value = '';
+    document.getElementById('btn-filter').click();
+  };
+
+  // Supprimer toutes lignes du tableau
+  function clearTable() {
+    document.querySelector('#data-table tbody').innerHTML = '';
+  }
+
+  // Chargement initial, insert les scripts Google et initialise API
+  function initialize() {
+    gapiLoaded();
+    gisLoaded();
+  }
+
+  window.onload = initialize;
+
+</script>
 
 </body>
 </html>
