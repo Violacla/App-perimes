@@ -564,14 +564,19 @@
 async function loadNotifications() {
   try {
     const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0 = janvier
 
-    // Générer les 3 mois suivants avec début et fin de chaque mois
+    // Générer les 3 mois suivants après le mois courant (pas inclure le mois actuel)
     const notifMonths = [];
     for (let i = 1; i <= 3; i++) {
-      const year = now.getFullYear();
-      const month = now.getMonth() + i; // JS 0-based
+      // Calculer le mois et l'année en gérant le dépassement d'année
+      const monthIndex = currentMonth + i;
+      const year = currentYear + Math.floor(monthIndex / 12);
+      const month = monthIndex % 12;
+
       const startDate = new Date(year, month, 1);
-      const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999); // dernier jour du mois
+      const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
       notifMonths.push({ startDate, endDate });
     }
 
@@ -627,6 +632,7 @@ async function loadNotifications() {
     notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
   }
 }
+
 
 
   async function loadNotifications() {
