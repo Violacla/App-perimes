@@ -1,6 +1,293 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<meta charset="UTF-8" />
+<title>Gestion Perimé - Pharmacie du Libron</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<style>
+  :root {
+    --bleu-glacial: #bcd7ed;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+  }
+
+  /* Bandeau bleu glacial */
+  header {
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  }
+
+  #header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  #header-left > h1 {
+    margin: 0;
+    font-size: 1.3em;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-size: 1em;
+    color: #0a2f51;
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: rgba(255 255 255 / 0.3);
+  }
+
+  /* Icons with emoji for simplicity */
+  .icon {
+    font-size: 1.2em;
+    margin-right: 6px;
+  }
+
+  /* Header right buttons */
+  #header-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  /* Operator form */
+  #operator-form {
+    margin-left: 10px;
+  }
+
+  /* Layout */
+  main {
+    display: flex;
+    margin: 20px;
+  }
+
+  /* Form to add entries on right */
+  #entry-form {
+    width: 320px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    margin-left: 20px;
+  }
+  #entry-form h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+  #entry-form input {
+    width: 100%;
+    margin: 6px 0;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  #entry-form button {
+    width: 100%;
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  #entry-form button:hover {
+    background-color: #a6c6e1;
+  }
+
+  /* Table styles */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  /* Alternate row background with 15% opacity bleu glacial */
+  tbody tr:nth-child(odd) {
+    background-color: rgba(188, 215, 237, 0.15);
+  }
+
+  /* Selected row highlight 50% opacity */
+  tbody tr.selected {
+    background-color: rgba(188, 215, 237, 0.5) !important;
+  }
+
+  /* Editable cells */
+  tbody td {
+    cursor: text;
+  }
+
+  /* Filter section */
+  #filters {
+    margin: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+  }
+  #filters label {
+    font-weight: bold;
+  }
+  #filters input, #filters button {
+    padding: 5px 8px;
+    font-size: 1em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  #filters button {
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #filters button:hover {
+    background-color: #a6c6e1;
+  }
+
+  /* Status text */
+  #status {
+    margin: 10px 20px;
+    font-weight: bold;
+    color: #0a2f51;
+  }
+
+  /* Notification popup modal */
+  #notification-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+  }
+
+  #notification-popup header {
+    background-color: var(--bleu-glacial);
+    color: #0a2f51;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #notification-popup header button {
+    background: transparent;
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    color: #0a2f51;
+  }
+
+  #notification-popup .content {
+    padding: 15px 20px;
+    overflow-y: auto;
+  }
+
+  #notification-popup table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #notification-popup th, #notification-popup td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  #notification-popup tbody tr:nth-child(odd) {
+    background-color: rgba(188, 215, 237, 0.15);
+  }
+
+  /* Print styles */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #notification-popup, #notification-popup * {
+      visibility: visible;
+    }
+    #notification-popup {
+      position: static;
+      transform: none;
+      box-shadow: none;
+      width: 100%;
+      max-height: none;
+      overflow: visible;
+      border-radius: 0;
+    }
+    #notification-popup header button,
+    #notification-popup #print-notif {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div id="header-left">
+    <h1>Gestion Perimé - Pharmacie du Libron</h1>
+    <div id="operator-form" style="display:none;">
+      <select id="operator">
+        <option value="">-- Choisir opérateur --</option>
+        <option>Op1</option>
+        <option>Op2</option>
+        <option>Op3</option>
+        <option>Op4</option>
+      </select>
+      <button id="btn-confirm-operator">Valider</button>
+    </div>
+    <button id="btn-login" style="display:inline-block;">Se connecter</button>
+  </div>
+  <div id="header-right">
+    <button id="btn-notif" title="Notifications">🔔 Notifications</button>
+    <button onclick="location.href='historique.html'" title="Historique">📜 Historique</button>
+    <button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
+  
+    <a href="/index.html" title="Accueil" style="
+  display:inline-block;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  overflow:hidden;
+  border:2px solid #0a2f51;">
+  <img src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
+</a>
+
+
+  </div>
+<html lang="fr">
+<head>
   <meta charset="UTF-8" />
   <title>Historique</title>
   <style>
