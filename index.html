@@ -561,6 +561,63 @@
   };
 
   // Load notifications: produit périmé pour les 3 mois à partir du 15 du mois en cours triés par mois
+  
+
+      // Group by year-month string "YYYY-MM"
+      const grouped = {};
+      notifDates.forEach(d => {
+        const ym = d.toISOString().slice(0,7);
+        grouped[ym] = [];
+      });
+
+      // Filter rows with dates close or expired (assuming date column format YYYY-MM-DD)
+      data.forEach(row => {
+        const dateStr = row[2];
+        if(!dateStr) return;
+        const d = new Date(dateStr);
+        if(isNaN(d)) return;
+
+        // We consider products expired or close if date <= 15 of next 3 months
+        notifDates.forEach(notifDate => {
+          if(d <= notifDate) {
+            const ym = notifDate.toISOString().slice(0,7);
+            if(grouped[ym]) grouped[ym].push(row);
+          }
+        });
+      });
+
+      // Build HTML table grouped by month
+      let html = '';
+      for(const ym of Object.keys(grouped)) {
+        html += `<h3>${formatMonthYear(ym)}</h3>`;
+        if(grouped[ym].length === 0) {
+          html += '<p>Aucun produit périmé ou proche de la date pour ce mois.</p>';
+          continue;
+        }
+        html += `<table>
+          <thead>
+            <tr>
+              <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+            </tr>
+          </thead><tbody>`;
+        grouped[ym].forEach(row => {
+          html += '<tr>';
+          // skip opérateur (col 0)
+          [1,2,3,4,5,6].forEach(ci => {
+            html += `<td>${row[ci] || ''}</td>`;
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+      }
+
+      notifContent.innerHTML = html;
+
+    } catch(e) {
+      notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
+    }
+  }
+
   async function loadNotifications() {
   try {
     const res = await gapi.client.sheets.spreadsheets.values.get({
@@ -638,62 +695,7 @@
   }
 }
 
-      // Group by year-month string "YYYY-MM"
-      const grouped = {};
-      notifDates.forEach(d => {
-        const ym = d.toISOString().slice(0,7);
-        grouped[ym] = [];
-      });
-
-      // Filter rows with dates close or expired (assuming date column format YYYY-MM-DD)
-      data.forEach(row => {
-        const dateStr = row[2];
-        if(!dateStr) return;
-        const d = new Date(dateStr);
-        if(isNaN(d)) return;
-
-        // We consider products expired or close if date <= 15 of next 3 months
-        notifDates.forEach(notifDate => {
-          if(d <= notifDate) {
-            const ym = notifDate.toISOString().slice(0,7);
-            if(grouped[ym]) grouped[ym].push(row);
-          }
-        });
-      });
-
-      // Build HTML table grouped by month
-      let html = '';
-      for(const ym of Object.keys(grouped)) {
-        html += `<h3>${formatMonthYear(ym)}</h3>`;
-        if(grouped[ym].length === 0) {
-          html += '<p>Aucun produit périmé ou proche de la date pour ce mois.</p>';
-          continue;
-        }
-        html += `<table>
-          <thead>
-            <tr>
-              <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-            </tr>
-          </thead><tbody>`;
-        grouped[ym].forEach(row => {
-          html += '<tr>';
-          // skip opérateur (col 0)
-          [1,2,3,4,5,6].forEach(ci => {
-            html += `<td>${row[ci] || ''}</td>`;
-          });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-      }
-
-      notifContent.innerHTML = html;
-
-    } catch(e) {
-      notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
-    }
-  }
-
-  function formatMonthYear(ym) {
+function formatMonthYear(ym) {
     const [y,m] = ym.split('-');
     const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
     return months[parseInt(m,10)-1] + ' ' + y;
