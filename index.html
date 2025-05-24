@@ -559,99 +559,27 @@
   document.getElementById('print-notif').onclick = () => {
     window.print();
   };
-
-  // Load notifications: produit périmé pour les 3 mois à partir du 15 du mois en cours triés par mois
-async function loadNotifications() {
+// trier 3mois
+ async function loadNotifications() {
   try {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0 = janvier
-
-    // Générer les 3 mois suivants après le mois courant (pas inclure le mois actuel)
-    const notifMonths = [];
-    for (let i = 1; i <= 3; i++) {
-      // Calculer le mois et l'année en gérant le dépassement d'année
-      const monthIndex = currentMonth + i;
-      const year = currentYear + Math.floor(monthIndex / 12);
-      const month = monthIndex % 12;
-
-      const startDate = new Date(year, month, 1);
-      const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
-      notifMonths.push({ startDate, endDate });
-    }
-
-    // Initialiser grouped par mois (ex: "2025-06")
-    const grouped = {};
-    notifMonths.forEach(({ startDate }) => {
-      const ym = startDate.toISOString().slice(0, 7);
-      grouped[ym] = [];
-    });
-
-    // Filtrer les produits dont la date est dans un des mois ciblés
-    data.forEach(row => {
-      const dateStr = row[2];
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
-
-      notifMonths.forEach(({ startDate, endDate }) => {
-        if (d >= startDate && d <= endDate) {
-          const ym = startDate.toISOString().slice(0, 7);
-          if (grouped[ym]) grouped[ym].push(row);
-        }
-      });
-    });
-
-    // Construire le HTML regroupé par mois
-    let html = '';
-    for (const ym of Object.keys(grouped)) {
-      html += `<h3>${formatMonthYear(ym)}</h3>`;
-      if (grouped[ym].length === 0) {
-        html += '<p>Aucun produit périmé ou proche de la date pour ce mois.</p>';
-        continue;
-      }
-      html += `<table>
-        <thead>
-          <tr>
-            <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-          </tr>
-        </thead><tbody>`;
-      grouped[ym].forEach(row => {
-        html += '<tr>';
-        [1, 2, 3, 4, 5, 6].forEach(ci => {
-          html += `<td>${row[ci] || ''}</td>`;
-        });
-        html += '</tr>';
-      });
-      html += '</tbody></table>';
-    }
-
-    notifContent.innerHTML = html;
-
-  } catch (e) {
-    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
-  }
-}
-
-
-
-  async function loadNotifications() {
-  try {
+    // Récupérer les données depuis Google Sheets
     const res = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE
     });
     const rows = res.result.values || [];
-    const data = rows.slice(1);
+    const data = rows.slice(1); // Ignorer l'entête
 
     const now = new Date();
-    const monthsSet = new Set();
 
+    // Construire un Set des 3 mois à afficher : mois courant + 2 suivants (ex: mai, juin, juillet)
+    const monthsSet = new Set();
     for (let i = 0; i < 3; i++) {
       const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
       monthsSet.add(future.toISOString().slice(0, 7));
     }
 
+    // Grouper les lignes par mois (YYYY-MM)
     const grouped = {};
 
     data.forEach(row => {
@@ -667,6 +595,7 @@ async function loadNotifications() {
       }
     });
 
+    // Construire le HTML à afficher
     let html = '';
     const sortedYM = Array.from(monthsSet).sort();
 
@@ -680,6 +609,7 @@ async function loadNotifications() {
         continue;
       }
 
+      // Optionnel : trier par zone (colonne 4)
       rowsForMonth.sort((a, b) => {
         const zoneA = (a[4] || '').toLowerCase();
         const zoneB = (b[4] || '').toLowerCase();
@@ -696,7 +626,7 @@ async function loadNotifications() {
 
       rowsForMonth.forEach(row => {
         html += '<tr>';
-        [1,2,3,4,5,6].forEach(ci => {
+        [1, 2, 3, 4, 5, 6].forEach(ci => {
           html += `<td>${row[ci] || ''}</td>`;
         });
         html += '</tr>';
@@ -712,11 +642,13 @@ async function loadNotifications() {
   }
 }
 
+// Format "YYYY-MM" en "Mois Année" (ex : "2025-05" -> "Mai 2025")
 function formatMonthYear(ym) {
-    const [y,m] = ym.split('-');
-    const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-    return months[parseInt(m,10)-1] + ' ' + y;
-  }
+  const [y, m] = ym.split('-');
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  return months[parseInt(m, 10) - 1] + ' ' + y;
+}
 
   // Load GAPI & GIS on window load
   window.onload = () => {
