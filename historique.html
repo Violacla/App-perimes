@@ -2,86 +2,47 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Historique des produits périmés</title>
+  <title>Historique - Pharmacie du Libron</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
-    :root { --bleu-glacial: #bcd7ed; }
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      background-color: #f9f9f9;
+      margin: 0;
     }
     header {
-  background-color: var(--bleu-glacial);
-  color: #0a2f51;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px; /* plus compact */
-  font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-}
-
-    #header-left {
+      background-color: #bcd7ed;
+      padding: 10px 20px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     }
-    #header-left a {
-      display:inline-block;
-      width:40px; height:40px;
-      border-radius:50%;
-      overflow:hidden;
-      border:2px solid #0a2f51;
-    }
-    #header-left img {
-      width:100%; height:100%; object-fit:cover;
-    }
-    #header-right {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-    #header-right button {
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      font-size: 1em;
+    h1 {
+      margin: 0;
       color: #0a2f51;
-      padding: 6px 10px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
+      font-size: 1.3em;
     }
-    #header-right button:hover {
-      background-color: rgba(255 255 255 / 0.3);
-    }
-    #filters {
-      display: flex;
-      gap: 15px;
-      margin: 20px;
-      align-items: flex-end;
-    }
-    #filters input, #filters button {
-      padding: 5px 8px;
+    button {
+      cursor: pointer;
+      padding: 8px 12px;
       font-size: 1em;
+      border: none;
       border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    #filters button {
-      background-color: var(--bleu-glacial);
+      background-color: #bcd7ed;
       color: #0a2f51;
       font-weight: bold;
-      cursor: pointer;
-      border: none;
+    }
+    button:hover {
+      background-color: #a6c6e1;
     }
     table {
-      width: calc(100% - 40px);
-      margin: 20px;
+      width: 100%;
       border-collapse: collapse;
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      overflow: hidden;
+      background-color: white;
+      margin: 20px auto;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
     th, td {
       border: 1px solid #ccc;
@@ -91,8 +52,6 @@
     tbody tr:nth-child(odd) {
       background-color: rgba(188, 215, 237, 0.15);
     }
-
-    /* Popup notifications */
     #notification-popup {
       position: fixed;
       top: 50%; left: 50%;
@@ -108,151 +67,181 @@
       flex-direction: column;
     }
     #notification-popup header {
-      background-color: var(--bleu-glacial);
+      background-color: #bcd7ed;
+      padding: 12px 20px;
       color: #0a2f51;
       font-weight: bold;
-      padding: 12px 20px;
-      border-radius: 10px 10px 0 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    #notification-popup header button {
-      background: transparent;
-      border: none;
-      font-size: 1.4em;
-      cursor: pointer;
-      color: #0a2f51;
+      border-radius: 10px 10px 0 0;
     }
     #notification-popup .content {
       padding: 15px 20px;
+    }
+    #status {
+      text-align: center;
+      color: #0a2f51;
+      font-weight: bold;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div id="header-left">
-    <a href="index.html" title="Accueil">
-      <img src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" alt="Logo">
-    </a>
-    <h1>Historique des produits périmés</h1>
-  </div>
-  <div id="header-right">
-    <button id="btn-notif" title="Notifications">🔔 Notifications</button>
-    <button onclick="location.href='index.html'" title="Retour à l'accueil">↩️ Retour</button>
+  <h1>Historique des Produits Périmés</h1>
+  <div>
+    <button onclick="window.location.href='index.html'">⬅ Retour à l'accueil</button>
+    <button id="btn-notif">🔔 Notifications</button>
   </div>
 </header>
 
-<section id="filters">
-  <label>Zone:</label>
-  <input type="text" id="filter-zone" placeholder="Zone A" />
-  <label>Mois:</label>
-  <input type="month" id="filter-month" />
-  <button onclick="applyFilters()">Filtrer</button>
-  <button onclick="resetFilters()">Réinitialiser</button>
-</section>
-
-<table id="history-table">
+<table id="data-table">
   <thead>
     <tr>
-      <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+      <th>Opérateur</th>
+      <th>Produit</th>
+      <th>Date</th>
+      <th>Qté</th>
+      <th>Zone</th>
+      <th>Vendues</th>
+      <th>Promo</th>
     </tr>
   </thead>
-  <tbody>
-    <tr><td colspan="6">Chargement...</td></tr>
-  </tbody>
+  <tbody></tbody>
 </table>
 
-<!-- Notification Popup -->
+<pre id="status">Chargement...</pre>
+
 <div id="notification-popup">
   <header>
-    <span>Produits à surveiller</span>
-    <button id="close-notif">✖️</button>
+    <span>Notifications</span>
+    <button onclick="document.getElementById('notification-popup').style.display='none'">✖️</button>
   </header>
-  <div class="content" id="notif-content"></div>
+  <div class="content"></div>
 </div>
 
 <script>
+  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
   const RANGE = 'historique';
-  let allData = [];
 
-  window.onload = () => {
+  let tokenClient, accessToken = null;
+
+  function gapiLoaded() {
     gapi.load('client', async () => {
-      await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
-      loadData();
+      await gapi.client.init({
+        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
+      });
+      loadSheet();
     });
-    document.getElementById('btn-notif').onclick = () => {
-      loadNotifications();
-      document.getElementById('notification-popup').style.display = 'flex';
-    };
-    document.getElementById('close-notif').onclick = () => {
-      document.getElementById('notification-popup').style.display = 'none';
-    };
-  };
-
-  async function loadData() {
-    const res = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE
-    });
-    allData = res.result.values || [];
-    renderTable(allData);
   }
 
-  function renderTable(data) {
-    const tbody = document.querySelector('#history-table tbody');
+  function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+      callback: (response) => {
+        accessToken = response.access_token;
+        gapi.client.setToken({ access_token: accessToken });
+        loadSheet();
+      }
+    });
+    tokenClient.requestAccessToken();
+  }
+
+  async function loadSheet() {
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE
+      });
+      const rows = res.result.values || [];
+      renderTable(rows);
+    } catch (e) {
+      document.getElementById('status').textContent = 'Erreur : ' + e.message;
+    }
+  }
+
+  function renderTable(rows) {
+    const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
-    data.slice(1).forEach(row => {
+    rows.slice(1).forEach(row => {
       const tr = document.createElement('tr');
-      [1,2,3,4,5,6].forEach(i => {
+      for (let i = 0; i <= 6; i++) {
         const td = document.createElement('td');
         td.textContent = row[i] || '';
         tr.appendChild(td);
-      });
+      }
       tbody.appendChild(tr);
     });
+    document.getElementById('status').textContent = 'Données chargées.';
   }
 
-  function applyFilters() {
-    const zone = document.getElementById('filter-zone').value.toLowerCase();
-    const month = document.getElementById('filter-month').value;
-    const filtered = allData.filter((row, idx) => {
-      if (idx === 0) return false;
-      const rowZone = (row[4] || '').toLowerCase();
-      const date = row[2] || '';
-      return (!zone || rowZone.includes(zone)) && (!month || date.startsWith(month));
-    });
-    renderTable([allData[0], ...filtered]);
-  }
+  document.getElementById('btn-notif').onclick = async () => {
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE
+      });
+      const rows = res.result.values.slice(1);
+      const content = document.querySelector('#notification-popup .content');
+      const now = new Date();
+      const monthsSet = new Set();
+      for (let i = 1; i <= 3; i++) {
+        const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const ym = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}`;
+        monthsSet.add(ym);
+      }
 
-  function resetFilters() {
-    document.getElementById('filter-zone').value = '';
-    document.getElementById('filter-month').value = '';
-    renderTable(allData);
-  }
+      const grouped = {};
+      rows.forEach(row => {
+        const dateStr = row[2];
+        if (!dateStr) return;
+        const d = new Date(dateStr);
+        if (isNaN(d)) return;
+        const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        if (monthsSet.has(ym)) {
+          if (!grouped[ym]) grouped[ym] = [];
+          grouped[ym].push(row);
+        }
+      });
 
-  function loadNotifications() {
-    const today = new Date();
-    const soon = new Date(today);
-    soon.setMonth(today.getMonth() + 3);
-    const upcoming = allData.filter((row, idx) => {
-      if (idx === 0) return false;
-      const date = new Date(row[2]);
-      return !isNaN(date) && date >= today && date <= soon;
-    });
-
-    const content = document.getElementById('notif-content');
-    if (!upcoming.length) {
-      content.innerHTML = '<p>Aucune notification à afficher.</p>';
-      return;
+      let html = '';
+      for (const ym of [...monthsSet].sort()) {
+        html += `<h3>${formatMonthYear(ym)}</h3>`;
+        const rowsForMonth = grouped[ym] || [];
+        if (rowsForMonth.length === 0) {
+          html += '<p>Aucun produit périmé pour ce mois.</p>';
+          continue;
+        }
+        html += '<table><thead><tr><th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th></tr></thead><tbody>';
+        rowsForMonth.forEach(r => {
+          html += '<tr>';
+          [1,2,3,4,5,6].forEach(i => html += `<td>${r[i] || ''}</td>`);
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+      }
+      content.innerHTML = html;
+      document.getElementById('notification-popup').style.display = 'flex';
+    } catch (e) {
+      alert("Erreur chargement notifications : " + e.message);
     }
-    content.innerHTML = '<table><thead><tr><th>Produit</th><th>Date</th><th>Zone</th></tr></thead><tbody>' +
-      upcoming.map(r => `<tr><td>${r[1]}</td><td>${r[2]}</td><td>${r[4]}</td></tr>`).join('') +
-      '</tbody></table>';
+  };
+
+  function formatMonthYear(ym) {
+    const [y, m] = ym.split('-');
+    const mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    return `${mois[parseInt(m, 10) - 1]} ${y}`;
   }
+
+  window.onload = () => {
+    gapiLoaded();
+    gisLoaded();
+  };
 </script>
+
 </body>
 </html>
-
