@@ -617,14 +617,20 @@
               <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
             </tr>
           </thead><tbody>`;
-        grouped[ym].forEach(row => {
-          html += '<tr>';
-          // skip opérateur (col 0)
-          [1,2,3,4,5,6].forEach(ci => {
-            html += `<td>${row[ci] || ''}</td>`;
-          });
-          html += '</tr>';
-        });
+        // Trier par zone (colonne 4 dans Google Sheets => index 4)
+grouped[ym].sort((a, b) => {
+  const zoneA = (a[4] || '').toLowerCase();
+  const zoneB = (b[4] || '').toLowerCase();
+  return zoneA.localeCompare(zoneB);
+});
+
+grouped[ym].forEach(row => {
+  html += '<tr>';
+  [1,2,3,4,5,6].forEach(ci => {
+    html += `<td>${row[ci] || ''}</td>`;
+  });
+  html += '</tr>';
+});
         html += '</tbody></table>';
       }
 
