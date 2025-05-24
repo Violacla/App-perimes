@@ -560,28 +560,27 @@
     window.print();
   };
 // trier 3mois
- async function loadNotifications() {
+async function loadNotifications() {
   try {
-    // Récupérer les données depuis Google Sheets
     const res = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE
     });
     const rows = res.result.values || [];
-    const data = rows.slice(1); // Ignorer l'entête
+    const data = rows.slice(1);
 
     const now = new Date();
+    if (now.getDate() < 15) {
+      now.setMonth(now.getMonth() - 1);
+    }
 
-    // Construire un Set des 3 mois à afficher : mois courant + 2 suivants (ex: mai, juin, juillet)
     const monthsSet = new Set();
     for (let i = 0; i < 3; i++) {
       const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
       monthsSet.add(future.toISOString().slice(0, 7));
     }
 
-    // Grouper les lignes par mois (YYYY-MM)
     const grouped = {};
-
     data.forEach(row => {
       const dateStr = row[2];
       if (!dateStr) return;
@@ -595,7 +594,6 @@
       }
     });
 
-    // Construire le HTML à afficher
     let html = '';
     const sortedYM = Array.from(monthsSet).sort();
 
@@ -609,7 +607,6 @@
         continue;
       }
 
-      // Optionnel : trier par zone (colonne 4)
       rowsForMonth.sort((a, b) => {
         const zoneA = (a[4] || '').toLowerCase();
         const zoneB = (b[4] || '').toLowerCase();
