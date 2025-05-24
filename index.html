@@ -567,33 +567,39 @@ async function loadNotifications() {
       range: RANGE
     });
     const rows = res.result.values || [];
-    const data = rows.slice(1);
+    const data = rows.slice(1); // Ignorer l'entête
 
     const now = new Date();
-    if (now.getDate() < 15) {
-      now.setMonth(now.getMonth() - 1);
-    }
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0 = janvier
 
+    // Construire un Set des 3 mois : mois courant + 2 suivants
     const monthsSet = new Set();
     for (let i = 0; i < 3; i++) {
-      const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      monthsSet.add(future.toISOString().slice(0, 7));
+      const monthIndex = currentMonth + i;
+      const year = currentYear + Math.floor(monthIndex / 12);
+      const month = monthIndex % 12;
+      const ym = `${year}-${String(month + 1).padStart(2, '0')}`;
+      monthsSet.add(ym);
     }
 
+    // Grouper les lignes par mois (YYYY-MM)
     const grouped = {};
+
     data.forEach(row => {
       const dateStr = row[2];
       if (!dateStr) return;
       const d = new Date(dateStr);
       if (isNaN(d)) return;
 
-      const ym = d.toISOString().slice(0, 7);
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       if (monthsSet.has(ym)) {
         if (!grouped[ym]) grouped[ym] = [];
         grouped[ym].push(row);
       }
     });
 
+    // Construire le HTML
     let html = '';
     const sortedYM = Array.from(monthsSet).sort();
 
@@ -607,6 +613,7 @@ async function loadNotifications() {
         continue;
       }
 
+      // Trier par zone (optionnel)
       rowsForMonth.sort((a, b) => {
         const zoneA = (a[4] || '').toLowerCase();
         const zoneB = (b[4] || '').toLowerCase();
