@@ -567,23 +567,17 @@ async function loadNotifications() {
       range: RANGE
     });
     const rows = res.result.values || [];
-    const data = rows.slice(1); // Ignorer l'entête
+    const data = rows.slice(1);
 
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0 = janvier
 
-    // Construire un Set des 3 mois suivants (sans inclure le mois courant)
     const monthsSet = new Set();
     for (let i = 1; i <= 3; i++) {
-      const monthIndex = currentMonth + i;
-      const year = currentYear + Math.floor(monthIndex / 12);
-      const month = monthIndex % 12;
-      const ym = `${year}-${String(month + 1).padStart(2, '0')}`;
+      const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const ym = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}`;
       monthsSet.add(ym);
     }
 
-    // Grouper les lignes par mois (YYYY-MM)
     const grouped = {};
 
     data.forEach(row => {
@@ -599,7 +593,6 @@ async function loadNotifications() {
       }
     });
 
-    // Construire le HTML
     let html = '';
     const sortedYM = Array.from(monthsSet).sort();
 
@@ -613,7 +606,6 @@ async function loadNotifications() {
         continue;
       }
 
-      // Trier par zone (optionnel)
       rowsForMonth.sort((a, b) => {
         const zoneA = (a[4] || '').toLowerCase();
         const zoneB = (b[4] || '').toLowerCase();
@@ -645,6 +637,7 @@ async function loadNotifications() {
     notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
   }
 }
+
 
 // Format "YYYY-MM" en "Mois Année" (ex : "2025-05" -> "Mai 2025")
 function formatMonthYear(ym) {
