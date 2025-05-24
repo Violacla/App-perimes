@@ -573,9 +573,9 @@ async function loadNotifications() {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth(); // 0 = janvier
 
-    // Construire un Set des 3 mois : mois courant + 2 suivants
+    // Construire un Set des 3 mois suivants (sans inclure le mois courant)
     const monthsSet = new Set();
-    for (let i = 0; i < 3; i++) {
+    for (let i = 1; i <= 3; i++) {
       const monthIndex = currentMonth + i;
       const year = currentYear + Math.floor(monthIndex / 12);
       const month = monthIndex % 12;
