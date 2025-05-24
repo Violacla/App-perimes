@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Historique</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+  <h1>Historique des événements passés</h1>
+  <table id="historique-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <!-- Ajoute d'autres colonnes si besoin -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="2">Chargement des données...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    // Remplace par l'ID de ton Google Sheet
+    const sheetId = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+
+    // Nom de la feuille
+    const sheetName = 'historique';
+
+    // URL pour récupérer les données en JSON via l'API Google Sheets (version publique en JSON)
+    const url = `https://spreadsheets.google.com/feeds/list/${sheetId}/od6/public/values?alt=json`;
+
+    // Note: Pour cibler une autre feuille que la 1ère, il faut récupérer le bon gid,
+    // sinon tu peux utiliser une API comme Tabletop.js (plus facile)
+
+    // Ici, on utilise Tabletop.js (librairie simple pour Google Sheets)
+    // On inclut Tabletop via CDN
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.4/tabletop.min.js"></script>
+  <script>
+    function afficherHistorique(data) {
+      const tbody = document.querySelector('#historique-table tbody');
+      tbody.innerHTML = ''; // vide avant ajout
+
+      const today = new Date();
+
+      data.forEach(item => {
+        // Supposons que ta colonne date s'appelle "date" dans la Google Sheet
+        // Tabletop convertit les noms de colonnes en minuscules sans espace
+        const dateStr = item.date;
+        const description = item.description || '';
+
+        if (!dateStr) return; // ignore si pas de date
+
+        const date = new Date(dateStr);
+
+        if (date < today) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${date.toLocaleDateString()}</td><td>${description}</td>`;
+          tbody.appendChild(tr);
+        }
+      });
+
+      if (tbody.children.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2">Aucun événement passé.</td></tr>';
+      }
+    }
+
+    function init() {
+      Tabletop.init({
+        key: sheetId,
+        simpleSheet: true,
+        wanted: [sheetName],
+        callback: function(data, tabletop) {
+          // data ici est un tableau d'objets correspondant à ta feuille "historique"
+          afficherHistorique(data);
+        },
+        error: function(err) {
+          console.error('Erreur chargement Google Sheet:', err);
+          const tbody = document.querySelector('#historique-table tbody');
+          tbody.innerHTML = '<tr><td colspan="2">Erreur lors du chargement des données.</td></tr>';
+        }
+      });
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
