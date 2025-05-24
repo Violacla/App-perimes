@@ -562,23 +562,81 @@
 
   // Load notifications: produit périmé pour les 3 mois à partir du 15 du mois en cours triés par mois
   async function loadNotifications() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({spreadsheetId: SPREADSHEET_ID, range: RANGE});
-      const rows = res.result.values || [];
-      const header = rows[0];
-      const data = rows.slice(1);
+  try {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE
+    });
+    const rows = res.result.values || [];
+    const data = rows.slice(1);
 
-      // Col indices
-      // opérateur 0, produit 1, date 2, qty 3, zone 4, vendues 5, promo 6
-      // Exclure opérateur dans notif table too
+    const now = new Date();
+    const monthsSet = new Set();
 
-      // Get today's date and build array of 3 months from 15th
-      const now = new Date();
-      const notifDates = [];
-      for(let i=0; i<3; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() + i, 15);
-        notifDates.push(d);
+    for (let i = 0; i < 3; i++) {
+      const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      monthsSet.add(future.toISOString().slice(0, 7));
+    }
+
+    const grouped = {};
+
+    data.forEach(row => {
+      const dateStr = row[2];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+
+      const ym = d.toISOString().slice(0, 7);
+      if (monthsSet.has(ym)) {
+        if (!grouped[ym]) grouped[ym] = [];
+        grouped[ym].push(row);
       }
+    });
+
+    let html = '';
+    const sortedYM = Array.from(monthsSet).sort();
+
+    for (const ym of sortedYM) {
+      html += `<h3>${formatMonthYear(ym)}</h3>`;
+
+      const rowsForMonth = grouped[ym] || [];
+
+      if (rowsForMonth.length === 0) {
+        html += '<p>Aucun produit périmé pour ce mois.</p>';
+        continue;
+      }
+
+      rowsForMonth.sort((a, b) => {
+        const zoneA = (a[4] || '').toLowerCase();
+        const zoneB = (b[4] || '').toLowerCase();
+        return zoneA.localeCompare(zoneB);
+      });
+
+      html += `<table>
+        <thead>
+          <tr>
+            <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      rowsForMonth.forEach(row => {
+        html += '<tr>';
+        [1,2,3,4,5,6].forEach(ci => {
+          html += `<td>${row[ci] || ''}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+    }
+
+    notifContent.innerHTML = html;
+
+  } catch (e) {
+    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
+  }
+}
 
       // Group by year-month string "YYYY-MM"
       const grouped = {};
@@ -617,20 +675,14 @@
               <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
             </tr>
           </thead><tbody>`;
-        // Trier par zone (colonne 4 dans Google Sheets => index 4)
-grouped[ym].sort((a, b) => {
-  const zoneA = (a[4] || '').toLowerCase();
-  const zoneB = (b[4] || '').toLowerCase();
-  return zoneA.localeCompare(zoneB);
-});
-
-grouped[ym].forEach(row => {
-  html += '<tr>';
-  [1,2,3,4,5,6].forEach(ci => {
-    html += `<td>${row[ci] || ''}</td>`;
-  });
-  html += '</tr>';
-});
+        grouped[ym].forEach(row => {
+          html += '<tr>';
+          // skip opérateur (col 0)
+          [1,2,3,4,5,6].forEach(ci => {
+            html += `<td>${row[ci] || ''}</td>`;
+          });
+          html += '</tr>';
+        });
         html += '</tbody></table>';
       }
 
