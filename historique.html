@@ -1,382 +1,188 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<title>Gestion Perimé - Pharmacie du Libron</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
-<style>
-  :root {
-    --bleu-glacial: #bcd7ed;
-  }
-
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f9f9f9;
-  }
-
-  /* Bandeau bleu glacial */
-  header {
-    background-color: var(--bleu-glacial);
-    color: #0a2f51;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  }
-
-  #header-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  #header-left > h1 {
-    margin: 0;
-    font-size: 1.3em;
-  }
-
-  button {
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    font-size: 1em;
-    color: #0a2f51;
-    padding: 6px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  button:hover {
-    background-color: rgba(255 255 255 / 0.3);
-  }
-
-  /* Icons with emoji for simplicity */
-  .icon {
-    font-size: 1.2em;
-    margin-right: 6px;
-  }
-
-  /* Header right buttons */
-  #header-right {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-  }
-
-  /* Operator form */
-  #operator-form {
-    margin-left: 10px;
-  }
-
-  /* Layout */
-  main {
-    display: flex;
-    margin: 20px;
-  }
-
-  /* Form to add entries on right */
-  #entry-form {
-    width: 320px;
-    background: white;
-    padding: 15px 20px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-    margin-left: 20px;
-  }
-  #entry-form h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-weight: normal;
-  }
-  #entry-form input {
-    width: 100%;
-    margin: 6px 0;
-    padding: 6px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  #entry-form button {
-    width: 100%;
-    background-color: var(--bleu-glacial);
-    color: #0a2f51;
-    font-weight: bold;
-    margin-top: 10px;
-  }
-  #entry-form button:hover {
-    background-color: #a6c6e1;
-  }
-
-  /* Table styles */
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    background: white;
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  th, td {
-    border: 1px solid #ccc;
-    padding: 8px 10px;
-    text-align: center;
-  }
-
-  /* Alternate row background with 15% opacity bleu glacial */
-  tbody tr:nth-child(odd) {
-    background-color: rgba(188, 215, 237, 0.15);
-  }
-
-  /* Selected row highlight 50% opacity */
-  tbody tr.selected {
-    background-color: rgba(188, 215, 237, 0.5) !important;
-  }
-
-  /* Editable cells */
-  tbody td {
-    cursor: text;
-  }
-
-  /* Filter section */
-  #filters {
-    margin: 20px;
-    display: flex;
-    gap: 15px;
-    align-items: flex-end;
-  }
-  #filters label {
-    font-weight: bold;
-  }
-  #filters input, #filters button {
-    padding: 5px 8px;
-    font-size: 1em;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  #filters button {
-    background-color: var(--bleu-glacial);
-    color: #0a2f51;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  #filters button:hover {
-    background-color: #a6c6e1;
-  }
-
-  /* Status text */
-  #status {
-    margin: 10px 20px;
-    font-weight: bold;
-    color: #0a2f51;
-  }
-
-  /* Notification popup modal */
-  #notification-popup {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-    z-index: 9999;
-    display: none;
-    flex-direction: column;
-  }
-
-  #notification-popup header {
-    background-color: var(--bleu-glacial);
-    color: #0a2f51;
-    font-weight: bold;
-    padding: 12px 20px;
-    border-radius: 10px 10px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  #notification-popup header button {
-    background: transparent;
-    border: none;
-    font-size: 1.4em;
-    cursor: pointer;
-    color: #0a2f51;
-  }
-
-  #notification-popup .content {
-    padding: 15px 20px;
-    overflow-y: auto;
-  }
-
-  #notification-popup table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  #notification-popup th, #notification-popup td {
-    border: 1px solid #ccc;
-    padding: 6px 8px;
-    text-align: center;
-  }
-  #notification-popup tbody tr:nth-child(odd) {
-    background-color: rgba(188, 215, 237, 0.15);
-  }
-
-  /* Print styles */
-  @media print {
-    body * {
-      visibility: hidden;
+  <meta charset="UTF-8" />
+  <title>Historique des produits périmés</title>
+  <style>
+    :root {
+      --bleu-glacial: #bcd7ed;
     }
-    #notification-popup, #notification-popup * {
-      visibility: visible;
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
     }
-    #notification-popup {
-      position: static;
-      transform: none;
-      box-shadow: none;
-      width: 100%;
-      max-height: none;
-      overflow: visible;
-      border-radius: 0;
+    header {
+      background-color: var(--bleu-glacial);
+      color: #0a2f51;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     }
-    #notification-popup header button,
-    #notification-popup #print-notif {
-      display: none;
+    #header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
-  }
-</style>
+    #header-left a {
+      display:inline-block;
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      overflow:hidden;
+      border:2px solid #0a2f51;
+    }
+    #header-left img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.3em;
+    }
+    #filters {
+      display: flex;
+      gap: 15px;
+      margin: 20px;
+      align-items: flex-end;
+    }
+    #filters input, #filters button {
+      padding: 5px 8px;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #filters button {
+      background-color: var(--bleu-glacial);
+      color: #0a2f51;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    #filters button:hover {
+      background-color: #a6c6e1;
+    }
+    table {
+      width: calc(100% - 40px);
+      margin: 20px;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    tbody tr:nth-child(odd) {
+      background-color: rgba(188, 215, 237, 0.15);
+    }
+  </style>
 </head>
 <body>
 
 <header>
   <div id="header-left">
-    <h1>Gestion Perimé - Pharmacie du Libron</h1>
-    <div id="operator-form" style="display:none;">
-      <select id="operator">
-        <option value="">-- Choisir opérateur --</option>
-        <option>Op1</option>
-        <option>Op2</option>
-        <option>Op3</option>
-        <option>Op4</option>
-      </select>
-      <button id="btn-confirm-operator">Valider</button>
-    </div>
-    <button id="btn-login" style="display:inline-block;">Se connecter</button>
+    <a href="/index.html" title="Accueil">
+      <img src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" alt="Logo">
+    </a>
+    <h1>Historique des produits périmés</h1>
   </div>
-  <div id="header-right">
-    <button id="btn-notif" title="Notifications">🔔 Notifications</button>
-    <button onclick="location.href='historique.html'" title="Historique">📜 Historique</button>
-    <button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
-  
-    <a href="/index.html" title="Accueil" style="
-  display:inline-block;
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  overflow:hidden;
-  border:2px solid #0a2f51;">
-  <img src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
-</a>
+</header>
 
+<section id="filters">
+  <label>Filtrer par zone:</label>
+  <input type="text" id="filter-zone" placeholder="Ex: Zone A" />
+  <label>Mois (MM/YYYY):</label>
+  <input type="month" id="filter-month" />
+  <button onclick="applyFilters()">Filtrer</button>
+  <button onclick="resetFilters()">Réinitialiser</button>
+</section>
 
-  </div>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Historique</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #eee; }
-  </style>
-</head>
-<body>
-  <h1>Historique des événements passés</h1>
-  <table id="historique-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <!-- Ajoute d'autres colonnes si besoin -->
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="2">Chargement des données...</td></tr>
-    </tbody>
-  </table>
+<table id="history-table">
+  <thead>
+    <tr>
+      <th>Produit</th>
+      <th>Date</th>
+      <th>Qté</th>
+      <th>Zone</th>
+      <th>Vendues</th>
+      <th>Promo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="6">Chargement...</td></tr>
+  </tbody>
+</table>
 
-  <script>
-    // Remplace par l'ID de ton Google Sheet
-    const sheetId = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+<script src="https://apis.google.com/js/api.js"></script>
+<script>
+const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+const RANGE = 'historique';
 
-    // Nom de la feuille
-    const sheetName = 'historique';
+window.onload = () => {
+  gapi.load('client', async () => {
+    await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
+    loadData();
+  });
+};
 
-    // URL pour récupérer les données en JSON via l'API Google Sheets (version publique en JSON)
-    const url = `https://spreadsheets.google.com/feeds/list/${sheetId}/od6/public/values?alt=json`;
+let allData = [];
 
-    // Note: Pour cibler une autre feuille que la 1ère, il faut récupérer le bon gid,
-    // sinon tu peux utiliser une API comme Tabletop.js (plus facile)
+async function loadData() {
+  try {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE
+    });
+    allData = res.result.values || [];
+    renderTable(allData);
+  } catch (e) {
+    document.querySelector('#history-table tbody').innerHTML = '<tr><td colspan="6">Erreur chargement données.</td></tr>';
+  }
+}
 
-    // Ici, on utilise Tabletop.js (librairie simple pour Google Sheets)
-    // On inclut Tabletop via CDN
-  </script>
+function renderTable(data) {
+  const tbody = document.querySelector('#history-table tbody');
+  tbody.innerHTML = '';
+  data.slice(1).forEach(row => {
+    const tr = document.createElement('tr');
+    const cols = [1, 2, 3, 4, 5, 6];
+    cols.forEach(i => {
+      const td = document.createElement('td');
+      td.textContent = row[i] || '';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.4/tabletop.min.js"></script>
-  <script>
-    function afficherHistorique(data) {
-      const tbody = document.querySelector('#historique-table tbody');
-      tbody.innerHTML = ''; // vide avant ajout
+function applyFilters() {
+  const zone = document.getElementById('filter-zone').value.toLowerCase();
+  const month = document.getElementById('filter-month').value; // yyyy-mm
+  const filtered = allData.filter((row, idx) => {
+    if (idx === 0) return false;
+    const rowZone = (row[4] || '').toLowerCase();
+    const date = row[2] || '';
+    const matchZone = zone ? rowZone.includes(zone) : true;
+    const matchMonth = month ? date.startsWith(month) : true;
+    return matchZone && matchMonth;
+  });
+  renderTable([allData[0], ...filtered]);
+}
 
-      const today = new Date();
+function resetFilters() {
+  document.getElementById('filter-zone').value = '';
+  document.getElementById('filter-month').value = '';
+  renderTable(allData);
+}
+</script>
 
-      data.forEach(item => {
-        // Supposons que ta colonne date s'appelle "date" dans la Google Sheet
-        // Tabletop convertit les noms de colonnes en minuscules sans espace
-        const dateStr = item.date;
-        const description = item.description || '';
-
-        if (!dateStr) return; // ignore si pas de date
-
-        const date = new Date(dateStr);
-
-        if (date < today) {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${date.toLocaleDateString()}</td><td>${description}</td>`;
-          tbody.appendChild(tr);
-        }
-      });
-
-      if (tbody.children.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2">Aucun événement passé.</td></tr>';
-      }
-    }
-
-    function init() {
-      Tabletop.init({
-        key: sheetId,
-        simpleSheet: true,
-        wanted: [sheetName],
-        callback: function(data, tabletop) {
-          // data ici est un tableau d'objets correspondant à ta feuille "historique"
-          afficherHistorique(data);
-        },
-        error: function(err) {
-          console.error('Erreur chargement Google Sheet:', err);
-          const tbody = document.querySelector('#historique-table tbody');
-          tbody.innerHTML = '<tr><td colspan="2">Erreur lors du chargement des données.</td></tr>';
-        }
-      });
-    }
-
-    window.onload = init;
-  </script>
 </body>
 </html>
