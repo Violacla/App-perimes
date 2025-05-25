@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
+<meta charset="utf-8"/>
 <title>Gestion Perimé - Pharmacie du Libron</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
   :root {
@@ -254,103 +255,90 @@
   }
 </style>
 </head>
-
-
 <header>
-  <div id="header-left">
-    <a href="/index.html" title="Accueil" style="
+<div id="header-left">
+<a href="/index.html" style="
       display:inline-block;
       width:40px;
       height:40px;
       border-radius:50%;
       overflow:hidden;
       border:2px solid #0a2f51;
-    ">
-      <img src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
-    </a>
-
-    <h1>Gestion Périmé - Pharmacie du Libron</h1>
-
-    <!-- Groupe opérateur -->
-    <div id="operator-form" style="display:none; margin-left:10px;">
-      <select id="operator">
-        <option value="">-- Choisir opérateur --</option>
-        <option>Op1</option>
-        <option>Op2</option>
-        <option>Op3</option>
-        <option>Op4</option>
-      </select>
-      <button id="btn-confirm-operator">Valider</button>
-    </div>
-
-    <!-- Bouton connexion -->
-    <button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
-  </div>
-
-  <div id="header-right">
-    <button id="btn-notif" title="Notifications">🔔 Notifications</button>
-    <button onclick="location.href='historique.html'" title="Historique">📜 Historique</button>
-    <button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
-  </div>
+    " title="Accueil">
+<img alt="Logo" src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" style="width:100%; height:100%; object-fit:cover;"/>
+</a>
+<h1>Gestion Périmé - Pharmacie du Libron</h1>
+<!-- Groupe opérateur -->
+<div id="operator-form" style="display:none; margin-left:10px;">
+<select id="operator">
+<option value="">-- Choisir opérateur --</option>
+<option>Op1</option>
+<option>Op2</option>
+<option>Op3</option>
+<option>Op4</option>
+</select>
+<button id="btn-confirm-operator">Valider</button>
+</div>
+<!-- Bouton connexion -->
+<button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
+</div>
+<div id="header-right">
+<button id="btn-notif" title="Notifications">🔔 Notifications</button>
+<button onclick="location.href='historique.html'" title="Historique">📜 Historique</button>
+<button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
+</div>
 </header>
-
-
 <main>
-  <div style="flex-grow:1;">
-    <div id="filters">
-      <label for="filter-zone">Filtrer Zone :</label>
-      <input type="text" id="filter-zone" placeholder="Ex: Zone A" />
-      <label for="filter-month">Mois (MM/YYYY) :</label>
-      <input type="month" id="filter-month" />
-      <button onclick="filterTable()">Filtrer</button>
-      <button onclick="clearFilter()">Réinitialiser</button>
-    </div>
-
-    <table id="data-table" tabindex="0" aria-label="Données des produits périmés">
-      <thead>
-        <tr>
-          <!-- Ne PAS afficher colonne opérateur -->
-          <th>Produit</th>
-          <th>Date</th>
-          <th>Qté</th>
-          <th>Zone</th>
-          <th>Vendues</th>
-          <th>Promo</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <pre id="status"></pre>
-  </div>
-
-  <div id="entry-form" style="display:none;">
-    <h3>Ajouter un produit</h3>
-    <input type="date" id="date" />
-    <input type="text" id="product" placeholder="Nom Boîte" />
-    <input type="number" id="qty" placeholder="Nb Boîtes" min="0" />
-    <input type="text" id="zone" placeholder="Zone" />
-    <input type="number" id="sold" placeholder="Nb vendus" min="0" />
-    <input type="number" id="promo" placeholder="Nb promo" min="0" />
-    <button id="btn-add">Ajouter la ligne</button>
-  </div>
+<div style="flex-grow:1;">
+<div id="filters">
+<label for="filter-zone">Filtrer Zone :</label>
+<input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
+<label for="filter-month">Mois (MM/YYYY) :</label>
+<input id="filter-month" type="month"/>
+<button onclick="filterTable()">Filtrer</button>
+<button onclick="clearFilter()">Réinitialiser</button>
+</div>
+<table aria-label="Données des produits périmés" id="data-table" tabindex="0">
+<thead>
+<tr>
+<!-- Ne PAS afficher colonne opérateur -->
+<th>Produit</th>
+<th>Date</th>
+<th>Qté</th>
+<th>Zone</th>
+<th>Vendues</th>
+<th>Promo</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<pre id="status"></pre>
+</div>
+<div id="entry-form" style="display:none;">
+<h3>Ajouter un produit</h3>
+<input id="date" type="date"/>
+<input id="product" placeholder="Nom Boîte" type="text"/>
+<input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
+<input id="zone" placeholder="Zone" type="text"/>
+<input id="sold" min="0" placeholder="Nb vendus" type="number"/>
+<input id="promo" min="0" placeholder="Nb promo" type="number"/>
+<button id="btn-add">Ajouter la ligne</button>
+</div>
 </main>
 <body>
-  
-</body>
-<!-- Notification Popup -->
-<div id="notification-popup" role="dialog" aria-modal="true" aria-labelledby="notif-title">
-  <header>
-    <span id="notif-title">Notifications - Produits périmés</span>
-    <div>
-      <button id="print-notif" title="Imprimer">🖨️</button>
-      <button id="close-notif" title="Fermer">✖️</button>
-    </div>
-  </header>
-  <div class="content">
-    <!-- Table notifications insérées ici -->
-  </div>
+<div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog">
+<header>
+<span id="notif-title">Notifications - Produits périmés</span>
+<div>
+<button id="print-notif" title="Imprimer">🖨️</button>
+<button id="close-notif" title="Fermer">✖️</button>
 </div>
+</header>
+<div class="content">
+<!-- Table notifications insérées ici -->
+</div>
+</div></body>
+<!-- Notification Popup -->
 
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -674,8 +662,6 @@ function formatMonthYear(ym) {
     gisLoaded();
   };
 </script>
-
-
 <script>
   document.getElementById('btn-history').addEventListener('click', async () => {
     if (!operatorName) {
@@ -760,5 +746,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-</body>
 </html>
