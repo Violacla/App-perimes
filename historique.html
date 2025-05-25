@@ -107,7 +107,7 @@
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'historique'; // on lit depuis Feuille1
+  const RANGE = 'historique'; // ← la bonne feuille
 
   let tokenClient, accessToken = null;
 
@@ -140,16 +140,7 @@
         range: RANGE
       });
       const rows = res.result.values || [];
-      const now = new Date();
-      const filteredRows = rows.slice(1).filter(row => {
-        const dateStr = row[2];
-        if (!dateStr) return false;
-        const d = new Date(dateStr);
-        if (isNaN(d)) return false;
-        return d.getFullYear() < now.getFullYear() ||
-               (d.getFullYear() === now.getFullYear() && d.getMonth() < now.getMonth());
-      });
-      renderTable([rows[0], ...filteredRows]);
+      renderTable(rows);
     } catch (e) {
       document.getElementById('status').textContent = 'Erreur : ' + e.message;
     }
@@ -167,7 +158,7 @@
       }
       tbody.appendChild(tr);
     });
-    document.getElementById('status').textContent = rows.length > 1 ? 'Données chargées.' : 'Aucune donnée antérieure au mois actuel.';
+    document.getElementById('status').textContent = rows.length > 1 ? 'Données chargées.' : 'Aucune donnée dans historique.';
   }
 
   window.onload = () => {
@@ -178,4 +169,3 @@
 
 </body>
 </html>
-
