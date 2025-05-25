@@ -19,6 +19,11 @@
       align-items: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     }
+    #header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
     h1 {
       margin: 0;
       color: #0a2f51;
@@ -52,33 +57,6 @@
     tbody tr:nth-child(odd) {
       background-color: rgba(188, 215, 237, 0.15);
     }
-    #notification-popup {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      width: 600px;
-      max-height: 80vh;
-      overflow-y: auto;
-      z-index: 9999;
-      display: none;
-      flex-direction: column;
-    }
-    #notification-popup header {
-      background-color: #bcd7ed;
-      padding: 12px 20px;
-      color: #0a2f51;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-radius: 10px 10px 0 0;
-    }
-    #notification-popup .content {
-      padding: 15px 20px;
-    }
     #status {
       text-align: center;
       color: #0a2f51;
@@ -90,10 +68,22 @@
 <body>
 
 <header>
-  <h1>Historique des Produits Périmés</h1>
+  <div id="header-left">
+    <!-- ✅ Logo à gauche -->
+    <a href="/index.html" title="Accueil" style="
+      display:inline-block;
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      overflow:hidden;
+      border:2px solid #0a2f51;
+      margin-right:10px;">
+      <img src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
+    </a>
+    <h1>Historique des Produits Périmés</h1>
+  </div>
   <div>
     <button onclick="window.location.href='index.html'">⬅ Retour à l'accueil</button>
-    <button id="btn-notif">🔔 Notifications</button>
   </div>
 </header>
 
@@ -114,18 +104,10 @@
 
 <pre id="status">Chargement...</pre>
 
-<div id="notification-popup">
-  <header>
-    <span>Notifications</span>
-    <button onclick="document.getElementById('notification-popup').style.display='none'">✖️</button>
-  </header>
-  <div class="content"></div>
-</div>
-
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'historique';
+  const RANGE = 'Feuille1'; // on lit depuis Feuille1
 
   let tokenClient, accessToken = null;
 
@@ -158,7 +140,16 @@
         range: RANGE
       });
       const rows = res.result.values || [];
-      renderTable(rows);
+      const now = new Date();
+      const filteredRows = rows.slice(1).filter(row => {
+        const dateStr = row[2];
+        if (!dateStr) return false;
+        const d = new Date(dateStr);
+        if (isNaN(d)) return false;
+        return d.getFullYear() < now.getFullYear() ||
+               (d.getFullYear() === now.getFullYear() && d.getMonth() < now.getMonth());
+      });
+      renderTable([rows[0], ...filteredRows]);
     } catch (e) {
       document.getElementById('status').textContent = 'Erreur : ' + e.message;
     }
@@ -176,65 +167,7 @@
       }
       tbody.appendChild(tr);
     });
-    document.getElementById('status').textContent = 'Données chargées.';
-  }
-
-  document.getElementById('btn-notif').onclick = async () => {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE
-      });
-      const rows = res.result.values.slice(1);
-      const content = document.querySelector('#notification-popup .content');
-      const now = new Date();
-      const monthsSet = new Set();
-      for (let i = 1; i <= 3; i++) {
-        const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        const ym = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}`;
-        monthsSet.add(ym);
-      }
-
-      const grouped = {};
-      rows.forEach(row => {
-        const dateStr = row[2];
-        if (!dateStr) return;
-        const d = new Date(dateStr);
-        if (isNaN(d)) return;
-        const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        if (monthsSet.has(ym)) {
-          if (!grouped[ym]) grouped[ym] = [];
-          grouped[ym].push(row);
-        }
-      });
-
-      let html = '';
-      for (const ym of [...monthsSet].sort()) {
-        html += `<h3>${formatMonthYear(ym)}</h3>`;
-        const rowsForMonth = grouped[ym] || [];
-        if (rowsForMonth.length === 0) {
-          html += '<p>Aucun produit périmé pour ce mois.</p>';
-          continue;
-        }
-        html += '<table><thead><tr><th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th></tr></thead><tbody>';
-        rowsForMonth.forEach(r => {
-          html += '<tr>';
-          [1,2,3,4,5,6].forEach(i => html += `<td>${r[i] || ''}</td>`);
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-      }
-      content.innerHTML = html;
-      document.getElementById('notification-popup').style.display = 'flex';
-    } catch (e) {
-      alert("Erreur chargement notifications : " + e.message);
-    }
-  };
-
-  function formatMonthYear(ym) {
-    const [y, m] = ym.split('-');
-    const mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    return `${mois[parseInt(m, 10) - 1]} ${y}`;
+    document.getElementById('status').textContent = rows.length > 1 ? 'Données chargées.' : 'Aucune donnée antérieure au mois actuel.';
   }
 
   window.onload = () => {
@@ -245,3 +178,4 @@
 
 </body>
 </html>
+
