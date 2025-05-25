@@ -270,56 +270,28 @@
 <h1>Gestion Périmé - Pharmacie du Libron</h1>
 <!-- Groupe opérateur -->
 <div id="operator-form" style="display:none; margin-left:10px;">
-<input
-  type="text"
-  id="operator"
-  placeholder="Entrez votre nom d’opérateur"
-  style="padding:6px; border:1px solid #ccc; border-radius:4px;"
-/>
+<input id="operator" placeholder="Entrez votre nom d’opérateur" style="padding:6px; border:1px solid #ccc; border-radius:4px;" type="text"/>
 <button id="btn-confirm-operator">Valider</button>
-
 </div>
 <!-- Bouton connexion -->
 <button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
-<button id="btn-notif" title="Notifications" style="position: relative;">
-  <img
-    alt="Logo"
-    src="https://i.imgur.com/DqTzhLF.png"
-    style="width:18px; height:18px; object-fit:cover; vertical-align:middle;"
-  />
+<button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
+<img alt="Logo" src="https://i.imgur.com/DqTzhLF.png" style="width:18px; height:18px; object-fit:cover; vertical-align:middle;"/>
    Notifications
-  <span id="notif-badge" style="
-    display: none;
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 22px;
-    height: 22px;
-  ">
-    <img src="https://i.imgur.com/eNB2WOM.png" style="width:100%; height:100%;">
-  </span>
+  <span id="notif-badge" style="display: none; position: absolute; top: 0px; right: 0px; width: 16px; height: 16px; z-index: 2;">
+<img src="https://i.imgur.com/eNB2WOM.png" style="width:100%; height:100%; object-fit:cover;"/>
+</span>
 </button>
-  
 <button onclick="location.href='historique.html'" title="Historique">
-  <img
-    src="https://i.imgur.com/2PRqXMD.png"
-    alt="Historique"
-    style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"
-  />
+<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
 Historique
-</button>
-
+</img></button>
 <button id="btn-logout" style="display:none;" title="Déconnexion">
-  <img
-    src="https://i.imgur.com/Ku9oMjb.png"
-    alt="Déconnexion"
-    style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"
-  />
+<img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Déconnexion
 </button>
-
 </div>
 </header>
 <main>
@@ -328,14 +300,7 @@ Déconnexion
 <label for="filter-zone">Filtrer Zone :</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Mois :</label>
-<input
-  type="text"
-  id="filter-month"
-  placeholder="MM/YYYY"
-  pattern="(0[1-9]|1[0-2])/20[0-9]{2}"
-  title="Format attendu : MM/YYYY"
-  style="width: 100px;"
-/>
+<input id="filter-month" pattern="(0[1-9]|1[0-2])/20[0-9]{2}" placeholder="MM/YYYY" style="width:100px;" title="Format attendu : MM/YYYY" type="text"/>
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
 </div>
@@ -380,7 +345,6 @@ Déconnexion
 </div>
 </div></body>
 <!-- Notification Popup -->
-
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
@@ -581,7 +545,7 @@ Déconnexion
       if(zoneFilter && !zone.includes(zoneFilter)) show = false;
       if(monthFilter) {
         const [y,m] = monthFilter.split('-');
-        if(!date.startsWith(`${y}-${m}`)) show = false;
+        if(!date.startsWith(`${y}-${m.padStart(2, '0')}`)) show = false;
       }
       row.style.display = show ? '' : 'none';
     });
@@ -806,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
-  <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const operatorInput = document.getElementById('operator');
   const validateBtn = document.getElementById('btn-confirm-operator');
@@ -820,5 +784,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-</body>
 </html>
