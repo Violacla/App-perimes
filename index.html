@@ -729,6 +729,34 @@ function formatMonthYear(ym) {
     setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
   }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const fields = [
+    'date',
+    'product',
+    'qty',
+    'zone',
+    'sold',
+    'promo'
+  ];
+
+  fields.forEach((id, index) => {
+    const input = document.getElementById(id);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const nextField = document.getElementById(fields[index + 1]);
+        if (nextField) {
+          nextField.focus();
+        } else {
+          // Si c'est le dernier champ → clique sur le bouton
+          document.getElementById('btn-add').click();
+        }
+      }
+    });
+  });
+});
+</script>
 
 </body>
 </html>
