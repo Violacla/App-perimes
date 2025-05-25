@@ -768,5 +768,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const operatorInput = document.getElementById('operator');
+  const validateBtn = document.getElementById('btn-confirm-operator');
+
+  operatorInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // empêche un submit si le champ est dans un formulaire
+      validateBtn.click(); // simule un clic sur le bouton "Valider"
+    }
+  });
+});
+</script>
+
 </body>
 </html>
