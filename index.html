@@ -283,7 +283,10 @@
 <button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
-<button id="btn-notif" title="Notifications">🔔 Notifications</button>
+<button id="btn-notif" title="Notifications">
+  🔔 Notifications
+  <span id="notif-badge"></span>
+</button>
 <button onclick="location.href='historique.html'" title="Historique">📜 Historique</button>
 <button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
 </div>
@@ -745,5 +748,25 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('notif-badge');
+  const btnNotif = document.getElementById('btn-notif');
+  const notifPopup = document.getElementById('notification-popup');
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
 
+  if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
+    badge.style.display = 'block';
+  }
+
+  btnNotif.addEventListener('click', () => {
+    badge.style.display = 'none';
+    localStorage.setItem('notifSeen', monthKey);
+    loadNotifications();
+    notifPopup.style.display = 'flex';
+  });
+});
+</script>
+</body>
 </html>
