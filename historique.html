@@ -69,7 +69,6 @@
 
 <header>
   <div id="header-left">
-    <!-- ✅ Logo à gauche -->
     <a href="/index.html" title="Accueil" style="
       display:inline-block;
       width:40px;
@@ -83,7 +82,9 @@
     <h1>Historique des Produits Périmés</h1>
   </div>
   <div>
-    <button onclick="window.location.href='index.html'">⬅ Retour à l'accueil</button>
+    <button id="btn-login">Se connecter</button>
+    <button id="btn-logout" style="display:none;">Se déconnecter</button>
+    <button onclick="window.location.href='index.html'">⬅ Retour</button>
   </div>
 </header>
 
@@ -105,18 +106,18 @@
 <pre id="status">Chargement...</pre>
 
 <script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com'; // remplacez par votre propre Client ID
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'Feuille2'; // ← la bonne feuille
+  const RANGE = 'Feuille2';
 
-  let tokenClient, accessToken = null;
+  let tokenClient;
+  let accessToken = null;
 
   function gapiLoaded() {
     gapi.load('client', async () => {
       await gapi.client.init({
         discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
       });
-      loadSheet();
     });
   }
 
@@ -127,11 +128,23 @@
       callback: (response) => {
         accessToken = response.access_token;
         gapi.client.setToken({ access_token: accessToken });
+        document.getElementById('btn-login').style.display = 'none';
+        document.getElementById('btn-logout').style.display = 'inline-block';
         loadSheet();
       }
     });
-    tokenClient.requestAccessToken();
+    document.getElementById('btn-login').onclick = () => {
+      tokenClient.requestAccessToken();
+    };
   }
+
+  document.getElementById('btn-logout').onclick = () => {
+    accessToken = null;
+    document.getElementById('btn-login').style.display = 'inline-block';
+    document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('status').textContent = 'Déconnecté.';
+    document.querySelector('#data-table tbody').innerHTML = '';
+  };
 
   async function loadSheet() {
     try {
@@ -158,7 +171,7 @@
       }
       tbody.appendChild(tr);
     });
-    document.getElementById('status').textContent = rows.length > 1 ? 'Données chargées.' : 'Aucune donnée dans historique.';
+    document.getElementById('status').textContent = 'Données chargées.';
   }
 
   window.onload = () => {
