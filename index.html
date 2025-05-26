@@ -270,20 +270,14 @@
 <h1>Gestion Périmé - Pharmacie du Libron</h1>
 <!-- Groupe opérateur -->
 <div id="operator-form" style="display:none; margin-left:10px;">
-<select id="operator">
-<option value="">-- Choisir opérateur --</option>
-<option>Op1</option>
-<option>Op2</option>
-<option>Op3</option>
-<option>Op4</option>
-</select>
+<input id="operator" placeholder="Nom de l'opérateur" type="text"/>
 <button id="btn-confirm-operator">Valider</button>
 </div>
 <!-- Bouton connexion -->
 <button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
-<button id="btn-notif" title="Notifications">🔔 Notifications</button>
+<button id="btn-notif" title="Notifications">🔔 Notifications<span id="notif-badge" style="display:none; width:10px; height:10px; background:red; border-radius:50%; display:inline-block; margin-left:6px;"></span></button>
 <button onclick="location.href='historique.html'" title="Historique">📜 Historique</button>
 <button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
 </div>
@@ -337,9 +331,25 @@
 <div class="content">
 <!-- Table notifications insérées ici -->
 </div>
-</div></body>
-<!-- Notification Popup -->
+</div><script>
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('notif-badge');
+  const btnNotif = document.getElementById('btn-notif');
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
 
+  // Affiche le badge si on est le 15 ou après et pas encore vu ce mois
+  if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
+    badge.style.display = 'inline-block';
+  }
+
+  btnNotif.addEventListener('click', () => {
+    badge.style.display = 'none';
+    localStorage.setItem('notifSeen', monthKey);
+  });
+});
+</script></body>
+<!-- Notification Popup -->
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
@@ -745,6 +755,4 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
-
 </html>
-
