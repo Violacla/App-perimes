@@ -263,23 +263,35 @@
       height:40px;
       border-radius:50%;
       overflow:hidden;
-      border:2px solid #0a2f51;
+      border:0px solid #0a2f51;
     " title="Accueil">
-<img alt="Logo" src="https://raw.githubusercontent.com/ton-utilisateur/ta-bibliotheque/main/logo.png" style="width:100%; height:100%; object-fit:cover;"/>
+<img alt="Logo" src="https://i.imgur.com/1mhZplp.png" style="width:100%; height:100%; object-fit:cover;"/>
 </a>
 <h1>Gestion Périmé - Pharmacie du Libron</h1>
 <!-- Groupe opérateur -->
 <div id="operator-form" style="display:none; margin-left:10px;">
-<input id="operator" placeholder="Nom de l'opérateur" type="text"/>
+<input id="operator" placeholder="Entrez votre nom d’opérateur" style="padding:6px; border:1px solid #ccc; border-radius:4px;" type="text"/>
 <button id="btn-confirm-operator">Valider</button>
 </div>
 <!-- Bouton connexion -->
 <button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
-<button id="btn-notif" title="Notifications">🔔 Notifications<span id="notif-badge" style="display:none; width:10px; height:10px; background:red; border-radius:50%; display:inline-block; margin-left:6px;"></span></button>
-<button onclick="location.href='historique.html'" title="Historique">📜 Historique</button>
-<button id="btn-logout" style="display:none;" title="Déconnexion">🚪 Déconnexion</button>
+<button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
+<img alt="Logo" src="https://i.imgur.com/DqTzhLF.png" style="width:18px; height:18px; object-fit:cover; vertical-align:middle;"/>
+   Notifications
+  <span id="notif-badge" style="display: none; position: absolute; top: 0px; right: 0px; width: 16px; height: 16px; z-index: 2;">
+<img src="https://i.imgur.com/eNB2WOM.png" style="width:100%; height:100%; object-fit:cover;"/>
+</span>
+</button>
+<button onclick="location.href='historique.html'" title="Historique">
+<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+Historique
+</button>
+<button id="btn-logout" style="display:none;" title="Déconnexion">
+<img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+Déconnexion
+</button>
 </div>
 </header>
 <main>
@@ -287,12 +299,12 @@
 <div id="filters">
 <label for="filter-zone">Filtrer Zone :</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
-<label for="filter-month">Mois (MM/YYYY) :</label>
-<input id="filter-month" placeholder="MM/YYYY" style="width: 120px;" type="text"/>
+<label for="filter-month">Mois :</label>
+<input id="filter-month" pattern="(0[1-9]|1[0-2])/20[0-9]{2}" placeholder="YYYY-MM" style="width:100px;" title="Format attendu : YYYY-MM" type="text"/>
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
 </div>
-<div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
+<table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
 <tr>
 <!-- Ne PAS afficher colonne opérateur -->
@@ -305,7 +317,7 @@
 </tr>
 </thead>
 <tbody></tbody>
-</table></div>
+</table>
 <pre id="status"></pre>
 </div>
 <div id="entry-form" style="display:none;">
@@ -331,21 +343,90 @@
 <div class="content">
 <!-- Table notifications insérées ici -->
 </div>
-</div><script>
-document.addEventListener('DOMContentLoaded', () => {
-  const badge = document.getElementById('notif-badge');
-  const btnNotif = document.getElementById('btn-notif');
-  const now = new Date();
-  const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
+</div>
+<div id="popup-6mois" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #f8d7da;
+  color: #721c24;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🔴 Ce produit est à date très courte ! (&lt; 6 mois)
+</div>
+<div id="popup-1an" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff3cd;
+  color: #856404;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🟠 Ce produit est à date courte ! (&lt; 1 an)
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const btnAdd = document.getElementById('btn-add');
 
-  // Affiche le badge si on est le 15 ou après et pas encore vu ce mois
-  if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
-    badge.style.display = 'inline-block';
-  }
+  btnAdd.addEventListener('click', async () => {
+    const dateVal = document.getElementById('date').value;
+    const productVal = document.getElementById('product').value;
+    const qtyVal = document.getElementById('qty').value;
+    const zoneVal = document.getElementById('zone').value;
+    const soldVal = document.getElementById('sold').value;
+    const promoVal = document.getElementById('promo').value;
+    const operatorName = localStorage.getItem('operator') || '';
 
-  btnNotif.addEventListener('click', () => {
-    badge.style.display = 'none';
-    localStorage.setItem('notifSeen', monthKey);
+    if (!dateVal || !productVal || !qtyVal || !zoneVal) {
+      alert('Veuillez remplir les champs obligatoires.');
+      return;
+    }
+
+    try {
+      const response = await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `${RANGE}!A1`,
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: [[
+            productVal,
+            dateVal,
+            qtyVal,
+            zoneVal,
+            soldVal,
+            promoVal,
+            operatorName
+          ]]
+        }
+      });
+
+      if (response.status === 200) {
+        alert('Produit ajouté avec succès.');
+        document.getElementById('date').value = '';
+        document.getElementById('product').value = '';
+        document.getElementById('qty').value = '';
+        document.getElementById('zone').value = '';
+        document.getElementById('sold').value = '';
+        document.getElementById('promo').value = '';
+      } else {
+        alert('Erreur lors de l'ajout.');
+      }
+    } catch (err) {
+      console.error('Erreur Sheets API :', err);
+      alert('Erreur lors de l'ajout dans Google Sheets.');
+    }
   });
 });
 </script></body>
@@ -429,6 +510,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
       alert("Veuillez remplir tous les champs correctement.");
       return;
+    }
+
+    
+    // Vérifie si la date est à moins de 6 mois ou 1 an
+    const inputDate = new Date(dateVal);
+    const today = new Date();
+    const sixMonths = 1000 * 60 * 60 * 24 * 30 * 6;
+    const oneYear = 1000 * 60 * 60 * 24 * 365;
+    const delta = inputDate - today;
+    const popup = document.getElementById('alert-popup');
+    if (delta > 0 && delta < oneYear) {
+      popup.style.display = 'block';
+      setTimeout(() => { popup.style.display = 'none'; }, 3000);
     }
 
     const values = [[
@@ -755,5 +849,37 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
-</html>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('notif-badge');
+  const btnNotif = document.getElementById('btn-notif');
+  const notifPopup = document.getElementById('notification-popup');
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
 
+  if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
+    badge.style.display = 'block';
+  }
+
+  btnNotif.addEventListener('click', () => {
+    badge.style.display = 'none';
+    localStorage.setItem('notifSeen', monthKey);
+    loadNotifications();
+    notifPopup.style.display = 'flex';
+  });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const operatorInput = document.getElementById('operator');
+  const validateBtn = document.getElementById('btn-confirm-operator');
+
+  operatorInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // empêche un submit si le champ est dans un formulaire
+      validateBtn.click(); // simule un clic sur le bouton "Valider"
+    }
+  });
+});
+</script>
+</html>
