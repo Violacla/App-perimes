@@ -288,11 +288,11 @@
 <label for="filter-zone">Filtrer Zone :</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Mois (MM/YYYY) :</label>
-<input id="filter-month" type="month"/>
+<input id="filter-month" placeholder="MM/YYYY" style="width: 120px;" type="text"/>
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
 </div>
-<table aria-label="Données des produits périmés" id="data-table" tabindex="0">
+<div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
 <tr>
 <!-- Ne PAS afficher colonne opérateur -->
@@ -305,7 +305,7 @@
 </tr>
 </thead>
 <tbody></tbody>
-</table>
+</table></div>
 <pre id="status"></pre>
 </div>
 <div id="entry-form" style="display:none;">
@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(zoneFilter && !zone.includes(zoneFilter)) show = false;
       if(monthFilter) {
         const [y,m] = monthFilter.split('-');
-        if(!date.startsWith(`${y}-${m}`)) show = false;
+        if(!date.startsWith(`${y}-${m.padStart(2, '0')}`)) show = false;
       }
       row.style.display = show ? '' : 'none';
     });
@@ -756,3 +756,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 </html>
+
