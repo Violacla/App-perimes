@@ -376,7 +376,77 @@ Déconnexion
 ">
   🟠 Ce produit est à date courte ! (&lt; 1 an)
 </div>
-</body>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const btnAdd = document.getElementById('btn-add');
+
+  btnAdd.addEventListener('click', async () => {
+    const dateVal = document.getElementById('date').value;
+    const productVal = document.getElementById('product').value;
+    const qtyVal = document.getElementById('qty').value;
+    const zoneVal = document.getElementById('zone').value;
+    const soldVal = document.getElementById('sold').value;
+    const promoVal = document.getElementById('promo').value;
+    const operatorName = localStorage.getItem('operator') || '';
+
+    if (!dateVal || !productVal || !qtyVal || !zoneVal) {
+      alert('Veuillez remplir les champs obligatoires.');
+      return;
+    }
+
+    const inputDate = new Date(dateVal);
+    const today = new Date();
+    const sixMonths = 1000 * 60 * 60 * 24 * 30 * 6;
+    const oneYear = 1000 * 60 * 60 * 24 * 365;
+    const delta = inputDate - today;
+
+    const popup6 = document.getElementById('popup-6mois');
+    const popup1 = document.getElementById('popup-1an');
+
+    if (delta > 0 && delta < sixMonths) {
+      popup6.style.display = 'block';
+      setTimeout(() => { popup6.style.display = 'none'; }, 3000);
+    } else if (delta >= sixMonths && delta < oneYear) {
+      popup1.style.display = 'block';
+      setTimeout(() => { popup1.style.display = 'none'; }, 3000);
+    }
+
+    try {
+      const response = await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `${RANGE}!A1`,
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: [[
+            productVal,
+            dateVal,
+            qtyVal,
+            zoneVal,
+            soldVal,
+            promoVal,
+            operatorName
+          ]]
+        }
+      });
+
+      if (response.status === 200) {
+        alert('Produit ajouté avec succès.');
+        document.getElementById('date').value = '';
+        document.getElementById('product').value = '';
+        document.getElementById('qty').value = '';
+        document.getElementById('zone').value = '';
+        document.getElementById('sold').value = '';
+        document.getElementById('promo').value = '';
+      } else {
+        alert('Erreur lors de l'ajout.');
+      }
+    } catch (err) {
+      console.error('Erreur Sheets API :', err);
+      alert('Erreur lors de l'ajout dans Google Sheets.');
+    }
+  });
+});
+</script></body>
 <!-- Notification Popup -->
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
