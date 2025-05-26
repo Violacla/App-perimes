@@ -285,9 +285,9 @@
 </span>
 </button>
 <button onclick="location.href='historique.html'" title="Historique">
-<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
+<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Historique
-</img></button>
+</button>
 <button id="btn-logout" style="display:none;" title="Déconnexion">
 <img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Déconnexion
@@ -343,7 +343,42 @@ Déconnexion
 <div class="content">
 <!-- Table notifications insérées ici -->
 </div>
-</div></body>
+</div>
+
+
+<div id="popup-6mois" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #f8d7da;
+  color: #721c24;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🔴 Ce produit est à date très courte ! (&lt; 6 mois)
+</div>
+<div id="popup-1an" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff3cd;
+  color: #856404;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🟠 Ce produit est à date courte ! (&lt; 1 an)
+</div>
+</body>
 <!-- Notification Popup -->
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -424,6 +459,19 @@ Déconnexion
     if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
       alert("Veuillez remplir tous les champs correctement.");
       return;
+    }
+
+    
+    // Vérifie si la date est à moins de 6 mois ou 1 an
+    const inputDate = new Date(dateVal);
+    const today = new Date();
+    const sixMonths = 1000 * 60 * 60 * 24 * 30 * 6;
+    const oneYear = 1000 * 60 * 60 * 24 * 365;
+    const delta = inputDate - today;
+    const popup = document.getElementById('alert-popup');
+    if (delta > 0 && delta < oneYear) {
+      popup.style.display = 'block';
+      setTimeout(() => { popup.style.display = 'none'; }, 3000);
     }
 
     const values = [[
@@ -783,5 +831,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
-
 </html>
