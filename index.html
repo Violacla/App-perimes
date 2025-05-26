@@ -1,4 +1,4 @@
-OCTYPE html>
+<!DOCTYPE html>
 
 <html lang="fr">
 <head>
@@ -331,22 +331,63 @@ OCTYPE html>
 <div class="content">
 <!-- Table notifications insérées ici -->
 </div>
-</div><script>
+</div>
+<div id="popup-6mois" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #f8d7da;
+  color: #721c24;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🔴 Ce produit est à date très courte ! (&lt; 6 mois)
+</div>
+<div id="popup-1an" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff3cd;
+  color: #856404;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🟠 Ce produit est à date courte ! (&lt; 1 an)
+</div>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const badge = document.getElementById('notif-badge');
   const btnNotif = document.getElementById('btn-notif');
   const now = new Date();
   const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
-
-  // Affiche le badge si on est le 15 ou après et pas encore vu ce mois
   if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
     badge.style.display = 'inline-block';
   }
-
   btnNotif.addEventListener('click', () => {
     badge.style.display = 'none';
     localStorage.setItem('notifSeen', monthKey);
   });
+
+  const operatorInput = document.getElementById('operator');
+  const btnOperator = document.getElementById('btn-confirm-operator');
+  if (operatorInput && btnOperator) {
+    operatorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnOperator.click();
+      }
+    });
+  }
 });
 </script></body>
 <!-- Notification Popup -->
@@ -550,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(zoneFilter && !zone.includes(zoneFilter)) show = false;
       if(monthFilter) {
         const [y,m] = monthFilter.split('-');
-        if(!date.startsWith(`${y}-${m.padStart(2, '0')}`)) show = false;
+        if(!date.startsWith(`${y}-${m}`)) show = false;
       }
       row.style.display = show ? '' : 'none';
     });
