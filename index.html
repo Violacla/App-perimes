@@ -493,6 +493,23 @@ document.addEventListener('DOMContentLoaded', () => {
       soldVal,
       promoVal,
     ]];
+// ✅ Vérifie la date pour afficher les popups
+const expiryDate = new Date(dateVal);
+const now = new Date();
+const sixMonthsLater = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
+const oneYearLater = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+
+if (expiryDate < sixMonthsLater) {
+  document.getElementById('popup-6mois').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('popup-6mois').style.display = 'none';
+  }, 3000);
+} else if (expiryDate < oneYearLater) {
+  document.getElementById('popup-1an').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('popup-1an').style.display = 'none';
+  }, 3000);
+}
 
     try {
       await gapi.client.sheets.spreadsheets.values.append({
