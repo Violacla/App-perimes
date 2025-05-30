@@ -322,7 +322,7 @@ Déconnexion
 </div>
 <div id="entry-form" style="display:none;">
 <h3>Ajouter un produit</h3>
-<input id="date" type="month"/>
+<input id="date" type="date"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
 <input id="zone" placeholder="Zone" type="text"/>
@@ -467,73 +467,53 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSheet();
   };
 
- document.getElementById('btn-add').onclick = async () => {
-  if(!operatorName) {
-    alert("Veuillez vous connecter et choisir un opérateur");
-    return;
-  }
+  document.getElementById('btn-add').onclick = async () => {
+    if(!operatorName) {
+      alert("Veuillez vous connecter et choisir un opérateur");
+      return;
+    }
+    const dateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+    const productVal = document.getElementById('product').value.trim();
+    const qtyVal = parseInt(document.getElementById('qty').value);
+    const zoneVal = document.getElementById('zone').value.trim();
+    const soldVal = parseInt(document.getElementById('sold').value);
+    const promoVal = parseInt(document.getElementById('promo').value);
 
-  const rawMonth = document.getElementById('date').value; // format: "2025-11"
-  const fullDateVal = `${rawMonth}-31`; // force la fin de mois
-  const productVal = document.getElementById('product').value.trim();
-  const qtyVal = parseInt(document.getElementById('qty').value);
-  const zoneVal = document.getElementById('zone').value.trim();
-  const soldVal = parseInt(document.getElementById('sold').value);
-  const promoVal = parseInt(document.getElementById('promo').value);
+    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
+      alert("Veuillez remplir tous les champs correctement.");
+      return;
+    }
 
-  if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
-    alert("Veuillez remplir tous les champs correctement.");
-    return;
-  }
+    const values = [[
+      operatorName,
+      productVal,
+      dateVal,
+      qtyVal,
+      zoneVal,
+      soldVal,
+      promoVal,
+    ]];
 
-  const values = [[
-    operatorName,
-    productVal,
-    fullDateVal,
-    qtyVal,
-    zoneVal,
-    soldVal,
-    promoVal,
-  ]];
-
-  // Vérifie la date pour afficher les popups
-  const expiryDate = new Date(fullDateVal);
-  const now = new Date();
-  const sixMonthsLater = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
-  const oneYearLater = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-
-  if (expiryDate < sixMonthsLater) {
-    document.getElementById('popup-6mois').style.display = 'block';
-    setTimeout(() => {
-      document.getElementById('popup-6mois').style.display = 'none';
-    }, 3000);
-  } else if (expiryDate < oneYearLater) {
-    document.getElementById('popup-1an').style.display = 'block';
-    setTimeout(() => {
-      document.getElementById('popup-1an').style.display = 'none';
-    }, 3000);
-  }
-
-  try {
-    await gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values }
-    });
-    loadSheet();
-    setStatus('Ligne ajoutée avec succès !');
-    document.getElementById('product').value = '';
-    document.getElementById('qty').value = '';
-    document.getElementById('zone').value = '';
-    document.getElementById('sold').value = '';
-    document.getElementById('promo').value = '';
-    document.getElementById('date').value = '';
-  } catch (e) {
-    setStatus('Erreur : ' + e.message);
-  }
-};
-
+    try {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values }
+      });
+      loadSheet();
+      setStatus('Ligne ajoutée avec succès !');
+      // Clear form inputs
+      document.getElementById('product').value = '';
+      document.getElementById('qty').value = '';
+      document.getElementById('zone').value = '';
+      document.getElementById('sold').value = '';
+      document.getElementById('promo').value = '';
+      document.getElementById('date').value = '';
+    } catch (e) {
+      setStatus('Erreur : ' + e.message);
+    }
+  };
 
   // Load sheet data, exclude operator from table display
   async function loadSheet() {
@@ -610,6 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return letter;
   }
 
+  // Filtering function on main table
   function filterTable() {
     const zoneFilter = document.getElementById('filter-zone').value.toLowerCase();
     const monthFilter = document.getElementById('filter-month').value; // format yyyy-mm
@@ -622,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(zoneFilter && !zone.includes(zoneFilter)) show = false;
       if(monthFilter) {
         const [y,m] = monthFilter.split('-');
-        if(!date.startsWith(${y}-${m})) show = false;
+        if(!date.startsWith(`${y}-${m}`)) show = false;
       }
       row.style.display = show ? '' : 'none';
     });
@@ -632,6 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filter-month').value = '';
     filterTable();
   }
+
   // Notification popup logic
   const notifPopup = document.getElementById('notification-popup');
   const notifContent = notifPopup.querySelector('.content');
