@@ -322,7 +322,7 @@ Déconnexion
 </div>
 <div id="entry-form" style="display:none;">
 <h3>Ajouter un produit</h3>
-<input id="date" type="date"/>
+<input id="date" type="month"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
 <input id="zone" placeholder="Zone" type="text"/>
@@ -467,70 +467,73 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSheet();
   };
 
-  document.getElementById('btn-add').onclick = async () => {
-    if(!operatorName) {
-      alert("Veuillez vous connecter et choisir un opérateur");
-      return;
-    }
-    const dateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
-    const productVal = document.getElementById('product').value.trim();
-    const qtyVal = parseInt(document.getElementById('qty').value);
-    const zoneVal = document.getElementById('zone').value.trim();
-    const soldVal = parseInt(document.getElementById('sold').value);
-    const promoVal = parseInt(document.getElementById('promo').value);
+ document.getElementById('btn-add').onclick = async () => {
+  if(!operatorName) {
+    alert("Veuillez vous connecter et choisir un opérateur");
+    return;
+  }
 
-    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
-      alert("Veuillez remplir tous les champs correctement.");
-      return;
-    }
+  const rawMonth = document.getElementById('date').value; // format: "2025-11"
+  const fullDateVal = `${rawMonth}-31`; // force la fin de mois
+  const productVal = document.getElementById('product').value.trim();
+  const qtyVal = parseInt(document.getElementById('qty').value);
+  const zoneVal = document.getElementById('zone').value.trim();
+  const soldVal = parseInt(document.getElementById('sold').value);
+  const promoVal = parseInt(document.getElementById('promo').value);
 
-    const values = [[
-      operatorName,
-      productVal,
-      dateVal,
-      qtyVal,
-      zoneVal,
-      soldVal,
-      promoVal,
-    ]];
-// ✅ Vérifie la date pour afficher les popups
-const expiryDate = new Date(dateVal);
-const now = new Date();
-const sixMonthsLater = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
-const oneYearLater = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+  if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
+    alert("Veuillez remplir tous les champs correctement.");
+    return;
+  }
 
-if (expiryDate < sixMonthsLater) {
-  document.getElementById('popup-6mois').style.display = 'block';
-  setTimeout(() => {
-    document.getElementById('popup-6mois').style.display = 'none';
-  }, 3000);
-} else if (expiryDate < oneYearLater) {
-  document.getElementById('popup-1an').style.display = 'block';
-  setTimeout(() => {
-    document.getElementById('popup-1an').style.display = 'none';
-  }, 3000);
-}
+  const values = [[
+    operatorName,
+    productVal,
+    fullDateVal,
+    qtyVal,
+    zoneVal,
+    soldVal,
+    promoVal,
+  ]];
 
-    try {
-      await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values }
-      });
-      loadSheet();
-      setStatus('Ligne ajoutée avec succès !');
-      // Clear form inputs
-      document.getElementById('product').value = '';
-      document.getElementById('qty').value = '';
-      document.getElementById('zone').value = '';
-      document.getElementById('sold').value = '';
-      document.getElementById('promo').value = '';
-      document.getElementById('date').value = '';
-    } catch (e) {
-      setStatus('Erreur : ' + e.message);
-    }
-  };
+  // Vérifie la date pour afficher les popups
+  const expiryDate = new Date(fullDateVal);
+  const now = new Date();
+  const sixMonthsLater = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
+  const oneYearLater = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+
+  if (expiryDate < sixMonthsLater) {
+    document.getElementById('popup-6mois').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('popup-6mois').style.display = 'none';
+    }, 3000);
+  } else if (expiryDate < oneYearLater) {
+    document.getElementById('popup-1an').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('popup-1an').style.display = 'none';
+    }, 3000);
+  }
+
+  try {
+    await gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+    loadSheet();
+    setStatus('Ligne ajoutée avec succès !');
+    document.getElementById('product').value = '';
+    document.getElementById('qty').value = '';
+    document.getElementById('zone').value = '';
+    document.getElementById('sold').value = '';
+    document.getElementById('promo').value = '';
+    document.getElementById('date').value = '';
+  } catch (e) {
+    setStatus('Erreur : ' + e.message);
+  }
+};
+
 
   // Load sheet data, exclude operator from table display
   async function loadSheet() {
