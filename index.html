@@ -610,39 +610,28 @@ document.addEventListener('DOMContentLoaded', () => {
     return letter;
   }
 
-  // Filtering function on main table
- function filterTable() {
-  const zoneFilter = document.getElementById('filter-zone').value.toLowerCase();
-  const monthFilter = document.getElementById('filter-month').value; // format MM-YYYY
+  function filterTable() {
+    const zoneFilter = document.getElementById('filter-zone').value.toLowerCase();
+    const monthFilter = document.getElementById('filter-month').value; // format yyyy-mm
 
-  const tbody = document.querySelector('#data-table tbody');
-  Array.from(tbody.rows).forEach(row => {
-    const zone = row.cells[3].textContent.toLowerCase();
-    const dateStr = row.cells[1].textContent; // texte affiché
-    let show = true;
-
-    // Filtrage par zone
-    if (zoneFilter && !zone.includes(zoneFilter)) show = false;
-
-    // Filtrage par mois-année
-    if (monthFilter) {
-      const [mFilter, yFilter] = monthFilter.split('-');
-      const d = new Date(dateStr);
-
-      if (!isNaN(d)) {
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const y = d.getFullYear().toString();
-        const ym = `${m}-${y}`;
-        if (ym !== monthFilter) show = false;
-      } else {
-        show = false; // si la date n’est pas valide (ex: texte non reconnu)
+    const tbody = document.querySelector('#data-table tbody');
+    Array.from(tbody.rows).forEach(row => {
+      const zone = row.cells[3].textContent.toLowerCase(); // zone col index 3 in displayed table
+      const date = row.cells[1].textContent; // date col index 1
+      let show = true;
+      if(zoneFilter && !zone.includes(zoneFilter)) show = false;
+      if(monthFilter) {
+        const [y,m] = monthFilter.split('-');
+        if(!date.startsWith(${y}-${m})) show = false;
       }
-    }
-
-    row.style.display = show ? '' : 'none';
-  });
-}
-
+      row.style.display = show ? '' : 'none';
+    });
+  }
+  function clearFilter() {
+    document.getElementById('filter-zone').value = '';
+    document.getElementById('filter-month').value = '';
+    filterTable();
+  }
   // Notification popup logic
   const notifPopup = document.getElementById('notification-popup');
   const notifContent = notifPopup.querySelector('.content');
