@@ -300,7 +300,7 @@ Déconnexion
 <label for="filter-zone">Filtrer Zone :</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Mois  :</label>
-<input id="filter-month" placeholder="YYYY-MM" style="width: 120px;" type="text"/>
+<input type="text" id="filter-month" placeholder="MM/YYYY" style="width: 120px;" />
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
 </div>
@@ -608,24 +608,35 @@ document.addEventListener('DOMContentLoaded', () => {
     return letter;
   }
 
-  // Filtering function on main table
-  function filterTable() {
-    const zoneFilter = document.getElementById('filter-zone').value.toLowerCase();
-    const monthFilter = document.getElementById('filter-month').value; // format yyyy-mm
+function filterTable() {
+  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+  const monthFilter = document.getElementById("filter-month").value.trim(); // format MM/YYYY
+  const rows = document.querySelectorAll("#data-table tbody tr");
 
-    const tbody = document.querySelector('#data-table tbody');
-    Array.from(tbody.rows).forEach(row => {
-      const zone = row.cells[3].textContent.toLowerCase(); // zone col index 3 in displayed table
-      const date = row.cells[1].textContent; // date col index 1
-      let show = true;
-      if(zoneFilter && !zone.includes(zoneFilter)) show = false;
-      if(monthFilter) {
-        const [y,m] = monthFilter.split('-');
-        if(!date.startsWith(`${y}-${m}`)) show = false;
+  rows.forEach((row) => {
+    const zoneCell = row.cells[3].textContent.trim().toLowerCase(); // Zone = colonne 4
+    const dateCell = row.cells[1].textContent.trim(); // Date = colonne 2
+    let show = true;
+
+    // Filtre zone
+    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+      show = false;
+    }
+
+    // Filtre mois MM/YYYY
+    if (monthFilter) {
+      const [yyyy, mm, dd] = dateCell.split('-');
+      const rowMonth = `${mm}/${yyyy}`;
+      const [mFilter, yFilter] = monthFilter.split('/');
+      if (rowMonth !== `${mFilter}/${yFilter}`) {
+        show = false;
       }
-      row.style.display = show ? '' : 'none';
-    });
-  }
+    }
+
+    row.style.display = show ? "" : "none";
+  });
+}
+
   function clearFilter() {
     document.getElementById('filter-zone').value = '';
     document.getElementById('filter-month').value = '';
