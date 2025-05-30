@@ -322,7 +322,7 @@ Déconnexion
 </div>
 <div id="entry-form" style="display:none;">
 <h3>Ajouter un produit</h3>
-<input id="date" type="date"/>
+<input id="date" placeholder="MM/YYYY" type="text"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
 <input id="zone" placeholder="Zone" type="text"/>
@@ -472,7 +472,25 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("Veuillez vous connecter et choisir un opérateur");
       return;
     }
-    const dateVal = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+    
+    let rawDate = document.getElementById('date').value;
+    let dateVal = "";
+    if (rawDate) {
+      const [month, year] = rawDate.split('/');
+      if (month && year) {
+        const paddedMonth = month.padStart(2, '0');
+        const lastDay = new Date(year, parseInt(paddedMonth), 0).getDate();
+        dateVal = `${year}-${paddedMonth}-${lastDay}`;
+      }
+    }
+    if (!dateVal) {
+      const today = new Date();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const y = today.getFullYear();
+      const d = new Date(y, today.getMonth() + 1, 0).getDate();
+      dateVal = `${y}-${m}-${d}`;
+    }
+
     const productVal = document.getElementById('product').value.trim();
     const qtyVal = parseInt(document.getElementById('qty').value);
     const zoneVal = document.getElementById('zone').value.trim();
