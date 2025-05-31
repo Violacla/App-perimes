@@ -837,4 +837,17 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
+  <script>
+  const dateInput = document.getElementById('date');
+  if (dateInput) {
+    dateInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/[^\d]/g, '');
+      if (val.length > 2) {
+        val = val.slice(0,2) + '/' + val.slice(2,6);
+      }
+      e.target.value = val;
+    });
+  }
+</script>
+
 </html>
