@@ -7,6 +7,32 @@
 <script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
+  .autocomplete-list {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 250px;
+  z-index: 999;
+}
+
+.autocomplete-list li {
+  padding: 8px 10px;
+  cursor: pointer;
+  color: black;
+}
+
+.autocomplete-list li:hover,
+.autocomplete-list li.active {
+  background-color: #bcd7ed;
+  color: white;
+}
+
   :root {
     --bleu-glacial: #bcd7ed;
   }
@@ -326,7 +352,8 @@ Déconnexion
 <input id="date" placeholder="MM/YYYY" type="text"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
-<input id="zone" placeholder="Zone" type="text"/>
+<input type="text" id="zone" placeholder="Zone" autocomplete="off" />
+<ul id="zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
 <input id="sold" min="0" placeholder="Nb vendus" type="number"/>
 <input id="promo" min="0" placeholder="Nb promo" type="number"/>
 <button id="btn-add">Ajouter la ligne</button>
@@ -851,62 +878,61 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 </script>
 <script>
-// === ZONES PRÉREMPLIES ===
-const zoneList = [
-  "aboca", "aderma", "arko", "aromat", "avene",
-  "bain", "bande", "bébé", "bien etre", "bioderma",
-  "bi-oil", "bonbon", "brumes et senteurs", "cerave", "circulation",
-  "clearskin", "collagene", "coloration", "confort", "conseil",
-  "cooper geo", "cosmeto", "dentaire", "deo", "dermato",
-  "dexeryl", "dietetique", "douleurs", "durex", "enfants",
-  "forme", "frigo", "homeo", "hydratis", "intime",
+<script>
+const zones = [
+  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
+  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
+  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
+  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
+  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
   "la roche posay", "la rosee", "lait bébé", "levres et mains", "moustik",
-  "noreva", "nutergia", "nuxe", "ongles", "oreille",
-  "pieds et mains", "pileje", "poux", "ronflement", "cheveux",
-  "corps", "STUP", "svr", "tisanes", "uriage", "nature",
-  "vichy", "yeux", "1ersoins", "4patte"
+  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
+  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
+  "nature", "vichy", "yeux", "1ersoins", "4patte"
 ];
 
-// Appliquer autocomplétion à un champ texte
-function applyAutocomplete(inputId, list) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
+const input = document.getElementById('zone');
+const list = document.getElementById('zone-suggestions');
 
-  input.setAttribute('list', `${inputId}-list`);
-  const datalist = document.createElement('datalist');
-  datalist.id = `${inputId}-list`;
+input.addEventListener('input', function () {
+  const val = this.value.toLowerCase();
+  list.innerHTML = '';
+  if (val.length < 1) {
+    list.style.display = 'none';
+    return;
+  }
 
-  list.forEach(zone => {
-    const option = document.createElement('option');
-    option.value = zone;
-    datalist.appendChild(option);
+  const matches = zones.filter(z => z.toLowerCase().includes(val));
+  if (matches.length === 0) {
+    list.style.display = 'none';
+    return;
+  }
+
+  matches.forEach((zone, index) => {
+    const li = document.createElement('li');
+    li.textContent = zone;
+    li.addEventListener('click', () => {
+      input.value = zone;
+      list.innerHTML = '';
+      list.style.display = 'none';
+    });
+    list.appendChild(li);
   });
 
-  document.body.appendChild(datalist);
-}
+  const rect = input.getBoundingClientRect();
+  list.style.top = rect.bottom + window.scrollY + 'px';
+  list.style.left = rect.left + window.scrollX + 'px';
+  list.style.width = input.offsetWidth + 'px';
+  list.style.display = 'block';
+});
 
-// Applique aux deux champs
-applyAutocomplete('zone', zoneList);         // Ajout produit
-applyAutocomplete('filter-zone', zoneList);  // Filtre
-
-// === Impression du tableau filtré ===
-document.getElementById('btn-print-table').addEventListener('click', () => {
-  const table = document.getElementById('data-table').outerHTML;
-  const style = `
-    <style>
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-      tbody tr:nth-child(odd) { background-color: #f2f2f2; }
-    </style>
-  `;
-
-  const win = window.open('', '', 'width=900,height=600');
-  win.document.write(`<html><head><title>Impression</title>${style}</head><body>${table}</body></html>`);
-  win.document.close();
-  win.focus();
-  win.print();
+document.addEventListener('click', function (e) {
+  if (!input.contains(e.target) && !list.contains(e.target)) {
+    list.style.display = 'none';
+  }
 });
 </script>
+
 <footer style="
   position: fixed;
   bottom: 0;
