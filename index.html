@@ -257,28 +257,58 @@
     background-color: rgba(188, 215, 237, 0.15);
   }
 
-  /* Print styles */
-  @media print {
-    body * {
-      visibility: hidden;
-    }
-    #notification-popup, #notification-popup * {
-      visibility: visible;
-    }
-    #notification-popup {
-      position: static;
-      transform: none;
-      box-shadow: none;
-      width: 100%;
-      max-height: none;
-      overflow: visible;
-      border-radius: 0;
-    }
-    #notification-popup header button,
-    #notification-popup #print-notif {
-      display: none;
-    }
+ @media print {
+  body * {
+    visibility: hidden !important;
   }
+
+  /* Cas : impression du tableau filtré */
+  body.print-table #data-table,
+  body.print-table #data-table * {
+    visibility: visible !important;
+  }
+
+  body.print-table #data-table {
+    position: static !important;
+    width: 100% !important;
+  }
+
+  body.print-table header,
+  body.print-table footer,
+  body.print-table #entry-form,
+  body.print-table #filters,
+  body.print-table #status,
+  body.print-table #notification-popup {
+    display: none !important;
+  }
+
+  /* Cas : impression des notifications */
+  body.print-notif #notification-popup,
+  body.print-notif #notification-popup * {
+    visibility: visible !important;
+  }
+
+  body.print-notif #notification-popup {
+    position: static !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body.print-notif header button,
+  body.print-notif #print-notif,
+  body.print-notif #btn-notif,
+  body.print-notif footer,
+  body.print-notif #entry-form,
+  body.print-notif #filters,
+  body.print-notif #status,
+  body.print-notif #data-table {
+    display: none !important;
+  }
+}
+
 </style>
 </head>
 <header>
@@ -1017,6 +1047,21 @@ document.addEventListener('click', function (e) {
   window.print();
 });
 
+</script>
+<script>
+// Impression du tableau avec filtres
+document.getElementById('btn-print-table').addEventListener('click', () => {
+  document.body.classList.add('print-table');
+  window.print();
+  setTimeout(() => document.body.classList.remove('print-table'), 1000);
+});
+
+// Impression des notifications (popup)
+document.getElementById('print-notif').addEventListener('click', () => {
+  document.body.classList.add('print-notif');
+  window.print();
+  setTimeout(() => document.body.classList.remove('print-notif'), 1000);
+});
 </script>
 
 <footer style="
