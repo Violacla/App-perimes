@@ -355,8 +355,6 @@ Déconnexion
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
 <input type="text" id="zone" placeholder="Zone" autocomplete="off" />
 <ul id="zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
-<input id="sold" min="0" placeholder="Nb vendus" type="number"/>
-<input id="promo" min="0" placeholder="Nb promo" type="number"/>
 <button id="btn-add">Ajouter la ligne</button>
 </div>
 </main>
@@ -523,8 +521,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const productVal = document.getElementById('product').value.trim();
     const qtyVal = parseInt(document.getElementById('qty').value);
     const zoneVal = document.getElementById('zone').value.trim();
-    const soldVal = parseInt(document.getElementById('sold').value);
-    const promoVal = parseInt(document.getElementById('promo').value);
+    const soldVal = 0;
+    const promoVal = 0;
+
 
     if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
       alert("Veuillez remplir tous les champs correctement.");
@@ -975,7 +974,22 @@ document.addEventListener('click', function (e) {
     tbody.appendChild(tr);
   });
 }
+</script>
+<script>
+  // Filtrer en appuyant sur Entrée dans les champs
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterZone = document.getElementById('filter-zone');
+    const filterMonth = document.getElementById('filter-month');
 
+    [filterZone, filterMonth].forEach(input => {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          filterTable(); // fonction que tu as déjà
+        }
+      });
+    });
+  });
 </script>
 
 <footer style="
@@ -983,7 +997,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.5em;
+  font-size: 0.7em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
