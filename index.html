@@ -329,7 +329,7 @@ Déconnexion
 <input type="text" id="filter-month" placeholder="MM/YYYY" style="width: 120px;" />
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
-<button id="btn-print-table">Técharger PDF</button>
+<button onclick="genererPDF()">Télécharger le PDF</button>
 </div>
 <div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
@@ -741,24 +741,23 @@ async function loadNotifications() {
         return zoneA.localeCompare(zoneB);
       });
 
-      html += `<table>
-        <thead>
-          <tr>
-            <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-          </tr>
-        </thead>
-        <tbody>`;
+     html += `<div id="zone-pdf"><table>
+  <thead>
+    <tr>
+      <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+    </tr>
+  </thead>
+  <tbody>`;
 
-      rowsForMonth.forEach(row => {
-        html += '<tr>';
-        [1, 2, 3, 4, 5, 6].forEach(ci => {
-          html += `<td>${row[ci] || ''}</td>`;
-        });
-        html += '</tr>';
-      });
+rowsForMonth.forEach(row => {
+  html += '<tr>';
+  [1, 2, 3, 4, 5, 6].forEach(ci => {
+    html += `<td>${row[ci] || ''}</td>`;
+  });
+  html += '</tr>';
+});
 
-      html += '</tbody></table>';
-    }
+html += '</tbody></table></div>';
 
     notifContent.innerHTML = html;
 
@@ -991,7 +990,22 @@ document.addEventListener('click', function (e) {
     });
   });
 </script>
+<!-- Bibliothèque html2pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+<!-- Script pour générer le PDF -->
+<script>
+function genererPDF() {
+  const element = document.getElementById('zone-pdf');
+  html2pdf().from(element).set({
+    margin: 10,
+    filename: 'tableau-filtré.pdf',
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }).save();
+}
+</script>
+  
 <footer style="
   position: fixed;
   bottom: 0;
@@ -1006,6 +1020,7 @@ document.addEventListener('click', function (e) {
 ">
   Développé par Violaine Claron
 </footer>
+
 
 </body>
 </html>
