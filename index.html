@@ -280,7 +280,7 @@
     }
   }
 </style>
-</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
 <div id="header-left">
 <a href="/index.html" style="
@@ -329,7 +329,13 @@ Déconnexion
 <input type="text" id="filter-month" placeholder="MM/YYYY" style="width: 120px;" />
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
-<button id="btn-print-table">Imprimer les résultats</button>
+
+<button id="btn-print-table" title="Exporter en PDF">
+  <img src="https://i.imgur.com/YOUR_ICON.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+  Exporter PDF
+</button>
+<ul id="filter-zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
+
 </div>
 <div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
@@ -428,7 +434,114 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-</script></body>
+</script>
+<script>
+  document.getElementById("btn-print-table").addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+
+    const zoneFilter = document.getElementById("filter-zone").value;
+    const monthFilter = document.getElementById("filter-month").value;
+
+    doc.setFontSize(14);
+    doc.text("Résultats filtrés - Produits périmés", 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+    y += 6;
+    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+    y += 10;
+
+    const rows = document.querySelectorAll("#data-table tbody tr");
+    rows.forEach((row) => {
+      if (row.style.display === "none") return;
+
+      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+      doc.text(cells.join(" | "), 10, y);
+      y += 6;
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
+      }
+    });
+
+    doc.save("resultats_perimes.pdf");
+  });
+</script>
+
+
+<script>
+  const filterInput = document.getElementById('filter-zone');
+  const suggestionList = document.getElementById('filter-zone-suggestions');
+
+  filterInput.addEventListener('input', function () {
+    const val = this.value.toLowerCase();
+    suggestionList.innerHTML = '';
+    if (val.length < 1) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    const matches = zones.filter(z => z.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    matches.forEach((zone) => {
+      const li = document.createElement('li');
+      li.textContent = zone;
+      li.addEventListener('click', () => {
+        filterInput.value = zone;
+        suggestionList.innerHTML = '';
+        suggestionList.style.display = 'none';
+      });
+      suggestionList.appendChild(li);
+    });
+
+    const rect = filterInput.getBoundingClientRect();
+    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
+    suggestionList.style.left = rect.left + window.scrollX + 'px';
+    suggestionList.style.width = filterInput.offsetWidth + 'px';
+    suggestionList.style.display = 'block';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
+      suggestionList.style.display = 'none';
+    }
+  });
+</script>
+
+
+<script>
+  async function deleteRow(rowIndex) {
+    try {
+      await gapi.client.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId: 0,
+                dimension: "ROWS",
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex
+              }
+            }
+          }]
+        }
+      });
+      setStatus("Ligne supprimée avec succès.");
+      loadSheet();
+    } catch (e) {
+      setStatus("Erreur suppression : " + e.message);
+    }
+  }
+</script>
+
+</body>
 <!-- Notification Popup -->
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -997,7 +1110,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.5em;
+  font-size: 0.7em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
@@ -1006,6 +1119,113 @@ document.addEventListener('click', function (e) {
 ">
   Développé par Violaine Claron
 </footer>
+
+
+<script>
+  document.getElementById("btn-print-table").addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+
+    const zoneFilter = document.getElementById("filter-zone").value;
+    const monthFilter = document.getElementById("filter-month").value;
+
+    doc.setFontSize(14);
+    doc.text("Résultats filtrés - Produits périmés", 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+    y += 6;
+    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+    y += 10;
+
+    const rows = document.querySelectorAll("#data-table tbody tr");
+    rows.forEach((row) => {
+      if (row.style.display === "none") return;
+
+      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+      doc.text(cells.join(" | "), 10, y);
+      y += 6;
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
+      }
+    });
+
+    doc.save("resultats_perimes.pdf");
+  });
+</script>
+
+
+<script>
+  const filterInput = document.getElementById('filter-zone');
+  const suggestionList = document.getElementById('filter-zone-suggestions');
+
+  filterInput.addEventListener('input', function () {
+    const val = this.value.toLowerCase();
+    suggestionList.innerHTML = '';
+    if (val.length < 1) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    const matches = zones.filter(z => z.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    matches.forEach((zone) => {
+      const li = document.createElement('li');
+      li.textContent = zone;
+      li.addEventListener('click', () => {
+        filterInput.value = zone;
+        suggestionList.innerHTML = '';
+        suggestionList.style.display = 'none';
+      });
+      suggestionList.appendChild(li);
+    });
+
+    const rect = filterInput.getBoundingClientRect();
+    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
+    suggestionList.style.left = rect.left + window.scrollX + 'px';
+    suggestionList.style.width = filterInput.offsetWidth + 'px';
+    suggestionList.style.display = 'block';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
+      suggestionList.style.display = 'none';
+    }
+  });
+</script>
+
+
+<script>
+  async function deleteRow(rowIndex) {
+    try {
+      await gapi.client.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId: 0,
+                dimension: "ROWS",
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex
+              }
+            }
+          }]
+        }
+      });
+      setStatus("Ligne supprimée avec succès.");
+      loadSheet();
+    } catch (e) {
+      setStatus("Erreur suppression : " + e.message);
+    }
+  }
+</script>
 
 </body>
 </html>
