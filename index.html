@@ -1069,66 +1069,11 @@ document.getElementById('btn-print-table').addEventListener('click', () => {
 
 // ✅ NOUVEAU CODE - À METTRE À LA PLACE
 document.getElementById('print-notif').addEventListener('click', () => {
-  const popupContent = document.querySelector('#notification-popup .content').innerHTML;
-  const printWindow = window.open('', '_blank', 'width=800,height=600');
-  
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Notifications - Produits périmés</title>
-      <style>
-        body { 
-          font-family: Arial, sans-serif; 
-          padding: 20px; 
-          margin: 0;
-        }
-        h3 { 
-          color: #0a2f51; 
-          margin-top: 30px; 
-          margin-bottom: 15px;
-        }
-        table { 
-          border-collapse: collapse; 
-          width: 100%; 
-          margin-bottom: 20px;
-        }
-        th, td { 
-          border: 1px solid #ccc; 
-          padding: 8px; 
-          text-align: center;
-        }
-        th {
-          background-color: #bcd7ed;
-          color: #0a2f51;
-          font-weight: bold;
-        }
-        tbody tr:nth-child(odd) {
-          background-color: rgba(188, 215, 237, 0.15);
-        }
-        p {
-          font-style: italic;
-          color: #666;
-        }
-      </style>
-    </head>
-    <body>
-      <h1>Pharmacie du Libron - Notifications</h1>
-      <h2>Produits périmés dans les 3 prochains mois</h2>
-      ${popupContent}
-    </body>
-    </html>
-  `);
-  
-  printWindow.document.close();
-  
-  printWindow.onload = function() {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.onafterprint = function() {
-      printWindow.close();
-    };
-  };
+  document.body.classList.add('print-notif');
+  window.print();
+  setTimeout(() => {
+    document.body.classList.remove('print-notif');
+  }, 1000);
 });
   
 </script>
@@ -1138,7 +1083,7 @@ document.getElementById('print-notif').addEventListener('click', () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.3em;
+  font-size: 0.7em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
