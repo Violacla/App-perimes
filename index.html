@@ -257,66 +257,19 @@
     background-color: rgba(188, 215, 237, 0.15);
   }
 
- @media print {
-  body * {
-  display: hidden !important;
-}
-
-  /* Cas : impression du tableau filtré */
-  body.print-table #data-table,
-  body.print-table #data-table * {
-    visibility: visible !important;
-  }
-
-  body.print-table #data-table {
-    position: static !important;
-    width: 100% !important;
-  }
-
-  body.print-table header,
-  body.print-table footer,
-  body.print-table #entry-form,
-  body.print-table #filters,
-  body.print-table #status,
-  body.print-table #notification-popup {
-    display: none !important;
-  }
-
-  /* Cas : impression des notifications */
-  body.print-notif #notification-popup,
-  body.print-notif #notification-popup * {
-    visibility: visible !important;
-  }
-
-  body.print-notif #notification-popup {
-    position: static !important;
-    width: 100% !important;
-    max-height: none !important;
-    overflow: visible !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-
-  body.print-notif header button,
-  body.print-notif #print-notif,
-  body.print-notif #btn-notif,
-  body.print-notif footer,
-  body.print-notif #entry-form,
-  body.print-notif #filters,
-  body.print-notif #status,
-  body.print-notif #data-table {
-    display: none !important;
-  }
-}
-.table-wrapper {
-  max-height: 400px;
-  overflow-y: auto;
-  border-radius: 6px;
-  margin-top: 10px;
-}
-
 @media print {
-  .table-wrapper {
+  body * {
+    display: none !important;
+  }
+  body.print-table #data-table {
+    display: block !important;
+    width: 100% !important;
+    position: static !important;
+  }
+  body.print-notif #notification-popup {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
     max-height: none !important;
     overflow: visible !important;
   }
@@ -1092,6 +1045,21 @@ document.getElementById('print-notif').addEventListener('click', () => {
 ">
   Développé par Violaine Claron
 </footer>
+<script>
+function printTable() {
+  document.body.classList.remove('print-notif');
+  document.body.classList.add('print-table');
+  window.print();
+  document.body.classList.remove('print-table');
+}
+
+function printNotif() {
+  document.body.classList.remove('print-table');
+  document.body.classList.add('print-notif');
+  window.print();
+  document.body.classList.remove('print-notif');
+}
+</script>
 
 </body>
 </html>
