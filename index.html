@@ -266,10 +266,19 @@
     width: 100% !important;
     position: static !important;
   }
-  body.print-notif #notification-popup {
+ body.print-notif #notification-popup {
     display: block !important;
     position: static !important;
     width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 auto !important;
+    padding: 10px !important;
+    box-shadow: none !important;
+  }
+
+  /* Annule restrictions sur les conteneurs scroll */
+  body.print-notif .table-wrapper {
     max-height: none !important;
     overflow: visible !important;
   }
@@ -360,7 +369,7 @@ Déconnexion
 <header>
 <span id="notif-title">Notifications - Produits périmés</span>
 <div>
-<button id="print-notif" title="Imprimer">🖨️</button>
+<button id="print-notif" title="Imprimer" onclick="printNotif()">🖨️</button>
 <button id="close-notif" title="Fermer">✖️</button>
 </div>
 </header>
@@ -1059,6 +1068,7 @@ function printNotif() {
   window.print();
   document.body.classList.remove('print-notif');
 }
+
 </script>
 
 </body>
