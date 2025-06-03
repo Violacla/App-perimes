@@ -741,23 +741,23 @@ async function loadNotifications() {
         return zoneA.localeCompare(zoneB);
       });
 
-     html += `<div id="zone-pdf"><table>
-  <thead>
-    <tr>
-      <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-    </tr>
-  </thead>
-  <tbody>`;
+       html += <div id="zone-pdf"><table>
+        <thead>
+          <tr>
+            <th>Produit</th><th>Date</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+          </tr>
+        </thead>
+        <tbody>;
 
-rowsForMonth.forEach(row => {
-  html += '<tr>';
-  [1, 2, 3, 4, 5, 6].forEach(ci => {
-    html += `<td>${row[ci] || ''}</td>`;
-  });
-  html += '</tr>';
-});
+      rowsForMonth.forEach(row => {
+        html += '<tr>';
+        [1, 2, 3, 4, 5, 6].forEach(ci => {
+          html += <td>${row[ci] || ''}</td>;
+        });
+        html += '</tr>';
+      });
 
-html += '</tbody></table></div>';
+      html += '</tbody></table>';
 
     notifContent.innerHTML = html;
 
@@ -990,22 +990,7 @@ document.addEventListener('click', function (e) {
     });
   });
 </script>
-<!-- Bibliothèque html2pdf.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<!-- Script pour générer le PDF -->
-<script>
-function genererPDF() {
-  const element = document.getElementById('zone-pdf');
-  html2pdf().from(element).set({
-    margin: 10,
-    filename: 'tableau-filtré.pdf',
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }).save();
-}
-</script>
-  
 <footer style="
   position: fixed;
   bottom: 0;
