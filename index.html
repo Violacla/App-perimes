@@ -257,58 +257,28 @@
     background-color: rgba(188, 215, 237, 0.15);
   }
 
- @media print {
-  body * {
-    visibility: hidden !important;
+  /* Print styles */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #notification-popup, #notification-popup * {
+      visibility: visible;
+    }
+    #notification-popup {
+      position: static;
+      transform: none;
+      box-shadow: none;
+      width: 100%;
+      max-height: none;
+      overflow: visible;
+      border-radius: 0;
+    }
+    #notification-popup header button,
+    #notification-popup #print-notif {
+      display: none;
+    }
   }
-
-  /* Cas : impression du tableau filtré */
-  body.print-table #data-table,
-  body.print-table #data-table * {
-    visibility: visible !important;
-  }
-
-  body.print-table #data-table {
-    position: static !important;
-    width: 100% !important;
-  }
-
-  body.print-table header,
-  body.print-table footer,
-  body.print-table #entry-form,
-  body.print-table #filters,
-  body.print-table #status,
-  body.print-table #notification-popup {
-    display: none !important;
-  }
-
-  /* Cas : impression des notifications */
-  body.print-notif #notification-popup,
-  body.print-notif #notification-popup * {
-    visibility: visible !important;
-  }
-
-  body.print-notif #notification-popup {
-    position: static !important;
-    width: 100% !important;
-    max-height: none !important;
-    overflow: visible !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-
-  body.print-notif header button,
-  body.print-notif #print-notif,
-  body.print-notif #btn-notif,
-  body.print-notif footer,
-  body.print-notif #entry-form,
-  body.print-notif #filters,
-  body.print-notif #status,
-  body.print-notif #data-table {
-    display: none !important;
-  }
-}
-
 </style>
 </head>
 <header>
@@ -654,29 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus('Erreur mise à jour : ' + err.message);
     }
   }
-// Supprimer une ligne dans Google Sheets
-async function deleteRow(rowNumber) {
-  if (!operatorName) {
-    alert("Veuillez vous connecter.");
-    return;
-  }
-
-  try {
-    // Vide les cellules de A à G sur la ligne spécifiée
-    const emptyRow = [["", "", "", "", "", "", ""]];
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `Feuille1!A${rowNumber}:G${rowNumber}`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: emptyRow }
-    });
-
-    setStatus(`Ligne ${rowNumber} supprimée.`);
-    loadSheet(); // Recharge le tableau après suppression
-  } catch (err) {
-    setStatus("Erreur lors de la suppression : " + err.message);
-  }
-}
 
   // Convert number to letter for column (1->A, 2->B ...)
   function columnToLetter(column) {
@@ -1043,25 +990,6 @@ document.addEventListener('click', function (e) {
       });
     });
   });
-  document.getElementById('btn-print-table').addEventListener('click', () => {
-  window.print();
-});
-
-</script>
-<script>
-// Impression du tableau avec filtres
-document.getElementById('btn-print-table').addEventListener('click', () => {
-  document.body.classList.add('print-table');
-  window.print();
-  setTimeout(() => document.body.classList.remove('print-table'), 1000);
-});
-
-// Impression des notifications (popup)
-document.getElementById('print-notif').addEventListener('click', () => {
-  document.body.classList.add('print-notif');
-  window.print();
-  setTimeout(() => document.body.classList.remove('print-notif'), 1000);
-});
 </script>
 
 <footer style="
@@ -1069,7 +997,7 @@ document.getElementById('print-notif').addEventListener('click', () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.7em;
+  font-size: 0.5em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
