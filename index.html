@@ -308,19 +308,6 @@
     display: none !important;
   }
 }
-.table-wrapper {
-  max-height: 400px;
-  overflow-y: auto;
-  border-radius: 6px;
-  margin-top: 10px;
-}
-
-@media print {
-  .table-wrapper {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-}
 
 </style>
 </head>
@@ -374,8 +361,7 @@ Déconnexion
 <button onclick="clearFilter()">Réinitialiser</button>
 <button id="btn-print-table">Imprimer les résultats</button>
 </div>
-<div class="table-wrapper">
-<table aria-label="Données des produits périmés" id="data-table" tabindex="0">
+<div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
 <tr>
 <!-- Ne PAS afficher colonne opérateur -->
@@ -1057,6 +1043,9 @@ document.addEventListener('click', function (e) {
       });
     });
   });
+  document.getElementById('btn-print-table').addEventListener('click', () => {
+  window.print();
+});
 
 </script>
 <script>
@@ -1073,7 +1062,6 @@ document.getElementById('print-notif').addEventListener('click', () => {
   window.print();
   setTimeout(() => document.body.classList.remove('print-notif'), 1000);
 });
-  
 </script>
 
 <footer style="
@@ -1081,7 +1069,7 @@ document.getElementById('print-notif').addEventListener('click', () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.5em;
+  font-size: 0.7em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
