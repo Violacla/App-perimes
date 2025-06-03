@@ -341,6 +341,7 @@ Déconnexion
 <th>Zone</th>
 <th>Vendues</th>
 <th>Promo</th>
+<th>Suppr</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -931,6 +932,50 @@ document.addEventListener('click', function (e) {
     list.style.display = 'none';
   }
 });
+  function renderTable(rows) {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
+
+  rows.slice(1).forEach((row, i) => {
+    const tr = document.createElement('tr');
+    const cols = [1, 2, 3, 4, 5, 6];
+
+    cols.forEach(colIndex => {
+      const td = document.createElement('td');
+      td.textContent = row[colIndex] || '';
+      td.contentEditable = true;
+      td.dataset.row = i + 2;
+      td.dataset.col = colIndex + 1;
+      td.addEventListener('blur', onCellEdit);
+      tr.appendChild(td);
+    });
+
+    // ✅ Ajout de la colonne "✖️"
+    const tdDelete = document.createElement('td');
+    tdDelete.innerHTML = '✖️';
+    tdDelete.style.cursor = 'pointer';
+    tdDelete.style.color = '#bbb';
+    tdDelete.style.fontSize = '1.1em';
+    tdDelete.title = 'Supprimer cette ligne';
+    tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
+    tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
+    tdDelete.addEventListener('click', async () => {
+      const confirmed = confirm("Supprimer cette ligne ?");
+      if (confirmed) {
+        await deleteRow(i + 2);
+      }
+    });
+    tr.appendChild(tdDelete);
+
+    tr.addEventListener('click', () => {
+      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+      tr.classList.add('selected');
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
 </script>
 
 <footer style="
