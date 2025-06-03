@@ -259,8 +259,8 @@
 
  @media print {
   body * {
-    visibility: hidden !important;
-  }
+  display: none !important;
+}
 
   /* Cas : impression du tableau filtré */
   body.print-table #data-table,
@@ -1083,7 +1083,7 @@ document.getElementById('print-notif').addEventListener('click', () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.3em;
+  font-size: 0.7em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
