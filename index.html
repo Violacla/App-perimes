@@ -257,33 +257,28 @@
     background-color: rgba(188, 215, 237, 0.15);
   }
 
-@media print {
-  body * {
-    display: none !important;
+  /* Print styles */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #notification-popup, #notification-popup * {
+      visibility: visible;
+    }
+    #notification-popup {
+      position: static;
+      transform: none;
+      box-shadow: none;
+      width: 100%;
+      max-height: none;
+      overflow: visible;
+      border-radius: 0;
+    }
+    #notification-popup header button,
+    #notification-popup #print-notif {
+      display: none;
+    }
   }
-  body.print-table #data-table {
-    display: block !important;
-    width: 100% !important;
-    position: static !important;
-  }
- body.print-notif #notification-popup {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    max-height: none !important;
-    overflow: visible !important;
-    margin: 0 auto !important;
-    padding: 10px !important;
-    box-shadow: none !important;
-  }
-
-  /* Annule restrictions sur les conteneurs scroll */
-  body.print-notif .table-wrapper {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-}
-
 </style>
 </head>
 <header>
@@ -336,8 +331,7 @@ Déconnexion
 <button onclick="clearFilter()">Réinitialiser</button>
 <button id="btn-print-table">Imprimer les résultats</button>
 </div>
-<div class="table-wrapper">
-<table aria-label="Données des produits périmés" id="data-table" tabindex="0">
+<div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
 <tr>
 <!-- Ne PAS afficher colonne opérateur -->
@@ -369,7 +363,7 @@ Déconnexion
 <header>
 <span id="notif-title">Notifications - Produits périmés</span>
 <div>
-<button id="print-notif" title="Imprimer" onclick="printNotif()">🖨️</button>
+<button id="print-notif" title="Imprimer">🖨️</button>
 <button id="close-notif" title="Fermer">✖️</button>
 </div>
 </header>
@@ -630,29 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus('Erreur mise à jour : ' + err.message);
     }
   }
-// Supprimer une ligne dans Google Sheets
-async function deleteRow(rowNumber) {
-  if (!operatorName) {
-    alert("Veuillez vous connecter.");
-    return;
-  }
-
-  try {
-    // Vide les cellules de A à G sur la ligne spécifiée
-    const emptyRow = [["", "", "", "", "", "", ""]];
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `Feuille1!A${rowNumber}:G${rowNumber}`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: emptyRow }
-    });
-
-    setStatus(`Ligne ${rowNumber} supprimée.`);
-    loadSheet(); // Recharge le tableau après suppression
-  } catch (err) {
-    setStatus("Erreur lors de la suppression : " + err.message);
-  }
-}
 
   // Convert number to letter for column (1->A, 2->B ...)
   function columnToLetter(column) {
@@ -1019,25 +990,6 @@ document.addEventListener('click', function (e) {
       });
     });
   });
-
-</script>
-<script>
-// Impression du tableau avec filtres
-document.getElementById('btn-print-table').addEventListener('click', () => {
-  document.body.classList.add('print-table');
-  window.print();
-  setTimeout(() => document.body.classList.remove('print-table'), 1000);
-});
-
-// ✅ NOUVEAU CODE - À METTRE À LA PLACE
-document.getElementById('print-notif').addEventListener('click', () => {
-  document.body.classList.add('print-notif');
-  window.print();
-  setTimeout(() => {
-    document.body.classList.remove('print-notif');
-  }, 10000);
-});
-  
 </script>
 
 <footer style="
@@ -1045,7 +997,7 @@ document.getElementById('print-notif').addEventListener('click', () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.7em;
+  font-size: 0.5em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
@@ -1054,22 +1006,6 @@ document.getElementById('print-notif').addEventListener('click', () => {
 ">
   Développé par Violaine Claron
 </footer>
-<script>
-function printTable() {
-  document.body.classList.remove('print-notif');
-  document.body.classList.add('print-table');
-  window.print();
-  document.body.classList.remove('print-table');
-}
-
-function printNotif() {
-  document.body.classList.remove('print-table');
-  document.body.classList.add('print-notif');
-  window.print();
-  document.body.classList.remove('print-notif');
-}
-
-</script>
 
 </body>
 </html>
