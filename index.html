@@ -624,6 +624,29 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus('Erreur mise à jour : ' + err.message);
     }
   }
+// Supprimer une ligne dans Google Sheets
+async function deleteRow(rowNumber) {
+  if (!operatorName) {
+    alert("Veuillez vous connecter.");
+    return;
+  }
+
+  try {
+    // Vide les cellules de A à G sur la ligne spécifiée
+    const emptyRow = [["", "", "", "", "", "", ""]];
+    await gapi.client.sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Feuille1!A${rowNumber}:G${rowNumber}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: emptyRow }
+    });
+
+    setStatus(`Ligne ${rowNumber} supprimée.`);
+    loadSheet(); // Recharge le tableau après suppression
+  } catch (err) {
+    setStatus("Erreur lors de la suppression : " + err.message);
+  }
+}
 
   // Convert number to letter for column (1->A, 2->B ...)
   function columnToLetter(column) {
@@ -990,6 +1013,10 @@ document.addEventListener('click', function (e) {
       });
     });
   });
+  document.getElementById('btn-print-table').addEventListener('click', () => {
+  window.print();
+});
+
 </script>
 
 <footer style="
