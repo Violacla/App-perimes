@@ -435,40 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-<script>
-  document.getElementById("btn-print-table").addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 10;
 
-    const zoneFilter = document.getElementById("filter-zone").value;
-    const monthFilter = document.getElementById("filter-month").value;
-
-    doc.setFontSize(14);
-    doc.text("Résultats filtrés - Produits périmés", 10, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
-    y += 6;
-    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
-    y += 10;
-
-    const rows = document.querySelectorAll("#data-table tbody tr");
-    rows.forEach((row) => {
-      if (row.style.display === "none") return;
-
-      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
-      doc.text(cells.join(" | "), 10, y);
-      y += 6;
-      if (y > 280) {
-        doc.addPage();
-        y = 10;
-      }
-    });
-
-    doc.save("resultats_perimes.pdf");
-  });
-</script>
 
 
 <script>
@@ -538,6 +505,20 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       setStatus("Erreur suppression : " + e.message);
     }
+  }
+</script>
+
+
+<script>
+  const filterMonthInput = document.getElementById('filter-month');
+  if (filterMonthInput) {
+    filterMonthInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/[^\d]/g, '');
+      if (val.length > 2) {
+        val = val.slice(0,2) + '/' + val.slice(2,6);
+      }
+      e.target.value = val;
+    });
   }
 </script>
 
@@ -1121,40 +1102,7 @@ document.addEventListener('click', function (e) {
 </footer>
 
 
-<script>
-  document.getElementById("btn-print-table").addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 10;
 
-    const zoneFilter = document.getElementById("filter-zone").value;
-    const monthFilter = document.getElementById("filter-month").value;
-
-    doc.setFontSize(14);
-    doc.text("Résultats filtrés - Produits périmés", 10, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
-    y += 6;
-    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
-    y += 10;
-
-    const rows = document.querySelectorAll("#data-table tbody tr");
-    rows.forEach((row) => {
-      if (row.style.display === "none") return;
-
-      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
-      doc.text(cells.join(" | "), 10, y);
-      y += 6;
-      if (y > 280) {
-        doc.addPage();
-        y = 10;
-      }
-    });
-
-    doc.save("resultats_perimes.pdf");
-  });
-</script>
 
 
 <script>
@@ -1224,6 +1172,20 @@ document.addEventListener('click', function (e) {
     } catch (e) {
       setStatus("Erreur suppression : " + e.message);
     }
+  }
+</script>
+
+
+<script>
+  const filterMonthInput = document.getElementById('filter-month');
+  if (filterMonthInput) {
+    filterMonthInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/[^\d]/g, '');
+      if (val.length > 2) {
+        val = val.slice(0,2) + '/' + val.slice(2,6);
+      }
+      e.target.value = val;
+    });
   }
 </script>
 
