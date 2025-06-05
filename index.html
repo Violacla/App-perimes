@@ -359,7 +359,7 @@ Déconnexion
 <input id="date" placeholder="MM/YYYY" type="text"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
-<div style="position: relative;"><input type="text" id="zone" placeholder="Zone ▼" autocomplete="off" style="padding-right: 20px;" /><ul id="zone-suggestions" class="autocomplete-list" style="display: none;"></ul></div>
+<input type="text" id="zone" placeholder="Zone" autocomplete="off" />
 <ul id="zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
 <button id="btn-add">Ajouter la ligne</button>
 </div>
@@ -435,40 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-<script>
-  document.getElementById("btn-print-table").addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 10;
 
-    const zoneFilter = document.getElementById("filter-zone").value;
-    const monthFilter = document.getElementById("filter-month").value;
-
-    doc.setFontSize(14);
-    doc.text("Résultats filtrés - Produits périmés", 10, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
-    y += 6;
-    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
-    y += 10;
-
-    const rows = document.querySelectorAll("#data-table tbody tr");
-    rows.forEach((row) => {
-      if (row.style.display === "none") return;
-
-      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
-      doc.text(cells.join(" | "), 10, y);
-      y += 6;
-      if (y > 280) {
-        doc.addPage();
-        y = 10;
-      }
-    });
-
-    doc.save("resultats_perimes.pdf");
-  });
-</script>
 
 
 <script>
@@ -557,38 +524,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 <script>
-(function() {
-  const input = document.getElementById('zone');
-  const list = document.getElementById('zone-suggestions');
-  let currentIndex = -1;
+  function exportFilteredTableAsPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
 
-  input.addEventListener('keydown', function(e) {
-    const items = list.querySelectorAll('li');
-    if (list.style.display === 'block') {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        currentIndex = (currentIndex + 1) % items.length;
-        updateActive(items);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        currentIndex = (currentIndex - 1 + items.length) % items.length;
-        updateActive(items);
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (currentIndex >= 0) {
-          input.value = items[currentIndex].textContent;
-          list.style.display = 'none';
-        }
+    const zoneFilter = document.getElementById("filter-zone").value;
+    const monthFilter = document.getElementById("filter-month").value;
+
+    doc.setFontSize(14);
+    doc.text("Résultats filtrés - Produits périmés", 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+    y += 6;
+    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+    y += 10;
+
+    const rows = document.querySelectorAll("#data-table tbody tr");
+    rows.forEach((row) => {
+      if (row.style.display === "none") return;
+      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+      doc.text(cells.join(" | "), 10, y);
+      y += 6;
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
       }
-    }
-  });
-
-  function updateActive(items) {
-    items.forEach((item, idx) => {
-      item.classList.toggle('active', idx === currentIndex);
     });
+
+    doc.save("resultats_perimes.pdf");
   }
-})();
+
+  const btnPrint = document.getElementById("btn-print-table");
+  if (btnPrint) {
+    btnPrint.onclick = function() {
+      if (this.disabled) return;
+      this.disabled = true;
+      exportFilteredTableAsPDF();
+      setTimeout(() => { this.disabled = false; }, 2000);
+    };
+  }
+</script>
+
+
+<script>
+const zones = [
+  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
+  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
+  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
+  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
+  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
+  "la roche posay", "la rosee", "lait bébé", "levres et mains", "moustik",
+  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
+  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
+  "nature", "vichy", "yeux", "1ersoins", "4patte"
+];
 </script>
 
 </body>
@@ -615,7 +606,6 @@ document.addEventListener('DOMContentLoaded', () => {
       callback: (tokenResponse) => {
         accessToken = tokenResponse.access_token;
         document.getElementById('operator-form').style.display = 'inline-flex';
-document.getElementById('operator').focus();
         document.getElementById('btn-login').style.display = 'none';
         setStatus('Connecté. Choisissez un opérateur.');
       },
@@ -1210,12 +1200,7 @@ document.addEventListener('click', function (e) {
   doc.save("resultats_perimes.pdf");
 }
 
-document.getElementById("btn-print-table").onclick = function() {
-  if (this.disabled) return;
-  this.disabled = true;
-  exportFilteredTableAsPDF();
-  setTimeout(() => { this.disabled = false; }, 2000);
-};
+document.getElementById("btn-print-table").addEventListener("click", exportFilteredTableAsPDF);
 
 </script>
 
@@ -1306,38 +1291,62 @@ document.getElementById("btn-print-table").onclick = function() {
 
 
 <script>
-(function() {
-  const input = document.getElementById('zone');
-  const list = document.getElementById('zone-suggestions');
-  let currentIndex = -1;
+  function exportFilteredTableAsPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
 
-  input.addEventListener('keydown', function(e) {
-    const items = list.querySelectorAll('li');
-    if (list.style.display === 'block') {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        currentIndex = (currentIndex + 1) % items.length;
-        updateActive(items);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        currentIndex = (currentIndex - 1 + items.length) % items.length;
-        updateActive(items);
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (currentIndex >= 0) {
-          input.value = items[currentIndex].textContent;
-          list.style.display = 'none';
-        }
+    const zoneFilter = document.getElementById("filter-zone").value;
+    const monthFilter = document.getElementById("filter-month").value;
+
+    doc.setFontSize(14);
+    doc.text("Résultats filtrés - Produits périmés", 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+    y += 6;
+    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+    y += 10;
+
+    const rows = document.querySelectorAll("#data-table tbody tr");
+    rows.forEach((row) => {
+      if (row.style.display === "none") return;
+      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+      doc.text(cells.join(" | "), 10, y);
+      y += 6;
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
       }
-    }
-  });
-
-  function updateActive(items) {
-    items.forEach((item, idx) => {
-      item.classList.toggle('active', idx === currentIndex);
     });
+
+    doc.save("resultats_perimes.pdf");
   }
-})();
+
+  const btnPrint = document.getElementById("btn-print-table");
+  if (btnPrint) {
+    btnPrint.onclick = function() {
+      if (this.disabled) return;
+      this.disabled = true;
+      exportFilteredTableAsPDF();
+      setTimeout(() => { this.disabled = false; }, 2000);
+    };
+  }
+</script>
+
+
+<script>
+const zones = [
+  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
+  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
+  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
+  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
+  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
+  "la roche posay", "la rosee", "lait bébé", "levres et mains", "moustik",
+  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
+  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
+  "nature", "vichy", "yeux", "1ersoins", "4patte"
+];
 </script>
 
 </body>
