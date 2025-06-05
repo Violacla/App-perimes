@@ -1173,7 +1173,7 @@ document.addEventListener('click', function (e) {
   doc.save("resultats_perimes.pdf");
 }
 
-document.getElementById("btn-print-table").addEventListener("click", exportFilteredTableAsPDF);
+
 
 </script>
 
@@ -1260,6 +1260,37 @@ document.getElementById("btn-print-table").addEventListener("click", exportFilte
       e.target.value = val;
     });
   }
+
+let currentFocus = -1;
+
+input.addEventListener('keydown', function (e) {
+  const items = list.querySelectorAll("li");
+  if (!items.length) return;
+
+  if (e.key === "ArrowDown") {
+    currentFocus++;
+    if (currentFocus >= items.length) currentFocus = 0;
+    updateActive(items);
+  } else if (e.key === "ArrowUp") {
+    currentFocus--;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+    updateActive(items);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (currentFocus > -1) {
+      items[currentFocus].click();
+    }
+  }
+});
+
+function updateActive(items) {
+  items.forEach(i => i.classList.remove("active"));
+  if (items[currentFocus]) {
+    items[currentFocus].classList.add("active");
+    items[currentFocus].scrollIntoView({ block: "nearest" });
+  }
+}
+
 </script>
 
 </body>
