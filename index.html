@@ -577,11 +577,13 @@ document.addEventListener('DOMContentLoaded', () => {
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
-        accessToken = tokenResponse.access_token;
-        document.getElementById('operator-form').style.display = 'inline-flex';
-        document.getElementById('btn-login').style.display = 'none';
-        setStatus('Connecté. Choisissez un opérateur.');
-      },
+  accessToken = tokenResponse.access_token;
+  document.getElementById('operator-form').style.display = 'inline-flex';
+  document.getElementById('btn-login').style.display = 'none';
+  setStatus('Connecté. Choisissez un opérateur.');
+  document.getElementById('operator').focus(); // 👈 focus clavier automatique
+},
+
     });
     gisInited = true;
     maybeEnableButtons();
@@ -1129,7 +1131,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.5em;
+  font-size: 0.7em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
