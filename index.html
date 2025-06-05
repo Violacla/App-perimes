@@ -577,6 +577,8 @@ document.addEventListener('DOMContentLoaded', () => {
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
+        operatorInput.focus();
+        
         accessToken = tokenResponse.access_token;
         document.getElementById('operator-form').style.display = 'inline-flex';
         document.getElementById('btn-login').style.display = 'none';
@@ -1129,7 +1131,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.7em;
+  font-size: 0.5em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
@@ -1173,7 +1175,7 @@ document.addEventListener('click', function (e) {
   doc.save("resultats_perimes.pdf");
 }
 
-document.getElementById("btn-print-table").addEventListener("click", exportFilteredTableAsPDF);
+
 
 </script>
 
@@ -1260,6 +1262,37 @@ document.getElementById("btn-print-table").addEventListener("click", exportFilte
       e.target.value = val;
     });
   }
+
+let currentFocus = -1;
+
+input.addEventListener('keydown', function (e) {
+  const items = list.querySelectorAll("li");
+  if (!items.length) return;
+
+  if (e.key === "ArrowDown") {
+    currentFocus++;
+    if (currentFocus >= items.length) currentFocus = 0;
+    updateActive(items);
+  } else if (e.key === "ArrowUp") {
+    currentFocus--;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+    updateActive(items);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (currentFocus > -1) {
+      items[currentFocus].click();
+    }
+  }
+});
+
+function updateActive(items) {
+  items.forEach(i => i.classList.remove("active"));
+  if (items[currentFocus]) {
+    items[currentFocus].classList.add("active");
+    items[currentFocus].scrollIntoView({ block: "nearest" });
+  }
+}
+
 </script>
 
 </body>
