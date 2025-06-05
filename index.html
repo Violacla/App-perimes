@@ -326,18 +326,29 @@ Déconnexion
 <label for="filter-zone">Filtrer Zone :</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Mois  :</label>
-<input id="filter-month" placeholder="MM/YYYY" style="width: 120px;" type="text"/>
+<input type="text" id="filter-month" placeholder="MM/YYYY" style="width: 120px;" />
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
+
 <button id="btn-print-table" title="Exporter en PDF">
-<img src="https://i.imgur.com/YOUR_ICON.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+  <img src="https://i.imgur.com/YOUR_ICON.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
   Exporter PDF
 </button>
-<ul class="autocomplete-list" id="filter-zone-suggestions" style="display: none;"></ul>
+<ul id="filter-zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
+
 </div>
 <div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
-<tr><th>Date</th><th>Produit</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th><th>Suppr</th></tr>
+<tr>
+<!-- Ne PAS afficher colonne opérateur -->
+<th>Produit</th>
+<th>Date</th>
+<th>Qté</th>
+<th>Zone</th>
+<th>Vendues</th>
+<th>Promo</th>
+<th>Suppr</th>
+</tr>
 </thead>
 <tbody></tbody>
 </table></div>
@@ -346,10 +357,10 @@ Déconnexion
 <div id="entry-form" style="display:none;">
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
-<input id="product" placeholder="Nom Boîte" type="text"/><input id="code" placeholder="Code du produit" type="text"/>
-<input id="qty" min="0" placeholder="Nb Boîtes" type="number"/><input id="sold" placeholder="Vendues" type="number"/><input id="promo" placeholder="Promo" type="number"/>
-<input autocomplete="off" id="zone" placeholder="Zone" type="text"/>
-<ul class="autocomplete-list" id="zone-suggestions" style="display: none;"></ul>
+<input id="product" placeholder="Nom Boîte" type="text"/>
+<input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
+<input type="text" id="zone" placeholder="Zone" autocomplete="off" />
+<ul id="zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
 <button id="btn-add">Ajouter la ligne</button>
 </div>
 </main>
@@ -458,6 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
     doc.save("resultats_perimes.pdf");
   });
 </script>
+
+
 <script>
   const filterInput = document.getElementById('filter-zone');
   const suggestionList = document.getElementById('filter-zone-suggestions');
@@ -500,6 +513,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 </script>
+
+
 <script>
   async function deleteRow(rowIndex) {
     try {
@@ -525,6 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 </script>
+
+
 <script>
   const filterMonthInput = document.getElementById('filter-month');
   if (filterMonthInput) {
@@ -537,6 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 </script>
+
 </body>
 <!-- Notification Popup -->
 <script>
@@ -563,7 +581,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('operator-form').style.display = 'inline-flex';
         document.getElementById('btn-login').style.display = 'none';
         setStatus('Connecté. Choisissez un opérateur.');
-        document.getElementById('operator').focus();
       },
     });
     gisInited = true;
@@ -637,24 +654,18 @@ document.addEventListener('DOMContentLoaded', () => {
   return;
 }
 
-    const soldVal = parseInt(document.getElementById('sold').value);
-    const promoVal = parseInt(document.getElementById('promo').value);
+    const soldVal = 0;
+    const promoVal = 0;
 
 
-    if (!productVal || isNaN(qtyVal) || !zoneVal) {
+    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
       alert("Veuillez remplir tous les champs correctement.");
       return;
     }
 
     const values = [[
       operatorName,
-      dateVal,
       productVal,
-      document.getElementById('code').value.trim(),
-      qtyVal,
-      zoneVal,
-      soldVal,
-      promoVal
       dateVal,
       qtyVal,
       zoneVal,
@@ -707,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tr = document.createElement('tr');
       // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
       // We skip opérateur (col 0)
-      const cols = [2, 1, 3, 4, 5, 6, 7];
+      const cols = [1, 2, 3, 4, 5, 6];
       cols.forEach(colIndex => {
         const td = document.createElement('td');
         td.textContent = row[colIndex] || '';
@@ -986,7 +997,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
-<script>
+  <script>
   const dateInput = document.getElementById('date');
   if (dateInput) {
     dateInput.addEventListener('input', function(e) {
@@ -998,6 +1009,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 </script>
+
 <script>
 const zones = [
   "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
@@ -1057,7 +1069,7 @@ document.addEventListener('click', function (e) {
 
   rows.slice(1).forEach((row, i) => {
     const tr = document.createElement('tr');
-    const cols = [2, 1, 3, 4, 5, 6, 7];
+    const cols = [1, 2, 3, 4, 5, 6];
 
     cols.forEach(colIndex => {
       const td = document.createElement('td');
@@ -1111,12 +1123,13 @@ document.addEventListener('click', function (e) {
     });
   });
 </script>
+
 <footer style="
   position: fixed;
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.7em;
+  font-size: 0.5em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
@@ -1125,6 +1138,8 @@ document.addEventListener('click', function (e) {
 ">
   Développé par Violaine Claron
 </footer>
+
+
 <script>
  function exportFilteredTableAsPDF() {
   const { jsPDF } = window.jspdf;
@@ -1161,6 +1176,8 @@ document.addEventListener('click', function (e) {
 
 
 </script>
+
+
 <script>
   const filterInput = document.getElementById('filter-zone');
   const suggestionList = document.getElementById('filter-zone-suggestions');
@@ -1203,6 +1220,8 @@ document.addEventListener('click', function (e) {
     }
   });
 </script>
+
+
 <script>
   async function deleteRow(rowIndex) {
     try {
@@ -1228,6 +1247,8 @@ document.addEventListener('click', function (e) {
     }
   }
 </script>
+
+
 <script>
   const filterMonthInput = document.getElementById('filter-month');
   if (filterMonthInput) {
@@ -1271,4 +1292,6 @@ function updateActive(items) {
 }
 
 </script>
+
+</body>
 </html>
