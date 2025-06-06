@@ -879,7 +879,7 @@ async function loadNotifications() {
     const grouped = {};
 
     data.forEach(row => {
-      const dateStr = row[2];
+      const dateStr = row[1];
       if (!dateStr) return;
       const d = new Date(dateStr);
       if (isNaN(d)) return;
@@ -980,7 +980,7 @@ if (document.getElementById('btn-history')) {
     const remaining = [allRows[0]];
 
     allRows.slice(1).forEach(row => {
-      const dateStr = row[2];
+      const dateStr = row[1];
       if (!dateStr) return;
       const d = new Date(dateStr);
       if (isNaN(d)) return;
@@ -1165,7 +1165,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.4em;
+  font-size: 0.7em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
