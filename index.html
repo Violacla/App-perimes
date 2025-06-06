@@ -821,15 +821,27 @@ function filterTable() {
       show = false;
     }
 
-    // Filtre mois MM/YYYY
-    if (monthFilter) {
-      const [yyyy, mm, dd] = dateCell.split('-');
-      const rowMonth = `${mm}/${yyyy}`;
-      const [mFilter, yFilter] = monthFilter.split('/');
-      if (rowMonth !== `${mFilter}/${yFilter}`) {
-        show = false;
-      }
+   if (monthFilter) {
+  let dateYM = '';
+  // Essayer de détecter et normaliser la date
+  if (dateCell.includes('-')) {
+    // Format attendu : YYYY-MM-DD
+    const [yyyy, mm] = dateCell.split('-');
+    dateYM = `${mm}/${yyyy}`;
+  } else if (dateCell.includes('/')) {
+    // Format alternatif : DD/MM/YYYY
+    const parts = dateCell.split('/');
+    if (parts.length === 3) {
+      dateYM = `${parts[1]}/${parts[2]}`;
     }
+  }
+
+  const [mFilter, yFilter] = monthFilter.split('/');
+  if (dateYM !== `${mFilter}/${yFilter}`) {
+    show = false;
+  }
+}
+
 
     row.style.display = show ? "" : "none";
   });
@@ -1165,7 +1177,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.7em;
+  font-size: 0.4em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
