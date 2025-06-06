@@ -353,7 +353,7 @@ Déconnexion
 </table></div>
 <pre id="status"></pre>
 </div>
-<div id="entry-form" style="display:none;">
+<form id="entry-form" onsubmit="return false;" style="display: none;">
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
@@ -362,7 +362,7 @@ Déconnexion
 <input autocomplete="off" id="zone" placeholder="Zone" type="text"/>
 <ul class="autocomplete-list" id="zone-suggestions" style="display: none;"></ul>
 <button id="btn-add">Ajouter la ligne</button>
-</div>
+</form>
 </main>
 <body>
 <div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog">
