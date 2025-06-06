@@ -812,8 +812,8 @@ function filterTable() {
   const rows = document.querySelectorAll("#data-table tbody tr");
 
   rows.forEach((row) => {
-    const zoneCell = row.cells[3].textContent.trim().toLowerCase(); // Zone = colonne 4
-    const dateCell = row.cells[1].textContent.trim(); // Date = colonne 2
+    const zoneCell = row.cells[4].textContent.trim().toLowerCase(); // Zone = colonne 4
+    const dateCell = row.cells[0].textContent.trim(); // Date = colonne 2
     let show = true;
 
     // Filtre zone
@@ -1177,7 +1177,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.4em;
+  font-size: 0.6em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
