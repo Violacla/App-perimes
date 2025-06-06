@@ -341,8 +341,9 @@ Déconnexion
 <thead>
 <tr>
 <!-- Ne PAS afficher colonne opérateur -->
-<th>Produit</th>
 <th>Date</th>
+<th>Produit</th>
+<th>Code</th>
 <th>Qté</th>
 <th>Zone</th>
 <th>Vendues</th>
@@ -358,6 +359,7 @@ Déconnexion
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
+<input id="code" placeholder="Code (6 chiffres)" type="text" minlength="6" maxlength="6" pattern="\d{6}" required />
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
 <input type="text" id="zone" placeholder="Zone" autocomplete="off" />
 <ul id="zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
@@ -655,6 +657,11 @@ document.addEventListener('DOMContentLoaded', () => {
   alert("Veuillez choisir une zone existante dans la liste.");
   return;
 }
+const codeVal = document.getElementById('code').value.trim();
+if (!/^\d{6}$/.test(codeVal)) {
+  alert("Le code doit contenir exactement 6 chiffres.");
+  return;
+}
 
     const soldVal = 0;
     const promoVal = 0;
@@ -665,15 +672,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const values = [[
-      operatorName,
-      productVal,
-      dateVal,
-      qtyVal,
-      zoneVal,
-      soldVal,
-      promoVal,
-    ]];
+    const codeVal = document.getElementById('code').value.trim();
+const values = [[
+  operatorName,     // invisible
+  dateVal,          // ✅ Date
+  productVal,       // ✅ Nom
+  codeVal,          // ✅ Code
+  qtyVal,           // ✅ Qté
+  zoneVal,          // ✅ Zone
+  soldVal,          // ✅ Vendues
+  promoVal          // ✅ Promo
+]];
+
 
     try {
       await gapi.client.sheets.spreadsheets.values.append({
@@ -686,6 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus('Ligne ajoutée avec succès !');
       // Clear form inputs
       document.getElementById('product').value = '';
+      document.getElementById('code').value = '';
       document.getElementById('qty').value = '';
       document.getElementById('zone').value = '';
       document.getElementById('sold').value = '';
@@ -1071,7 +1082,7 @@ document.addEventListener('click', function (e) {
 
   rows.slice(1).forEach((row, i) => {
     const tr = document.createElement('tr');
-    const cols = [1, 2, 3, 4, 5, 6];
+    const cols = [2, 1, 7, 3, 4, 5, 6];
 
     cols.forEach(colIndex => {
       const td = document.createElement('td');
