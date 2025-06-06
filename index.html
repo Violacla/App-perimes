@@ -326,16 +326,14 @@ Déconnexion
 <label for="filter-zone">Filtrer Zone :</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Mois  :</label>
-<input type="text" id="filter-month" placeholder="MM/YYYY" style="width: 120px;" />
+<input id="filter-month" placeholder="MM/YYYY" style="width: 120px;" type="text"/>
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
-
 <button id="btn-print-table" title="Exporter en PDF">
-  <img src="https://i.imgur.com/YOUR_ICON.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+<img src="https://i.imgur.com/YOUR_ICON.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
   Exporter PDF
 </button>
-<ul id="filter-zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
-
+<ul class="autocomplete-list" id="filter-zone-suggestions" style="display: none;"></ul>
 </div>
 <div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
@@ -359,10 +357,10 @@ Déconnexion
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
 <input id="product" placeholder="Nom Boîte" type="text"/>
-<input id="code" placeholder="Code (6 chiffres)" type="text" minlength="6" maxlength="6" pattern="\d{6}" required />
+<input id="code" maxlength="6" minlength="6" pattern="\d{6}" placeholder="Code (6 chiffres)" required="" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
-<input type="text" id="zone" placeholder="Zone" autocomplete="off" />
-<ul id="zone-suggestions" class="autocomplete-list" style="display: none;"></ul>
+<input autocomplete="off" id="zone" placeholder="Zone" type="text"/>
+<ul class="autocomplete-list" id="zone-suggestions" style="display: none;"></ul>
 <button id="btn-add">Ajouter la ligne</button>
 </div>
 </main>
@@ -471,8 +469,6 @@ document.addEventListener('DOMContentLoaded', () => {
     doc.save("resultats_perimes.pdf");
   });
 </script>
-
-
 <script>
   const filterInput = document.getElementById('filter-zone');
   const suggestionList = document.getElementById('filter-zone-suggestions');
@@ -515,8 +511,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 </script>
-
-
 <script>
   async function deleteRow(rowIndex) {
     try {
@@ -542,8 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 </script>
-
-
 <script>
   const filterMonthInput = document.getElementById('filter-month');
   if (filterMonthInput) {
@@ -556,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 </script>
-
 </body>
 <!-- Notification Popup -->
 <script>
@@ -672,7 +663,6 @@ if (!/^\d{6}$/.test(codeVal)) {
       return;
     }
 
-    const codeVal = document.getElementById('code').value.trim();
 const values = [[
   operatorName,     // invisible
   dateVal,          // ✅ Date
@@ -928,7 +918,9 @@ function formatMonthYear(ym) {
   };
 </script>
 <script>
+if (document.getElementById('btn-history')) {
   document.getElementById('btn-history').addEventListener('click', async () => {
+}
     if (!operatorName) {
       alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
       return;
@@ -1010,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 </script>
-  <script>
+<script>
   const dateInput = document.getElementById('date');
   if (dateInput) {
     dateInput.addEventListener('input', function(e) {
@@ -1022,7 +1014,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 </script>
-
 <script>
 const zones = [
   "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
@@ -1136,7 +1127,6 @@ document.addEventListener('click', function (e) {
     });
   });
 </script>
-
 <footer style="
   position: fixed;
   bottom: 0;
@@ -1151,8 +1141,6 @@ document.addEventListener('click', function (e) {
 ">
   Développé par Violaine Claron
 </footer>
-
-
 <script>
  function exportFilteredTableAsPDF() {
   const { jsPDF } = window.jspdf;
@@ -1189,10 +1177,7 @@ document.addEventListener('click', function (e) {
 
 
 </script>
-
-
 <script>
-  const filterInput = document.getElementById('filter-zone');
   const suggestionList = document.getElementById('filter-zone-suggestions');
 
   filterInput.addEventListener('input', function () {
@@ -1233,8 +1218,6 @@ document.addEventListener('click', function (e) {
     }
   });
 </script>
-
-
 <script>
   async function deleteRow(rowIndex) {
     try {
@@ -1260,10 +1243,7 @@ document.addEventListener('click', function (e) {
     }
   }
 </script>
-
-
 <script>
-  const filterMonthInput = document.getElementById('filter-month');
   if (filterMonthInput) {
     filterMonthInput.addEventListener('input', function(e) {
       let val = e.target.value.replace(/[^\d]/g, '');
@@ -1306,5 +1286,4 @@ function updateActive(items) {
 
 </script>
 
-</body>
 </html>
