@@ -212,7 +212,7 @@
     background: white;
     border-radius: 10px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    width: 1200px;
+    width: 1300px;
     max-height: 92vh;
     overflow-y: auto;
     z-index: 9999;
@@ -728,6 +728,10 @@ const values = [[
       document.getElementById('date').value = '';
        // Remettre le curseur sur le champ date
   document.getElementById('date').focus();
+console.log("Effacement date : ", document.getElementById('date').value);
+setTimeout(() => {
+  document.getElementById('date').value = '';
+}, 50);
 
     } catch (e) {
       setStatus('Erreur : ' + e.message);
