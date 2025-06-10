@@ -728,10 +728,6 @@ const values = [[
       document.getElementById('date').value = '';
        // Remettre le curseur sur le champ date
   document.getElementById('date').focus();
-console.log("Effacement date : ", document.getElementById('date').value);
-setTimeout(() => {
-  document.getElementById('date').value = '';
-}, 50);
 
     } catch (e) {
       setStatus('Erreur : ' + e.message);
