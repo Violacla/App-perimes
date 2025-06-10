@@ -726,6 +726,9 @@ const values = [[
       document.getElementById('sold').value = '';
       document.getElementById('promo').value = '';
       document.getElementById('date').value = '';
+       // Remettre le curseur sur le champ date
+  document.getElementById('date').focus();
+
     } catch (e) {
       setStatus('Erreur : ' + e.message);
     }
