@@ -342,7 +342,7 @@ Déconnexion
 <label for="filter-zone">Filtrer Zone :</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Mois  :</label>
-<input id="filter-month" placeholder="MM/YYYY" style="width: 120px;" type="text"/>
+<input id="filter-month" placeholder="MMYYYY ou YYYY" style="width: 120px;" type="text"/>
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
 <button id="btn-print-table" title="EXPORTER EN PDF">
@@ -580,19 +580,35 @@ function filterTable() {
       show = false;
     }
 
-    // Filtre mois MM/YYYY
+    // Filtre mois MMYYYY ou YYYY
     if (monthFilter) {
-      const [yyyy, mm, dd] = dateCell.split('-');
-      const rowMonth = `${mm}/${yyyy}`;
-      const [mFilter, yFilter] = monthFilter.split('/');
-      if (rowMonth !== `${mFilter}/${yFilter}`) {
-        show = false;
-      }
-    }
+  const cleaned = monthFilter.replace(/[^\d]/g, '');
 
-    row.style.display = show ? "" : "none";
-  });
+  let dateYM = '';
+  if (dateCell.includes('-')) {
+    const [yyyy, mm] = dateCell.split('-');
+    dateYM = mm + yyyy;
+  } else if (dateCell.includes('/')) {
+    const parts = dateCell.split('/');
+    if (parts.length === 3) {
+      dateYM = parts[1] + parts[2];
+    }
+  }
+
+  if (cleaned.length === 4) {
+    const rowYear = dateYM.slice(2, 6);
+    if (rowYear !== cleaned) {
+      show = false;
+    }
+  } else if (cleaned.length === 6) {
+    if (dateYM !== cleaned) {
+      show = false;
+    }
+  } else {
+    show = false;
+  }
 }
+
 function clearFilter() {
   document.getElementById('filter-zone').value = '';
   document.getElementById('filter-month').value = '';
@@ -1309,6 +1325,7 @@ document.addEventListener('click', function (e) {
   }
 </script>
 <script>
+  /*
   if (filterMonthInput) {
     filterMonthInput.addEventListener('input', function(e) {
       let val = e.target.value.replace(/[^\d]/g, '');
@@ -1318,6 +1335,7 @@ document.addEventListener('click', function (e) {
       e.target.value = val;
     });
   }
+  */
 
 let currentFocus = -1;
 
