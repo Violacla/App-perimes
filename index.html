@@ -262,26 +262,34 @@
     html, body {
     margin: 0 !important;
     padding: 0 !important;
+    height: auto !important;
   }
     body * {
-      visibility: hidden;
+      visibility: hidden !important;
     }
     #notification-popup, 
     #notification-popup * {
       visibility: visible !important;
     }
     #notification-popup {
-      position: static !important;
-      transform: none !important;
-      box-shadow: none !important;
-      width: 100% !important;
-      max-height: none !important;
-      overflow: visible !important;
-      border-radius: 0 !important;
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
     margin: 0 !important;
     padding: 0 !important;
-    top: 0 !important;
+    border-radius: 0 !important;
+    display: block !important;
     }
+      #notification-popup .content {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
     #notification-popup header button,
     #notification-popup #print-notif {
       display: none !important;
