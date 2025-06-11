@@ -936,8 +936,8 @@ async function loadNotifications() {
       }
 
       rowsForMonth.sort((a, b) => {
-        const zoneA = (a[4] || '').toLowerCase();
-        const zoneB = (b[4] || '').toLowerCase();
+        const zoneA = (a[6] || '').toLowerCase();
+        const zoneB = (b[6] || '').toLowerCase();
         return zoneA.localeCompare(zoneB);
       });
 
