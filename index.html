@@ -330,6 +330,10 @@
 <img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Historique
 </button>
+  </button>
+  <button id="btn-open-my-pdf" title="Ouvrir mon PDF personnalisé">
+  <img src="https://i.imgur.com/mT0jL5N.png" style="width:18px; height:18px; vertical-align:middle;"/>
+</button>
 <button id="btn-logout" style="display:none;" title="Déconnexion">
 <img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Déconnexion
@@ -1385,5 +1389,9 @@ function updateActive(items) {
 }
 
 </script>
-
+<script>
+document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
+  window.open("chemin/vers/ton-fichier.pdf", "_blank");
+});
+</script>
 </html>
