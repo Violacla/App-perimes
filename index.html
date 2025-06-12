@@ -554,15 +554,11 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
   const filterMonthInput = document.getElementById('filter-month');
-  if (filterMonthInput) {
-    filterMonthInput.addEventListener('input', function(e) {
-      let val = e.target.value.replace(/[^\d]/g, '');
-      if (val.length > 2) {
-        val = val.slice(0,2) + '/' + val.slice(2,6);
-      }
-      e.target.value = val;
-    });
-  }
+  filterMonthInput.addEventListener('input', function(e) {
+  // On laisse l'utilisateur taper librement MMYYYY ou YYYY sans forcer le /
+  e.target.value = e.target.value.replace(/[^\d\/]/g, ''); // empêche lettres
+});
+
 </script>
 <script>
 function filterTable() {
@@ -581,14 +577,41 @@ function filterTable() {
     }
 
     // Filtre mois MM/YYYY
-    if (monthFilter) {
+    /*if (monthFilter) {
       const [yyyy, mm, dd] = dateCell.split('-');
       const rowMonth = `${mm}/${yyyy}`;
       const [mFilter, yFilter] = monthFilter.split('/');
       if (rowMonth !== `${mFilter}/${yFilter}`) {
         show = false;
       }
+    }*/
+if (monthFilter) {
+  let rowYear = '';
+  let rowMonth = '';
+
+  if (dateCell.includes('-')) {
+    const parts = dateCell.split('-'); // format YYYY-MM-DD
+    if (parts.length >= 2) {
+      rowYear = parts[0];
+      rowMonth = parts[1];
     }
+  }
+
+  let mFilter = null;
+  let yFilter = null;
+
+  if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+    [mFilter, yFilter] = monthFilter.split('/');
+  } else if (/^\d{6}$/.test(monthFilter)) {
+    mFilter = monthFilter.slice(0, 2);
+    yFilter = monthFilter.slice(2);
+  } else if (/^\d{4}$/.test(monthFilter)) {
+    yFilter = monthFilter;
+  }
+
+  if (yFilter && rowYear !== yFilter) show = false;
+  if (mFilter && rowMonth !== mFilter) show = false;
+}
 
     row.style.display = show ? "" : "none";
   });
@@ -1309,7 +1332,7 @@ document.addEventListener('click', function (e) {
   }
 </script>
 <script>
-  if (filterMonthInput) {
+ /* if (filterMonthInput) {
     filterMonthInput.addEventListener('input', function(e) {
       let val = e.target.value.replace(/[^\d]/g, '');
       if (val.length > 2) {
@@ -1317,7 +1340,7 @@ document.addEventListener('click', function (e) {
       }
       e.target.value = val;
     });
-  }
+  }*/
 
 let currentFocus = -1;
 
