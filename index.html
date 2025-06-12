@@ -850,44 +850,50 @@ const values = [[
 
 function filterTable() {
   const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-  const monthFilter = document.getElementById("filter-month").value.trim(); // format MM/YYYY
+  const monthFilter = document.getElementById("filter-month").value.trim(); // 07/2025 ou 072025 ou 2025
   const rows = document.querySelectorAll("#data-table tbody tr");
 
   rows.forEach((row) => {
-    const zoneCell = row.cells[4].textContent.trim().toLowerCase(); // Zone = colonne 4
-    const dateCell = row.cells[0].textContent.trim(); // Date = colonne 2
+    const dateCell = row.cells[0].textContent.trim(); // format = YYYY-MM-DD
+    const zoneCell = row.cells[4].textContent.trim().toLowerCase();
     let show = true;
 
-    // Filtre zone
+    // 🔹 Filtrer par zone
     if (zoneFilter && !zoneCell.includes(zoneFilter)) {
       show = false;
     }
 
-   if (monthFilter) {
-  let dateYM = '';
-  // Essayer de détecter et normaliser la date
-  if (dateCell.includes('-')) {
-    // Format attendu : YYYY-MM-DD
-    const [yyyy, mm] = dateCell.split('-');
-    dateYM = `${mm}/${yyyy}`;
-  } else if (dateCell.includes('/')) {
-    // Format alternatif : DD/MM/YYYY
-    const parts = dateCell.split('/');
-    if (parts.length === 3) {
-      dateYM = `${parts[1]}/${parts[2]}`;
+    // 🔹 Filtrer par date
+    if (monthFilter) {
+      let rowYear = '';
+      let rowMonth = '';
+
+      if (dateCell.includes('-')) {
+        const [yyyy, mm] = dateCell.split('-');
+        rowYear = yyyy;
+        rowMonth = mm;
+      }
+
+      let mFilter = null;
+      let yFilter = null;
+
+      if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+        [mFilter, yFilter] = monthFilter.split('/');
+      } else if (/^\d{6}$/.test(monthFilter)) {
+        mFilter = monthFilter.slice(0, 2);
+        yFilter = monthFilter.slice(2);
+      } else if (/^\d{4}$/.test(monthFilter)) {
+        yFilter = monthFilter;
+      }
+
+      if (yFilter && rowYear !== yFilter) show = false;
+      if (mFilter && rowMonth !== mFilter) show = false;
     }
-  }
-
-  const [mFilter, yFilter] = monthFilter.split('/');
-  if (dateYM !== `${mFilter}/${yFilter}`) {
-    show = false;
-  }
-}
-
 
     row.style.display = show ? "" : "none";
   });
 }
+
   function clearFilter() {
     document.getElementById('filter-zone').value = '';
     document.getElementById('filter-month').value = '';
@@ -1220,7 +1226,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.7em;
+  font-size: 0.5em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
