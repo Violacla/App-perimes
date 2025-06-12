@@ -6,8 +6,6 @@
 <title>Gestion Perimé - Pharmacie du Libron</title>
 <script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
 <style>
   .autocomplete-list {
   position: absolute;
@@ -332,10 +330,6 @@
 <img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Historique
 </button>
-  <button id="btn-open-my-pdf" title="Ouvrir mon PDF personnalisé">
-  <img src="https://i.imgur.com/mT0jL5N.png" style="width:18px; height:18px; vertical-align:middle;"/>
-</button>
-
 <button id="btn-logout" style="display:none;" title="Déconnexion">
 <img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Déconnexion
@@ -460,14 +454,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script>
- /* document.getElementById("btn-print-table").addEventListener("click", async () => {
+  document.getElementById("btn-print-table").addEventListener("click", async () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     let y = 10;
 
     const zoneFilter = document.getElementById("filter-zone").value;
     const monthFilter = document.getElementById("filter-month").value;
-    
 
     doc.setFontSize(14);
     doc.text("Résultats filtrés - Produits périmés", 10, y);
@@ -492,40 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     doc.save("resultats_perimes.pdf");
-  });*/
-  document.getElementById("btn-print-table").addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const zoneFilter = document.getElementById("filter-zone").value || "Toutes";
-  const monthFilter = document.getElementById("filter-month").value || "Tous";
-
-  const rows = document.querySelectorAll("#data-table tbody tr");
-  const data = [];
-
-  rows.forEach((row) => {
-    if (row.style.display === "none") return;
-    const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
-    data.push(cells);
   });
-
-  doc.setFontSize(14);
-  doc.text("Produits périmés - Résultats filtrés", 14, 15);
-  doc.setFontSize(10);
-  doc.text(`Zone : ${zoneFilter}    Mois : ${monthFilter}`, 14, 22);
-
-  doc.autoTable({
-    startY: 28,
-    head: [["Date", "Produit", "Code", "Qté", "Zone", "Vendues"]],
-    body: data,
-    theme: 'striped',
-    styles: { fontSize: 9 },
-    headStyles: { fillColor: [188, 215, 237], textColor: 10 }
-  });
-
-  doc.save("resultats_perimes.pdf");
-});
-
 </script>
 <script>
   const filterInput = document.getElementById('filter-zone');
@@ -1272,7 +1232,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.5em;
+  font-size: 0.6em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
@@ -1424,11 +1384,6 @@ function updateActive(items) {
   }
 }
 
-</script>
-<script>
-document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
-  window.open("chemin/vers/ton-fichier.pdf", "_blank");
-});
 </script>
 
 </html>
