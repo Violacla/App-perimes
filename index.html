@@ -343,6 +343,8 @@ Déconnexion
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Date  :</label>
 <input id="filter-month" placeholder="MMYYYY or YYYY" style="width: 140px;" type="text"/>
+<button onclick="quickSearchProduct()">Recherche rapide</button>
+<input type="text" id="quick-product" placeholder="Nom de boîte..." style="margin-left: 10px;" />
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
 <button id="btn-print-table" title="EXPORTER EN PDF">
@@ -1379,4 +1381,16 @@ function updateActive(items) {
 }
 
 </script>
+  <script>
+function quickSearchProduct() {
+  const productFilter = document.getElementById("quick-product").value.trim().toLowerCase();
+  const rows = document.querySelectorAll("#data-table tbody tr");
+
+  rows.forEach((row) => {
+    const productCell = row.cells[1].textContent.trim().toLowerCase(); // colonne 1 = Nom de boîte
+    row.style.display = productFilter && !productCell.includes(productFilter) ? "none" : "";
+  });
+}
+</script>
+
 </html>
