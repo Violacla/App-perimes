@@ -339,8 +339,8 @@ Déconnexion
 <main>
 <div style="flex-grow:1;">
 <div id="filters">
-<label for="quickSearchProduct">Recherche:</label>  
-<input type="text" id="quick-product" placeholder="Nom...." style="margin-left: 10px;" />
+<!--<label for="quickSearchProduct">Recherche:</label>-->
+<!-- <input type="text" id="quick-product" placeholder="Nom...." style="margin-left: 10px;" /> -->
 <label for="filter-zone">Filtrer Zone:</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Date:</label>
@@ -572,16 +572,16 @@ function filterTable() {
   rows.forEach((row) => {
     const dateCell = row.cells[0].textContent.trim(); // Date = colonne 0
     const zoneCell = row.cells[4].textContent.trim().toLowerCase(); // Zone = colonne 4
-    const productCell = row.cells[1].textContent.trim().toLowerCase();
+    //const productCell = row.cells[1].textContent.trim().toLowerCase();
     let show = true;
 
     // Filtre zone
     if (zoneFilter && !zoneCell.includes(zoneFilter)) {
       show = false;
     }
-    if (productFilter && !productCell.includes(productFilter)) {
-  show = false;
-}
+    //if (productFilter && !productCell.includes(productFilter)) {
+  //show = false;
+//}
     // Filtre mois MM/YYYY
     /*if (monthFilter) {
       const [yyyy, mm, dd] = dateCell.split('-');
