@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Historique - Pharmacie du Libron</title>
+  <title>Promotion - Pharmacie du Libron</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
@@ -79,7 +79,7 @@
       margin-right:10px;">
       <img src="https://i.imgur.com/FmevFyY.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
     </a>
-    <h1>Historique des Produits Périmés</h1>
+    <h1>Promotion %</h1>
   </div>
   <div>
     <button id="btn-login">Se connecter</button>
@@ -98,7 +98,7 @@
       <th>Qté</th>
       <th>Zone</th>
       <th>Vendues</th>
-      <th>Promo</th>
+      <th>Prix</th>
     </tr>
   </thead>
   <tbody></tbody>
@@ -106,10 +106,13 @@
 
 <pre id="status">Chargement...</pre>
 
+<!-- ... tout l'en-tête reste inchangé ... -->
+
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPz';
-  const RANGE = 'Feuille3';
+  const SOURCE_RANGE = 'Feuille1';
+  const TARGET_RANGE = 'Feuille3';
 
   let tokenClient;
   let accessToken = null;
@@ -126,12 +129,15 @@
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: "https://www.googleapis.com/auth/spreadsheets",
-      callback: (response) => {
+      callback: async (response) => {
         accessToken = response.access_token;
         gapi.client.setToken({ access_token: accessToken });
         document.getElementById('btn-login').style.display = 'none';
         document.getElementById('btn-logout').style.display = 'inline-block';
-        loadSheet();
+
+        // 👇 Démarre la chaîne des actions automatiques
+        await copyPromotionsToFeuille3();
+        await loadSheet();
       }
     });
     document.getElementById('btn-login').onclick = () => {
@@ -151,7 +157,7 @@
     try {
       const res = await gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: SPREADSHEET_ID,
-        range: RANGE
+        range: TARGET_RANGE
       });
       const rows = res.result.values || [];
       await cleanOldEntries(rows);
@@ -165,7 +171,6 @@
     const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
 
-    const today = new Date();
     const filteredRows = rows.slice(1).filter(row => {
       const promo = parseFloat(row[6]) || 0;
       const date = new Date(row[2]);
@@ -200,12 +205,43 @@
 
     await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: RANGE,
+      range: TARGET_RANGE,
       valueInputOption: 'RAW',
       resource: { values: filtered }
     });
 
     console.log("Nettoyage automatique effectué (Feuille3)");
+  }
+
+  async function copyPromotionsToFeuille3() {
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: SOURCE_RANGE
+      });
+
+      const rows = res.result.values || [];
+      const promoRows = rows.slice(1).filter(row => parseFloat(row[6]) > 0);
+
+      if (promoRows.length === 0) {
+        console.log("Aucune ligne avec Promo > 0 à copier.");
+        return;
+      }
+
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: TARGET_RANGE,
+        valueInputOption: 'RAW',
+        insertDataOption: 'INSERT_ROWS',
+        resource: {
+          values: promoRows
+        }
+      });
+
+      console.log("Lignes copiées automatiquement vers Feuille3.");
+    } catch (error) {
+      console.error("Erreur lors de la copie automatique :", error);
+    }
   }
 
   window.onload = () => {
@@ -214,5 +250,22 @@
   };
 </script>
 
+<!-- ... fin du fichier inchangée ... -->
+
+
 </body>
+  <footer style="
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 0.6em;
+  color: #666;
+  background: #f0f0f0;
+  padding: 8px 0;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+">
+  Développé par Violaine Claron
+</footer>
 </html>
