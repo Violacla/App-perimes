@@ -75,7 +75,6 @@
       height:40px;
       border-radius:50%;
       overflow:hidden;
-      border:0px solid #0a2f51;
       margin-right:10px;">
       <img src="https://i.imgur.com/FmevFyY.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
     </a>
@@ -94,7 +93,7 @@
     <tr>
       <th>Opérateur</th>
       <th>Date</th>
-       <th>Produit</th>
+      <th>Produit</th>
       <th>Code</th>
       <th>Qté</th>
       <th>Zone</th>
@@ -107,8 +106,6 @@
 </table>
 
 <pre id="status">Chargement...</pre>
-
-<!-- ... tout l'en-tête reste inchangé ... -->
 
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -137,7 +134,6 @@
         document.getElementById('btn-login').style.display = 'none';
         document.getElementById('btn-logout').style.display = 'inline-block';
 
-        // 👇 Démarre la chaîne des actions automatiques
         await copyPromotionsToFeuille3();
         await loadSheet();
       }
@@ -174,20 +170,20 @@
     tbody.innerHTML = '';
 
     const filteredRows = rows.slice(1).filter(row => {
-      const promo = parseFloat(row[6]) || 0;
-      const date = new Date(row[2]);
+      const promo = parseFloat(row[7]) || 0; // colonne H
+      const date = new Date(row[1]);         // colonne B
       return promo > 0 && !isNaN(date);
     });
 
-    filteredRows.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+    filteredRows.sort((a, b) => new Date(a[1]) - new Date(b[1]));
 
     filteredRows.forEach(row => {
       const tr = document.createElement('tr');
-      for (let i = 0; i <= 6; i++) {
+      row.forEach(cell => {
         const td = document.createElement('td');
-        td.textContent = row[i] || '';
+        td.textContent = cell || '';
         tr.appendChild(td);
-      }
+      });
       tbody.appendChild(tr);
     });
 
@@ -196,12 +192,10 @@
 
   async function cleanOldEntries(rows) {
     const now = new Date();
-    if (now.getDate() !== 5) return;
-
     const header = rows[0];
     const filtered = rows.filter((row, i) => {
       if (i === 0) return true;
-      const date = new Date(row[2]);
+      const date = new Date(row[1]); // colonne B
       return !isNaN(date) && date >= now;
     });
 
@@ -223,26 +217,26 @@
       });
 
       const rows = res.result.values || [];
-      const promoRows = rows.slice(1).filter(row => parseFloat(row[6]) > 0);
+      const header = rows[0];
+      const promoRows = rows.slice(1).filter(row => parseFloat(row[7]) > 0); // colonne H
 
       if (promoRows.length === 0) {
         console.log("Aucune ligne avec Promo > 0 à copier.");
         return;
       }
 
-      await gapi.client.sheets.spreadsheets.values.append({
+      await gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId: SPREADSHEET_ID,
         range: TARGET_RANGE,
         valueInputOption: 'RAW',
-        insertDataOption: 'INSERT_ROWS',
         resource: {
-          values: promoRows
+          values: [header, ...promoRows]
         }
       });
 
-      console.log("Lignes copiées automatiquement vers Feuille3.");
+      console.log("Feuille3 mise à jour avec promotions > 0.");
     } catch (error) {
-      console.error("Erreur lors de la copie automatique :", error);
+      console.error("Erreur lors de la mise à jour :", error);
     }
   }
 
@@ -252,16 +246,13 @@
   };
 </script>
 
-<!-- ... fin du fichier inchangée ... -->
-
-
 </body>
-  <footer style="
+<footer style="
   position: fixed;
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.6em;
+  font-size: 0.5em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
