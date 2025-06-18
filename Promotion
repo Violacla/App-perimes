@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Historique - Pharmacie du Libron</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+    }
+    header {
+      background-color: #bcd7ed;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+    #header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    h1 {
+      margin: 0;
+      color: #0a2f51;
+      font-size: 1.3em;
+    }
+    button {
+      cursor: pointer;
+      padding: 8px 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 4px;
+      background-color: #bcd7ed;
+      color: #0a2f51;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #a6c6e1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      margin: 20px auto;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    tbody tr:nth-child(odd) {
+      background-color: rgba(188, 215, 237, 0.15);
+    }
+    #status {
+      text-align: center;
+      color: #0a2f51;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div id="header-left">
+    <a href="/index.html" title="Accueil" style="
+      display:inline-block;
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      overflow:hidden;
+      border:0px solid #0a2f51;
+      margin-right:10px;">
+      <img src="https://i.imgur.com/FmevFyY.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
+    </a>
+    <h1>Historique des Produits Périmés</h1>
+  </div>
+  <div>
+    <button id="btn-login">Se connecter</button>
+    <button id="btn-logout" style="display:none;">Se déconnecter</button>
+    <button onclick="window.location.href='index.html'">⬅ Retour</button>
+  </div>
+</header>
+
+<table id="data-table">
+  <thead>
+    <tr>
+      <th>Opérateur</th>
+      <th>Produit</th>
+      <th>Date</th>
+      <th>Qté</th>
+      <th>Zone</th>
+      <th>Vendues</th>
+      <th>Promo</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<pre id="status">Chargement...</pre>
+
+<script>
+  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com'; // remplacez par votre propre Client ID
+  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPz';
+  const RANGE = 'Feuille3';
+
+  let tokenClient;
+  let accessToken = null;
+
+  function gapiLoaded() {
+    gapi.load('client', async () => {
+      await gapi.client.init({
+        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
+      });
+    });
+  }
+
+  function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+      callback: (response) => {
+        accessToken = response.access_token;
+        gapi.client.setToken({ access_token: accessToken });
+        document.getElementById('btn-login').style.display = 'none';
+        document.getElementById('btn-logout').style.display = 'inline-block';
+        loadSheet();
+      }
+    });
+    document.getElementById('btn-login').onclick = () => {
+      tokenClient.requestAccessToken();
+    };
+  }
+
+  document.getElementById('btn-logout').onclick = () => {
+    accessToken = null;
+    document.getElementById('btn-login').style.display = 'inline-block';
+    document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('status').textContent = 'Déconnecté.';
+    document.querySelector('#data-table tbody').innerHTML = '';
+  };
+
+  async function loadSheet() {
+    try {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE
+      });
+      const rows = res.result.values || [];
+      renderTable(rows);
+    } catch (e) {
+      document.getElementById('status').textContent = 'Erreur : ' + e.message;
+    }
+  }
+
+  function renderTable(rows) {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+    rows.slice(1).forEach(row => {
+      const tr = document.createElement('tr');
+      for (let i = 0; i <= 6; i++) {
+        const td = document.createElement('td');
+        td.textContent = row[i] || '';
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    });
+    document.getElementById('status').textContent = 'Données chargées.';
+  }
+
+  window.onload = () => {
+    gapiLoaded();
+    gisLoaded();
+  };
+</script>
+
+</body>
+</html>
