@@ -85,6 +85,7 @@
     <button id="btn-login">Se connecter</button>
     <button id="btn-logout" style="display:none;">Se déconnecter</button>
     <button onclick="window.location.href='index.html'">⬅ Retour</button>
+    <button onclick="window.print()">🖨️ Imprimer</button>
   </div>
 </header>
 
@@ -106,7 +107,7 @@
 <pre id="status">Chargement...</pre>
 
 <script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com'; // remplacez par votre propre Client ID
+  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPz';
   const RANGE = 'Feuille3';
 
@@ -124,7 +125,7 @@
   function gisLoaded() {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
-      scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+      scope: "https://www.googleapis.com/auth/spreadsheets",
       callback: (response) => {
         accessToken = response.access_token;
         gapi.client.setToken({ access_token: accessToken });
@@ -153,6 +154,7 @@
         range: RANGE
       });
       const rows = res.result.values || [];
+      await cleanOldEntries(rows);
       renderTable(rows);
     } catch (e) {
       document.getElementById('status').textContent = 'Erreur : ' + e.message;
@@ -162,7 +164,17 @@
   function renderTable(rows) {
     const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
-    rows.slice(1).forEach(row => {
+
+    const today = new Date();
+    const filteredRows = rows.slice(1).filter(row => {
+      const promo = parseFloat(row[6]) || 0;
+      const date = new Date(row[2]);
+      return promo > 0 && !isNaN(date);
+    });
+
+    filteredRows.sort((a, b) => new Date(a[2]) - new Date(b[2]));
+
+    filteredRows.forEach(row => {
       const tr = document.createElement('tr');
       for (let i = 0; i <= 6; i++) {
         const td = document.createElement('td');
@@ -171,7 +183,29 @@
       }
       tbody.appendChild(tr);
     });
-    document.getElementById('status').textContent = 'Données chargées.';
+
+    document.getElementById('status').textContent = 'Données filtrées et triées.';
+  }
+
+  async function cleanOldEntries(rows) {
+    const now = new Date();
+    if (now.getDate() !== 5) return;
+
+    const header = rows[0];
+    const filtered = rows.filter((row, i) => {
+      if (i === 0) return true;
+      const date = new Date(row[2]);
+      return !isNaN(date) && date >= now;
+    });
+
+    await gapi.client.sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE,
+      valueInputOption: 'RAW',
+      resource: { values: filtered }
+    });
+
+    console.log("Nettoyage automatique effectué (Feuille3)");
   }
 
   window.onload = () => {
