@@ -1191,7 +1191,8 @@ document.addEventListener('click', function (e) {
   const tbody = document.querySelector('#data-table tbody');
   tbody.innerHTML = '';
 
-  rows.slice(1).forEach((row, i) => {
+  //rows.slice(1).forEach((row, i) => {
+    rows.slice(1).reverse().forEach((row, i) => {
     const tr = document.createElement('tr');
     const cols = [1, 2, 3, 4, 5, 6, 7];
 
@@ -1252,7 +1253,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.6em;
+  font-size: 0.4em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
