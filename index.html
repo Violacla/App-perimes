@@ -818,7 +818,8 @@ dateInput.focus();
   function renderTable(rows) {
     const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
-    rows.slice(1).forEach((row, i) => {
+    //rows.slice(1).forEach((row, i) => {
+    rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
       // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
       // We skip opérateur (col 0)
