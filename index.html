@@ -1012,7 +1012,11 @@ async function loadNotifications() {
         <tbody>`;
 
       rowsForMonth.forEach(row => {
-        html += '<tr>';
+       // html += '<tr>';
+        const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[5] || '0');
+const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
+html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
 [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
           html += `<td>${row[ci] || ''}</td>`;
         });
