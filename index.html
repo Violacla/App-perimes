@@ -29,27 +29,24 @@
 
 .autocomplete-list li:hover,
 .autocomplete-list li.active {
- /*background-color: #bcd7ed;*/
-background-color: #fec0cf;
+  background-color: #bcd7ed;
   color: white;
 }
 
   :root {
-    /*--bleu-glacial: #bcd7ed;*/
-   --bleu-glacial: #fec0cf;
+    --bleu-glacial: #bcd7ed;
   }
 
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    /*background: #f9f9f9;*/
-    background: white;
+    background: #f9f9f9;
   }
 
   /* Bandeau bleu glacial */
   header {
     background-color: var(--bleu-glacial);
-    color: #fffbf0;
+    color: #0a2f51;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -298,14 +295,6 @@ background-color: #fec0cf;
       display: none !important;
     }
   }
-  .ligne-vendue {
-  /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
-  color: #e58958 !important;
-  background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
-  text-decoration: line-through;
-  font-style: italic;
-}
-
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -826,62 +815,32 @@ dateInput.focus();
   }
 
   // Render table without opérateur column (index 0)
- function renderTable(rows) {
-  const tbody = document.querySelector('#data-table tbody');
-  tbody.innerHTML = '';
-
-  rows.slice(1).reverse().forEach((row, i) => {
-    const tr = document.createElement('tr');
-
-    const qte = parseInt(row[4] || '0');
-    const vendu = parseInt(row[6] || '0');
-    if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-      tr.classList.add('ligne-vendue');
-    }
-
-    const cols = [1, 2, 3, 4, 5, 6]; // Date, Produit, Code, Qté, Zone, Vendues
-    cols.forEach(colIndex => {
-      const td = document.createElement('td');
-      td.textContent = row[colIndex] || '';
-      td.contentEditable = true;
-      td.dataset.row = i + 2;             // Correspond à ligne Sheets (en tenant compte de l'en-tête)
-      td.dataset.col = colIndex + 1;      // Car Sheets commence à 1 (col A = 1)
-      td.addEventListener('blur', onCellEdit);
-      tr.appendChild(td);
+  function renderTable(rows) {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+    //rows.slice(1).forEach((row, i) => {
+    rows.slice(1).reverse().forEach((row, i) => {
+      const tr = document.createElement('tr');
+      // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
+      // We skip opérateur (col 0)
+      const cols = [1, 2, 3, 4, 5, 6];
+      cols.forEach(colIndex => {
+        const td = document.createElement('td');
+        td.textContent = row[colIndex] || '';
+        td.contentEditable = true;
+        td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
+        td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
+        td.addEventListener('blur', onCellEdit);
+        tr.appendChild(td);
+      });
+      tr.addEventListener('click', () => {
+        // Unselect all
+        document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+        tr.classList.add('selected');
+      });
+      tbody.appendChild(tr);
     });
-
-    // Promo (col 7) => idem
-    const promoTd = document.createElement('td');
-    promoTd.textContent = row[7] || '';
-    promoTd.contentEditable = true;
-    promoTd.dataset.row = i + 2;
-    promoTd.dataset.col = 8;
-    promoTd.addEventListener('blur', onCellEdit);
-    tr.appendChild(promoTd);
-
-    // Bouton Suppr
-    const tdDelete = document.createElement('td');
-    tdDelete.innerHTML = '✖️';
-    tdDelete.style.cursor = 'pointer';
-    tdDelete.title = 'Supprimer cette ligne';
-    tdDelete.addEventListener('click', async () => {
-      const confirmed = confirm("Supprimer cette ligne ?");
-      if (confirmed) {
-        await deleteRow(i + 2);
-      }
-    });
-    tr.appendChild(tdDelete);
-
-    // Sélection visuelle
-    tr.addEventListener('click', () => {
-      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-      tr.classList.add('selected');
-    });
-
-    tbody.appendChild(tr);
-  });
-}
-
+  }
 
   // Update cell in Google Sheets on edit
   async function onCellEdit(e) {
@@ -1046,11 +1005,7 @@ async function loadNotifications() {
         <tbody>`;
 
       rowsForMonth.forEach(row => {
-       // html += '<tr>';
-        const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[5] || '0');
-const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
-html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
+        html += '<tr>';
 [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
           html += `<td>${row[ci] || ''}</td>`;
         });
@@ -1232,54 +1187,49 @@ document.addEventListener('click', function (e) {
     list.style.display = 'none';
   }
 });
-  //function renderTable(rows) {
- // const tbody = document.querySelector('#data-table tbody');
-  //tbody.innerHTML = '';
+  function renderTable(rows) {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
 
   //rows.slice(1).forEach((row, i) => {
-  //  rows.slice(1).reverse().forEach((row, i) => {
-//    const tr = document.createElement('tr');
-//      const qte = parseInt(row[4] || '0');
-//const vendu = parseInt(row[6] || '0');
-//if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-//  tr.classList.add('ligne-vendue');
-//}
- //   const cols = [1, 2, 3, 4, 5, 6, 7];
+    rows.slice(1).reverse().forEach((row, i) => {
+    const tr = document.createElement('tr');
+    const cols = [1, 2, 3, 4, 5, 6, 7];
 
- //   cols.forEach(colIndex => {
-  //    const td = document.createElement('td');
-   //   td.textContent = row[colIndex] || '';
-    //  td.contentEditable = true;
-    //  td.dataset.row = i + 2;
-     // td.dataset.col = colIndex + 1;
-     // td.addEventListener('blur', onCellEdit);
-    //  tr.appendChild(td);
-    //});
+    cols.forEach(colIndex => {
+      const td = document.createElement('td');
+      td.textContent = row[colIndex] || '';
+      td.contentEditable = true;
+      td.dataset.row = i + 2;
+      td.dataset.col = colIndex + 1;
+      td.addEventListener('blur', onCellEdit);
+      tr.appendChild(td);
+    });
 
     // ✅ Ajout de la colonne "✖️"
-   // const tdDelete = document.createElement('td');
-  //  tdDelete.innerHTML = '✖️';
-    //  tdDelete.style.cursor = 'pointer';
-   //   tdDelete.style.color = '#bbb';
-   //   tdDelete.style.fontSize = '1.1em';
-   //   tdDelete.title = 'Supprimer cette ligne';
-   //   tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
-   //   tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
-  //    tdDelete.addEventListener('click', async () => {
-  //      const confirmed = confirm("Supprimer cette ligne ?");
-  //      if (confirmed) {
-   //       await deleteRow(i + 2);
-  //      }
-   //   });
-    //  tr.appendChild(tdDelete);
+    const tdDelete = document.createElement('td');
+    tdDelete.innerHTML = '✖️';
+    tdDelete.style.cursor = 'pointer';
+    tdDelete.style.color = '#bbb';
+    tdDelete.style.fontSize = '1.1em';
+    tdDelete.title = 'Supprimer cette ligne';
+    tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
+    tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
+    tdDelete.addEventListener('click', async () => {
+      const confirmed = confirm("Supprimer cette ligne ?");
+      if (confirmed) {
+        await deleteRow(i + 2);
+      }
+    });
+    tr.appendChild(tdDelete);
 
-   //   tr.addEventListener('click', () => {
-      //  document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-  //      tr.classList.add('selected');
-  //    });
+    tr.addEventListener('click', () => {
+      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+      tr.classList.add('selected');
+    });
 
-   //   tbody.appendChild(tr);
-  //  });
+    tbody.appendChild(tr);
+  });
 }
 </script>
 <script>
@@ -1303,7 +1253,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.6em;
+  font-size: 0.4em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
