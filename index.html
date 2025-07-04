@@ -828,6 +828,12 @@ dateInput.focus();
     //rows.slice(1).forEach((row, i) => {
     rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
+      const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[5] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
+
       // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
       // We skip opérateur (col 0)
       const cols = [1, 2, 3, 4, 5, 6];
@@ -1205,6 +1211,11 @@ document.addEventListener('click', function (e) {
   //rows.slice(1).forEach((row, i) => {
     rows.slice(1).reverse().forEach((row, i) => {
     const tr = document.createElement('tr');
+      const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[5] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
     const cols = [1, 2, 3, 4, 5, 6, 7];
 
     cols.forEach(colIndex => {
@@ -1264,7 +1275,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.4em;
+  font-size: 0.6em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
