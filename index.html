@@ -9,7 +9,8 @@
 <style>
   .autocomplete-list {
   position: absolute;
-  background-color: white;
+  /*background-color: white;*/
+  background-color: #fffbf0;
   border: 1px solid #ccc;
   border-radius: 4px;
   list-style: none;
@@ -29,12 +30,14 @@
 
 .autocomplete-list li:hover,
 .autocomplete-list li.active {
-  background-color: #bcd7ed;
+ /*background-color: #bcd7ed;*/
+background-color: #f294a6;
   color: white;
 }
 
   :root {
-    --bleu-glacial: #bcd7ed;
+    /*--bleu-glacial: #bcd7ed;*/
+   --bleu-glacial: #fec0cf; 
   }
 
   body {
@@ -829,7 +832,7 @@ dateInput.focus();
     rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
       const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[5] || '0');
+const vendu = parseInt(row[6] || '0');
 if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
   tr.classList.add('ligne-vendue');
 }
@@ -1212,7 +1215,7 @@ document.addEventListener('click', function (e) {
     rows.slice(1).reverse().forEach((row, i) => {
     const tr = document.createElement('tr');
       const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[5] || '0');
+const vendu = parseInt(row[6] || '0');
 if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
   tr.classList.add('ligne-vendue');
 }
