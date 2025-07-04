@@ -43,7 +43,7 @@ background-color: #fec0cf;
     margin: 0;
     font-family: Arial, sans-serif;
     /*background: #f9f9f9;*/
-    background: #fffefc;
+    background: white;
   }
 
   /* Bandeau bleu glacial */
@@ -826,38 +826,62 @@ dateInput.focus();
   }
 
   // Render table without opérateur column (index 0)
-  function renderTable(rows) {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
-    //rows.slice(1).forEach((row, i) => {
-    rows.slice(1).reverse().forEach((row, i) => {
-      const tr = document.createElement('tr');
-      const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[6] || '0');
-if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-  tr.classList.add('ligne-vendue');
+ function renderTable(rows) {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
+
+  rows.slice(1).reverse().forEach((row, i) => {
+    const tr = document.createElement('tr');
+
+    const qte = parseInt(row[4] || '0');
+    const vendu = parseInt(row[6] || '0');
+    if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+      tr.classList.add('ligne-vendue');
+    }
+
+    const cols = [1, 2, 3, 4, 5, 6]; // Date, Produit, Code, Qté, Zone, Vendues
+    cols.forEach(colIndex => {
+      const td = document.createElement('td');
+      td.textContent = row[colIndex] || '';
+      td.contentEditable = true;
+      td.dataset.row = i + 2;             // Correspond à ligne Sheets (en tenant compte de l'en-tête)
+      td.dataset.col = colIndex + 1;      // Car Sheets commence à 1 (col A = 1)
+      td.addEventListener('blur', onCellEdit);
+      tr.appendChild(td);
+    });
+
+    // Promo (col 7) => idem
+    const promoTd = document.createElement('td');
+    promoTd.textContent = row[7] || '';
+    promoTd.contentEditable = true;
+    promoTd.dataset.row = i + 2;
+    promoTd.dataset.col = 8;
+    promoTd.addEventListener('blur', onCellEdit);
+    tr.appendChild(promoTd);
+
+    // Bouton Suppr
+    const tdDelete = document.createElement('td');
+    tdDelete.innerHTML = '✖️';
+    tdDelete.style.cursor = 'pointer';
+    tdDelete.title = 'Supprimer cette ligne';
+    tdDelete.addEventListener('click', async () => {
+      const confirmed = confirm("Supprimer cette ligne ?");
+      if (confirmed) {
+        await deleteRow(i + 2);
+      }
+    });
+    tr.appendChild(tdDelete);
+
+    // Sélection visuelle
+    tr.addEventListener('click', () => {
+      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+      tr.classList.add('selected');
+    });
+
+    tbody.appendChild(tr);
+  });
 }
 
-      // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
-      // We skip opérateur (col 0)
-      const cols = [1, 2, 3, 4, 5, 6];
-      cols.forEach(colIndex => {
-        const td = document.createElement('td');
-        td.textContent = row[colIndex] || '';
-        td.contentEditable = true;
-        td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
-        td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
-        td.addEventListener('blur', onCellEdit);
-        tr.appendChild(td);
-      });
-      tr.addEventListener('click', () => {
-        // Unselect all
-        document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-        tr.classList.add('selected');
-      });
-      tbody.appendChild(tr);
-    });
-  }
 
   // Update cell in Google Sheets on edit
   async function onCellEdit(e) {
@@ -1208,54 +1232,54 @@ document.addEventListener('click', function (e) {
     list.style.display = 'none';
   }
 });
-  function renderTable(rows) {
-  const tbody = document.querySelector('#data-table tbody');
-  tbody.innerHTML = '';
+  //function renderTable(rows) {
+ // const tbody = document.querySelector('#data-table tbody');
+  //tbody.innerHTML = '';
 
   //rows.slice(1).forEach((row, i) => {
-    rows.slice(1).reverse().forEach((row, i) => {
-    const tr = document.createElement('tr');
-      const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[6] || '0');
-if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-  tr.classList.add('ligne-vendue');
-}
-    const cols = [1, 2, 3, 4, 5, 6, 7];
+  //  rows.slice(1).reverse().forEach((row, i) => {
+//    const tr = document.createElement('tr');
+//      const qte = parseInt(row[4] || '0');
+//const vendu = parseInt(row[6] || '0');
+//if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+//  tr.classList.add('ligne-vendue');
+//}
+ //   const cols = [1, 2, 3, 4, 5, 6, 7];
 
-    cols.forEach(colIndex => {
-      const td = document.createElement('td');
-      td.textContent = row[colIndex] || '';
-      td.contentEditable = true;
-      td.dataset.row = i + 2;
-      td.dataset.col = colIndex + 1;
-      td.addEventListener('blur', onCellEdit);
-      tr.appendChild(td);
-    });
+ //   cols.forEach(colIndex => {
+  //    const td = document.createElement('td');
+   //   td.textContent = row[colIndex] || '';
+    //  td.contentEditable = true;
+    //  td.dataset.row = i + 2;
+     // td.dataset.col = colIndex + 1;
+     // td.addEventListener('blur', onCellEdit);
+    //  tr.appendChild(td);
+    //});
 
     // ✅ Ajout de la colonne "✖️"
-    const tdDelete = document.createElement('td');
-    tdDelete.innerHTML = '✖️';
-    tdDelete.style.cursor = 'pointer';
-    tdDelete.style.color = '#bbb';
-    tdDelete.style.fontSize = '1.1em';
-    tdDelete.title = 'Supprimer cette ligne';
-    tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
-    tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
-    tdDelete.addEventListener('click', async () => {
-      const confirmed = confirm("Supprimer cette ligne ?");
-      if (confirmed) {
-        await deleteRow(i + 2);
-      }
-    });
-    tr.appendChild(tdDelete);
+   // const tdDelete = document.createElement('td');
+  //  tdDelete.innerHTML = '✖️';
+    //  tdDelete.style.cursor = 'pointer';
+   //   tdDelete.style.color = '#bbb';
+   //   tdDelete.style.fontSize = '1.1em';
+   //   tdDelete.title = 'Supprimer cette ligne';
+   //   tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
+   //   tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
+  //    tdDelete.addEventListener('click', async () => {
+  //      const confirmed = confirm("Supprimer cette ligne ?");
+  //      if (confirmed) {
+   //       await deleteRow(i + 2);
+  //      }
+   //   });
+    //  tr.appendChild(tdDelete);
 
-    tr.addEventListener('click', () => {
-      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-      tr.classList.add('selected');
-    });
+   //   tr.addEventListener('click', () => {
+      //  document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+  //      tr.classList.add('selected');
+  //    });
 
-    tbody.appendChild(tr);
-  });
+   //   tbody.appendChild(tr);
+  //  });
 }
 </script>
 <script>
