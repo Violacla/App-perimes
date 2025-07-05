@@ -9,7 +9,8 @@
 <style>
   .autocomplete-list {
   position: absolute;
-  background-color: white;
+  /*background-color: white;*/
+  background-color: #fffefc;
   border: 1px solid #ccc;
   border-radius: 4px;
   list-style: none;
@@ -29,24 +30,27 @@
 
 .autocomplete-list li:hover,
 .autocomplete-list li.active {
-  background-color: #bcd7ed;
+ /*background-color: #bcd7ed;*/
+background-color: #fffefc;
   color: white;
 }
 
   :root {
-    --bleu-glacial: #bcd7ed;
+    /*--bleu-glacial: #bcd7ed;*/
+   --bleu-glacial: #fec0cf;
   }
 
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f9f9f9;
+    /*background: #f9f9f9;*/
+    background: #fffefc;
   }
 
   /* Bandeau bleu glacial */
   header {
     background-color: var(--bleu-glacial);
-    color: #0a2f51;
+    color: #fffbf0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -295,6 +299,14 @@
       display: none !important;
     }
   }
+  .ligne-vendue {
+  /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
+  color: #e58958 !important;
+  background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
+  text-decoration: line-through;
+  font-style: italic;
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -821,6 +833,12 @@ dateInput.focus();
     //rows.slice(1).forEach((row, i) => {
     rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
+      const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
+
       // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
       // We skip opérateur (col 0)
       const cols = [1, 2, 3, 4, 5, 6];
@@ -1005,7 +1023,11 @@ async function loadNotifications() {
         <tbody>`;
 
       rowsForMonth.forEach(row => {
-        html += '<tr>';
+       // html += '<tr>';
+        const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[5] || '0');
+const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
+html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
 [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
           html += `<td>${row[ci] || ''}</td>`;
         });
@@ -1194,6 +1216,11 @@ document.addEventListener('click', function (e) {
   //rows.slice(1).forEach((row, i) => {
     rows.slice(1).reverse().forEach((row, i) => {
     const tr = document.createElement('tr');
+      const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
     const cols = [1, 2, 3, 4, 5, 6, 7];
 
     cols.forEach(colIndex => {
@@ -1253,7 +1280,7 @@ document.addEventListener('click', function (e) {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.4em;
+  font-size: 0.6em;
   color: #666;
   background: #f0f0f0;
   padding: 8px 0;
