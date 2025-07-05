@@ -846,7 +846,9 @@ if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
         const td = document.createElement('td');
         td.textContent = row[colIndex] || '';
         td.contentEditable = true;
-        td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
+       // td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
+        const actualSheetRow = rows.length - i;
+td.dataset.row = actualSheetRow;
         td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
         td.addEventListener('blur', onCellEdit);
         tr.appendChild(td);
@@ -1225,9 +1227,11 @@ if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
 
     cols.forEach(colIndex => {
       const td = document.createElement('td');
-      td.textContent = row[colIndex] || '';
+     td.textContent = row[colIndex] || '';
       td.contentEditable = true;
-      td.dataset.row = i + 2;
+      //td.dataset.row = i + 2;
+      const actualSheetRow = rows.length - i;
+td.dataset.row = actualSheetRow;
       td.dataset.col = colIndex + 1;
       td.addEventListener('blur', onCellEdit);
       tr.appendChild(td);
