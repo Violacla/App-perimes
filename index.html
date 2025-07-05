@@ -9,8 +9,8 @@
 <style>
   .autocomplete-list {
   position: absolute;
-  background-color: white;
-  /*background-color: #fffefc;*/
+ /* background-color: white;*/
+  background-color: #fffefc;
   border: 1px solid #ccc;
   border-radius: 4px;
   list-style: none;
@@ -31,7 +31,7 @@
 .autocomplete-list li:hover,
 .autocomplete-list li.active {
  /*background-color: #bcd7ed;*/
-background-color: #fffefc;
+background-color: #f294a6;
   color: white;
 }
 
@@ -1033,7 +1033,7 @@ async function loadNotifications() {
       rowsForMonth.forEach(row => {
        // html += '<tr>';
         const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[5] || '0');
+const vendu = parseInt(row[6] || '0');
 const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
 html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
 [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
