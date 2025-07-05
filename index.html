@@ -9,8 +9,8 @@
 <style>
   .autocomplete-list {
   position: absolute;
-  /*background-color: white;*/
-  background-color: #fffefc;
+  background-color: white;
+  /*background-color: #fffefc;*/
   border: 1px solid #ccc;
   border-radius: 4px;
   list-style: none;
@@ -111,7 +111,7 @@ background-color: #fffefc;
   /* Form to add entries on right */
  #entry-form {
   width: 320px;
-  background: white;
+  background: f294a6;
   padding: 15px 20px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
@@ -186,7 +186,7 @@ background-color: #fffefc;
   }
   #filters label {
     font-weight: bold;
-     color: #a0c8ae;
+     color: #77b88e;
   }
   #filters input, #filters button {
     padding: 5px 8px;
@@ -308,7 +308,7 @@ background-color: #fffefc;
   /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
   color: #e58958 !important;
  /* background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
-    background-color: #f5b089 !important;
+    background-color: #f8c5a8 !important;
   text-decoration: line-through;
   font-style: italic;
 }
@@ -1252,12 +1252,20 @@ td.dataset.row = actualSheetRow;
     tdDelete.title = 'Supprimer cette ligne';
     tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
     tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
-    tdDelete.addEventListener('click', async () => {
-      const confirmed = confirm("Supprimer cette ligne ?");
-      if (confirmed) {
-        await deleteRow(i + 2);
-      }
-    });
+ //   tdDelete.addEventListener('click', async () => {
+ //     const confirmed = confirm("Supprimer cette ligne ?");
+ //     if (confirmed) {
+ //       await deleteRow(i + 2);
+ //     }
+ //   });
+      const actualSheetRow = rows.length - i;
+
+tdDelete.addEventListener('click', async () => {
+  const confirmed = confirm("Supprimer cette ligne ?");
+  if (confirmed) {
+    await deleteRow(actualSheetRow);
+  }
+});
     tr.appendChild(tdDelete);
 
     tr.addEventListener('click', () => {
