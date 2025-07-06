@@ -1,233 +1,1304 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Historique - Pharmacie du Libron</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      /*background-color: #f9f9f9;*/
-       background-color:#fffefc;
-      margin: 0;
-    }
-    header {
-     /* background-color: #bcd7ed;*/
-      background-color:#f294a6;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    }
-    #header-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    h1 {
-      margin: 0;
-      /*color: #0a2f51;*/
-      color: white;
-      font-size: 1.3em;
-    }
-    button {
-      cursor: pointer;
-      padding: 8px 12px;
-      font-size: 1em;
-      border: none;
-      border-radius: 4px;
-     /* background-color: #bcd7ed;*/
-      background-color: #f294a6;
-      /*color: #0a2f51;*/
-      color: white;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color:  #fec0cf;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      margin: 20px auto;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px 10px;
-      text-align: center;
-    }
-    tbody tr:nth-child(odd) {
-      /*background-color: rgba(188, 215, 237, 0.15);*/
-        background-color: #ffe0cf;
-    }
-    #status {
-      text-align: center;
-      color: #0a2f51;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
+<meta charset="utf-8"/>
+<title>Gestion Perimé - Pharmacie du Libron</title>
+<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<style>
+  .autocomplete-list {
+  position: absolute;
+ /* background-color: white;*/
+  background-color: #fffefc;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 250px;
+  z-index: 999;
+}
 
+.autocomplete-list li {
+  padding: 8px 10px;
+  cursor: pointer;
+  color: black;
+}
+
+.autocomplete-list li:hover,
+.autocomplete-list li.active {
+ /*background-color: #bcd7ed;*/
+background-color: #f294a6;
+  color: white;
+}
+
+  :root {
+    /*--bleu-glacial: #bcd7ed;*/
+   --bleu-glacial: #f294a6;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    /*background: #f9f9f9;*/
+    background: #fffefc;
+  }
+
+  /* Bandeau bleu glacial */
+  header {
+    background-color: var(--bleu-glacial);
+    color: #fffbf0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  }
+
+  #header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  #header-left > h1 {
+    margin: 0;
+    font-size: 1.3em;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-size: 1em;
+    color: #0a2f51;
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: rgba(255 255 255 / 0.3);
+  }
+
+  /* Icons with emoji for simplicity */
+  .icon {
+    font-size: 1.2em;
+    margin-right: 6px;
+  }
+
+  /* Header right buttons */
+  #header-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  /* Operator form */
+  #operator-form {
+    margin-left: 10px;
+  }
+
+  /* Layout */
+  main {
+    display: flex;
+    margin: 20px;
+  }
+
+  /* Form to add entries on right */
+ #entry-form {
+  width: 320px;
+  background: f294a6;
+  padding: 15px 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  margin-left: 20px;
+  margin-top: 48px; /* Aligne avec les filtres */
+}
+
+  #entry-form h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+  #entry-form input {
+    width: 100%;
+    margin: 6px 0;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  #entry-form button {
+    width: 100%;
+    /*background-color: var(--bleu-glacial);*/
+    background-color: #fec0cf;
+    color: white;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  #entry-form button:hover {
+    background-color: #f294a6;
+  }
+
+  /* Table styles */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  /* Alternate row background with 15% opacity bleu glacial */
+  tbody tr:nth-child(odd) {
+   /* background-color: rgba(188, 215, 237, 0.15);*/
+    background-color: #ffe0cf
+  }
+
+  /* Selected row highlight 50% opacity */
+  tbody tr.selected {
+    /*background-color: rgba(188, 215, 237, 0.5) !important;*/
+    background-color: #f5b089 !important;
+  }
+
+  /* Editable cells */
+  tbody td {
+    cursor: text;
+  }
+
+  /* Filter section */
+  #filters {
+    margin: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+  }
+  #filters label {
+    font-weight: bold;
+     color: #77b88e;
+  }
+  #filters input, #filters button {
+    padding: 5px 8px;
+    font-size: 1em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  #filters button {
+    /*background-color: var(--bleu-glacial);*/
+    background-color: #a0c8ae;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #filters button:hover {
+    background-color: #77b88e;
+  }
+
+  /* Status text */
+  #status {
+    margin: 10px 20px;
+    font-weight: bold;
+    color: #0a2f51;
+  }
+
+  /* Notification popup modal */
+  #notification-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    width: 1300px;
+    max-height: 92vh;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+  }
+
+  #notification-popup header {
+    background-color: var(--bleu-glacial);
+    color: white;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #notification-popup header button {
+    background: transparent;
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    color: #0a2f51;
+  }
+
+  #notification-popup .content {
+    padding: 15px 20px;
+    overflow-y: auto;
+  }
+
+  #notification-popup table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #notification-popup th, #notification-popup td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  #notification-popup tbody tr:nth-child(odd) {
+   /* background-color: rgba(188, 215, 237, 0.15);*/
+    background-color: #ffe0cf
+  }
+
+  /* Print styles */
+  @media print {
+    html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+    body * {
+      visibility: hidden !important;
+    }
+    #notification-popup, 
+    #notification-popup * {
+      visibility: visible !important;
+    }
+    #notification-popup {
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    display: block !important;
+    }
+      #notification-popup .content {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+    #notification-popup header button,
+    #notification-popup #print-notif {
+      display: none !important;
+    }
+  }
+  .ligne-vendue {
+  /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
+  color: #e58958 !important;
+ /* background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
+    background-color: #f8c5a8 !important;
+  text-decoration: line-through;
+  font-style: italic;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
-  <div id="header-left">
-    <a href="/index.html" title="Accueil" style="
+<div id="header-left">
+<a href="/historique.html" style="
       display:inline-block;
       width:40px;
       height:40px;
       border-radius:50%;
       overflow:hidden;
       border:0px solid #0a2f51;
-      margin-right:10px;">
-      <img src="https://i.imgur.com/mEtzEsp.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
-    </a>
-    <h1>Historique des Produits Périmés</h1>
-  </div>
-  <div>
-    <button id="btn-login">Se connecter</button>
-    <button id="btn-logout" style="display:none;">Se déconnecter</button>
-    <button onclick="window.location.href='index.html'">⬅ Retour</button>
-  </div>
-</header>
-  
-<div style="padding: 10px 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-  <input type="text" id="filter-zone" placeholder="Filtrer par zone" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;" />
-  <input type="text" id="filter-date" placeholder="Filtrer par date (YYYY ou MMYYYY)" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;" />
-  <button onclick="applyFilters()" style="background-color: #a0c8ae; color: white;">Appliquer le filtre</button>
-  <button onclick="downloadCSV()" style="background-color: #a0c8ae; color: white;">Télécharger CSV</button>
+    " title="Accueil">
+<!--<img alt="Logo" src="https://i.imgur.com/FmevFyY.png" style="width:100%; height:100%; object-fit:cover;"/> -->
+<img alt="Logo" src="https://i.imgur.com/mEtzEsp.png" style="width:100%; height:100%; object-fit:cover;"/>
+</a>
+<h1>Historique Produits Périmés - Pharmacie du Libron</h1>
+<!-- Groupe opérateur -->
+<div id="operator-form" style="display:none; margin-left:10px;">
+<input id="operator" placeholder="Nom de l'opérateur" type="text"/>
+<button id="btn-confirm-operator">Valider</button>
 </div>
-
-<table id="data-table">
-  <thead>
-    <tr>
-      <th>Opérateur</th>
-      <th>Produit</th>
-      <th>Date</th>
-      <th>Qté</th>
-      <th>Zone</th>
-      <th>Vendues</th>
-      <th>Promo</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<pre id="status">Chargement...</pre>
-
+<!-- Bouton connexion -->
+<button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
+</div>
+<div id="header-right">
+<button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
+<img alt="Logo" src="https://i.imgur.com/DqTzhLF.png" style="width:18px; height:18px; object-fit:cover; vertical-align:middle;"/>
+   Notifications
+  <span id="notif-badge" style="display: none; position: absolute; top: 0px; right: 0px; width: 16px; height: 16px; z-index: 2;">
+<img src="https://i.imgur.com/eNB2WOM.png" style="width:100%; height:100%; object-fit:cover;"/>
+</span>
+</button>
+<button onclick="location.href='historique.html'" title="Historique">
+<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+Historique
+</button>
+  <button onclick="location.href='promotion.html'" title="Promo %">
+Promo %
+</button>
+  </button>
+  <button id="btn-open-my-pdf" title="Ouvrir mon PDF personnalisé">
+  <img src="https://i.imgur.com/CqN1dlf.png" style="width:18px; height:18px; vertical-align:middle;"/>
+</button>
+<button id="btn-logout" style="display:none;" title="Déconnexion">
+<!-- <img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/> -->
+<img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+Déconnexion
+</button>
+</div>
+</header>
+<main>
+<div style="flex-grow:1;">
+<div id="filters">
+<!--<label for="quickSearchProduct">Recherche:</label>-->
+<!-- <input type="text" id="quick-product" placeholder="Nom...." style="margin-left: 10px;" /> -->
+<label for="filter-zone">Filtrer Zone:</label>
+<input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
+<label for="filter-month">Date:</label>
+<input id="filter-month" placeholder="MMYYYY or YYYY" style="width: 140px;" type="text"/>
+<button onclick="filterTable()">Filtrer</button>
+<button onclick="clearFilter()">Réinitialiser</button>
+<button id="btn-print-table" title="EXPORTER EN PDF">
+<img src="https://i.imgur.com/GX530wW.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+ PDF
+</button>
+<ul class="autocomplete-list" id="filter-zone-suggestions" style="display: none;"></ul>
+</div>
+<div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
+<thead>
+<tr>
+<!-- Ne PAS afficher colonne opérateur -->
+<th>Date</th>
+<th>Produit</th>
+<th>Code</th>
+<th>Qté</th>
+<th>Zone</th>
+<th>Vendues</th>
+<th>Promo</th>
+<th>Suppr</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table></div>
+<pre id="status"></pre>
+</div>
+<form id="entry-form" onsubmit="return false;" style="display: none;">
+<h3>Ajouter un produit</h3>
+<input id="date" placeholder="MM/YYYY" type="text"/>
+<input id="product" placeholder="Nom Boîte" type="text"/>
+<input id="code" maxlength="6" minlength="6" pattern="\d{6}" placeholder="Code (6 chiffres)" required="" type="text"/>
+<input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
+<input autocomplete="off" id="zone" placeholder="Zone" type="text"/>
+<ul class="autocomplete-list" id="zone-suggestions" style="display: none;"></ul>
+<button id="btn-add" type="button">Ajouter la ligne</button>
+</form>
+</main>
+<body>
+<div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog">
+<header>
+<span id="notif-title">Notifications - Produits périmés</span>
+<div>
+<button id="print-notif" title="Imprimer">
+<img src="https://i.imgur.com/p0XRHwZ.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+</button>
+<button id="close-notif" title="Fermer">
+<img src="https://i.imgur.com/pCnsbKA.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+</button>
+</div>
+</header>
+<div class="content">
+<!-- Table notifications insérées ici -->
+</div>
+</div>
+<div id="popup-6mois" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #f8d7da;
+  color: #721c24;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🔴 Ce produit est à date très courte ! (&lt; 6 mois)
+</div>
+<div id="popup-1an" style="
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff3cd;
+  color: #856404;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  font-weight: bold;
+  text-align: center;
+  z-index: 10000;
+">
+  🟠 Ce produit est à date courte ! (&lt; 1 an)
+</div>
 <script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com'; // remplacez par votre propre Client ID
-  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'Feuille2';
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('notif-badge');
+  const btnNotif = document.getElementById('btn-notif');
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
+  if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
+    badge.style.display = 'inline-block';
+  }
+  btnNotif.addEventListener('click', () => {
+    badge.style.display = 'none';
+    localStorage.setItem('notifSeen', monthKey);
+  });
 
-  let tokenClient;
-  let accessToken = null;
-
-  function gapiLoaded() {
-    gapi.load('client', async () => {
-      await gapi.client.init({
-        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
-      });
+  const operatorInput = document.getElementById('operator');
+  const btnOperator = document.getElementById('btn-confirm-operator');
+  if (operatorInput && btnOperator) {
+    operatorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnOperator.click();
+      }
     });
+  }
+});
+</script>
+<script>
+  document.getElementById("btn-print-table").addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+
+    const zoneFilter = document.getElementById("filter-zone").value;
+    const monthFilter = document.getElementById("filter-month").value;
+
+    doc.setFontSize(14);
+    doc.text("Résultats filtrés - Produits périmés", 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+    y += 6;
+    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+    y += 10;
+
+    const rows = document.querySelectorAll("#data-table tbody tr");
+    rows.forEach((row) => {
+      if (row.style.display === "none") return;
+
+      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+      doc.text(cells.join(" | "), 10, y);
+      y += 6;
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
+      }
+    });
+
+    doc.save("resultats_perimes.pdf");
+  });
+</script>
+<script>
+  const filterInput = document.getElementById('filter-zone');
+  const suggestionList = document.getElementById('filter-zone-suggestions');
+
+  filterInput.addEventListener('input', function () {
+    const val = this.value.toLowerCase();
+    suggestionList.innerHTML = '';
+    if (val.length < 1) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    const matches = zones.filter(z => z.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    matches.forEach((zone) => {
+      const li = document.createElement('li');
+      li.textContent = zone;
+      li.addEventListener('click', () => {
+        filterInput.value = zone;
+        suggestionList.innerHTML = '';
+        suggestionList.style.display = 'none';
+      });
+      suggestionList.appendChild(li);
+    });
+
+    const rect = filterInput.getBoundingClientRect();
+    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
+    suggestionList.style.left = rect.left + window.scrollX + 'px';
+    suggestionList.style.width = filterInput.offsetWidth + 'px';
+    suggestionList.style.display = 'block';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
+      suggestionList.style.display = 'none';
+    }
+  });
+</script>
+<script>
+  async function deleteRow(rowIndex) {
+    try {
+      await gapi.client.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId: 0,
+                dimension: "ROWS",
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex
+              }
+            }
+          }]
+        }
+      });
+      setStatus("Ligne supprimée avec succès.");
+      loadSheet();
+    } catch (e) {
+      setStatus("Erreur suppression : " + e.message);
+    }
+  }
+</script>
+<script>
+  const filterMonthInput = document.getElementById('filter-month');
+  filterMonthInput.addEventListener('input', function(e) {
+  // On laisse l'utilisateur taper librement MMYYYY ou YYYY sans forcer le /
+  e.target.value = e.target.value.replace(/[^\d\/]/g, ''); // empêche lettres
+});
+
+</script>
+<script>
+function filterTable() {
+  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+  const monthFilter = document.getElementById("filter-month").value.trim(); // format MM/YYYY
+  const productFilter = document.getElementById("quick-product").value.trim().toLowerCase();
+  const rows = document.querySelectorAll("#data-table tbody tr");
+
+  rows.forEach((row) => {
+    const dateCell = row.cells[0].textContent.trim(); // Date = colonne 0
+    const zoneCell = row.cells[4].textContent.trim().toLowerCase(); // Zone = colonne 4
+    //const productCell = row.cells[1].textContent.trim().toLowerCase();
+    let show = true;
+
+    // Filtre zone
+    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+      show = false;
+    }
+    //if (productFilter && !productCell.includes(productFilter)) {
+  //show = false;
+//}
+    // Filtre mois MM/YYYY
+    /*if (monthFilter) {
+      const [yyyy, mm, dd] = dateCell.split('-');
+      const rowMonth = `${mm}/${yyyy}`;
+      const [mFilter, yFilter] = monthFilter.split('/');
+      if (rowMonth !== `${mFilter}/${yFilter}`) {
+        show = false;
+      }
+    }*/
+if (monthFilter) {
+  let rowYear = '';
+  let rowMonth = '';
+
+  if (dateCell.includes('-')) {
+    const parts = dateCell.split('-'); // format YYYY-MM-DD
+    if (parts.length >= 2) {
+      rowYear = parts[0];
+      rowMonth = parts[1];
+    }
+  }
+
+  let mFilter = null;
+  let yFilter = null;
+
+  if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+    [mFilter, yFilter] = monthFilter.split('/');
+  } else if (/^\d{6}$/.test(monthFilter)) {
+    mFilter = monthFilter.slice(0, 2);
+    yFilter = monthFilter.slice(2);
+  } else if (/^\d{4}$/.test(monthFilter)) {
+    yFilter = monthFilter;
+  }
+
+  if (yFilter && rowYear !== yFilter) show = false;
+  if (mFilter && rowMonth !== mFilter) show = false;
+}
+
+    row.style.display = show ? "" : "none";
+  });
+}
+function clearFilter() {
+  document.getElementById('filter-zone').value = '';
+  document.getElementById('filter-month').value = '';
+  filterTable();
+}
+</script></body>
+<!-- Notification Popup -->
+<script>
+  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+  const RANGE = 'historique';
+  const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+  let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
+
+  function gapiLoaded() { gapi.load('client', initializeGapiClient); }
+  async function initializeGapiClient() {
+    await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
+    gapiInited = true;
+    maybeEnableButtons();
   }
 
   function gisLoaded() {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
-      scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
-      callback: (response) => {
-        accessToken = response.access_token;
-        gapi.client.setToken({ access_token: accessToken });
-        document.getElementById('btn-login').style.display = 'none';
-        document.getElementById('btn-logout').style.display = 'inline-block';
-        loadSheet();
-      }
+      scope: SCOPES,
+      callback: (tokenResponse) => {
+  accessToken = tokenResponse.access_token;
+  document.getElementById('operator-form').style.display = 'inline-flex';
+  document.getElementById('btn-login').style.display = 'none';
+  setStatus('Connecté. Choisissez un opérateur.');
+  document.getElementById('operator').focus(); // 👈 focus clavier automatique
+},
+
     });
-    document.getElementById('btn-login').onclick = () => {
-      tokenClient.requestAccessToken();
-    };
+    gisInited = true;
+    maybeEnableButtons();
   }
 
-  document.getElementById('btn-logout').onclick = () => {
-    accessToken = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
-    document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('status').textContent = 'Déconnecté.';
-    document.querySelector('#data-table tbody').innerHTML = '';
+  function maybeEnableButtons() {
+    if (gapiInited && gisInited) {
+      document.getElementById('btn-login').style.display = 'inline-block';
+    }
+  }
+
+  function setStatus(msg) {
+    document.getElementById('status').textContent = msg;
+  }
+
+  document.getElementById('btn-login').onclick = () => {
+    tokenClient.requestAccessToken();
   };
 
+  document.getElementById('btn-logout').onclick = () => {
+    accessToken = null; operatorName = null;
+    document.getElementById('btn-login').style.display = 'inline-block';
+    document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('entry-form').style.display = 'none';
+    clearTable();
+    setStatus('Déconnecté.');
+  };
+
+  document.getElementById('btn-confirm-operator').onclick = () => {
+    const op = document.getElementById('operator').value;
+    if (!op) return alert("Choisir un opérateur");
+    operatorName = op;
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    document.getElementById('entry-form').style.display = 'block';
+    loadSheet();
+  };
+
+  document.getElementById('btn-add').onclick = async () => {
+    if(!operatorName) {
+      alert("Veuillez vous connecter et choisir un opérateur");
+      return;
+    }
+    
+    let rawDate = document.getElementById('date').value;
+    let dateVal = "";
+    if (rawDate) {
+      const [month, year] = rawDate.split('/');
+      if (month && year) {
+        const paddedMonth = month.padStart(2, '0');
+        const lastDay = new Date(year, parseInt(paddedMonth), 0).getDate();
+        dateVal = `${year}-${paddedMonth}-${lastDay}`;
+      }
+    }
+    if (!dateVal) {
+      const today = new Date();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const y = today.getFullYear();
+      const d = new Date(y, today.getMonth() + 1, 0).getDate();
+      dateVal = `${y}-${m}-${d}`;
+    }
+
+    const productVal = document.getElementById('product').value.trim();
+    const qtyVal = parseInt(document.getElementById('qty').value);
+    const zoneVal = document.getElementById('zone').value.trim();
+    
+    if (!zones.includes(zoneVal)) {
+  alert("Veuillez choisir une zone existante dans la liste.");
+  return;
+}
+const codeVal = document.getElementById('code').value.trim();
+if (!/^\d{6}$/.test(codeVal)) {
+  alert("Le code doit contenir exactement 6 chiffres.");
+  return;
+}
+
+    const soldVal = 0;
+    const promoVal = 0;
+
+
+    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
+      alert("Veuillez remplir tous les champs correctement.");
+      return;
+    }
+const now = new Date();
+const ajoutVal = now.toLocaleString('fr-FR'); // Exemple : 12/06/2025, 09:44:31
+
+const values = [[
+  operatorName,     // invisible
+  dateVal,          // ✅ Date
+  productVal,       // ✅ Nom
+  codeVal,          // ✅ Code
+  qtyVal,           // ✅ Qté
+  zoneVal,          // ✅ Zone
+  soldVal,          // ✅ Vendues
+  promoVal,          // ✅ Promo
+  ajoutVal // ✅ Date d'ajout (dans le Google Sheet uniquement)
+]];
+
+
+    try {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values }
+      });
+      loadSheet();
+      setStatus('Ligne ajoutée avec succès !');
+      // Clear form inputs
+document.getElementById('product').value = '';
+document.getElementById('code').value = '';
+document.getElementById('qty').value = '';
+document.getElementById('zone').value = '';
+document.getElementById('sold').value = '';
+document.getElementById('promo').value = '';
+
+// Forcer l'effacement du champ date (même si un autre script le remplit après)
+const dateInput = document.getElementById('date');
+dateInput.value = '';
+dateInput.dataset.raw = ''; // utile si un masque est utilisé
+
+setTimeout(() => {
+  dateInput.value = '';
+}, 50);
+
+dateInput.focus();
+
+
+    } catch (e) {
+      setStatus('Erreur : ' + e.message);
+    }
+  };
+
+  // Load sheet data, exclude operator from table display
   async function loadSheet() {
     try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE
-      });
+      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
       const rows = res.result.values || [];
       renderTable(rows);
     } catch (e) {
-      document.getElementById('status').textContent = 'Erreur : ' + e.message;
+      setStatus("Erreur de chargement : " + e.message);
     }
   }
 
+  function clearTable() {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+  }
+
+  // Render table without opérateur column (index 0)
   function renderTable(rows) {
     const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
-    rows.slice(1).forEach(row => {
+    //rows.slice(1).forEach((row, i) => {
+    rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
-      for (let i = 0; i <= 6; i++) {
+      const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
+
+      // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
+      // We skip opérateur (col 0)
+      const cols = [1, 2, 3, 4, 5, 6];
+      cols.forEach(colIndex => {
         const td = document.createElement('td');
-        td.textContent = row[i] || '';
+        td.textContent = row[colIndex] || '';
+        td.contentEditable = true;
+       // td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
+        const actualSheetRow = rows.length - i;
+td.dataset.row = actualSheetRow;
+        td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
+        td.addEventListener('blur', onCellEdit);
         tr.appendChild(td);
-      }
+      });
+      tr.addEventListener('click', () => {
+        // Unselect all
+        document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+        tr.classList.add('selected');
+      });
       tbody.appendChild(tr);
     });
-    document.getElementById('status').textContent = 'Données chargées.';
   }
 
+  // Update cell in Google Sheets on edit
+  async function onCellEdit(e) {
+    if(!operatorName) return;
+    const td = e.target;
+    const newValue = td.textContent.trim();
+    const row = td.dataset.row;
+    const col = td.dataset.col;
+
+    try {
+      await gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `historique!${columnToLetter(col)}${row}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [[newValue]] }
+      });
+      setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
+    } catch (err) {
+      setStatus('Erreur mise à jour : ' + err.message);
+    }
+  }
+
+  // Convert number to letter for column (1->A, 2->B ...)
+  function columnToLetter(column) {
+    let temp, letter = '';
+    while(column > 0) {
+      temp = (column - 1) % 26;
+      letter = String.fromCharCode(temp + 65) + letter;
+      column = (column - temp - 1) / 26;
+    }
+    return letter;
+  }
+
+function filterTable() {
+  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+  const monthFilter = document.getElementById("filter-month").value.trim(); // 07/2025 ou 072025 ou 2025
+  const rows = document.querySelectorAll("#data-table tbody tr");
+
+  rows.forEach((row) => {
+    const dateCell = row.cells[0].textContent.trim(); // format = YYYY-MM-DD
+    const zoneCell = row.cells[4].textContent.trim().toLowerCase();
+    let show = true;
+
+    // 🔹 Filtrer par zone
+    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+      show = false;
+    }
+
+    // 🔹 Filtrer par date
+    if (monthFilter) {
+      let rowYear = '';
+      let rowMonth = '';
+
+      if (dateCell.includes('-')) {
+        const [yyyy, mm] = dateCell.split('-');
+        rowYear = yyyy;
+        rowMonth = mm;
+      }
+
+      let mFilter = null;
+      let yFilter = null;
+
+      if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+        [mFilter, yFilter] = monthFilter.split('/');
+      } else if (/^\d{6}$/.test(monthFilter)) {
+        mFilter = monthFilter.slice(0, 2);
+        yFilter = monthFilter.slice(2);
+      } else if (/^\d{4}$/.test(monthFilter)) {
+        yFilter = monthFilter;
+      }
+
+      if (yFilter && rowYear !== yFilter) show = false;
+      if (mFilter && rowMonth !== mFilter) show = false;
+    }
+
+    row.style.display = show ? "" : "none";
+  });
+}
+
+  function clearFilter() {
+    document.getElementById('filter-zone').value = '';
+    document.getElementById('filter-month').value = '';
+    filterTable();
+  }
+
+  // Notification popup logic
+  const notifPopup = document.getElementById('notification-popup');
+  const notifContent = notifPopup.querySelector('.content');
+  document.getElementById('btn-notif').onclick = () => {
+    if(!operatorName) {
+      alert("Connectez-vous et choisissez un opérateur pour voir les notifications.");
+      return;
+    }
+    loadNotifications();
+    notifPopup.style.display = 'flex';
+  };
+  document.getElementById('close-notif').onclick = () => {
+    notifPopup.style.display = 'none';
+  };
+  document.getElementById('print-notif').onclick = () => {
+    window.print();
+  };
+// trier 3mois
+async function loadNotifications() {
+  try {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE
+    });
+    const rows = res.result.values || [];
+    const data = rows.slice(1);
+
+    const now = new Date();
+
+    const monthsSet = new Set();
+    for (let i = 1; i <= 3; i++) {
+      const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const ym = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}`;
+      monthsSet.add(ym);
+    }
+
+    const grouped = {};
+
+    data.forEach(row => {
+      const dateStr = row[1];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (monthsSet.has(ym)) {
+        if (!grouped[ym]) grouped[ym] = [];
+        grouped[ym].push(row);
+      }
+    });
+
+    let html = '';
+    const sortedYM = Array.from(monthsSet).sort();
+
+    for (const ym of sortedYM) {
+      html += `<h3>${formatMonthYear(ym)}</h3>`;
+
+      const rowsForMonth = grouped[ym] || [];
+
+      if (rowsForMonth.length === 0) {
+        html += '<p>Aucun produit périmé pour ce mois.</p>';
+        continue;
+      }
+
+      rowsForMonth.sort((a, b) => {
+        const zoneA = (a[6] || '').toLowerCase();
+        const zoneB = (b[6] || '').toLowerCase();
+        return zoneA.localeCompare(zoneB);
+      });
+
+      html += `<table>
+        <thead>
+          <tr>
+<th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      rowsForMonth.forEach(row => {
+       // html += '<tr>';
+        const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[6] || '0');
+const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
+html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
+[1, 2, 3, 4, 5, 6, 7].forEach(ci => {
+          html += `<td>${row[ci] || ''}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+    }
+
+    notifContent.innerHTML = html;
+
+  } catch (e) {
+    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
+  }
+}
+
+
+// Format "YYYY-MM" en "Mois Année" (ex : "2025-05" -> "Mai 2025")
+function formatMonthYear(ym) {
+  const [y, m] = ym.split('-');
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  return months[parseInt(m, 10) - 1] + ' ' + y;
+}
+
+  // Load GAPI & GIS on window load
   window.onload = () => {
     gapiLoaded();
     gisLoaded();
-  };
-  
-  function applyFilters() {
-  const zoneFilter = document.getElementById('filter-zone').value.trim().toLowerCase();
-  const dateFilter = document.getElementById('filter-date').value.trim();
-  const tbody = document.querySelector('#data-table tbody');
-  const rows = tbody.querySelectorAll('tr');
-
-  rows.forEach(row => {
-    const zone = row.children[4]?.textContent.toLowerCase() || '';
-    const date = row.children[2]?.textContent || '';
-    const matchZone = zone.includes(zoneFilter);
-    const matchDate = date.includes(dateFilter);
-    row.style.display = (matchZone || !zoneFilter) && (matchDate || !dateFilter) ? '' : 'none';
-  });
+  };</script>
+<script>
+if (document.getElementById('btn-history')) {
+  document.getElementById('btn-history').addEventListener('click', async () => {
 }
-
-function downloadCSV() {
-  const rows = document.querySelectorAll("#data-table tr");
-  let csv = [];
-
-  rows.forEach(row => {
-    if (row.style.display !== 'none') {
-      const cols = Array.from(row.querySelectorAll("th, td")).map(col => `"${col.textContent}"`);
-      csv.push(cols.join(","));
+    if (!operatorName) {
+      alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
+      return;
+    }
+    try {
+      await transferToHistorique();
+      window.location.href = '/historique.html';
+    } catch (e) {
+      alert("Erreur lors du transfert vers historique : " + e.message);
     }
   });
 
-  const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
-  const downloadLink = document.createElement("a");
-  downloadLink.download = "historique_filtré.csv";
-  downloadLink.href = window.URL.createObjectURL(csvFile);
-  downloadLink.style.display = "none";
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-}
+  async function transferToHistorique() {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'historique'
+    });
+    const allRows = res.result.values || [];
+    if (allRows.length <= 1) return;
 
+    const now = new Date();
+    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const toMove = [];
+    const remaining = [allRows[0]];
+
+    allRows.slice(1).forEach(row => {
+      const dateStr = row[1];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (ym < currentYM) toMove.push(row);
+      else remaining.push(row);
+    });
+
+    if (toMove.length > 0) {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'historique',
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: toMove }
+      });
+    }
+
+    await gapi.client.sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'historique',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: remaining }
+    });
+    setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
+  }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const fields = [
+    'date',
+    'product',
+    'code',
+    'qty',
+    'zone',
+    'sold',
+    'promo'
+  ];
+
+  fields.forEach((id, index) => {
+    const input = document.getElementById(id);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const nextField = document.getElementById(fields[index + 1]);
+        if (nextField) {
+          nextField.focus();
+        } else {
+          // Si c'est le dernier champ → clique sur le bouton
+          document.getElementById('btn-add').click();
+        }
+      }
+    });
+  });
+});
+</script>
+<script>
+  const dateInput = document.getElementById('date');
+  if (dateInput) {
+    dateInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/[^\d]/g, '');
+      if (val.length > 2) {
+        val = val.slice(0,2) + '/' + val.slice(2,6);
+      }
+      e.target.value = val;
+    });
+  }
+</script>
+<script>
+const zones = [
+  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
+  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
+  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
+  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
+  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
+  "la roche posay", "la rosee", "levres et mains", "moustik",
+  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
+  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
+  "nature", "vichy", "yeux", "1ersoins", "4patte"
+];
+
+const input = document.getElementById('zone');
+const list = document.getElementById('zone-suggestions');
+
+input.addEventListener('input', function () {
+  const val = this.value.toLowerCase();
+  list.innerHTML = '';
+  if (val.length < 1) {
+    list.style.display = 'none';
+    return;
+  }
+
+  const matches = zones.filter(z => z.toLowerCase().includes(val));
+  if (matches.length === 0) {
+    list.style.display = 'none';
+    return;
+  }
+
+  matches.forEach((zone, index) => {
+    const li = document.createElement('li');
+    li.textContent = zone;
+    li.addEventListener('click', () => {
+      input.value = zone;
+      list.innerHTML = '';
+      list.style.display = 'none';
+    });
+    list.appendChild(li);
+  });
+
+  const rect = input.getBoundingClientRect();
+  list.style.top = rect.bottom + window.scrollY + 'px';
+  list.style.left = rect.left + window.scrollX + 'px';
+  list.style.width = input.offsetWidth + 'px';
+  list.style.display = 'block';
+});
+
+document.addEventListener('click', function (e) {
+  if (!input.contains(e.target) && !list.contains(e.target)) {
+    list.style.display = 'none';
+  }
+});
+  function renderTable(rows) {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
+
+  //rows.slice(1).forEach((row, i) => {
+    rows.slice(1).reverse().forEach((row, i) => {
+    const tr = document.createElement('tr');
+      const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
+    const cols = [1, 2, 3, 4, 5, 6, 7];
+
+    cols.forEach(colIndex => {
+      const td = document.createElement('td');
+     td.textContent = row[colIndex] || '';
+      td.contentEditable = true;
+      //td.dataset.row = i + 2;
+      const actualSheetRow = rows.length - i;
+td.dataset.row = actualSheetRow;
+      td.dataset.col = colIndex + 1;
+      td.addEventListener('blur', onCellEdit);
+      tr.appendChild(td);
+    });
+
+    // ✅ Ajout de la colonne "✖️"
+    const tdDelete = document.createElement('td');
+    tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:15%; height:5%; object-fit:cover;"/>';
+    tdDelete.style.cursor = 'pointer';
+    tdDelete.style.color = '#bbb';
+    tdDelete.style.fontSize = '1.1em';
+    tdDelete.title = 'Supprimer cette ligne';
+    tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
+    tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
+ //   tdDelete.addEventListener('click', async () => {
+ //     const confirmed = confirm("Supprimer cette ligne ?");
+ //     if (confirmed) {
+ //       await deleteRow(i + 2);
+ //     }
+ //   });
+      const actualSheetRow = rows.length - i;
+
+tdDelete.addEventListener('click', async () => {
+  const confirmed = confirm("Supprimer cette ligne ?");
+  if (confirmed) {
+    await deleteRow(actualSheetRow);
+  }
+});
+    tr.appendChild(tdDelete);
+
+    tr.addEventListener('click', () => {
+      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+      tr.classList.add('selected');
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+</script>
+<script>
+  // Filtrer en appuyant sur Entrée dans les champs
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterZone = document.getElementById('filter-zone');
+    const filterMonth = document.getElementById('filter-month');
+
+    [filterZone, filterMonth].forEach(input => {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          filterTable(); // fonction que tu as déjà
+        }
+      });
+    });
+  });
 </script>
 <footer style="
   position: fixed;
@@ -236,13 +1307,160 @@ function downloadCSV() {
   text-align: center;
   font-size: 0.6em;
   color: #666;
-  /*background: #f0f0f0;*/
-  background:#d3f0dd;
+  background: #d3f0dd;
   padding: 8px 0;
   box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
   z-index: 10;
 ">
   Développé par Violaine Claron
 </footer>
-</body>
+<script>
+ function exportFilteredTableAsPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+
+  const zoneFilter = document.getElementById("filter-zone").value;
+  const monthFilter = document.getElementById("filter-month").value;
+
+  doc.setFontSize(14);
+  doc.text("Résultats filtrés - Produits périmés", 10, y);
+  y += 10;
+  doc.setFontSize(10);
+  doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+  y += 6;
+  doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+  y += 10;
+
+  const rows = document.querySelectorAll("#data-table tbody tr");
+  rows.forEach((row) => {
+    if (row.style.display === "none") return;
+    const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+    doc.text(cells.join(" | "), 10, y);
+    y += 6;
+    if (y > 280) {
+      doc.addPage();
+      y = 10;
+    }
+  });
+
+  doc.save("resultats_perimes.pdf");
+}
+
+
+
+</script>
+<script>
+  const suggestionList = document.getElementById('filter-zone-suggestions');
+
+  filterInput.addEventListener('input', function () {
+    const val = this.value.toLowerCase();
+    suggestionList.innerHTML = '';
+    if (val.length < 2) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    const matches = zones.filter(z => z.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    matches.forEach((zone) => {
+      const li = document.createElement('li');
+      li.textContent = zone;
+      li.addEventListener('click', () => {
+        filterInput.value = zone;
+        suggestionList.innerHTML = '';
+        suggestionList.style.display = 'none';
+      });
+      suggestionList.appendChild(li);
+    });
+
+    const rect = filterInput.getBoundingClientRect();
+    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
+    suggestionList.style.left = rect.left + window.scrollX + 'px';
+    suggestionList.style.width = filterInput.offsetWidth + 'px';
+    suggestionList.style.display = 'block';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
+      suggestionList.style.display = 'none';
+    }
+  });
+</script>
+<script>
+  async function deleteRow(rowIndex) {
+    try {
+      await gapi.client.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId: 0,
+                dimension: "ROWS",
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex
+              }
+            }
+          }]
+        }
+      });
+      setStatus("Ligne supprimée avec succès.");
+      loadSheet();
+    } catch (e) {
+      setStatus("Erreur suppression : " + e.message);
+    }
+  }
+</script>
+<script>
+ /* if (filterMonthInput) {
+    filterMonthInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/[^\d]/g, '');
+      if (val.length > 2) {
+        val = val.slice(0,2) + '/' + val.slice(2,6);
+      }
+      e.target.value = val;
+    });
+  }*/
+
+let currentFocus = -1;
+
+input.addEventListener('keydown', function (e) {
+  const items = list.querySelectorAll("li");
+  if (!items.length) return;
+
+  if (e.key === "ArrowDown") {
+    currentFocus++;
+    if (currentFocus >= items.length) currentFocus = 0;
+    updateActive(items);
+  } else if (e.key === "ArrowUp") {
+    currentFocus--;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+    updateActive(items);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (currentFocus > -1) {
+      items[currentFocus].click();
+    }
+  }
+});
+
+function updateActive(items) {
+  items.forEach(i => i.classList.remove("active"));
+  if (items[currentFocus]) {
+    items[currentFocus].classList.add("active");
+    items[currentFocus].scrollIntoView({ block: "nearest" });
+  }
+}
+
+</script>
+<script>
+document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
+  window.open("https://drive.google.com/file/d/1sqy9bTtzSDpqSbs6yiydsNlKHHFfb1hI/view?usp=sharing", "_blank");
+});
+</script>
 </html>
