@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Historique - Pharmacie du Libron</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <style>
+<meta charset="utf-8"/>
+<title>Historique - Pharmacie du Libron</title>
+<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<style>
     body {
       font-family: Arial, sans-serif;
       /*background-color: #f9f9f9;*/
@@ -70,51 +71,55 @@
       margin-top: 10px;
     }
   </style>
-</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script></head>
 <body>
-
 <header>
-  <div id="header-left">
-    <a href="/index.html" title="Accueil" style="
+<div id="header-left">
+<a href="/index.html" style="
       display:inline-block;
       width:40px;
       height:40px;
       border-radius:50%;
       overflow:hidden;
       border:0px solid #0a2f51;
-      margin-right:10px;">
-      <img src="https://i.imgur.com/mEtzEsp.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
-    </a>
-    <h1>Historique des Produits Périmés</h1>
-  </div>
-  <div>
-    <button id="btn-login">Se connecter</button>
-    <button onclick="window.location.href='index.html'">⬅ Accueil</button>
-    </button>
+      margin-right:10px;" title="Accueil">
+<img alt="Logo" src="https://i.imgur.com/mEtzEsp.png" style="width:100%; height:100%; object-fit:cover;"/>
+</a>
+<h1>Historique des Produits Périmés</h1>
+</div>
+<div>
+<button id="btn-login">Se connecter</button>
+<button onclick="window.location.href='index.html'">Accueil</button>
+  </button>
   <button onclick="location.href='promotion.html'" title="Promo %">
 Promo %
 </button>
-  <button id="btn-logout" style="display:none;">Se déconnecter</button>
-  </div>
+<button id="btn-logout" style="display:none;">Se déconnecter</button>
+</div>
 </header>
 
+<div style="padding: 20px; text-align: center;">
+<input id="filter-zone" placeholder="Zone (ex: A1)" type="text"/>
+<input id="filter-date" placeholder="Date (YYYY ou MMYYYY)" type="text"/>
+<button onclick="applyFilters()">Filtrer</button>
+<button onclick="resetFilters()">Réinitialiser</button>
+<button onclick="downloadPDF()">📄 Télécharger PDF</button>
+</div>
 <table id="data-table">
-  <thead>
-    <tr>
-      <th>Opérateur</th>
-      <th>Produit</th>
-      <th>Date</th>
-      <th>Qté</th>
-      <th>Zone</th>
-      <th>Vendues</th>
-      <th>Promo</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
+<thead>
+<tr>
+<th>Opérateur</th>
+<th>Produit</th>
+<th>Date</th>
+<th>Qté</th>
+<th>Zone</th>
+<th>Vendues</th>
+<th>Promo</th>
+</tr>
+</thead>
+<tbody></tbody>
 </table>
-
 <pre id="status">Chargement...</pre>
-
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com'; // remplacez par votre propre Client ID
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
@@ -188,6 +193,78 @@ Promo %
     gapiLoaded();
     gisLoaded();
   };
+
+let allRows = [];
+
+function loadSheet() {
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: SPREADSHEET_ID,
+    range: RANGE
+  }).then(res => {
+    allRows = res.result.values || [];
+    renderTable(allRows);
+  }).catch(e => {
+    document.getElementById('status').textContent = 'Erreur : ' + e.message;
+  });
+}
+
+function renderTable(rows) {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
+  rows.slice(1).forEach(row => {
+    const tr = document.createElement('tr');
+    for (let i = 0; i <= 6; i++) {
+      const td = document.createElement('td');
+      td.textContent = row[i] || '';
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+  document.getElementById('status').textContent = 'Données affichées.';
+}
+
+function applyFilters() {
+  const zone = document.getElementById('filter-zone').value.trim().toLowerCase();
+  const date = document.getElementById('filter-date').value.trim();
+
+  const filtered = allRows.filter((row, index) => {
+    if (index === 0) return false;
+    const zoneMatch = zone ? (row[4] || '').toLowerCase().includes(zone) : true;
+    const dateRaw = (row[2] || '').replace(/-/g, '');
+    const dateMatch = date ? dateRaw.startsWith(date) : true;
+    return zoneMatch && dateMatch;
+  });
+
+  renderTable([allRows[0], ...filtered]);
+}
+
+function resetFilters() {
+  document.getElementById('filter-zone').value = '';
+  document.getElementById('filter-date').value = '';
+  renderTable(allRows);
+}
+
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(14);
+  doc.text("Historique des Produits Périmés", 10, 10);
+
+  const headers = [...document.querySelectorAll("thead th")].map(th => th.textContent);
+  const data = [...document.querySelectorAll("tbody tr")].map(tr =>
+    [...tr.children].map(td => td.textContent)
+  );
+
+  doc.autoTable({
+    head: [headers],
+    body: data,
+    startY: 20,
+    styles: { fontSize: 8 }
+  });
+
+  doc.save("historique_produits.pdf");
+}
 </script>
 <footer style="
   position: fixed;
