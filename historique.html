@@ -231,8 +231,8 @@ function applyFilters() {
 
   const filtered = allRows.filter((row, index) => {
     if (index === 0) return false;
-    const zoneMatch = zone ? (row[4] || '').toLowerCase().includes(zone) : true;
-    const dateRaw = (row[2] || '').replace(/-/g, '');
+    const zoneMatch = zone ? (row[5] || '').toLowerCase().includes(zone) : true;
+    const dateRaw = (row[1] || '').replace(/-/g, '');
     const dateMatch = date ? dateRaw.startsWith(date) : true;
     return zoneMatch && dateMatch;
   });
