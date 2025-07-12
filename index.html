@@ -313,6 +313,18 @@ background-color: #f294a6;
   text-decoration: line-through;
   font-style: italic;
 }
+#date-error {
+  display: none;
+  font-size: 2.4em;
+  font-weight: bold;
+  color: #ff00ff; /* rose fluo */
+  background-color: white;
+  padding: 25px;
+  text-align: center;
+  border: 5px solid #ff00ff;
+  border-radius: 12px;
+  margin: 12px 0;
+}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
@@ -402,6 +414,7 @@ Déconnexion
 <form id="entry-form" onsubmit="return false;" style="display: none;">
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
+  <div id="date-error">DATE INCORRECT</div>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="code" maxlength="6" minlength="6" pattern="\d{6}" placeholder="Code (6 chiffres)" required="" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
@@ -1305,7 +1318,7 @@ tdDelete.addEventListener('click', async () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.6em;
+  font-size: 0.5em;
   color: #666;
   background: #d3f0dd;
   padding: 8px 0;
@@ -1463,4 +1476,38 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
   window.open("https://drive.google.com/file/d/1sqy9bTtzSDpqSbs6yiydsNlKHHFfb1hI/view?usp=sharing", "_blank");
 });
 </script>
+  <script>
+  const dateInputField = document.getElementById('date');
+  const dateErrorDiv = document.getElementById('date-error');
+
+  dateInputField.addEventListener('blur', () => {
+    const val = dateInputField.value.trim();
+    const parts = val.split('/');
+    if (parts.length !== 2) {
+      dateErrorDiv.style.display = 'block';
+      return;
+    }
+
+    const [mm, yyyy] = parts;
+    const parsedMonth = parseInt(mm, 10);
+    const parsedYear = parseInt(yyyy, 10);
+
+    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
+      dateErrorDiv.style.display = 'block';
+      return;
+    }
+
+    const enteredDate = new Date(parsedYear, parsedMonth - 1, 1);
+    const now = new Date();
+    const futureLimit = new Date(now);
+    futureLimit.setFullYear(now.getFullYear() + 8);
+
+    if (enteredDate < now || enteredDate > futureLimit) {
+      dateErrorDiv.style.display = 'block';
+    } else {
+      dateErrorDiv.style.display = 'none';
+    }
+  });
+</script>
+
 </html>
