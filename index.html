@@ -830,7 +830,9 @@ dateInput.blur(); // enlève le focus
 // Sécurité : s'il se remplit tout seul, on le vide à nouveau après 100ms
 setTimeout(() => {
   dateInput.value = '';
-}, 100);
+  dateInput.removeAttribute('value'); // ⬅️ Ajout important ici
+  dateInput.dataset.raw = '';
+}, 200);
       // Clear form inputs
 //document.getElementById('product').value = '';
 //document.getElementById('code').value = '';
@@ -1338,7 +1340,7 @@ tdDelete.addEventListener('click', async () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.4em;
+  font-size: 0.6em;
   color: #666;
   background: #d3f0dd;
   padding: 8px 0;
