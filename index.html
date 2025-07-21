@@ -809,43 +809,26 @@ const values = [[
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
-      // Réinitialise les champs AVANT rechargement
+
+      
+      loadSheet();
+      setStatus('Ligne ajoutée avec succès !');
+      // Clear form inputs
 document.getElementById('product').value = '';
 document.getElementById('code').value = '';
 document.getElementById('qty').value = '';
 document.getElementById('zone').value = '';
 document.getElementById('sold').value = '';
 document.getElementById('promo').value = '';
-const dateInput = document.getElementById('date');
-dateInput.value = '';
-dateInput.dataset.raw = '';
-dateInput.blur();
-
-await gapi.client.sheets.spreadsheets.values.append({ ... });
-      
-      setTimeout(() => {
-  dateInput.value = '';
-}, 50);
-
-      
-      loadSheet();
-      setStatus('Ligne ajoutée avec succès !');
-      // Clear form inputs
-//document.getElementById('product').value = '';
-//document.getElementById('code').value = '';
-//document.getElementById('qty').value = '';
-//document.getElementById('zone').value = '';
-//document.getElementById('sold').value = '';
-//document.getElementById('promo').value = '';
 
 // Forcer l'effacement du champ date (même si un autre script le remplit après)
-//const dateInput = document.getElementById('date');
-//dateInput.value = '';
-//dateInput.dataset.raw = ''; // utile si un masque est utilisé
+const dateInput = document.getElementById('date');
+dateInput.value = '';
+dateInput.dataset.raw = ''; // utile si un masque est utilisé
 
-//setTimeout(() => {
- // dateInput.value = '';
-//}, 50);
+setTimeout(() => {
+ dateInput.value = '';
+}, 50);
 
 dateInput.focus();
 
@@ -1337,7 +1320,7 @@ tdDelete.addEventListener('click', async () => {
   bottom: 0;
   width: 100%;
   text-align: center;
-  font-size: 0.4em;
+  font-size: 0.6em;
   color: #666;
   background: #d3f0dd;
   padding: 8px 0;
