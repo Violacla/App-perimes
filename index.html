@@ -101,6 +101,17 @@
   #operator-form {
     margin-left: 10px;
   }
+<div id="update-modal">
+  <div class="update-content">
+    <h2>🔄 Mises à jour</h2>
+    <ul>
+      <li><strong>06/08/2025 :</strong> Correction affichage des dates invalides</li>
+      <li><strong>Prochainement :</strong> Statistiques par zone 📊</li>
+      <li><strong>À venir :</strong> Alertes périmés automatiques 💡</li>
+    </ul>
+    <p style="text-align:center; font-weight:bold; margin-top: 20px;">Connectez-vous pour continuer</p>
+  </div>
+</div>
 
   /* Layout */
   main {
@@ -329,22 +340,42 @@
   margin-top: 10px;
 }
 
-#update-banner {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 2px solid #ffeeba;
-  border-radius: 10px;
-  padding: 15px 20px;
-  margin: 20px;
-  font-size: 1em;
-  line-height: 1.6em;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+#update-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 
-#update-banner h2 {
-  margin-top: 0;
-  color: #856404;
+.update-content {
+  background: #fffefc;
+  border: 3px solid #6ac58d;
+  border-radius: 16px;
+  padding: 30px 40px;
+  width: 500px;
+  max-width: 90%;
+  font-size: 1.1em;
+  color: #2c7a4b;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  text-align: left;
+  animation: appear 0.4s ease-out;
 }
+
+.update-content h2 {
+  margin-top: 0;
+  color: #2c7a4b;
+  text-align: center;
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
@@ -1673,16 +1704,25 @@ async function loadNotifications() {
       dateErrorDiv.style.display = 'none';
     }
   });
-   document.addEventListener('DOMContentLoaded', () => {
-  const banner = document.getElementById('update-banner');
-  const btnLogin = document.getElementById('btn-login');
 
-  if (banner && btnLogin) {
-    btnLogin.addEventListener('click', () => {
-      banner.style.display = 'none';
+   // Notification modification et mise à jour
+  document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('update-modal');
+  const filters = document.getElementById('filters');
+  const loginBtn = document.getElementById('btn-login');
+
+  // Masquer les filtres tant que pas connecté
+  if (filters) filters.style.display = 'none';
+
+  // Quand l’utilisateur clique sur "Se connecter"
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      if (modal) modal.style.display = 'none';
+      if (filters) filters.style.display = 'flex';
     });
   }
 });
+
 
 </script>
 
