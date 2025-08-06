@@ -728,6 +728,31 @@ function clearFilter() {
     }
 
     let rawDate = document.getElementById('date').value;
+    // -- Début de la validation de la date --
+    const errorMessage = document.getElementById('date-error');
+    errorMessage.style.display = 'none';
+
+    if (rawDate) {
+        const [month, year] = rawDate.split('/');
+        // On vérifie le format MM/AAAA
+        if (!month || !year || month.length !== 2 || year.length !== 4) {
+            errorMessage.textContent = 'Date incorrecte. Le format doit être MM/AAAA.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+
+        const dateSaisie = new Date(year, month, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // On vérifie que la date n'est pas antérieure à aujourd'hui
+        if (isNaN(dateSaisie.getTime()) || dateSaisie < today) {
+            errorMessage.textContent = 'Date incorrecte. La date ne peut pas être antérieure à aujourd\'hui.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+    }
+    // -- Fin de la validation de la date --
     let dateVal = "";
     if (rawDate) {
       const [month, year] = rawDate.split('/');
