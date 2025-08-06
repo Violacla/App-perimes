@@ -329,6 +329,51 @@
   max-width: 90%;
   margin: 0 auto 10px auto;
 }
+#update-overlay {
+  position: fixed;
+  top: 60px; /* Pour laisser le bandeau visible */
+  left: 0;
+  width: 100%;
+  height: calc(100% - 60px);
+  background-color: rgba(188, 215, 237, 0.9); /* bleu glacial transparent */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+}
+
+#update-popup {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+  max-width: 600px;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+#update-popup h2 {
+  margin-top: 0;
+  color: #1b5e20;
+}
+
+#update-popup ul {
+  list-style: none;
+  padding-left: 0;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+#update-popup ul li::before {
+  content: "🔹 ";
+}
+
+#update-logo {
+  display: block;
+  margin: 20px auto 0 auto;
+  width: 70px;
+  height: auto;
+}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
@@ -429,6 +474,18 @@ Déconnexion
 </form>
 </main>
 <body>
+  <div id="update-overlay">
+  <div id="update-popup">
+    <h2>Mises à jour</h2>
+    <ul>
+      <li>✔️ Validation des dates ajoutée</li>
+      <li>✔️ Encadré vert pour les dates périmées</li>
+      <li>✔️ Nouvelle interface de notifications</li>
+    </ul>
+    <img src="https://i.imgur.com/ZV0gS6S.png" alt="Logo Mises à jour" id="update-logo">
+  </div>
+</div>
+
 <div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog" style="display: none;">
     <header>
         <span id="notif-title">Notifications - Produits périmés</span>
@@ -1601,6 +1658,12 @@ async function loadNotifications() {
     notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
   }
 }
+</script>
+  <script>
+  document.getElementById('btn-login').addEventListener('click', () => {
+    const overlay = document.getElementById('update-overlay');
+    if (overlay) overlay.style.display = 'none';
+  });
 </script>
 </body>
 </html>
