@@ -315,6 +315,13 @@
       overflow: visible !important;
     }
   }
+  #date-error {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: none; /* 👈 Masqué par défaut */
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -1590,6 +1597,51 @@ async function loadNotifications() {
     notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
   }
 }
+   <script>
+  const dateInputField = document.getElementById('date');
+  const dateErrorDiv = document.getElementById('date-error');
+
+  dateInputField.addEventListener('blur', () => {
+    const val = dateInputField.value.trim();
+
+    // 🔹 Si vide, on cache l’erreur
+    if (!val) {
+      dateErrorDiv.style.display = 'none';
+      return;
+    }
+
+    const parts = val.split('/');
+    if (parts.length !== 2) {
+      dateErrorDiv.style.display = 'block';
+      return;
+    }
+
+    const [mm, yyyy] = parts;
+    const parsedMonth = parseInt(mm, 10);
+    const parsedYear = parseInt(yyyy, 10);
+
+    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
+      dateErrorDiv.style.display = 'block';
+      return;
+    }
+
+    // 🔹 Comparaison sur le mois/année uniquement
+    const now = new Date();
+    const futureLimit = new Date(now);
+    futureLimit.setFullYear(now.getFullYear() + 8);
+
+    const enteredYM = parsedYear * 12 + parsedMonth;
+    const currentYM = now.getFullYear() * 12 + (now.getMonth() + 1);
+    const futureYM = futureLimit.getFullYear() * 12 + (futureLimit.getMonth() + 1);
+
+    if (enteredYM < currentYM || enteredYM > futureYM) {
+      dateErrorDiv.style.display = 'block';
+    } else {
+      dateErrorDiv.style.display = 'none';
+    }
+  });
+</script>
+
 </script>
 </body>
 </html>
