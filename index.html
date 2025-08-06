@@ -315,22 +315,6 @@
       overflow: visible !important;
     }
   }
- #date-error {
-  display: none;
-  background-color: #e0f8e9;
-  color: #2c7a4b;
-  border: 3px solid #4dc47d;
-  border-radius: 12px;
-  padding: 15px 10px;
-  font-size: 1.6em;
-  font-weight: bold;
-  text-align: center;
-  line-height: 1.3em;
-  margin-top: 10px;
-}
-
-
-
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -420,7 +404,7 @@ Déconnexion
 <form id="entry-form" onsubmit="return false;" style="display: none;">
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
-  <div id="date-error">DATE<br/>INVALIDE</div>
+  <div id="date-error">DATE INCORRECTE</div>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="code" maxlength="6" minlength="6" pattern="\d{6}" placeholder="Code (6 chiffres)" required="" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
@@ -435,8 +419,8 @@ Déconnexion
         <span id="notif-title">Notifications - Produits périmés</span>
         <div id="notif-tabs">
             <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
-            <button class="tab-button" onclick="showTab('2nd-month')">2ème Mois</button>
-            <button class="tab-button" onclick="showTab('current-month')">À Retirer</button>
+            <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
+            <button class="tab-button" onclick="showTab('current-month')">À enlever</button>
         </div>
         <div class="header-buttons">
             <button id="print-notif" title="Imprimer">
@@ -1399,40 +1383,36 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
 </script>
   <script>
   const dateInputField = document.getElementById('date');
-const dateErrorDiv = document.getElementById('date-error');
+  const dateErrorDiv = document.getElementById('date-error');
 
-dateInputField.addEventListener('blur', () => {
-  const val = dateInputField.value.trim();
-  const parts = val.split('/');
-  if (parts.length !== 2) {
-    dateErrorDiv.style.display = 'block';
-    return;
-  }
+  dateInputField.addEventListener('blur', () => {
+    const val = dateInputField.value.trim();
+    const parts = val.split('/');
+    if (parts.length !== 2) {
+      dateErrorDiv.style.display = 'block';
+      return;
+    }
 
-  const [mm, yyyy] = parts;
-  const parsedMonth = parseInt(mm, 10);
-  const parsedYear = parseInt(yyyy, 10);
+    const [mm, yyyy] = parts;
+    const parsedMonth = parseInt(mm, 10);
+    const parsedYear = parseInt(yyyy, 10);
 
-  if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
-    dateErrorDiv.style.display = 'block';
-    return;
-  }
+    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
+      dateErrorDiv.style.display = 'block';
+      return;
+    }
 
-  const now = new Date();
-  const futureLimit = new Date(now);
-  futureLimit.setFullYear(now.getFullYear() + 8);
+    const enteredDate = new Date(parsedYear, parsedMonth - 1, 1);
+    const now = new Date();
+    const futureLimit = new Date(now);
+    futureLimit.setFullYear(now.getFullYear() + 8);
 
-  const enteredYM = parsedYear * 12 + parsedMonth;
-  const currentYM = now.getFullYear() * 12 + (now.getMonth() + 1);
-  const futureYM = futureLimit.getFullYear() * 12 + (futureLimit.getMonth() + 1);
-
-  if (enteredYM < currentYM || enteredYM > futureYM) {
-    dateErrorDiv.style.display = 'block';
-  } else {
-    dateErrorDiv.style.display = 'none';
-  }
-});
-
+    if (enteredDate < now || enteredDate > futureLimit) {
+      dateErrorDiv.style.display = 'block';
+    } else {
+      dateErrorDiv.style.display = 'none';
+    }
+  });
 </script>
  <script>
     // Collez la fonction showTab ici
@@ -1606,51 +1586,6 @@ async function loadNotifications() {
     notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
   }
 }
-   <script>
-  const dateInputField = document.getElementById('date');
-  const dateErrorDiv = document.getElementById('date-error');
-
-  dateInputField.addEventListener('blur', () => {
-    const val = dateInputField.value.trim();
-
-    // 🔹 Si vide, on cache l’erreur
-    if (!val) {
-      dateErrorDiv.style.display = 'none';
-      return;
-    }
-
-    const parts = val.split('/');
-    if (parts.length !== 2) {
-      dateErrorDiv.style.display = 'block';
-      return;
-    }
-
-    const [mm, yyyy] = parts;
-    const parsedMonth = parseInt(mm, 10);
-    const parsedYear = parseInt(yyyy, 10);
-
-    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
-      dateErrorDiv.style.display = 'block';
-      return;
-    }
-
-    // 🔹 Comparaison sur le mois/année uniquement
-    const now = new Date();
-    const futureLimit = new Date(now);
-    futureLimit.setFullYear(now.getFullYear() + 8);
-
-    const enteredYM = parsedYear * 12 + parsedMonth;
-    const currentYM = now.getFullYear() * 12 + (now.getMonth() + 1);
-    const futureYM = futureLimit.getFullYear() * 12 + (futureLimit.getMonth() + 1);
-
-    if (enteredYM < currentYM || enteredYM > futureYM) {
-      dateErrorDiv.style.display = 'block';
-    } else {
-      dateErrorDiv.style.display = 'none';
-    }
-  });
-</script>
-
 </script>
 </body>
 </html>
