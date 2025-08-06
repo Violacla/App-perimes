@@ -215,88 +215,7 @@
     color: #0a2f51;
   }
 
-  /* Notification popup modal */
-  #notification-popup {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    width: 1300px;
-    max-height: 92vh;
-    overflow-y: auto;
-    z-index: 9999;
-    display: none;
-    flex-direction: column;
-  }
-
-  #notification-popup header {
-    background-color: var(--bleu-glacial);
-    color: white;
-    font-weight: bold;
-    padding: 12px 20px;
-    border-radius: 10px 10px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  #notification-popup header button {
-    background: transparent;
-    border: none;
-    font-size: 1.4em;
-    cursor: pointer;
-    color: #bad1de;
-  }
-
-  #notification-popup .content {
-    padding: 15px 20px;
-    overflow-y: auto;
-  }
-
-  #notification-popup table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  #notification-popup th, #notification-popup td {
-    border: 1px solid #ccc;
-    padding: 6px 8px;
-    text-align: center;
-  }
-  #notification-popup tbody tr:nth-child(odd) {
-   /* background-color: rgba(188, 215, 237, 0.15);*/
-    background-color: #ede2e6
-}
-  /* Print styles */
-.tab-button {
-    background-color: transparent;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    opacity: 0.6;
-    font-weight: bold;
-  }
-  .tab-button.active {
-    opacity: 1;
-    border-bottom: 2px solid white;
-  }
-  .tab-content {
-    display: none;
-  }
-  .tab-content.active {
-    display: block;
-  }
-  .ligne-vendue {
-  /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
-  color: #e5aec3 !important;
- /* background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
-    background-color: #ecd7de !important;
-  text-decoration: line-through;
-  font-style: italic;
-}
-/* Styles pour la popup de notification */
+ /* Styles pour la popup de notification */
   #notification-popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -359,7 +278,6 @@
   .tab-content.active {
     display: block;
   }
-
   /* Styles pour l'impression */
   @media print {
     body > :not(#notification-popup) {
