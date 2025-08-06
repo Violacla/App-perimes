@@ -1534,28 +1534,30 @@ async function loadNotifications() {
       const rowYear = d.getFullYear();
       const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
 
-      // Logique pour le trimestre (mois en cours + les 2 prochains)
-      const trimestreMonths = [ (currentMonth + 1) % 12, (currentMonth + 2) % 12], (currentMonth + 3) % 12];
-      const trimestreYears = [(currentMonth >= 11) ? currentYear + 1 : currentYear, (currentMonth >= 10) ? currentYear + 1 : currentYear, (currentMonth >= 9) ? currentYear + 1 : currentYear];
+      // Logique pour le trimestre (3 mois suivants)
+      const nextMonth1 = (currentMonth + 1) % 12;
+      const nextMonth2 = (currentMonth + 2) % 12;
+      const nextMonth3 = (currentMonth + 3) % 12;
 
-      for (let i = 0; i < 3; i++) {
-        if (rowMonth === trimestreMonths[i] && rowYear === trimestreYears[i]) {
-          if (!grouped['trimestre'][ym]) {
-            grouped['trimestre'][ym] = [];
-          }
-          grouped['trimestre'][ym].push(row);
-          break;
+      const nextYear1 = (currentMonth === 11) ? currentYear + 1 : currentYear;
+      const nextYear2 = (currentMonth >= 11) ? currentYear + 1 : currentYear;
+      const nextYear3 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
+
+      if ((rowMonth === nextMonth1 && rowYear === nextYear1) ||
+          (rowMonth === nextMonth2 && rowYear === nextYear2) ||
+          (rowMonth === nextMonth3 && rowYear === nextYear3)) {
+        if (!grouped['trimestre'][ym]) {
+          grouped['trimestre'][ym] = [];
         }
+        grouped['trimestre'][ym].push(row);
       }
 
-      // Logique pour le 2ème mois (le mois prochain)
-      const nextMonth = (currentMonth + 1) % 12;
-      const nextMonthYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
-      if (rowYear === nextMonthYear && rowMonth === nextMonth) {
+      // Logique pour le "2ème mois" (le mois suivant)
+      if (rowMonth === nextMonth2 && rowYear === nextYear2) {
         grouped['2nd-month'].push(row);
       }
 
-      // Logique pour le mois précédent ("À enlever")
+      // Logique pour le "À enlever" (le mois précédent)
       const prevMonth = (currentMonth - 1 + 12) % 12;
       const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
       if (rowYear === prevMonthYear && rowMonth === prevMonth) {
@@ -1599,23 +1601,29 @@ async function loadNotifications() {
     // Rendu pour le trimestre
     let trimestreHtml = '';
     const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort();
-    sortedTrimestreMonths.forEach(ym => {
+    if (sortedTrimestreMonths.length === 0) {
+      trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
+    } else {
+      sortedTrimestreMonths.forEach(ym => {
         const [y, m] = ym.split('-');
         const d = new Date(y, m - 1, 1);
         trimestreHtml += `<h3>${formatMonthYear(d)}</h3>`;
         trimestreHtml += renderTable(grouped['trimestre'][ym]);
-    });
-    document.getElementById('trimestre').innerHTML = trimestreHtml || '<p>Aucun produit périmé pour le trimestre.</p>';
+      });
+    }
+    document.getElementById('trimestre').innerHTML = trimestreHtml;
 
-    // Rendu pour le 2ème mois
+    // Rendu pour le 2ème mois (le mois suivant)
     const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1);
     const nextMonthTitle = formatMonthYear(nextMonthDate);
-    document.getElementById('2nd-month').innerHTML = `<h3>${nextMonthTitle}</h3>` + renderTable(grouped['2nd-month']);
+    const nextMonthTable = renderTable(grouped['2nd-month']);
+    document.getElementById('2nd-month').innerHTML = `<h3>${nextMonthTitle}</h3>` + nextMonthTable;
 
-    // Rendu pour le mois précédent
+    // Rendu pour le mois précédent ("À enlever")
     const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
     const prevMonthTitle = formatMonthYear(prevMonthDate);
-    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
+    const prevMonthTable = renderTable(grouped['current-month']);
+    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + prevMonthTable;
 
   } catch (e) {
     console.error("Erreur chargement notifications :", e);
