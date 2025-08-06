@@ -288,7 +288,74 @@
   .tab-content.active {
     display: block;
   }
-  /* Print styles */
+  .ligne-vendue {
+  /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
+  color: #e5aec3 !important;
+ /* background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
+    background-color: #ecd7de !important;
+  text-decoration: line-through;
+  font-style: italic;
+}
+ /* Styles pour la popup de notification */
+  #notification-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    width: 1300px;
+    max-height: 92vh;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+  }
+  #notification-popup header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--bleu-glacial);
+    color: white;
+    border-radius: 10px 10px 0 0;
+  }
+  #notif-tabs {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .header-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  .tab-button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, border-bottom 0.3s;
+  }
+  .tab-button.active {
+    border-bottom: 2px solid #3498db; /* couleur de surbrillance */
+    color: #3498db;
+  }
+  .tab-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  .tab-content {
+    display: none;
+    padding: 15px;
+    overflow-y: auto;
+    max-height: calc(92vh - 80px);
+  }
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Styles pour l'impression */
   @media print {
     body > :not(#notification-popup) {
       display: none;
@@ -308,73 +375,17 @@
       display: block !important;
     }
     #notification-popup .tab-content {
-      display: block !important; /* Affiche tous les onglets lors de l'impression */
+      display: block !important;
     }
     #notification-popup #notif-tabs,
-    #notification-popup header button {
-      display: none !important; /* Cache les onglets et les boutons d'en-tête */
+    #notification-popup .header-buttons {
+      display: none !important;
     }
-    /* Correction du bandeau blanc */
     html, body {
         height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
     }
-  }
-  .ligne-vendue {
-  /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
-  color: #e5aec3 !important;
- /* background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
-    background-color: #ecd7de !important;
-  text-decoration: line-through;
-  font-style: italic;
-}
-#date-error {
-  display: none;
-  font-size: 2.4em;
-  font-weight: bold;
-  color: #65d672; /* rose fluo */
-  background-color: white;
-  padding: 25px;
-  text-align: center;
-  border: 5px solid #e23b73;
-  border-radius: 12px;
-  margin: 12px 0;
-}
- #notification-popup header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  #notif-tabs {
-    margin-left: auto;
-    display: flex;
-    gap: 10px;
-  }
-  .header-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  .tab-button {
-    background-color: transparent;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, border-bottom 0.3s;
-  }
-  .tab-button.active {
-    border-bottom: 2px solid white;
-  }
-  .tab-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  .tab-content {
-    display: none;
-  }
-  .tab-content.active {
-    display: block;
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
@@ -475,30 +486,28 @@ Déconnexion
 </form>
 </main>
 <body>
-<div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog">
-<header>
-    <span id="notif-title">Notifications - Produits périmés</span>
-    <div id="notif-tabs">
-        <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
-        <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
-        <button class="tab-button" onclick="showTab('current-month')">À enlever</button>
+<div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog" style="display: none;">
+    <header>
+        <span id="notif-title">Notifications - Produits périmés</span>
+        <div id="notif-tabs">
+            <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
+            <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
+            <button class="tab-button" onclick="showTab('current-month')">À enlever</button>
+        </div>
+        <div class="header-buttons">
+            <button id="print-notif" title="Imprimer">
+                <img src="https://i.imgur.com/p0XRHwZ.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
+            </button>
+            <button id="close-notif" title="Fermer">
+                <img src="https://i.imgur.com/pCnsbKA.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
+            </button>
+        </div>
+    </header>
+    <div class="content">
+        <div id="trimestre" class="tab-content active"></div>
+        <div id="2nd-month" class="tab-content"></div>
+        <div id="current-month" class="tab-content"></div>
     </div>
-    <div class="header-buttons">
-        <button id="print-notif" title="Imprimer">
-            <img src="https://i.imgur.com/p0XRHwZ.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
-        </button>
-        <button id="close-notif" title="Fermer">
-            <img src="https://i.imgur.com/pCnsbKA.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
-        </button>
-    </div>
-</header>
-<div class="content">
-  <div id="trimestre" class="tab-content active"></div>
-  <div id="2nd-month" class="tab-content"></div>
-  <div id="current-month" class="tab-content"></div>
-</div>
-<!-- Table notifications insérées ici -->
-</div>
 </div>
 
 <script>
@@ -1040,109 +1049,6 @@ function filterTable() {
   document.getElementById('print-notif').onclick = () => {
     window.print();
   };
-// trier 3mois
-async function loadNotifications() {
-  try {
-    const res = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE
-    });
-    const rows = res.result.values || [];
-    const data = rows.slice(1);
-
-    const now = new Date();
-    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const nextYM = `${new Date(now.getFullYear(), now.getMonth() + 1).getFullYear()}-${String(new Date(now.getFullYear(), now.getMonth() + 1).getMonth() + 1).padStart(2, '0')}`;
-
-    const grouped = {
-      'trimestre': {},
-      '2nd-month': {},
-      'current-month': {}
-    };
-
-    data.forEach(row => {
-      const dateStr = row[1];
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
-
-      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-
-      // Logic for "Trimestre" (current month + 2 next)
-      const future1 = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      const future2 = new Date(now.getFullYear(), now.getMonth() + 2, 1);
-      const ymPlus1 = `${future1.getFullYear()}-${String(future1.getMonth() + 1).padStart(2, '0')}`;
-      const ymPlus2 = `${future2.getFullYear()}-${String(future2.getMonth() + 1).padStart(2, '0')}`;
-      if (ym === currentYM || ym === ymPlus1 || ym === ymPlus2) {
-        if (!grouped['trimestre'][ym]) grouped['trimestre'][ym] = [];
-        grouped['trimestre'][ym].push(row);
-      }
-
-      // Logic for "2nd-month"
-      if (ym === nextYM) {
-        if (!grouped['2nd-month'][ym]) grouped['2nd-month'][ym] = [];
-        grouped['2nd-month'][ym].push(row);
-      }
-
-      // Logic for "Liste à enlever" (current month)
-      if (ym === currentYM) {
-        if (!grouped['current-month'][ym]) grouped['current-month'][ym] = [];
-        grouped['current-month'][ym].push(row);
-      }
-    });
-
-    // Function to render HTML for a given group
-    const renderGroup = (groupData) => {
-      let html = '';
-      const sortedYM = Object.keys(groupData).sort();
-
-      for (const ym of sortedYM) {
-        html += `<h3>${formatMonthYear(ym)}</h3>`;
-        const rowsForMonth = groupData[ym] || [];
-        if (rowsForMonth.length === 0) {
-          html += '<p>Aucun produit périmé pour ce mois.</p>';
-          continue;
-        }
-
-        rowsForMonth.sort((a, b) => {
-          const zoneA = (a[6] || '').toLowerCase();
-          const zoneB = (b[6] || '').toLowerCase();
-          return zoneA.localeCompare(zoneB);
-        });
-
-        html += `<table>
-          <thead>
-            <tr>
-              <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-            </tr>
-          </thead>
-          <tbody>`;
-
-        rowsForMonth.forEach(row => {
-          const qte = parseInt(row[4] || '0');
-          const vendu = parseInt(row[6] || '0');
-          const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
-          html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
-          [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
-            html += `<td>${row[ci] || ''}</td>`;
-          });
-          html += '</tr>';
-        });
-
-        html += '</tbody></table>';
-      }
-      return html;
-    };
-
-    document.getElementById('trimestre').innerHTML = renderGroup(grouped['trimestre']);
-    document.getElementById('2nd-month').innerHTML = renderGroup(grouped['2nd-month']);
-    document.getElementById('current-month').innerHTML = renderGroup(grouped['current-month']);
-
-  } catch (e) {
-    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
-  }
-}
-
 
 // Format "YYYY-MM" en "Mois Année" (ex : "2025-05" -> "Mai 2025")
 function formatMonthYear(ym) {
@@ -1582,21 +1488,104 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
 </script>
  <script>
     // Collez la fonction showTab ici
-    function showTab(tabId) {
-        const tabs = document.querySelectorAll('.tab-content');
-        tabs.forEach(tab => tab.classList.remove('active'));
+   function showTab(tabId) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
 
-        const buttons = document.querySelectorAll('.tab-button');
-        buttons.forEach(button => button.classList.remove('active'));
+    const buttons = document.querySelectorAll('#notif-tabs .tab-button');
+    buttons.forEach(button => button.classList.remove('active'));
 
-        document.getElementById(tabId).classList.add('active');
-        document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
-    }
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+}
 
-    // Collez la fonction loadNotifications modifiée ici
-    async function loadNotifications() {
-      // ... (code de la fonction loadNotifications) ...
-    }
-    </script>
+async function loadNotifications() {
+  try {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE
+    });
+    const rows = res.result.values || [];
+    const data = rows.slice(1);
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const grouped = {
+      'trimestre': [],
+      '2nd-month': [],
+      'current-month': []
+    };
+
+    data.forEach(row => {
+      const dateStr = row[1];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+
+      const rowMonth = d.getMonth();
+      const rowYear = d.getFullYear();
+
+      // Trimestre (mois en cours + les 2 prochains)
+      const isTrimestre = (rowYear === currentYear && rowMonth >= currentMonth && rowMonth <= currentMonth + 2) ||
+                          (rowYear === currentYear + 1 && rowMonth < (currentMonth + 3) % 12);
+      if (isTrimestre) {
+        grouped['trimestre'].push(row);
+      }
+
+      // 2ème mois (le mois prochain)
+      const nextMonth = (currentMonth + 1) % 12;
+      const nextMonthYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
+      const is2ndMonth = (rowYear === nextMonthYear && rowMonth === nextMonth);
+      if (is2ndMonth) {
+        grouped['2nd-month'].push(row);
+      }
+
+      // À enlever (mois en cours)
+      const isCurrentMonth = rowYear === currentYear && rowMonth === currentMonth;
+      if (isCurrentMonth) {
+        grouped['current-month'].push(row);
+      }
+    });
+
+    const renderTable = (rows) => {
+      if (rows.length === 0) {
+        return '<p>Aucun produit périmé pour cette période.</p>';
+      }
+      rows.sort((a, b) => (a[5] || '').localeCompare(b[5] || '')); // Tri par zone (colonne 6 dans le tableau, index 5 dans le tableau data)
+
+      let tableHtml = `<table>
+          <thead>
+              <tr>
+                  <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+              </tr>
+          </thead>
+          <tbody>`;
+
+      rows.forEach(row => {
+        const qte = parseInt(row[4] || '0');
+        const vendu = parseInt(row[6] || '0');
+        const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
+        tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
+        [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
+          tableHtml += `<td>${row[ci] || ''}</td>`;
+        });
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</tbody></table>';
+      return tableHtml;
+    };
+
+    document.getElementById('trimestre').innerHTML = renderTable(grouped['trimestre']);
+    document.getElementById('2nd-month').innerHTML = renderTable(grouped['2nd-month']);
+    document.getElementById('current-month').innerHTML = renderTable(grouped['current-month']);
+
+  } catch (e) {
+    console.error("Erreur chargement notifications :", e);
+    const notifContent = document.getElementById('notification-popup').querySelector('.content');
+    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
+  }
+}
 </body>
 </html>
