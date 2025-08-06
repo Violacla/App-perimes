@@ -1383,36 +1383,40 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
 </script>
   <script>
   const dateInputField = document.getElementById('date');
-  const dateErrorDiv = document.getElementById('date-error');
+const dateErrorDiv = document.getElementById('date-error');
 
-  dateInputField.addEventListener('blur', () => {
-    const val = dateInputField.value.trim();
-    const parts = val.split('/');
-    if (parts.length !== 2) {
-      dateErrorDiv.style.display = 'block';
-      return;
-    }
+dateInputField.addEventListener('blur', () => {
+  const val = dateInputField.value.trim();
+  const parts = val.split('/');
+  if (parts.length !== 2) {
+    dateErrorDiv.style.display = 'block';
+    return;
+  }
 
-    const [mm, yyyy] = parts;
-    const parsedMonth = parseInt(mm, 10);
-    const parsedYear = parseInt(yyyy, 10);
+  const [mm, yyyy] = parts;
+  const parsedMonth = parseInt(mm, 10);
+  const parsedYear = parseInt(yyyy, 10);
 
-    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
-      dateErrorDiv.style.display = 'block';
-      return;
-    }
+  if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
+    dateErrorDiv.style.display = 'block';
+    return;
+  }
 
-    const enteredDate = new Date(parsedYear, parsedMonth - 1, 1);
-    const now = new Date();
-    const futureLimit = new Date(now);
-    futureLimit.setFullYear(now.getFullYear() + 8);
+  const now = new Date();
+  const futureLimit = new Date(now);
+  futureLimit.setFullYear(now.getFullYear() + 8);
 
-    if (enteredDate < now || enteredDate > futureLimit) {
-      dateErrorDiv.style.display = 'block';
-    } else {
-      dateErrorDiv.style.display = 'none';
-    }
-  });
+  const enteredYM = parsedYear * 12 + parsedMonth;
+  const currentYM = now.getFullYear() * 12 + (now.getMonth() + 1);
+  const futureYM = futureLimit.getFullYear() * 12 + (futureLimit.getMonth() + 1);
+
+  if (enteredYM < currentYM || enteredYM > futureYM) {
+    dateErrorDiv.style.display = 'block';
+  } else {
+    dateErrorDiv.style.display = 'none';
+  }
+});
+
 </script>
  <script>
     // Collez la fonction showTab ici
