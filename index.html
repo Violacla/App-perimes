@@ -1531,7 +1531,7 @@ async function loadNotifications() {
       const rowYear = d.getFullYear();
 
       // Logique pour le trimestre (mois en cours + les 2 prochains)
-      const trimestreMonths = [currentMonth, (currentMonth + 1) % 12, (currentMonth + 2) % 12];
+      const trimestreMonths = [ (currentMonth + 2) % 12, (currentMonth + 2) % 12], (currentMonth + 3) % 12];
       const trimestreYears = [currentYear, (currentMonth >= 11) ? currentYear + 1 : currentYear, (currentMonth >= 10) ? currentYear + 1 : currentYear];
 
       for (let i = 0; i < 3; i++) {
@@ -1542,7 +1542,7 @@ async function loadNotifications() {
       }
 
       // Logique pour le 2ème mois (le mois prochain)
-      const nextMonth = (currentMonth + 1) % 12;
+      const nextMonth = (currentMonth + 2) % 12;
       const nextMonthYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
       if (rowYear === nextMonthYear && rowMonth === nextMonth) {
         grouped['2nd-month'].push(row);
