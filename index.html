@@ -297,6 +297,7 @@
   font-style: italic;
 }
  /* Styles pour la popup de notification */
+  /* Styles pour la popup de notification */
   #notification-popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -353,6 +354,45 @@
   }
   .tab-content.active {
     display: block;
+  }
+
+  /* Styles pour l'impression */
+  @media print {
+    body > :not(#notification-popup) {
+      display: none;
+    }
+    #notification-popup {
+      position: static !important;
+      transform: none !important;
+      top: auto !important;
+      left: auto !important;
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      display: block !important;
+    }
+    #notification-popup .tab-content:not(.active) {
+      display: none !important;
+    }
+    #notification-popup #notif-tabs,
+    #notification-popup .header-buttons {
+      display: none !important;
+    }
+    html, body {
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    /* Correction de l'impression du contenu */
+    #notification-popup .tab-content,
+    #notification-popup .content {
+      max-height: none !important;
+      overflow: visible !important;
+    }
   }
 
   /* Styles pour l'impression */
@@ -1506,13 +1546,22 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
 }
 
 async function loadNotifications() {
+  const RANGE_TO_REMOVE = "Feuille2!A1:H1000"; // Nouvelle constante pour la feuille "À enlever"
+
   try {
-    const res = await gapi.client.sheets.spreadsheets.values.get({
+    // Appel pour la Feuille1 (Trimestre et 2ème mois)
+    const resFeuille1 = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE
     });
-    const rows = res.result.values || [];
-    const data = rows.slice(1);
+    const dataFeuille1 = (resFeuille1.result.values || []).slice(1);
+
+    // Appel pour la Feuille2 (À enlever)
+    const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE_TO_REMOVE
+    });
+    const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
 
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -1521,10 +1570,11 @@ async function loadNotifications() {
     const grouped = {
       'trimestre': {},
       '2nd-month': [],
-      'current-month': []
+      'current-month': dataFeuille2 // On utilise directement les données de la Feuille2
     };
 
-    data.forEach(row => {
+    // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
+    dataFeuille1.forEach(row => {
       const dateStr = row[1];
       if (!dateStr) return;
       const d = new Date(dateStr);
@@ -1534,7 +1584,7 @@ async function loadNotifications() {
       const rowYear = d.getFullYear();
       const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
 
-      // Logique pour le trimestre (3 mois suivants)
+      // Logique pour le trimestre (3 mois suivants à partir d'aujourd'hui)
       const nextMonth1 = (currentMonth + 1) % 12;
       const nextMonth2 = (currentMonth + 2) % 12;
       const nextMonth3 = (currentMonth + 3) % 12;
@@ -1552,16 +1602,11 @@ async function loadNotifications() {
         grouped['trimestre'][ym].push(row);
       }
 
-      // Logique pour le "2ème mois" (le mois suivant)
-      if (rowMonth === nextMonth2 && rowYear === nextYear2) {
+      // Logique pour le "2ème mois" (mois + 2)
+      const monthPlus2 = (currentMonth + 2) % 12;
+      const yearPlus2 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
+      if (rowYear === yearPlus2 && rowMonth === monthPlus2) {
         grouped['2nd-month'].push(row);
-      }
-
-      // Logique pour le "À enlever" (le mois précédent)
-      const prevMonth = (currentMonth - 1 + 12) % 12;
-      const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
-      if (rowYear === prevMonthYear && rowMonth === prevMonth) {
-        grouped['current-month'].push(row);
       }
     });
 
@@ -1613,17 +1658,15 @@ async function loadNotifications() {
     }
     document.getElementById('trimestre').innerHTML = trimestreHtml;
 
-    // Rendu pour le 2ème mois (le mois suivant)
-    const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1);
-    const nextMonthTitle = formatMonthYear(nextMonthDate);
-    const nextMonthTable = renderTable(grouped['2nd-month']);
-    document.getElementById('2nd-month').innerHTML = `<h3>${nextMonthTitle}</h3>` + nextMonthTable;
+    // Rendu pour le 2ème mois (mois + 2)
+    const monthPlus2Date = new Date(now.getFullYear(), now.getMonth() + 2);
+    const monthPlus2Title = formatMonthYear(monthPlus2Date);
+    document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus2Title}</h3>` + renderTable(grouped['2nd-month']);
 
     // Rendu pour le mois précédent ("À enlever")
     const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
     const prevMonthTitle = formatMonthYear(prevMonthDate);
-    const prevMonthTable = renderTable(grouped['current-month']);
-    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + prevMonthTable;
+    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
 
   } catch (e) {
     console.error("Erreur chargement notifications :", e);
