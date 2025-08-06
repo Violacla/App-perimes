@@ -329,10 +329,34 @@
   margin-top: 10px;
 }
 
+#update-banner {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffeeba;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin: 20px;
+  font-size: 1em;
+  line-height: 1.6em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
+#update-banner h2 {
+  margin-top: 0;
+  color: #856404;
+}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
+  <div id="update-banner">
+  <h2>Mises à jour 🛠</h2>
+  <ul>
+    <li><strong>06/08/2025 :</strong> Affichage des erreurs de date corrigé</li>
+    <li><strong> MODIFICATIONS EFFECTUÉES :</strong> Texte 2 </li>
+    <li><strong> À VENIR :</strong> Texte 3</li>
+  </ul>
+</div>
+
 <header>
 <div id="header-left">
 <a href="/index.html" style="
@@ -1649,6 +1673,17 @@ async function loadNotifications() {
       dateErrorDiv.style.display = 'none';
     }
   });
+   document.addEventListener('DOMContentLoaded', () => {
+  const banner = document.getElementById('update-banner');
+  const btnLogin = document.getElementById('btn-login');
+
+  if (banner && btnLogin) {
+    btnLogin.addEventListener('click', () => {
+      banner.style.display = 'none';
+    });
+  }
+});
+
 </script>
 
 </script>
