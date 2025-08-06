@@ -269,41 +269,56 @@
     background-color: #ede2e6
 }
   /* Print styles */
-  @media print {
-    html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
+.tab-button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    opacity: 0.6;
+    font-weight: bold;
   }
-    body * {
-      visibility: hidden !important;
-    }
-    #notification-popup, 
-    #notification-popup * {
-      visibility: visible !important;
+  .tab-button.active {
+    opacity: 1;
+    border-bottom: 2px solid white;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+  /* Print styles */
+  @media print {
+    body > :not(#notification-popup) {
+      display: none;
     }
     #notification-popup {
-    position: static !important;
-    transform: none !important;
-    top: auto !important;
-    left: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    display: block !important;
+      position: static !important;
+      transform: none !important;
+      top: auto !important;
+      left: auto !important;
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      display: block !important;
     }
-      #notification-popup .content {
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-  }
-    #notification-popup header button,
-    #notification-popup #print-notif {
-      display: none !important;
+    #notification-popup .tab-content {
+      display: block !important; /* Affiche tous les onglets lors de l'impression */
+    }
+    #notification-popup #notif-tabs,
+    #notification-popup header button {
+      display: none !important; /* Cache les onglets et les boutons d'en-tête */
+    }
+    /* Correction du bandeau blanc */
+    html, body {
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
   }
   .ligne-vendue {
@@ -357,6 +372,11 @@
    Notifications
   <span id="notif-badge" style="display: none; position: absolute; top: 0px; right: 0px; width: 16px; height: 16px; z-index: 2;">
 <img src="https://i.imgur.com/eNB2WOM.png" style="width:100%; height:100%; object-fit:cover;"/>
+    <div id="notif-tabs" style="margin-left: auto; margin-right: 20px;">
+  <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
+  <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
+  <button class="tab-button" onclick="showTab('current-month')">À enlever</button>
+</div>
 </span>
 </button>
 <button onclick="location.href='historique.html'" title="Historique">
@@ -376,6 +396,7 @@ Promo %
 Déconnexion
 </button>
 </div>
+  
 </header>
 <main>
 <div style="flex-grow:1;">
@@ -438,41 +459,14 @@ Déconnexion
 </div>
 </header>
 <div class="content">
+  <div id="trimestre" class="tab-content active"></div>
+  <div id="2nd-month" class="tab-content"></div>
+  <div id="current-month" class="tab-content"></div>
+</div>
 <!-- Table notifications insérées ici -->
 </div>
 </div>
-<div id="popup-6mois" style="
-  display: none;
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #f8d7da;
-  color: #721c24;
-  padding: 20px 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  font-weight: bold;
-  text-align: center;
-  z-index: 10000;
-">
-  🔴 Ce produit est à date très courte ! (&lt; 6 mois)
-</div>
-<div id="popup-1an" style="
-  display: none;
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff3cd;
-  color: #856404;
-  padding: 20px 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  font-weight: bold;
-  text-align: center;
-  z-index: 10000;
-">
-  🟠 Ce produit est à date courte ! (&lt; 1 an)
-</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const badge = document.getElementById('notif-badge');
@@ -1023,15 +1017,14 @@ async function loadNotifications() {
     const data = rows.slice(1);
 
     const now = new Date();
+    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const nextYM = `${new Date(now.getFullYear(), now.getMonth() + 1).getFullYear()}-${String(new Date(now.getFullYear(), now.getMonth() + 1).getMonth() + 1).padStart(2, '0')}`;
 
-    const monthsSet = new Set();
-    for (let i = 1; i <= 3; i++) {
-      const future = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      const ym = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}`;
-      monthsSet.add(ym);
-    }
-
-    const grouped = {};
+    const grouped = {
+      'trimestre': {},
+      '2nd-month': {},
+      'current-month': {}
+    };
 
     data.forEach(row => {
       const dateStr = row[1];
@@ -1040,55 +1033,76 @@ async function loadNotifications() {
       if (isNaN(d)) return;
 
       const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (monthsSet.has(ym)) {
-        if (!grouped[ym]) grouped[ym] = [];
-        grouped[ym].push(row);
+
+      // Logic for "Trimestre" (current month + 2 next)
+      const future1 = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const future2 = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+      const ymPlus1 = `${future1.getFullYear()}-${String(future1.getMonth() + 1).padStart(2, '0')}`;
+      const ymPlus2 = `${future2.getFullYear()}-${String(future2.getMonth() + 1).padStart(2, '0')}`;
+      if (ym === currentYM || ym === ymPlus1 || ym === ymPlus2) {
+        if (!grouped['trimestre'][ym]) grouped['trimestre'][ym] = [];
+        grouped['trimestre'][ym].push(row);
+      }
+
+      // Logic for "2nd-month"
+      if (ym === nextYM) {
+        if (!grouped['2nd-month'][ym]) grouped['2nd-month'][ym] = [];
+        grouped['2nd-month'][ym].push(row);
+      }
+
+      // Logic for "Liste à enlever" (current month)
+      if (ym === currentYM) {
+        if (!grouped['current-month'][ym]) grouped['current-month'][ym] = [];
+        grouped['current-month'][ym].push(row);
       }
     });
 
-    let html = '';
-    const sortedYM = Array.from(monthsSet).sort();
+    // Function to render HTML for a given group
+    const renderGroup = (groupData) => {
+      let html = '';
+      const sortedYM = Object.keys(groupData).sort();
 
-    for (const ym of sortedYM) {
-      html += `<h3>${formatMonthYear(ym)}</h3>`;
+      for (const ym of sortedYM) {
+        html += `<h3>${formatMonthYear(ym)}</h3>`;
+        const rowsForMonth = groupData[ym] || [];
+        if (rowsForMonth.length === 0) {
+          html += '<p>Aucun produit périmé pour ce mois.</p>';
+          continue;
+        }
 
-      const rowsForMonth = grouped[ym] || [];
-
-      if (rowsForMonth.length === 0) {
-        html += '<p>Aucun produit périmé pour ce mois.</p>';
-        continue;
-      }
-
-      rowsForMonth.sort((a, b) => {
-        const zoneA = (a[6] || '').toLowerCase();
-        const zoneB = (b[6] || '').toLowerCase();
-        return zoneA.localeCompare(zoneB);
-      });
-
-      html += `<table>
-        <thead>
-          <tr>
-<th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-          </tr>
-        </thead>
-        <tbody>`;
-
-      rowsForMonth.forEach(row => {
-       // html += '<tr>';
-        const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[6] || '0');
-const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
-html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
-[1, 2, 3, 4, 5, 6, 7].forEach(ci => {
-          html += `<td>${row[ci] || ''}</td>`;
+        rowsForMonth.sort((a, b) => {
+          const zoneA = (a[6] || '').toLowerCase();
+          const zoneB = (b[6] || '').toLowerCase();
+          return zoneA.localeCompare(zoneB);
         });
-        html += '</tr>';
-      });
 
-      html += '</tbody></table>';
-    }
+        html += `<table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
-    notifContent.innerHTML = html;
+        rowsForMonth.forEach(row => {
+          const qte = parseInt(row[4] || '0');
+          const vendu = parseInt(row[6] || '0');
+          const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
+          html += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
+          [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
+            html += `<td>${row[ci] || ''}</td>`;
+          });
+          html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+      }
+      return html;
+    };
+
+    document.getElementById('trimestre').innerHTML = renderGroup(grouped['trimestre']);
+    document.getElementById('2nd-month').innerHTML = renderGroup(grouped['2nd-month']);
+    document.getElementById('current-month').innerHTML = renderGroup(grouped['current-month']);
 
   } catch (e) {
     notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
@@ -1348,7 +1362,7 @@ tdDelete.addEventListener('click', async () => {
   box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
   z-index: 10;
 ">
-  Développé par Violaine Claron
+  Développé par Violaine Claron - Mise à jour le 06/08/2025
 </footer>
 <script>
  function exportFilteredTableAsPDF() {
@@ -1532,5 +1546,23 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
     }
   });
 </script>
+ <script>
+    // Collez la fonction showTab ici
+    function showTab(tabId) {
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
 
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(button => button.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+    }
+
+    // Collez la fonction loadNotifications modifiée ici
+    async function loadNotifications() {
+      // ... (code de la fonction loadNotifications) ...
+    }
+    </script>
+</body>
 </html>
