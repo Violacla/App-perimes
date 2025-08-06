@@ -317,18 +317,18 @@
     align-items: center;
     padding: 10px 20px;
     background-color: var(--bleu-glacial);
-    color: white; /* Conserve le blanc pour le titre du header */
+    color: white;
     border-radius: 10px 10px 0 0;
   }
   #notif-tabs {
     display: flex;
     gap: 10px;
+    margin-left: auto;
   }
   .header-buttons {
     display: flex;
     gap: 10px;
   }
-  /* Styles pour les boutons des onglets */
   .tab-button {
     background-color: transparent;
     color: black; /* Texte en noir par défaut */
@@ -340,23 +340,17 @@
     text-align: left;
     border-radius: 5px 5px 0 0;
   }
-  /* Effet de survol */
-  .tab-button:hover {
-    background-color: #004d99; /* Fond bleu foncé au survol */
-    color: white; /* Texte blanc au survol */
-  }
-  /* Style de l'onglet actif */
+  .tab-button:hover,
   .tab-button.active {
-    background-color: #004d99; /* Fond bleu plus foncé pour l'onglet actif */
-    color: white; /* Texte blanc pour l'onglet actif */
+    background-color: #004d99; /* Fond bleu foncé au survol et pour l'onglet actif */
+    color: white; /* Texte blanc au survol et pour l'onglet actif */
   }
-  /* Styles pour le contenu des onglets */
   .tab-content {
     display: none;
     padding: 15px;
     overflow-y: auto;
     max-height: calc(92vh - 80px);
-    color: black; /* S'assure que le contenu est en noir */
+    color: black;
   }
   .tab-content h3 {
     text-align: left;
@@ -365,80 +359,6 @@
   .tab-content.active {
     display: block;
   }
-  /* Styles pour l'impression */
-  @media print {
-    body > :not(#notification-popup) {
-      display: none;
-    }
-    #notification-popup {
-      position: static !important;
-      transform: none !important;
-      top: auto !important;
-      left: auto !important;
-      width: 100% !important;
-      height: auto !important;
-      max-height: none !important;
-      overflow: visible !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border-radius: 0 !important;
-      display: block !important;
-    }
-    #notification-popup .tab-content:not(.active) {
-      display: none !important;
-    }
-    #notification-popup #notif-tabs,
-    #notification-popup .header-buttons {
-      display: none !important;
-    }
-    html, body {
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    #notification-popup .tab-content,
-    #notification-popup .content {
-      max-height: none !important;
-      overflow: visible !important;
-    }
-  }
-  /* Styles pour l'impression */
-  @media print {
-    body > :not(#notification-popup) {
-      display: none;
-    }
-    #notification-popup {
-      position: static !important;
-      transform: none !important;
-      top: auto !important;
-      left: auto !important;
-      width: 100% !important;
-      height: auto !important;
-      max-height: none !important;
-      overflow: visible !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border-radius: 0 !important;
-      display: block !important;
-    }
-    #notification-popup .tab-content:not(.active) {
-      display: none !important;
-    }
-    #notification-popup #notif-tabs,
-    #notification-popup .header-buttons {
-      display: none !important;
-    }
-    html, body {
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    #notification-popup .tab-content,
-    #notification-popup .content {
-      max-height: none !important;
-      overflow: visible !important;
-    }
-  }
 
   /* Styles pour l'impression */
   @media print {
@@ -471,46 +391,6 @@
         margin: 0 !important;
         padding: 0 !important;
     }
-    /* Correction de l'impression du contenu */
-    #notification-popup .tab-content,
-    #notification-popup .content {
-      max-height: none !important;
-      overflow: visible !important;
-    }
-  }
-
-  /* Styles pour l'impression */
- @media print {
-    body > :not(#notification-popup) {
-      display: none;
-    }
-    #notification-popup {
-      position: static !important;
-      transform: none !important;
-      top: auto !important;
-      left: auto !important;
-      width: 100% !important;
-      height: auto !important;
-      max-height: none !important;
-      overflow: visible !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border-radius: 0 !important;
-      display: block !important;
-    }
-    #notification-popup .tab-content:not(.active) {
-      display: none !important;
-    }
-    #notification-popup #notif-tabs,
-    #notification-popup .header-buttons {
-      display: none !important;
-    }
-    html, body {
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    /* Correction de l'impression du contenu */
     #notification-popup .tab-content,
     #notification-popup .content {
       max-height: none !important;
