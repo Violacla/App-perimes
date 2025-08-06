@@ -328,51 +328,6 @@
   line-height: 1.3em;
   margin-top: 10px;
 }
-#update-popup {
-  position: fixed;
-  top: 65px; left: 0;
-  width: 100vw; height: 100vh;
-  background-color: rgba(188, 215, 237, 0.95); /* bleu glacial transparent */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-}
-
-.update-content {
-  background-color: white;
-  border-radius: 16px;
-  padding: 40px;
-  width: 600px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  text-align: center;
-  font-size: 1.1em;
-  color: #003c5c;
-}
-
-.update-content h2, .update-content h3 {
-  margin-top: 0;
-  color: #004d99;
-}
-
-.update-content ul {
-  text-align: left;
-  margin: 10px auto 20px;
-  padding-left: 20px;
-}
-
-.logo-bottom {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-}
-
-.logo-bottom img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-}
 
 
 
@@ -475,38 +430,6 @@ Déconnexion
 </form>
 </main>
 <body>
-  <body>
-
-<div id="update-popup">
-  <div class="update-content">
-    <h2>Mises à jour - 06/08/2025</h2>
-    <ul>
-      <li>Nouvelles fonctionnalités : </li>
-      <li>1.Le pop-up notification est devenu " Suivi perimés "</li>
-      <li>Vous trouverez 3 onglets dans le pop up " Suivi perimés" : </li>
-      <li>Onglet "Trimestre" => Affiche les 3 prochains mois</li>
-      <li>Onglet "2ème Mois" => Affiche juste le 2ème mois du trimestre ( actuellement il affiche octobre )</li>
-      <li>Onglet "A retirer" => Affiche la liste des périmés à enlever des rayons </li>
-      <li>Chaque onglet est imprimable grâce avec le bouton imprimante </li>
-      <li>2.La fonction date invalide a été reparée.</li>
-      <li>3.La fonction mise à jour. Elle permet de mettre en évidence les changements effectués de l'application  " </li>
-      <li>Elle disparait dès que l'on clique sur " se connecter" </li>
-    </ul>
-    <h3>A venir : </h3>
-    <ul>
-      <li> 1.Filtrage fonctionnel dans la page Historique</li>
-      <li> 2.Revoir l'impression dans la page promotion</li>
-      <li> 3.J'ai notifié que la date reste quand on ajoute un produit. Je vais regarder pourquoi.</li>
-      <li> </li>
-      <li> Si vous avez le moindre commentaire ou changement à faire, je reste à votre disposition.</li>
-      <li> De Violaine</li>
-    </ul>
-    <div class="logo-bottom">
-      <img src="https://i.imgur.com/mEtzEsp.png" alt="Logo" />
-    </div>
-  </div>
-</div>
-
 <div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog" style="display: none;">
     <header>
         <span id="notif-title">Notifications - Produits périmés</span>
@@ -1727,11 +1650,6 @@ async function loadNotifications() {
     }
   });
 </script>
-<script>
-  document.getElementById('btn-login').addEventListener('click', function () {
-    const popup = document.getElementById('update-popup');
-    if (popup) popup.style.display = 'none';
-  });
 
 </script>
 </body>
