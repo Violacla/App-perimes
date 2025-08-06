@@ -315,6 +315,21 @@
       overflow: visible !important;
     }
   }
+  /* Styles pour le message d'erreur */
+  .error-message {
+    background-color: #e8f5e9; /* Un vert très clair */
+    color: #2e7d32; /* Un vert plus foncé pour le texte */
+    border: 1px solid #2e7d32;
+    border-radius: 8px; /* Bords arrondis */
+    padding: 10px;
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    display: none; /* Caché par défaut */
+  }
+  .error-message.show {
+      display: block; /* Affiche le message */
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -404,7 +419,7 @@ Déconnexion
 <form id="entry-form" onsubmit="return false;" style="display: none;">
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
-  <div id="date-error">DATE INCORRECTE</div>
+ <div id="date-error-message" class="error-message">Date incorrecte</div>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="code" maxlength="6" minlength="6" pattern="\d{6}" placeholder="Code (6 chiffres)" required="" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
@@ -1230,7 +1245,7 @@ tdDelete.addEventListener('click', async () => {
   box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
   z-index: 10;
 ">
-  Développé par Violaine Claron - Mise à jour 06/08/2025
+  Développé par Violaine Claron 
 </footer>
 <script>
  function exportFilteredTableAsPDF() {
