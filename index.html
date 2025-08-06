@@ -356,7 +356,7 @@
   }
 
   /* Styles pour l'impression */
-  @media print {
+ @media print {
     body > :not(#notification-popup) {
       display: none;
     }
@@ -374,11 +374,8 @@
       border-radius: 0 !important;
       display: block !important;
     }
-    #notification-popup .tab-content {
+    #notification-popup .tab-content:not(.active) {
       display: none !important;
-    }
-    #notification-popup .tab-content.active {
-      display: block !important;
     }
     #notification-popup #notif-tabs,
     #notification-popup .header-buttons {
@@ -388,6 +385,12 @@
         height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+    /* Correction de l'impression du contenu */
+    #notification-popup .tab-content,
+    #notification-popup .content {
+      max-height: none !important;
+      overflow: visible !important;
     }
   }
 </style>
@@ -1305,7 +1308,7 @@ tdDelete.addEventListener('click', async () => {
   box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
   z-index: 10;
 ">
-  Développé par Violaine Claron - Mise à jour
+  Développé par Violaine Claron - Mise à jour 06/08/2025
 </footer>
 <script>
  function exportFilteredTableAsPDF() {
@@ -1516,7 +1519,7 @@ async function loadNotifications() {
     const currentYear = now.getFullYear();
 
     const grouped = {
-      'trimestre': [],
+      'trimestre': {},
       '2nd-month': [],
       'current-month': []
     };
@@ -1529,20 +1532,24 @@ async function loadNotifications() {
 
       const rowMonth = d.getMonth();
       const rowYear = d.getFullYear();
+      const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
 
       // Logique pour le trimestre (mois en cours + les 2 prochains)
-      const trimestreMonths = [ (currentMonth + 2) % 12, (currentMonth + 2) % 12], (currentMonth + 3) % 12];
-      const trimestreYears = [currentYear, (currentMonth >= 11) ? currentYear + 1 : currentYear, (currentMonth >= 10) ? currentYear + 1 : currentYear];
+      const trimestreMonths = [ (currentMonth + 1) % 12, (currentMonth + 2) % 12], (currentMonth + 3) % 12];
+      const trimestreYears = [(currentMonth >= 11) ? currentYear + 1 : currentYear, (currentMonth >= 10) ? currentYear + 1 : currentYear, (currentMonth >= 9) ? currentYear + 1 : currentYear];
 
       for (let i = 0; i < 3; i++) {
         if (rowMonth === trimestreMonths[i] && rowYear === trimestreYears[i]) {
-          grouped['trimestre'].push(row);
+          if (!grouped['trimestre'][ym]) {
+            grouped['trimestre'][ym] = [];
+          }
+          grouped['trimestre'][ym].push(row);
           break;
         }
       }
 
       // Logique pour le 2ème mois (le mois prochain)
-      const nextMonth = (currentMonth + 2) % 12;
+      const nextMonth = (currentMonth + 1) % 12;
       const nextMonthYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
       if (rowYear === nextMonthYear && rowMonth === nextMonth) {
         grouped['2nd-month'].push(row);
@@ -1556,22 +1563,24 @@ async function loadNotifications() {
       }
     });
 
-    const renderTable = (rows, title) => {
+    const formatMonthYear = (d) => {
+      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      return months[d.getMonth()] + ' ' + d.getFullYear();
+    };
+
+    const renderTable = (rows) => {
       if (rows.length === 0) {
-        return `<p>Aucun produit périmé pour ${title}.</p>`;
+        return '<p>Aucun produit périmé pour ce mois.</p>';
       }
-      // Tri par zone (colonne 6 dans le tableau Sheets, index 5 dans le tableau JS)
       rows.sort((a, b) => (a[5] || '').localeCompare(b[5] || ''));
 
-      let tableHtml = `
-        <h3>${title}</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-                </tr>
-            </thead>
-            <tbody>`;
+      let tableHtml = `<table>
+          <thead>
+              <tr>
+                  <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+              </tr>
+          </thead>
+          <tbody>`;
 
       rows.forEach(row => {
         const qte = parseInt(row[4] || '0');
@@ -1586,18 +1595,27 @@ async function loadNotifications() {
       tableHtml += '</tbody></table>';
       return tableHtml;
     };
-    
-    const formatMonthYear = (d) => {
-      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-      return months[d.getMonth()] + ' ' + d.getFullYear();
-    };
 
+    // Rendu pour le trimestre
+    let trimestreHtml = '';
+    const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort();
+    sortedTrimestreMonths.forEach(ym => {
+        const [y, m] = ym.split('-');
+        const d = new Date(y, m - 1, 1);
+        trimestreHtml += `<h3>${formatMonthYear(d)}</h3>`;
+        trimestreHtml += renderTable(grouped['trimestre'][ym]);
+    });
+    document.getElementById('trimestre').innerHTML = trimestreHtml || '<p>Aucun produit périmé pour le trimestre.</p>';
+
+    // Rendu pour le 2ème mois
     const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1);
+    const nextMonthTitle = formatMonthYear(nextMonthDate);
+    document.getElementById('2nd-month').innerHTML = `<h3>${nextMonthTitle}</h3>` + renderTable(grouped['2nd-month']);
+
+    // Rendu pour le mois précédent
     const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
-    
-    document.getElementById('trimestre').innerHTML = renderTable(grouped['trimestre'], "Prochain Trimestre");
-    document.getElementById('2nd-month').innerHTML = renderTable(grouped['2nd-month'], formatMonthYear(nextMonthDate));
-    document.getElementById('current-month').innerHTML = renderTable(grouped['current-month'], formatMonthYear(prevMonthDate));
+    const prevMonthTitle = formatMonthYear(prevMonthDate);
+    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
 
   } catch (e) {
     console.error("Erreur chargement notifications :", e);
