@@ -1547,6 +1547,20 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
 
 async function loadNotifications() {
   const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    let parts = dateStr.split('-');
+    if (parts.length === 3) {
+      // Format AAAA-MM-JJ
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    parts = dateStr.split('/');
+    if (parts.length === 3) {
+      // Format JJ/MM/AAAA
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+    return null;
+  };
 
   try {
     // Appel pour la Feuille1 (Trimestre et 2ème mois)
@@ -1570,7 +1584,7 @@ async function loadNotifications() {
     const grouped = {
       'trimestre': {},
       '2nd-month': [],
-      'current-month': [] // Nous allons filtrer les données ici
+      'current-month': []
     };
 
     // Logique pour le mois précédent ("À enlever")
@@ -1579,9 +1593,8 @@ async function loadNotifications() {
 
     dataFeuille2.forEach(row => {
       const dateStr = row[1];
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
+      const d = parseDate(dateStr);
+      if (!d) return;
 
       const rowMonth = d.getMonth();
       const rowYear = d.getFullYear();
@@ -1594,9 +1607,8 @@ async function loadNotifications() {
     // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
     dataFeuille1.forEach(row => {
       const dateStr = row[1];
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
+      const d = parseDate(dateStr);
+      if (!d) return;
 
       const rowMonth = d.getMonth();
       const rowYear = d.getFullYear();
