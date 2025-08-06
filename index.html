@@ -9,8 +9,8 @@
 <style>
   .autocomplete-list {
   position: absolute;
-  background-color: white;
- /* background-color: #fffefc;*/
+ /* background-color: white;*/
+  background-color: #fffefc;
   border: 1px solid #ccc;
   border-radius: 4px;
   list-style: none;
@@ -215,7 +215,89 @@
     color: #0a2f51;
   }
 
+  /* Notification popup modal */
+  #notification-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    width: 1300px;
+    max-height: 92vh;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+  }
+
+  #notification-popup header {
+    background-color: var(--bleu-glacial);
+    color: white;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #notification-popup header button {
+    background: transparent;
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    color: #bad1de;
+  }
+
+  #notification-popup .content {
+    padding: 15px 20px;
+    overflow-y: auto;
+  }
+
+  #notification-popup table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #notification-popup th, #notification-popup td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  #notification-popup tbody tr:nth-child(odd) {
+   /* background-color: rgba(188, 215, 237, 0.15);*/
+    background-color: #ede2e6
+}
+  /* Print styles */
+.tab-button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    opacity: 0.6;
+    font-weight: bold;
+  }
+  .tab-button.active {
+    opacity: 1;
+    border-bottom: 2px solid white;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+  .ligne-vendue {
+  /*color: #5a708c !important;*/  /* bleu foncé pastel */ 
+  color: #e5aec3 !important;
+ /* background-color: rgba(188, 215, 237, 0.3) !important; /* bleu glacial très léger */
+    background-color: #ecd7de !important;
+  text-decoration: line-through;
+  font-style: italic;
+}
  /* Styles pour la popup de notification */
+  /* Styles pour la popup de notification */
   #notification-popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -233,7 +315,7 @@
   #notification-popup header {
     display: flex;
     justify-content: space-between;
-    align-items: left;
+    align-items: center;
     padding: 10px 20px;
     background-color: var(--bleu-glacial);
     color: white;
@@ -250,34 +332,30 @@
   }
   .tab-button {
     background-color: transparent;
-    color: black; /* Texte en noir par défaut */
+    color: white;
     border: none;
     padding: 10px 15px;
     cursor: pointer;
     font-weight: bold;
-    transition: background-color 0.3s, color 0.3s;
-    text-align: left;
-    border-radius: 5px 5px 0 0;
+    transition: background-color 0.3s, border-bottom 0.3s;
   }
-  .tab-button:hover,
   .tab-button.active {
-    background-color: #004d99; /* Fond bleu foncé au survol et pour l'onglet actif */
-    color: white; /* Texte blanc au survol et pour l'onglet actif */
+    border-bottom: 2px solid #3498db;
+    color: #3498db;
+  }
+  .tab-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
   .tab-content {
     display: none;
     padding: 15px;
     overflow-y: auto;
     max-height: calc(92vh - 80px);
-    color: black;
-  }
-  .tab-content h3 {
-    text-align: left;
-    color: black;
   }
   .tab-content.active {
     display: block;
   }
+
   /* Styles pour l'impression */
   @media print {
     body > :not(#notification-popup) {
@@ -309,6 +387,46 @@
         margin: 0 !important;
         padding: 0 !important;
     }
+    /* Correction de l'impression du contenu */
+    #notification-popup .tab-content,
+    #notification-popup .content {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+  }
+
+  /* Styles pour l'impression */
+ @media print {
+    body > :not(#notification-popup) {
+      display: none;
+    }
+    #notification-popup {
+      position: static !important;
+      transform: none !important;
+      top: auto !important;
+      left: auto !important;
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      display: block !important;
+    }
+    #notification-popup .tab-content:not(.active) {
+      display: none !important;
+    }
+    #notification-popup #notif-tabs,
+    #notification-popup .header-buttons {
+      display: none !important;
+    }
+    html, body {
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    /* Correction de l'impression du contenu */
     #notification-popup .tab-content,
     #notification-popup .content {
       max-height: none !important;
@@ -342,7 +460,7 @@
 <div id="header-right">
 <button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
 <img alt="Logo" src="https://i.imgur.com/DqTzhLF.png" style="width:18px; height:18px; object-fit:cover; vertical-align:middle;"/>
-   Suivi Perimés
+   Notifications
   <span id="notif-badge" style="display: none; position: absolute; top: 0px; right: 0px; width: 16px; height: 16px; z-index: 2;">
 <img src="https://i.imgur.com/eNB2WOM.png" style="width:100%; height:100%; object-fit:cover;"/>
 </span>
