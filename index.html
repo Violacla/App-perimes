@@ -297,7 +297,7 @@
   font-style: italic;
 }
  /* Styles pour la popup de notification */
-  /* Styles pour la popup de notification */
+ /* Styles pour la popup de notification */
   #notification-popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -332,25 +332,32 @@
   }
   .tab-button {
     background-color: transparent;
-    color: white;
+    color: black; /* Texte en noir par défaut */
     border: none;
     padding: 10px 15px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s, border-bottom 0.3s;
-  }
-  .tab-button.active {
-    border-bottom: 2px solid #3498db;
-    color: #3498db;
+    text-align: left; /* Texte aligné à gauche */
   }
   .tab-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  .tab-button.active {
+    background-color: #004d99; /* Fond bleu plus foncé pour l'onglet actif */
+    color: white; /* Texte blanc pour l'onglet actif */
+    border-bottom: 2px solid #004d99;
   }
   .tab-content {
     display: none;
     padding: 15px;
     overflow-y: auto;
     max-height: calc(92vh - 80px);
+    color: black;
+  }
+  .tab-content h3 {
+    text-align: left; /* Titres des mois alignés à gauche */
+    color: black;
   }
   .tab-content.active {
     display: block;
@@ -536,10 +543,10 @@ Déconnexion
     <header>
         <span id="notif-title">Notifications - Produits périmés</span>
         <div id="notif-tabs">
-            <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
-            <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
-            <button class="tab-button" onclick="showTab('current-month')">À enlever</button>
-        </div>
+  <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
+  <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
+  <button class="tab-button" onclick="showTab('a-retirer')">À retirer</button>
+</div>
         <div class="header-buttons">
             <button id="print-notif" title="Imprimer">
                 <img src="https://i.imgur.com/p0XRHwZ.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
@@ -1535,14 +1542,14 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
  <script>
     // Collez la fonction showTab ici
   function showTab(tabId) {
-  const tabs = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => tab.classList.remove('active'));
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
 
-  const buttons = document.querySelectorAll('#notif-tabs .tab-button');
-  buttons.forEach(button => button.classList.remove('active'));
+    const buttons = document.querySelectorAll('#notif-tabs .tab-button');
+    buttons.forEach(button => button.classList.remove('active'));
 
-  document.getElementById(tabId).classList.add('active');
-  document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
 }
 
 async function loadNotifications() {
@@ -1696,7 +1703,7 @@ async function loadNotifications() {
     // Rendu pour le mois précédent ("À enlever")
     const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
     const prevMonthTitle = formatMonthYear(prevMonthDate);
-    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
+    document.getElementById('a-retirer').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
 
   } catch (e) {
     console.error("Erreur chargement notifications :", e);
