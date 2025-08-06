@@ -339,7 +339,7 @@
     transition: background-color 0.3s, border-bottom 0.3s;
   }
   .tab-button.active {
-    border-bottom: 2px solid #3498db; /* couleur de surbrillance */
+    border-bottom: 2px solid #3498db;
     color: #3498db;
   }
   .tab-button:hover {
@@ -354,6 +354,7 @@
   .tab-content.active {
     display: block;
   }
+
   /* Styles pour l'impression */
   @media print {
     body > :not(#notification-popup) {
@@ -374,6 +375,9 @@
       display: block !important;
     }
     #notification-popup .tab-content {
+      display: none !important;
+    }
+    #notification-popup .tab-content.active {
       display: block !important;
     }
     #notification-popup #notif-tabs,
@@ -1301,7 +1305,7 @@ tdDelete.addEventListener('click', async () => {
   box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
   z-index: 10;
 ">
-  Développé par Violaine Claron - Mise à jour 06/08/2025
+  Développé par Violaine Claron - Mise à jour
 </footer>
 <script>
  function exportFilteredTableAsPDF() {
@@ -1487,15 +1491,15 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
 </script>
  <script>
     // Collez la fonction showTab ici
-   function showTab(tabId) {
-    const tabs = document.querySelectorAll('.tab-content');
-    tabs.forEach(tab => tab.classList.remove('active'));
+  function showTab(tabId) {
+  const tabs = document.querySelectorAll('.tab-content');
+  tabs.forEach(tab => tab.classList.remove('active'));
 
-    const buttons = document.querySelectorAll('#notif-tabs .tab-button');
-    buttons.forEach(button => button.classList.remove('active'));
+  const buttons = document.querySelectorAll('#notif-tabs .tab-button');
+  buttons.forEach(button => button.classList.remove('active'));
 
-    document.getElementById(tabId).classList.add('active');
-    document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+  document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
 }
 
 async function loadNotifications() {
@@ -1526,41 +1530,48 @@ async function loadNotifications() {
       const rowMonth = d.getMonth();
       const rowYear = d.getFullYear();
 
-      // Trimestre (mois en cours + les 2 prochains)
-      const isTrimestre = (rowYear === currentYear && rowMonth >= currentMonth && rowMonth <= currentMonth + 2) ||
-                          (rowYear === currentYear + 1 && rowMonth < (currentMonth + 3) % 12);
-      if (isTrimestre) {
-        grouped['trimestre'].push(row);
+      // Logique pour le trimestre (mois en cours + les 2 prochains)
+      const trimestreMonths = [currentMonth, (currentMonth + 1) % 12, (currentMonth + 2) % 12];
+      const trimestreYears = [currentYear, (currentMonth >= 11) ? currentYear + 1 : currentYear, (currentMonth >= 10) ? currentYear + 1 : currentYear];
+
+      for (let i = 0; i < 3; i++) {
+        if (rowMonth === trimestreMonths[i] && rowYear === trimestreYears[i]) {
+          grouped['trimestre'].push(row);
+          break;
+        }
       }
 
-      // 2ème mois (le mois prochain)
+      // Logique pour le 2ème mois (le mois prochain)
       const nextMonth = (currentMonth + 1) % 12;
       const nextMonthYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
-      const is2ndMonth = (rowYear === nextMonthYear && rowMonth === nextMonth);
-      if (is2ndMonth) {
+      if (rowYear === nextMonthYear && rowMonth === nextMonth) {
         grouped['2nd-month'].push(row);
       }
 
-      // À enlever (mois en cours)
-      const isCurrentMonth = rowYear === currentYear && rowMonth === currentMonth;
-      if (isCurrentMonth) {
+      // Logique pour le mois précédent ("À enlever")
+      const prevMonth = (currentMonth - 1 + 12) % 12;
+      const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+      if (rowYear === prevMonthYear && rowMonth === prevMonth) {
         grouped['current-month'].push(row);
       }
     });
 
-    const renderTable = (rows) => {
+    const renderTable = (rows, title) => {
       if (rows.length === 0) {
-        return '<p>Aucun produit périmé pour cette période.</p>';
+        return `<p>Aucun produit périmé pour ${title}.</p>`;
       }
-      rows.sort((a, b) => (a[5] || '').localeCompare(b[5] || '')); // Tri par zone (colonne 6 dans le tableau, index 5 dans le tableau data)
+      // Tri par zone (colonne 6 dans le tableau Sheets, index 5 dans le tableau JS)
+      rows.sort((a, b) => (a[5] || '').localeCompare(b[5] || ''));
 
-      let tableHtml = `<table>
-          <thead>
-              <tr>
-                  <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-              </tr>
-          </thead>
-          <tbody>`;
+      let tableHtml = `
+        <h3>${title}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+                </tr>
+            </thead>
+            <tbody>`;
 
       rows.forEach(row => {
         const qte = parseInt(row[4] || '0');
@@ -1575,10 +1586,18 @@ async function loadNotifications() {
       tableHtml += '</tbody></table>';
       return tableHtml;
     };
+    
+    const formatMonthYear = (d) => {
+      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      return months[d.getMonth()] + ' ' + d.getFullYear();
+    };
 
-    document.getElementById('trimestre').innerHTML = renderTable(grouped['trimestre']);
-    document.getElementById('2nd-month').innerHTML = renderTable(grouped['2nd-month']);
-    document.getElementById('current-month').innerHTML = renderTable(grouped['current-month']);
+    const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1);
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
+    
+    document.getElementById('trimestre').innerHTML = renderTable(grouped['trimestre'], "Prochain Trimestre");
+    document.getElementById('2nd-month').innerHTML = renderTable(grouped['2nd-month'], formatMonthYear(nextMonthDate));
+    document.getElementById('current-month').innerHTML = renderTable(grouped['current-month'], formatMonthYear(prevMonthDate));
 
   } catch (e) {
     console.error("Erreur chargement notifications :", e);
