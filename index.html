@@ -1546,7 +1546,8 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
 }
 
 async function loadNotifications() {
-  const RANGE_TO_REMOVE = "Feuille2!A1:H1000"; // Nouvelle constante pour la feuille "À enlever"
+  // Correction ici : le nom de la feuille est maintenant 'Feuille2'
+  const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
 
   try {
     // Appel pour la Feuille1 (Trimestre et 2ème mois)
@@ -1556,10 +1557,10 @@ async function loadNotifications() {
     });
     const dataFeuille1 = (resFeuille1.result.values || []).slice(1);
 
-    // Appel pour la Feuille2 (À enlever)
+    // Appel pour la feuille 'Feuille2' (À enlever)
     const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: RANGE_TO_REMOVE
+      range: RANGE_A_ENLEVER
     });
     const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
 
@@ -1570,8 +1571,26 @@ async function loadNotifications() {
     const grouped = {
       'trimestre': {},
       '2nd-month': [],
-      'current-month': dataFeuille2 // On utilise directement les données de la Feuille2
+      'current-month': [] // Nous allons filtrer les données ici
     };
+
+    // Logique pour le mois précédent ("À enlever")
+    const prevMonth = (currentMonth - 1 + 12) % 12;
+    const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+
+    dataFeuille2.forEach(row => {
+      const dateStr = row[1];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+
+      const rowMonth = d.getMonth();
+      const rowYear = d.getFullYear();
+
+      if (rowYear === prevMonthYear && rowMonth === prevMonth) {
+        grouped['current-month'].push(row);
+      }
+    });
 
     // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
     dataFeuille1.forEach(row => {
