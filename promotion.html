@@ -1,513 +1,350 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<title>Promotion - Pharmacie du Libron</title>
-<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
-<script src="https://apis.google.com/js/api.js"></script>
-<style>
-    body {
-      font-family: Arial, sans-serif;
-    /*  background-color: #f9f9f9;*/
-      background-color:#fffefc;
-      margin: 0;
-    }
-    header {
-      /*background-color: #bcd7ed;*/
-      background-color: #bcd7ed;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    }
-    #header-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    h1 {
-      margin: 0;
-      color: #163f5b;
-     /* color: #0a2f51;*/
-      font-size: 1.3em;
-    }
-    button {
-      cursor: pointer;
-      padding: 8px 12px;
-      font-size: 1em;
-      border: none;
-      border-radius: 4px;
-     /* background-color: #bcd7ed;*/
-        background-color: #bcd7ed;
-
-      color: white;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color:  #a6c6e1;
-     /* background-color: #a6c6e1;*/
-     
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      margin: 20px auto;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px 10px;
-      text-align: center;
-    }
-    tbody tr:nth-child(odd) {
-     /* background-color: rgba(188, 215, 237, 0.15);*/
-       background-color: #ede2e6;
-    }
-    #status {
-      text-align: center;
-      color: #0a2f51;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    #btn-login {
-  background-color: #0a2f51;       /* 🔵 Bleu foncé */
-  color: #bcd7ed;                  /* 💙 Bleu glacial (ton style principal) */
-  font-weight: bold;
-  padding: 12px 24px;
-  font-size: 1.2em;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-#btn-login:hover {
-  background-color: #083049;      /* un peu plus foncé au hover */
-  transform: translateY(-2px);
-}
-    th:nth-child(9),
-td:nth-child(9) {
-  display: none;
-}
-
-  </style>
+    <meta charset="utf-8"/>
+    <title>Promotion - Pharmacie du Libron</title>
+    <script async defer src="https://accounts.google.com/gsi/client"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fffefc;
+            margin: 0;
+        }
+        header {
+            background-color: #bcd7ed;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        #header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        h1 {
+            margin: 0;
+            color: #0a2f51;
+            font-size: 1.3em;
+        }
+        button {
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            background-color: #bcd7ed;
+            color: white;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #a6c6e1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin: 20px auto;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: center;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #ede2e6;
+        }
+        #status {
+            text-align: center;
+            color: #0a2f51;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #btn-validate {
+            background-color: #0a2f51;
+            color: #bcd7ed;
+            font-weight: bold;
+            padding: 12px 24px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        #btn-validate:hover {
+            background-color: #083049;
+            transform: translateY(-2px);
+        }
+        th:nth-child(9),
+        td:nth-child(9) {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background-color: #bcd7ed; box-shadow: 0 2px 5px rgba(0,0,0,0.15);">
-
-  <!-- GAUCHE : Logo + titre -->
-  <div id="header-left" style="display: flex; align-items: center; gap: 15px;">
-    <a href="/index.html" title="Accueil" style="display:inline-block; width:40px; height:40px; border-radius:50%; overflow:hidden; margin-right:10px;">
-      <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;" />
-    </a>
-    <h1 style="margin: 0; color: #0a2f51;">Gestion Promotions - Pharmacie du Libron</h1>
- 
-  </div>
-<div id="login-block" style="display:flex; align-items:center; gap:10px;">
-  <input type="number" id="operator" placeholder="Code opérateur" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
-  <p id="login-error" style="color:red; margin:0;"></p>
-
-<div id="login-block" style="display:flex; align-items:center; gap:10px; margin-left:20px;">
-  <input type="number" id="operator" placeholder="Code opérateur" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
-  <button id="btn-validate">Valider</button>
-  <p id="login-error" style="color:red; margin:0;"></p>
-</div>
-
-
-  <!-- DROITE : Boutons Accueil, Historique, Imprimer, Déconnexion -->
-  <div style="display: flex; gap: 10px;">
-    <button onclick="window.location.href='index.html'">
-      <img alt="Accueil" src="https://i.imgur.com/T8E0o39.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-      Accueil
-    </button>
-
-    <button onclick="location.href='historique.html'" title="Historique">
-      <img alt="Historique" src="https://i.imgur.com/BasLkpT.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-      Historique
-    </button>
-
-    <button onclick="window.print()">
-      <img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-      Imprimer
-    </button>
-
-    <button id="btn-logout" style="display:none;">
-      <img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-      Déconnexion
-    </button>
-  </div>
-
+    <div id="header-left" style="display: flex; align-items: center; gap: 15px;">
+        <a href="/index.html" title="Accueil" style="display:inline-block; width:40px; height:40px; border-radius:50%; overflow:hidden; margin-right:10px;">
+            <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
+        </a>
+        <h1 style="margin: 0; color: #0a2f51;">Gestion Promotions - Pharmacie du Libron</h1>
+    </div>
+    <div id="login-block" style="display:flex; align-items:center; gap:10px;">
+        <input type="number" id="operator" placeholder="Code opérateur" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
+        <button id="btn-validate">Valider</button>
+        <p id="login-error" style="color:red; margin:0;"></p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="window.location.href='index.html'">
+            <img alt="Accueil" src="https://i.imgur.com/T8E0o39.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+            Accueil
+        </button>
+        <button onclick="location.href='historique.html'" title="Historique">
+            <img alt="Historique" src="https://i.imgur.com/BasLkpT.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+            Historique
+        </button>
+        <button onclick="window.print()">
+            <img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+            Imprimer
+        </button>
+        <button id="btn-logout" style="display:none;">
+            <img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+            Déconnexion
+        </button>
+    </div>
 </header>
-
 <table id="data-table">
-<thead><tr><th>Date</th><th>Nom produit</th><th>Code</th><th>Prix unitaire</th><th>Zone</th><th>Qté</th><th>%</th><th>Prix finale</th></tr></thead>
-<tbody></tbody>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Nom produit</th>
+        <th>Code</th>
+        <th>Prix unitaire</th>
+        <th>Zone</th>
+        <th>Qté</th>
+        <th>%</th>
+        <th>Prix finale</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
 </table>
 <pre id="status">Chargement...</pre>
 <script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const SOURCE_RANGE = 'Feuille1';
-  const TARGET_RANGE = 'Feuille3';
-
-  let tokenClient;
-  let accessToken = null;
-
-  function gapiLoaded() {
-    gapi.load('client', async () => {
-      await gapi.client.init({
-        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
-      });
-    });
-  }
-
-  function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: "https://www.googleapis.com/auth/spreadsheets",
-      callback: async (response) => {
-        accessToken = response.access_token;
-        gapi.client.setToken({ access_token: accessToken });
-        document.getElementById('btn-login').style.display = 'none';
-        document.getElementById('btn-logout').style.display = 'inline-block';
-
-        await copyPromotionsToFeuille3();
-        await loadSheet();
-      }
-    });
-    document.getElementById('btn-login').onclick = () => {
-  const op = parseInt(document.getElementById("operator").value);
-  if (![1, 6, 7].includes(op)) {
-    document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
-    return;
-  }
-
-  document.getElementById("login-error").textContent = ""; // Clear previous error
-  tokenClient.requestAccessToken(); // Continue with Google Auth
-document.getElementById('btn-validate').onclick = () => {
-  const op = parseInt(document.getElementById("operator").value);
-  if (![1, 6, 7].includes(op)) {
-    document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
-    return;
-  }
-
-  document.getElementById("login-error").textContent = ""; // Clear error
-  tokenClient.requestAccessToken(); // Lancer connexion Google
-};
-
-};
-
-  }
-
-  document.getElementById('btn-logout').onclick = () => {
-    accessToken = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
-    document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('status').textContent = 'Déconnecté.';
-    document.querySelector('#data-table tbody').innerHTML = '';
-  };
-
-  async function loadSheet() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: TARGET_RANGE
-      });
-      const rows = res.result.values || [];
-      await cleanOldEntries(rows);
-      renderTable(rows);
-    } catch (e) {
-      document.getElementById('status').textContent = 'Erreur : ' + e.message;
+    const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+    const SOURCE_RANGE = 'Feuille1';
+    const TARGET_RANGE = 'Feuille3';
+    let tokenClient;
+    let accessToken = null;
+    function gapiLoaded() {
+        gapi.load('client', async () => {
+            await gapi.client.init({
+                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
+            });
+        });
     }
-  }
-
-  function renderTable(rows) {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
-
-    const filteredRows = rows.slice(1).filter(row => {
-      const promo = parseFloat(row[7]) || 0; // colonne H
-      const date = new Date(row[1]);         // colonne B
-      return promo > 0 && !isNaN(date);
-    });
-
-    filteredRows.sort((a, b) => new Date(a[1]) - new Date(b[1]));
-
-   const tbody = document.querySelector("#data-table tbody");
-tbody.innerHTML = "";
-
-let moisEnCours = [];
-let moisSuivant = [];
-let facingCount = 0;
-
-filteredRows.forEach(row => {
-  const [ , dateStr, produit, code, , zone, , promoQty, , rawPrix ] = row;
-
-  const numericPrix = parseFloat((rawPrix || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-  const date = new Date(dateStr);
-  if (isNaN(date)) return;
-
-  const rowMonth = date.getMonth();
-  const rowYear = date.getFullYear();
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-  const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
-  const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-
-  let prixFinal = numericPrix;
-  let reductionTxt = "";
-  let explication = "Non concerné";
-
-  if (diff === 0) {
-    prixFinal = numericPrix * 0.5;
-    reductionTxt = "-50%";
-    explication = `${moisTexte[rowMonth]} : -50%`;
-    moisEnCours.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication });
-  } else if (diff === 1) {
-    prixFinal = numericPrix * 0.7;
-    reductionTxt = "-30%";
-    explication = `${moisTexte[rowMonth]} : -30%`;
-    moisSuivant.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication });
-  } else if (diff === 2) {
-    facingCount++;
-  }
-});
-
-function appendGroup(title, group) {
-  if (group.length === 0) return;
-
-  const trTitle = document.createElement("tr");
-  const td = document.createElement("td");
-  td.colSpan = 9;
-  td.style = "background:#d0eaff; font-weight:bold; text-align:center;";
-  td.textContent = title;
-  trTitle.appendChild(td);
-  tbody.appendChild(trTitle);
-
-  group.forEach(item => {
-    const tr = document.createElement("tr");
-
-    const td1 = document.createElement("td"); td1.textContent = item.dateStr;
-    const td2 = document.createElement("td"); td2.textContent = item.produit;
-    const td3 = document.createElement("td"); td3.textContent = item.code;
-    const td4 = document.createElement("td"); td4.textContent = item.prix.toFixed(2); td4.contentEditable = true;
-    const td5 = document.createElement("td"); td5.textContent = item.zone;
-    const td6 = document.createElement("td"); td6.textContent = item.promoQty;
-    const td7 = document.createElement("td"); td7.textContent = item.reductionTxt;
-    const td8 = document.createElement("td"); td8.textContent = item.prixFinal.toFixed(2) + " €";
-    const td9 = document.createElement("td"); td9.textContent = item.explication;
-
-    td4.addEventListener("blur", () => {
-      const cleaned = td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-      const newPrix = parseFloat(cleaned) || 0;
-      let updated = newPrix;
-      if (item.reductionTxt === "-50%") updated = newPrix * 0.5;
-      else if (item.reductionTxt === "-30%") updated = newPrix * 0.7;
-      td8.textContent = updated.toFixed(2) + " €";
-    });
-
-    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
-    tr.appendChild(td5); tr.appendChild(td6); tr.appendChild(td7); tr.appendChild(td8); tr.appendChild(td9);
-    tbody.appendChild(tr);
-  });
-}
-
-appendGroup("📦 Mois en cours (-50%)", moisEnCours);
-appendGroup("📦 Mois suivant (-30%)", moisSuivant);
-
-if (facingCount > 0) {
-  const finalRow = document.createElement("tr");
-  const td = document.createElement("td");
-  td.colSpan = 9;
-  td.style = "font-style: italic; text-align:center; padding-top:10px; background:#f0f8ff;";
-  td.textContent = "Les produits du 3ᵉ mois doivent être mis en avant dans les rayons.";
-  finalRow.appendChild(td);
-  tbody.appendChild(finalRow);
-}
-
-document.getElementById("status").textContent = 'Données triées et enrichies.';
-
-
-  async function cleanOldEntries(rows) {
-    const now = new Date();
-    const header = rows[0];
-    const filtered = rows.filter((row, i) => {
-      if (i === 0) return true;
-      const date = new Date(row[1]); // colonne B
-      return !isNaN(date) && date >= now;
-    });
-
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: TARGET_RANGE,
-      valueInputOption: 'RAW',
-      resource: { values: filtered }
-    });
-
-    console.log("Nettoyage automatique effectué (Feuille3)");
-  }
-
-  async function copyPromotionsToFeuille3() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: SOURCE_RANGE
-      });
-
-      const rows = res.result.values || [];
-      const header = rows[0];
-      const promoRows = rows.slice(1).filter(row => parseFloat(row[7]) > 0); // colonne H
-
-      if (promoRows.length === 0) {
-        console.log("Aucune ligne avec Promo > 0 à copier.");
-        return;
-      }
-
-      await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
-        range: TARGET_RANGE,
-        valueInputOption: 'RAW',
-        resource: {
-          values: [header, ...promoRows]
+    function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID,
+            scope: "https://www.googleapis.com/auth/spreadsheets",
+            callback: async (response) => {
+                accessToken = response.access_token;
+                gapi.client.setToken({ access_token: accessToken });
+                document.getElementById('login-block').style.display = 'none';
+                document.getElementById('btn-logout').style.display = 'inline-block';
+                await copyPromotionsToFeuille3();
+                await loadSheet();
+            }
+        });
+        document.getElementById('btn-validate').onclick = () => {
+            const op = parseInt(document.getElementById("operator").value);
+            if ([1, 6, 7].includes(op)) {
+                document.getElementById("login-error").textContent = ""; // Clear error
+                tokenClient.requestAccessToken(); // Lancer connexion Google
+            } else {
+                document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
+            }
+        };
+    }
+    document.getElementById('btn-logout').onclick = () => {
+        accessToken = null;
+        document.getElementById('login-block').style.display = 'flex';
+        document.getElementById('btn-logout').style.display = 'none';
+        document.getElementById('status').textContent = 'Déconnecté.';
+        document.querySelector('#data-table tbody').innerHTML = '';
+        document.getElementById('operator').value = '';
+    };
+    async function loadSheet() {
+        try {
+            const res = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: TARGET_RANGE
+            });
+            const rows = res.result.values || [];
+            await cleanOldEntries(rows);
+            renderTable(rows);
+        } catch (e) {
+            document.getElementById('status').textContent = 'Erreur : ' + e.message;
         }
-      });
-
-      console.log("Feuille3 mise à jour avec promotions > 0.");
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour :", error);
     }
-  }
-
-  window.onload = () => {
-    gapiLoaded();
-    gisLoaded();
-  };
-</script>
-<script>
-function enrichPromoTable() {
-  const rows = document.querySelectorAll("#data-table tbody tr");
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-  let promoCount = 0;
-
-  rows.forEach(row => {
-    const cells = row.children;
-
-    const dateStr = cells[1]?.textContent.trim();
-    const code = cells[3]?.textContent.trim();
-    const rawPrix = cells[9]?.textContent.trim() || "";
-    const zone = cells[5]?.textContent.trim();
-    const produit = cells[2]?.textContent.trim();
-    const promoQty = cells[7]?.textContent.trim();
-
-    const numericPrix = parseFloat(rawPrix.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-
-    // Clear and rebuild row
-    row.innerHTML = "";
-
-    const tdDate = document.createElement("td"); tdDate.textContent = dateStr;
-    const tdNom = document.createElement("td"); tdNom.textContent = produit;
-    const tdCode = document.createElement("td"); tdCode.textContent = code;
-    const tdPrix = document.createElement("td"); tdPrix.textContent = numericPrix.toFixed(2); tdPrix.contentEditable = true;
-    const tdZone = document.createElement("td"); tdZone.textContent = zone;
-    const tdPromo = document.createElement("td"); tdPromo.textContent = promoQty;
-    const tdReduction = document.createElement("td");  // New column
-    const tdPrixFinal = document.createElement("td");
-    const tdExplication = document.createElement("td");
-
-    // Determine logic
-    let prixFinal = numericPrix;
-    let explication = "Non concerné";
-    let monthPromo = 0;
-
-    if (dateStr) {
-      const date = new Date(dateStr);
-      if (!isNaN(date)) {
-        const rowMonth = date.getMonth();
-        const rowYear = date.getFullYear();
-        const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-        const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
-        if (diff === 0) {
-          monthPromo = 50;
-          prixFinal = numericPrix * 0.5;
-          explication = moisTexte[rowMonth] + " : -50%";
-          tdReduction.textContent = "-50%";
-        } else if (diff === 1) {
-          monthPromo = 30;
-          prixFinal = numericPrix * 0.7;
-          explication = moisTexte[rowMonth] + " : -30%";
-          tdReduction.textContent = "-30%";
-        } else if (diff === 2) {
-          explication = moisTexte[rowMonth] + " : Facing";
-          tdReduction.textContent = "";
-        } else {
-          tdReduction.textContent = "";
+    function renderTable(rows) {
+        const tbody = document.querySelector("#data-table tbody");
+        tbody.innerHTML = "";
+        const filteredRows = rows.slice(1).filter(row => {
+            const promo = parseFloat(row[7]) || 0; // colonne H
+            const date = new Date(row[1]); // colonne B
+            return promo > 0 && !isNaN(date);
+        });
+        filteredRows.sort((a, b) => new Date(a[1]) - new Date(b[1]));
+        let moisEnCours = [];
+        let moisSuivant = [];
+        let facingCount = 0;
+        filteredRows.forEach(row => {
+            const [, dateStr, produit, code, , zone, , promoQty, , rawPrix] = row;
+            const numericPrix = parseFloat((rawPrix || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+            const date = new Date(dateStr);
+            if (isNaN(date)) return;
+            const rowMonth = date.getMonth();
+            const rowYear = date.getFullYear();
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
+            const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+            let prixFinal = numericPrix;
+            let reductionTxt = "";
+            let explication = "Non concerné";
+            if (diff === 0) {
+                prixFinal = numericPrix * 0.5;
+                reductionTxt = "-50%";
+                explication = `${moisTexte[rowMonth]} : -50%`;
+                moisEnCours.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication });
+            } else if (diff === 1) {
+                prixFinal = numericPrix * 0.7;
+                reductionTxt = "-30%";
+                explication = `${moisTexte[rowMonth]} : -30%`;
+                moisSuivant.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication });
+            } else if (diff === 2) {
+                facingCount++;
+            }
+        });
+        function appendGroup(title, group) {
+            if (group.length === 0) return;
+            const trTitle = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 9;
+            td.style = "background:#d0eaff; font-weight:bold; text-align:center;";
+            td.textContent = title;
+            trTitle.appendChild(td);
+            tbody.appendChild(trTitle);
+            group.forEach(item => {
+                const tr = document.createElement("tr");
+                const td1 = document.createElement("td"); td1.textContent = item.dateStr;
+                const td2 = document.createElement("td"); td2.textContent = item.produit;
+                const td3 = document.createElement("td"); td3.textContent = item.code;
+                const td4 = document.createElement("td"); td4.textContent = item.prix.toFixed(2); td4.contentEditable = true;
+                const td5 = document.createElement("td"); td5.textContent = item.zone;
+                const td6 = document.createElement("td"); td6.textContent = item.promoQty;
+                const td7 = document.createElement("td"); td7.textContent = item.reductionTxt;
+                const td8 = document.createElement("td"); td8.textContent = item.prixFinal.toFixed(2) + " €";
+                const td9 = document.createElement("td"); td9.textContent = item.explication;
+                td4.addEventListener("blur", () => {
+                    const cleaned = td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+                    const newPrix = parseFloat(cleaned) || 0;
+                    let updated = newPrix;
+                    if (item.reductionTxt === "-50%") updated = newPrix * 0.5;
+                    else if (item.reductionTxt === "-30%") updated = newPrix * 0.7;
+                    td8.textContent = updated.toFixed(2) + " €";
+                });
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                tr.appendChild(td5);
+                tr.appendChild(td6);
+                tr.appendChild(td7);
+                tr.appendChild(td8);
+                tr.appendChild(td9);
+                tbody.appendChild(tr);
+            });
         }
-      }
+        appendGroup("📦 Mois en cours (-50%)", moisEnCours);
+        appendGroup("📦 Mois suivant (-30%)", moisSuivant);
+        if (facingCount > 0) {
+            const finalRow = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 9;
+            td.style = "font-style: italic; text-align:center; padding-top:10px; background:#f0f8ff;";
+            td.textContent = "Les produits du 3ᵉ mois doivent être mis en avant dans les rayons.";
+            finalRow.appendChild(td);
+            tbody.appendChild(finalRow);
+        }
+        document.getElementById("status").textContent = 'Données triées et enrichies.';
     }
-
-    tdPrixFinal.textContent = prixFinal.toFixed(2) + " €";
-    tdExplication.textContent = explication;
-
-    row.appendChild(tdDate);
-    row.appendChild(tdNom);
-    row.appendChild(tdCode);
-    row.appendChild(tdPrix);
-    row.appendChild(tdZone);
-    row.appendChild(tdPromo);          // quantité promo
-    row.appendChild(tdReduction);      // nouvelle colonne Réduction
-    row.appendChild(tdPrixFinal);
-    row.appendChild(tdExplication);
-
-    if (monthPromo > 0) promoCount++;
-
-    tdPrix.addEventListener("blur", () => {
-      const cleaned = tdPrix.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-      const newPrix = parseFloat(cleaned) || 0;
-      let updatedPrixFinal = newPrix;
-
-      if (monthPromo === 50) updatedPrixFinal = newPrix * 0.5;
-      else if (monthPromo === 30) updatedPrixFinal = newPrix * 0.7;
-
-      tdPrixFinal.textContent = updatedPrixFinal.toFixed(2) + " €";
-    });
-  });
-
-  const promoCountDiv = document.getElementById("promo-count");
-  promoCountDiv.textContent = "Produits en promotion : " + promoCount;
-}
-
-const originalRenderTable = renderTable;
-renderTable = function(rows) {
-  originalRenderTable(rows);
-  enrichPromoTable();
-};
-     else {
-    document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
-  }
-}
-
+    async function cleanOldEntries(rows) {
+        const now = new Date();
+        const header = rows[0];
+        const filtered = rows.filter((row, i) => {
+            if (i === 0) return true;
+            const date = new Date(row[1]); // colonne B
+            return !isNaN(date) && date >= now;
+        });
+        await gapi.client.sheets.spreadsheets.values.update({
+            spreadsheetId: SPREADSHEET_ID,
+            range: TARGET_RANGE,
+            valueInputOption: 'RAW',
+            resource: { values: filtered }
+        });
+        console.log("Nettoyage automatique effectué (Feuille3)");
+    }
+    async function copyPromotionsToFeuille3() {
+        try {
+            const res = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: SOURCE_RANGE
+            });
+            const rows = res.result.values || [];
+            const header = rows[0];
+            const promoRows = rows.slice(1).filter(row => parseFloat(row[7]) > 0); // colonne H
+            if (promoRows.length === 0) {
+                console.log("Aucune ligne avec Promo > 0 à copier.");
+                return;
+            }
+            await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: SPREADSHEET_ID,
+                range: TARGET_RANGE,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [header, ...promoRows]
+                }
+            });
+            console.log("Feuille3 mise à jour avec promotions > 0.");
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour :", error);
+        }
+    }
+    window.onload = () => {
+        gapiLoaded();
+        gisLoaded();
+    };
 </script>
-</body>
 <footer style="
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 0.5em;
-  color: #666;
- /*!background: #f0f0f0;*/
-  background:#d3f0dd;
-  padding: 8px 0;
-  box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
-  z-index: 10;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 0.5em;
+    color: #666;
+    background: #d3f0dd;
+    padding: 8px 0;
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
+    z-index: 10;
 ">
-  Développé par Violaine Claron - Mise à jour 
+    Développé par Violaine Claron - Mise à jour
 </footer>
+</body>
 </html>
