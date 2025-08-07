@@ -472,13 +472,7 @@ renderTable = function(rows) {
   originalRenderTable(rows);
   enrichPromoTable();
 };
-    function checkLogin() {
-  const op = parseInt(document.getElementById("operator").value);
-  if ([1, 6, 7].includes(op)) {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    genererTableauPromo(donneesPromo);
-  } else {
+     else {
     document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
   }
 }
