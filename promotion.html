@@ -215,18 +215,101 @@ td:nth-child(9) {
 
     filteredRows.sort((a, b) => new Date(a[1]) - new Date(b[1]));
 
-    filteredRows.forEach(row => {
-      const tr = document.createElement('tr');
-      row.forEach(cell => {
-        const td = document.createElement('td');
-        td.textContent = cell || '';
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
+   const tbody = document.querySelector("#data-table tbody");
+tbody.innerHTML = "";
+
+let moisEnCours = [];
+let moisSuivant = [];
+let facingCount = 0;
+
+filteredRows.forEach(row => {
+  const [ , dateStr, produit, code, , zone, , promoQty, , rawPrix ] = row;
+
+  const numericPrix = parseFloat((rawPrix || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+  const date = new Date(dateStr);
+  if (isNaN(date)) return;
+
+  const rowMonth = date.getMonth();
+  const rowYear = date.getFullYear();
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
+  const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+  let prixFinal = numericPrix;
+  let reductionTxt = "";
+  let explication = "Non concerné";
+
+  if (diff === 0) {
+    prixFinal = numericPrix * 0.5;
+    reductionTxt = "-50%";
+    explication = `${moisTexte[rowMonth]} : -50%`;
+    moisEnCours.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication });
+  } else if (diff === 1) {
+    prixFinal = numericPrix * 0.7;
+    reductionTxt = "-30%";
+    explication = `${moisTexte[rowMonth]} : -30%`;
+    moisSuivant.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication });
+  } else if (diff === 2) {
+    facingCount++;
+  }
+});
+
+function appendGroup(title, group) {
+  if (group.length === 0) return;
+
+  const trTitle = document.createElement("tr");
+  const td = document.createElement("td");
+  td.colSpan = 9;
+  td.style = "background:#d0eaff; font-weight:bold; text-align:center;";
+  td.textContent = title;
+  trTitle.appendChild(td);
+  tbody.appendChild(trTitle);
+
+  group.forEach(item => {
+    const tr = document.createElement("tr");
+
+    const td1 = document.createElement("td"); td1.textContent = item.dateStr;
+    const td2 = document.createElement("td"); td2.textContent = item.produit;
+    const td3 = document.createElement("td"); td3.textContent = item.code;
+    const td4 = document.createElement("td"); td4.textContent = item.prix.toFixed(2); td4.contentEditable = true;
+    const td5 = document.createElement("td"); td5.textContent = item.zone;
+    const td6 = document.createElement("td"); td6.textContent = item.promoQty;
+    const td7 = document.createElement("td"); td7.textContent = item.reductionTxt;
+    const td8 = document.createElement("td"); td8.textContent = item.prixFinal.toFixed(2) + " €";
+    const td9 = document.createElement("td"); td9.textContent = item.explication;
+
+    td4.addEventListener("blur", () => {
+      const cleaned = td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+      const newPrix = parseFloat(cleaned) || 0;
+      let updated = newPrix;
+      if (item.reductionTxt === "-50%") updated = newPrix * 0.5;
+      else if (item.reductionTxt === "-30%") updated = newPrix * 0.7;
+      td8.textContent = updated.toFixed(2) + " €";
     });
 
-    document.getElementById('status').textContent = 'Données filtrées et triées.';
-  }
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+    tr.appendChild(td5); tr.appendChild(td6); tr.appendChild(td7); tr.appendChild(td8); tr.appendChild(td9);
+    tbody.appendChild(tr);
+  });
+}
+
+appendGroup("📦 Mois en cours (-50%)", moisEnCours);
+appendGroup("📦 Mois suivant (-30%)", moisSuivant);
+
+if (facingCount > 0) {
+  const finalRow = document.createElement("tr");
+  const td = document.createElement("td");
+  td.colSpan = 9;
+  td.style = "font-style: italic; text-align:center; padding-top:10px; background:#f0f8ff;";
+  td.textContent = "Les produits du 3ᵉ mois doivent être mis en avant dans les rayons.";
+  finalRow.appendChild(td);
+  tbody.appendChild(finalRow);
+}
+
+document.getElementById("status").textContent = 'Données triées et enrichies.';
+
 
   async function cleanOldEntries(rows) {
     const now = new Date();
