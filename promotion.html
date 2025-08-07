@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Promotion - Pharmacie du Libron</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <style>
+<meta charset="utf-8"/>
+<title>Promotion - Pharmacie du Libron</title>
+<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<style>
     body {
       font-family: Arial, sans-serif;
     /*  background-color: #f9f9f9;*/
@@ -74,29 +75,27 @@
   </style>
 </head>
 <body>
-
 <header>
-  <div id="header-left">
-    <a href="/index.html" title="Accueil" style="
+<div id="header-left">
+<a href="/index.html" style="
       display:inline-block;
       width:40px;
       height:40px;
       border-radius:50%;
       overflow:hidden;
-      margin-right:10px;">
-      <img src="https://i.imgur.com/mEtzEsp.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
-    </a>
-    <h1>Promotion %</h1>
-  </div>
-  <div>
-
-    <button id="btn-login">Se connecter</button>
+      margin-right:10px;" title="Accueil">
+<img alt="Logo" src="https://i.imgur.com/mEtzEsp.png" style="width:100%; height:100%; object-fit:cover;"/>
+</a>
+<h1>Promotion %</h1>
+</div>
+<div>
+<button id="btn-login">Se connecter</button>
 <button onclick="window.location.href='index.html'"> Accueil </button>
 <button onclick="location.href='historique.html'" title="Historique">
-<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
 Historique
-</button>
-<button onclick="window.print()"> 
+</img></button>
+<button onclick="window.print()">
 <img src="https://i.imgur.com/p0XRHwZ.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Imprimer
 </button>
@@ -104,28 +103,25 @@ Imprimer
 <img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Déconnexion
 </button>
-  </div>
+</div>
 </header>
-
 <table id="data-table">
-  <thead>
-    <tr>
-      <th>Opérateur</th>
-      <th>Date</th>
-      <th>Produit</th>
-      <th>Code</th>
-      <th>Qté</th>
-      <th>Zone</th>
-      <th>Vendues</th>
-      <th>Promo</th>
-      <th>Prix</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
+<thead>
+<tr>
+<th>Opérateur</th>
+<th>Date</th>
+<th>Produit</th>
+<th>Code</th>
+<th>Qté</th>
+<th>Zone</th>
+<th>Vendues</th>
+<th>Promo</th>
+<th>Prix</th>
+<th>Prix Final</th><th>Explication</th></tr>
+</thead>
+<tbody></tbody>
 </table>
-
-<pre id="status">Chargement...</pre>
-
+<div id="promo-count" style="text-align:center; font-weight:bold; color:#f294a6; margin-bottom:10px;">Produits en promotion : </div><pre id="status">Chargement...</pre>
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
@@ -264,8 +260,67 @@ Déconnexion
     gisLoaded();
   };
 </script>
+<script>
+function enrichPromoTable() {
+  const rows = document.querySelectorAll("#data-table tbody tr");
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  let promoCount = 0;
 
-</body>
+  rows.forEach(row => {
+    const cells = row.children;
+    const promo = parseFloat(cells[7]?.textContent) || 0;
+    const price = parseFloat(cells[8]?.textContent) || 0;
+    const dateStr = cells[1]?.textContent.trim();
+    let prixFinal = price;
+    let explication = "";
+
+    // Compute Prix Final
+    if (promo === 50) prixFinal = (price * 0.5).toFixed(2);
+    else if (promo === 30) prixFinal = (price * 0.7).toFixed(2);
+    else prixFinal = price.toFixed(2);
+
+    // Compute Explication
+    let moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    if (dateStr) {
+      const date = new Date(dateStr);
+      if (!isNaN(date)) {
+        const rowMonth = date.getMonth();
+        const rowYear = date.getFullYear();
+        const monthDiff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
+
+        if (monthDiff === 0) explication = moisTexte[rowMonth] + " : -50%";
+        else if (monthDiff === 1) explication = moisTexte[rowMonth] + " : -30%";
+        else if (monthDiff === 2) explication = moisTexte[rowMonth] + " : Facing";
+        else explication = "Non concerné";
+      }
+    }
+
+    if (promo > 0) promoCount++;
+
+    // Add cells to row
+    const tdPrixFinal = document.createElement("td");
+    tdPrixFinal.textContent = prixFinal + " €";
+    row.appendChild(tdPrixFinal);
+
+    const tdExplication = document.createElement("td");
+    tdExplication.textContent = explication;
+    row.appendChild(tdExplication);
+  });
+
+  // Update promo count
+  const promoCountDiv = document.getElementById("promo-count");
+  promoCountDiv.textContent = "Produits en promotion : " + promoCount;
+}
+
+// Wait for initial data load then enrich table
+const originalRenderTable = renderTable;
+renderTable = function(rows) {
+  originalRenderTable(rows);
+  enrichPromoTable();
+};
+</script></body>
 <footer style="
   position: fixed;
   bottom: 0;
