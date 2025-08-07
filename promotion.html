@@ -105,10 +105,15 @@ td:nth-child(9) {
       <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;" />
     </a>
     <h1 style="margin: 0; color: #0a2f51;">Gestion Promotions - Pharmacie du Libron</h1>
- <button id="btn-login">Se connecter</button>
+ 
   </div>
 <div id="login-block" style="display:flex; align-items:center; gap:10px;">
   <input type="number" id="operator" placeholder="Code opérateur" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
+  <p id="login-error" style="color:red; margin:0;"></p>
+
+<div id="login-block" style="display:flex; align-items:center; gap:10px; margin-left:20px;">
+  <input type="number" id="operator" placeholder="Code opérateur" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
+  <button id="btn-validate">Valider</button>
   <p id="login-error" style="color:red; margin:0;"></p>
 </div>
 
@@ -183,6 +188,17 @@ td:nth-child(9) {
 
   document.getElementById("login-error").textContent = ""; // Clear previous error
   tokenClient.requestAccessToken(); // Continue with Google Auth
+document.getElementById('btn-validate').onclick = () => {
+  const op = parseInt(document.getElementById("operator").value);
+  if (![1, 6, 7].includes(op)) {
+    document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
+    return;
+  }
+
+  document.getElementById("login-error").textContent = ""; // Clear error
+  tokenClient.requestAccessToken(); // Lancer connexion Google
+};
+
 };
 
   }
@@ -492,6 +508,6 @@ renderTable = function(rows) {
   box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
   z-index: 10;
 ">
-  Développé par Violaine Claron - Mise à jour 07/08/2025
+  Développé par Violaine Claron - Mise à jour 
 </footer>
 </html>
