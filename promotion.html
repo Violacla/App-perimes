@@ -59,7 +59,7 @@
         }
         #status {
             text-align: center;
-            color: #0a2f51;
+            color: #e1f4e4;
             font-weight: bold;
             margin-top: 10px;
         }
@@ -272,13 +272,13 @@
                 tbody.appendChild(tr);
             });
         }
-        appendGroup("📦 Mois en cours (-50%)", moisEnCours);
-        appendGroup("📦 Mois suivant (-30%)", moisSuivant);
+        appendGroup(" Mois en cours (-50%)", moisEnCours);
+        appendGroup(" Mois suivant (-30%)", moisSuivant);
         if (facingCount > 0) {
             const finalRow = document.createElement("tr");
             const td = document.createElement("td");
             td.colSpan = 9;
-            td.style = "font-style: italic; text-align:center; padding-top:10px; background:#f0f8ff;";
+            td.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
             td.textContent = "Les produits du 3ᵉ mois doivent être mis en avant dans les rayons.";
             finalRow.appendChild(td);
             tbody.appendChild(finalRow);
