@@ -89,6 +89,10 @@
   background-color: #083049;      /* un peu plus foncé au hover */
   transform: translateY(-2px);
 }
+    th:nth-child(9),
+td:nth-child(9) {
+  display: none;
+}
   </style>
 </head>
 <body>
@@ -126,7 +130,7 @@ Déconnexion
 </div>
 </header>
 <table id="data-table">
-<thead><tr><th>Date</th><th>Nom produit</th><th>Code CIP</th><th>Prix unitaire</th><th>Zone</th><th>Promo</th><th>Prix Final</th><th>Explication</th></tr></thead>
+<thead><tr><th>Date</th><th>Nom produit</th><th>Code</th><th>Prix unitaire</th><th>Zone</th><th>Qté</th><th>%</th><th>Prix finale</th></tr></thead>
 <tbody></tbody>
 </table>
 <pre id="status">Chargement...</pre>
