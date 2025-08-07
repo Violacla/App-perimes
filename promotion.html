@@ -261,18 +261,19 @@ function enrichPromoTable() {
 
     const dateStr = cells[1]?.textContent.trim();
     const code = cells[3]?.textContent.trim();
-    const rawPrix = cells[8]?.textContent.trim() || "";
+    const rawPrix = cells[9]?.textContent.trim() || "";
     const zone = cells[5]?.textContent.trim();
     const promo = parseFloat(cells[7]?.textContent) || 0;
     const produit = cells[2]?.textContent.trim();
 
-    // Nettoyage automatique du prix
     const numericPrix = parseFloat(rawPrix.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
 
-    // Clear row
+    // Save promo value on row for later use
+    row.setAttribute("data-promo", promo);
+
+    // Clear and rebuild row
     row.innerHTML = "";
 
-    // Fill only relevant data
     const tdDate = document.createElement("td"); tdDate.textContent = dateStr;
     const tdNom = document.createElement("td"); tdNom.textContent = produit;
     const tdCode = document.createElement("td"); tdCode.textContent = code;
@@ -282,13 +283,11 @@ function enrichPromoTable() {
     const tdPrixFinal = document.createElement("td");
     const tdExplication = document.createElement("td");
 
-    // Compute final price
     let prixFinal = numericPrix;
     if (promo === 50) prixFinal = numericPrix * 0.5;
     else if (promo === 30) prixFinal = numericPrix * 0.7;
     tdPrixFinal.textContent = prixFinal.toFixed(2) + " €";
 
-    // Explication
     let explication = "Non concerné";
     if (dateStr) {
       const date = new Date(dateStr);
@@ -315,13 +314,14 @@ function enrichPromoTable() {
 
     if (promo > 0) promoCount++;
 
-    // Auto-update price calculation
+    // Auto-update price calculation with promo from data attribute
     tdPrix.addEventListener("blur", () => {
       const cleaned = tdPrix.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
       const newPrix = parseFloat(cleaned) || 0;
+      const currentPromo = parseFloat(row.getAttribute("data-promo")) || 0;
       let newPrixFinal = newPrix;
-      if (promo === 50) newPrixFinal = newPrix * 0.5;
-      else if (promo === 30) newPrixFinal = newPrix * 0.7;
+      if (currentPromo === 50) newPrixFinal = newPrix * 0.5;
+      else if (currentPromo === 30) newPrixFinal = newPrix * 0.7;
       tdPrixFinal.textContent = newPrixFinal.toFixed(2) + " €";
     });
   });
