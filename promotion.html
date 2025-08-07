@@ -15,7 +15,7 @@
     }
     header {
       /*background-color: #bcd7ed;*/
-      background-color: #f294a6;
+      background-color: #bcd7ed;
       padding: 10px 20px;
       display: flex;
       justify-content: space-between;
@@ -40,13 +40,13 @@
       border: none;
       border-radius: 4px;
      /* background-color: #bcd7ed;*/
-        background-color: #f294a6;
+        background-color: #bcd7ed;
 
       color: white;
       font-weight: bold;
     }
     button:hover {
-      background-color:  #fec0cf;
+      background-color:  #a6c6e1;
      /* background-color: #a6c6e1;*/
      
     }
@@ -84,9 +84,9 @@
       border-radius:50%;
       overflow:hidden;
       margin-right:10px;" title="Accueil">
-<img alt="Logo" src="https://i.imgur.com/mEtzEsp.png" style="width:100%; height:100%; object-fit:cover;"/>
+<img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
 </a>
-<h1>Promotion %</h1>
+<h1>Gestion Promotions - Pharmacie du Libron</h1>
 </div>
 <div>
 <button id="btn-login">Se connecter</button>
@@ -106,22 +106,10 @@ Déconnexion
 </div>
 </header>
 <table id="data-table">
-<thead>
-<tr>
-<th>Opérateur</th>
-<th>Date</th>
-<th>Produit</th>
-<th>Code</th>
-<th>Qté</th>
-<th>Zone</th>
-<th>Vendues</th>
-<th>Promo</th>
-<th>Prix</th>
-<th>Prix Final</th><th>Explication</th></tr>
-</thead>
+<thead><tr><th>Date</th><th>Nom produit</th><th>Code CIP</th><th>Prix unitaire</th><th>Zone</th><th>Promo</th><th>Prix Final</th><th>Explication</th></tr></thead>
 <tbody></tbody>
 </table>
-<div id="promo-count" style="text-align:center; font-weight:bold; color:#f294a6; margin-bottom:10px;">Produits en promotion : </div><pre id="status">Chargement...</pre>
+<pre id="status">Chargement...</pre>
 <script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
@@ -270,51 +258,74 @@ function enrichPromoTable() {
 
   rows.forEach(row => {
     const cells = row.children;
-    const promo = parseFloat(cells[7]?.textContent) || 0;
-    const price = parseFloat(cells[8]?.textContent) || 0;
+
     const dateStr = cells[1]?.textContent.trim();
+    const code = cells[3]?.textContent.trim();
+    const price = parseFloat(cells[8]?.textContent) || 0;
+    const zone = cells[5]?.textContent.trim();
+    const promo = parseFloat(cells[7]?.textContent) || 0;
+    const produit = cells[2]?.textContent.trim();
+
+    // Clear row
+    row.innerHTML = "";
+
+    // Fill only relevant data
+    const tdDate = document.createElement("td"); tdDate.textContent = dateStr;
+    const tdNom = document.createElement("td"); tdNom.textContent = produit;
+    const tdCode = document.createElement("td"); tdCode.textContent = code;
+    const tdPrix = document.createElement("td"); tdPrix.textContent = price.toFixed(2); tdPrix.contentEditable = true;
+    const tdZone = document.createElement("td"); tdZone.textContent = zone;
+    const tdPromo = document.createElement("td"); tdPromo.textContent = promo;
+    const tdPrixFinal = document.createElement("td");
+    const tdExplication = document.createElement("td");
+
+    // Compute final price
     let prixFinal = price;
-    let explication = "";
+    if (promo === 50) prixFinal = price * 0.5;
+    else if (promo === 30) prixFinal = price * 0.7;
+    tdPrixFinal.textContent = prixFinal.toFixed(2) + " €";
 
-    // Compute Prix Final
-    if (promo === 50) prixFinal = (price * 0.5).toFixed(2);
-    else if (promo === 30) prixFinal = (price * 0.7).toFixed(2);
-    else prixFinal = price.toFixed(2);
-
-    // Compute Explication
-    let moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    // Explication
+    let explication = "Non concerné";
     if (dateStr) {
       const date = new Date(dateStr);
       if (!isNaN(date)) {
         const rowMonth = date.getMonth();
         const rowYear = date.getFullYear();
-        const monthDiff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
-
-        if (monthDiff === 0) explication = moisTexte[rowMonth] + " : -50%";
-        else if (monthDiff === 1) explication = moisTexte[rowMonth] + " : -30%";
-        else if (monthDiff === 2) explication = moisTexte[rowMonth] + " : Facing";
-        else explication = "Non concerné";
+        const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
+        if (diff === 0) explication = moisTexte[rowMonth] + " : -50%";
+        else if (diff === 1) explication = moisTexte[rowMonth] + " : -30%";
+        else if (diff === 2) explication = moisTexte[rowMonth] + " : Facing";
       }
     }
+    tdExplication.textContent = explication;
+
+    row.appendChild(tdDate);
+    row.appendChild(tdNom);
+    row.appendChild(tdCode);
+    row.appendChild(tdPrix);
+    row.appendChild(tdZone);
+    row.appendChild(tdPromo);
+    row.appendChild(tdPrixFinal);
+    row.appendChild(tdExplication);
 
     if (promo > 0) promoCount++;
 
-    // Add cells to row
-    const tdPrixFinal = document.createElement("td");
-    tdPrixFinal.textContent = prixFinal + " €";
-    row.appendChild(tdPrixFinal);
-
-    const tdExplication = document.createElement("td");
-    tdExplication.textContent = explication;
-    row.appendChild(tdExplication);
+    // Update prixFinal live if edited
+    tdPrix.addEventListener("blur", () => {
+      const newPrix = parseFloat(tdPrix.textContent) || 0;
+      let newPrixFinal = newPrix;
+      if (promo === 50) newPrixFinal = newPrix * 0.5;
+      else if (promo === 30) newPrixFinal = newPrix * 0.7;
+      tdPrixFinal.textContent = newPrixFinal.toFixed(2) + " €";
+    });
   });
 
-  // Update promo count
   const promoCountDiv = document.getElementById("promo-count");
   promoCountDiv.textContent = "Produits en promotion : " + promoCount;
 }
 
-// Wait for initial data load then enrich table
 const originalRenderTable = renderTable;
 renderTable = function(rows) {
   originalRenderTable(rows);
