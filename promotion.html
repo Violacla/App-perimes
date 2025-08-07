@@ -93,6 +93,13 @@
 td:nth-child(9) {
   display: none;
 }
+    <div id="login">
+  <label for="operator">Numéro opérateur :</label>
+  <input type="number" id="operator" placeholder="Entrer votre code">
+  <button onclick="checkLogin()">Se connecter</button>
+  <p id="login-error" style="color:red;"></p>
+</div>
+
   </style>
 </head>
 <body>
@@ -330,7 +337,7 @@ function enrichPromoTable() {
           monthPromo = 30;
           prixFinal = numericPrix * 0.7;
           explication = moisTexte[rowMonth] + " : -30%";
-          tdReduction.textContent = "";
+          tdReduction.textContent = "-30%";
         } else if (diff === 2) {
           explication = moisTexte[rowMonth] + " : Facing";
           tdReduction.textContent = "";
@@ -376,7 +383,19 @@ renderTable = function(rows) {
   originalRenderTable(rows);
   enrichPromoTable();
 };
-</script></body>
+    function checkLogin() {
+  const op = parseInt(document.getElementById("operator").value);
+  if ([1, 6, 7].includes(op)) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    genererTableauPromo(donneesPromo);
+  } else {
+    document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
+  }
+}
+
+</script>
+</body>
 <footer style="
   position: fixed;
   bottom: 0;
