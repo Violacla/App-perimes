@@ -137,8 +137,8 @@
 <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-    const SOURCE_RANGE = 'Feuille1!A:K';
-    const TARGET_RANGE = 'Feuille3!A:K';
+    const SOURCE_RANGE = 'Feuille1';
+    const TARGET_RANGE = 'Feuille3';
     let tokenClient;
     let accessToken = null;
 
@@ -186,58 +186,34 @@
 
     document.getElementById('btn-sync').onclick = async () => {
         document.getElementById('status').textContent = 'Synchronisation en cours...';
-        await synchronizeSheets();
+        await copyPromotionsToFeuille3(); // Appel de la fonction de copie
         await loadSheet();
         document.getElementById('status').textContent = 'Synchronisation terminée !';
     };
     
-    async function synchronizeSheets() {
+    async function copyPromotionsToFeuille3() {
         try {
-            const sourceRes = await gapi.client.sheets.spreadsheets.values.get({
+            const res = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
                 range: SOURCE_RANGE
             });
-            const targetRes = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE
-            });
-
-            const sourceRows = sourceRes.result.values || [];
-            const targetRows = targetRes.result.values || [];
-            const newTargetRows = [];
-
-            const targetMap = new Map();
-            targetRows.slice(1).forEach(row => {
-                if (row[2]) targetMap.set(row[2], row); // Utilisation du code comme clé
-            });
-
-            const header = sourceRows[0] || [];
-            newTargetRows.push(header);
-
-            sourceRows.slice(1).forEach(sourceRow => {
-                const code = sourceRow[2];
-                if (code && targetMap.has(code)) {
-                    // Si la ligne existe déjà dans Feuille3, on garde son prix unitaire
-                    const targetRow = targetMap.get(code);
-                    sourceRow[3] = targetRow[3];
-                    newTargetRows.push(sourceRow);
-                } else {
-                    // Sinon, on ajoute la nouvelle ligne de Feuille1
-                    newTargetRows.push(sourceRow);
-                }
-            });
-
+            const rows = res.result.values || [];
+            if (rows.length === 0) {
+                console.log("Feuille1 est vide. Aucune donnée à copier.");
+                return;
+            }
             await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
                 range: TARGET_RANGE,
                 valueInputOption: 'RAW',
-                resource: { values: newTargetRows }
+                resource: {
+                    values: rows
+                }
             });
-
-            console.log("Feuille3 synchronisée avec Feuille1, en conservant les prix modifiés.");
+            console.log("Feuille3 mise à jour avec les promotions de Feuille1.");
         } catch (error) {
             console.error("Erreur lors de la synchronisation :", error);
-            document.getElementById('status').textContent = "Erreur de synchronisation.";
+            document.getElementById('status').textContent = 'Erreur de synchronisation.';
         }
     }
 
@@ -272,7 +248,7 @@
                 const [, dateStr, produit, code, , zone, , promoQty, , rawPrix] = row;
                 const numericPrix = parseFloat((rawPrix || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
                 
-                const rowMonth = date.sgetMonth();
+                const rowMonth = date.getMonth();
                 const rowYear = date.getFullYear();
                 const now = new Date();
                 const currentMonth = now.getMonth();
