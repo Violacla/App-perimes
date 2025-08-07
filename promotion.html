@@ -96,39 +96,46 @@ td:nth-child(9) {
   </style>
 </head>
 <body>
-<header>
-<div id="header-left">
-<a href="/index.html" style="
-      display:inline-block;
-      width:40px;
-      height:40px;
-      border-radius:50%;
-      overflow:hidden;
-      margin-right:10px;" title="Accueil">
-<img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
-</a>
-<h1>Gestion Promotions - Pharmacie du Libron</h1>
-</div>
-<div style="flex: 1; display: flex; justify-content: center;">
-<button id="btn-login">Se connecter</button>
-<div>
-<div style="flex: 1; display: flex; justify-content: left;">
-<button onclick="window.location.href='index.html'"> <img alt="Accueil" src="https://i.imgur.com/T8E0o39.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-Accueil </button>
-<button onclick="location.href='historique.html'" title="Historique">
-<img alt="Historique" src="https://i.imgur.com/BasLkpT.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-Historique
-</button>
-<button onclick="window.print()">
-<img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-Imprimer
-</button>
-<button id="btn-logout" style="display:none;">
-<img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-Déconnexion
-</button>
-</div>
+<header style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background-color: #bcd7ed; box-shadow: 0 2px 5px rgba(0,0,0,0.15);">
+
+  <!-- GAUCHE : Logo + titre -->
+  <div id="header-left" style="display: flex; align-items: center; gap: 15px;">
+    <a href="/index.html" title="Accueil" style="display:inline-block; width:40px; height:40px; border-radius:50%; overflow:hidden; margin-right:10px;">
+      <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;" />
+    </a>
+    <h1 style="margin: 0; color: #0a2f51;">Gestion Promotions - Pharmacie du Libron</h1>
+  </div>
+
+  <!-- CENTRE : Bouton Se connecter -->
+  <div style="flex: 1; display: flex; justify-content: center;">
+    <button id="btn-login">Se connecter</button>
+  </div>
+
+  <!-- DROITE : Boutons Accueil, Historique, Imprimer, Déconnexion -->
+  <div style="display: flex; gap: 10px;">
+    <button onclick="window.location.href='index.html'">
+      <img alt="Accueil" src="https://i.imgur.com/T8E0o39.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+      Accueil
+    </button>
+
+    <button onclick="location.href='historique.html'" title="Historique">
+      <img alt="Historique" src="https://i.imgur.com/BasLkpT.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+      Historique
+    </button>
+
+    <button onclick="window.print()">
+      <img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+      Imprimer
+    </button>
+
+    <button id="btn-logout" style="display:none;">
+      <img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+      Déconnexion
+    </button>
+  </div>
+
 </header>
+
 <table id="data-table">
 <thead><tr><th>Date</th><th>Nom produit</th><th>Code</th><th>Prix unitaire</th><th>Zone</th><th>Qté</th><th>%</th><th>Prix finale</th></tr></thead>
 <tbody></tbody>
