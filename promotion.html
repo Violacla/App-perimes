@@ -15,7 +15,7 @@
     }
     header {
       /*background-color: #bcd7ed;*/
-      background-color: #bcd7ed;
+      background-color: #163f5b;
       padding: 10px 20px;
       display: flex;
       justify-content: space-between;
@@ -72,6 +72,23 @@
       font-weight: bold;
       margin-top: 10px;
     }
+    #btn-login {
+  background-color: #0a2f51;       /* 🔵 Bleu foncé */
+  color: #bcd7ed;                  /* 💙 Bleu glacial (ton style principal) */
+  font-weight: bold;
+  padding: 12px 24px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#btn-login:hover {
+  background-color: #083049;      /* un peu plus foncé au hover */
+  transform: translateY(-2px);
+}
   </style>
 </head>
 <body>
@@ -90,13 +107,14 @@
 </div>
 <div>
 <button id="btn-login">Se connecter</button>
-<button onclick="window.location.href='index.html'"> Accueil </button>
+<button onclick="window.location.href='index.html'"> <img alt="Accueil" src="https://i.imgur.com/BasLkpT.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+Accueil </button>
 <button onclick="location.href='historique.html'" title="Historique">
-<img alt="Historique" src="https://i.imgur.com/2PRqXMD.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+<img alt="Historique" src="https://i.imgur.com/BasLkpT.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Historique
 </button>
 <button onclick="window.print()">
-<img src="https://i.imgur.com/p0XRHwZ.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+<img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Imprimer
 </button>
 <button id="btn-logout" style="display:none;">
