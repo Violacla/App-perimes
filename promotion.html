@@ -263,13 +263,10 @@ function enrichPromoTable() {
     const code = cells[3]?.textContent.trim();
     const rawPrix = cells[9]?.textContent.trim() || "";
     const zone = cells[5]?.textContent.trim();
-    const promo = parseFloat(cells[7]?.textContent) || 0;
     const produit = cells[2]?.textContent.trim();
+    const promoQty = cells[7]?.textContent.trim();
 
     const numericPrix = parseFloat(rawPrix.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-
-    // Save promo value on row for later use
-    row.setAttribute("data-promo", promo);
 
     // Clear and rebuild row
     row.innerHTML = "";
@@ -279,16 +276,16 @@ function enrichPromoTable() {
     const tdCode = document.createElement("td"); tdCode.textContent = code;
     const tdPrix = document.createElement("td"); tdPrix.textContent = numericPrix.toFixed(2); tdPrix.contentEditable = true;
     const tdZone = document.createElement("td"); tdZone.textContent = zone;
-    const tdPromo = document.createElement("td"); tdPromo.textContent = promo;
+    const tdPromo = document.createElement("td"); tdPromo.textContent = promoQty;
+    const tdReduction = document.createElement("td");  // New column
     const tdPrixFinal = document.createElement("td");
     const tdExplication = document.createElement("td");
 
+    // Determine logic
     let prixFinal = numericPrix;
-    if (promo === 50) prixFinal = numericPrix * 0.5;
-    else if (promo === 30) prixFinal = numericPrix * 0.7;
-    tdPrixFinal.textContent = prixFinal.toFixed(2) + " €";
-
     let explication = "Non concerné";
+    let monthPromo = 0;
+
     if (dateStr) {
       const date = new Date(dateStr);
       if (!isNaN(date)) {
@@ -296,11 +293,26 @@ function enrichPromoTable() {
         const rowYear = date.getFullYear();
         const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
-        if (diff === 0) explication = moisTexte[rowMonth] + " : -50%";
-        else if (diff === 1) explication = moisTexte[rowMonth] + " : -30%";
-        else if (diff === 2) explication = moisTexte[rowMonth] + " : Facing";
+        if (diff === 0) {
+          monthPromo = 50;
+          prixFinal = numericPrix * 0.5;
+          explication = moisTexte[rowMonth] + " : -50%";
+          tdReduction.textContent = "-50%";
+        } else if (diff === 1) {
+          monthPromo = 30;
+          prixFinal = numericPrix * 0.7;
+          explication = moisTexte[rowMonth] + " : -30%";
+          tdReduction.textContent = "";
+        } else if (diff === 2) {
+          explication = moisTexte[rowMonth] + " : Facing";
+          tdReduction.textContent = "";
+        } else {
+          tdReduction.textContent = "";
+        }
       }
     }
+
+    tdPrixFinal.textContent = prixFinal.toFixed(2) + " €";
     tdExplication.textContent = explication;
 
     row.appendChild(tdDate);
@@ -308,21 +320,22 @@ function enrichPromoTable() {
     row.appendChild(tdCode);
     row.appendChild(tdPrix);
     row.appendChild(tdZone);
-    row.appendChild(tdPromo);
+    row.appendChild(tdPromo);          // quantité promo
+    row.appendChild(tdReduction);      // nouvelle colonne Réduction
     row.appendChild(tdPrixFinal);
     row.appendChild(tdExplication);
 
-    if (promo > 0) promoCount++;
+    if (monthPromo > 0) promoCount++;
 
-    // Auto-update price calculation with promo from data attribute
     tdPrix.addEventListener("blur", () => {
       const cleaned = tdPrix.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
       const newPrix = parseFloat(cleaned) || 0;
-      const currentPromo = parseFloat(row.getAttribute("data-promo")) || 0;
-      let newPrixFinal = newPrix;
-      if (currentPromo === 50) newPrixFinal = newPrix * 0.5;
-      else if (currentPromo === 30) newPrixFinal = newPrix * 0.7;
-      tdPrixFinal.textContent = newPrixFinal.toFixed(2) + " €";
+      let updatedPrixFinal = newPrix;
+
+      if (monthPromo === 50) updatedPrixFinal = newPrix * 0.5;
+      else if (monthPromo === 30) updatedPrixFinal = newPrix * 0.7;
+
+      tdPrixFinal.textContent = updatedPrixFinal.toFixed(2) + " €";
     });
   });
 
