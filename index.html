@@ -844,38 +844,63 @@ function clearFilter() {
     const zoneVal = document.getElementById('zone').value.trim();
 
     if (!zones.includes(zoneVal)) {
-  alert("Veuillez choisir une zone existante dans la liste.");
-  return;
-}
-const codeVal = document.getElementById('code').value.trim();
-if (!/^\d{6}$/.test(codeVal)) {
-  alert("Le code doit contenir exactement 6 chiffres.");
-  return;
-}
+      alert("Veuillez choisir une zone existante dans la liste.");
+      return;
+    }
+    const codeVal = document.getElementById('code').value.trim();
+    if (!/^\d{6}$/.test(codeVal)) {
+      alert("Le code doit contenir exactement 6 chiffres.");
+      return;
+    }
 
     const soldVal = 0;
     const promoVal = 0;
-
 
     if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
       alert("Veuillez remplir tous les champs correctement.");
       return;
     }
-const now = new Date();
-const ajoutVal = now.toLocaleString('fr-FR'); // Exemple : 12/06/2025, 09:44:31
+    const now = new Date();
+    const ajoutVal = now.toLocaleString('fr-FR');
 
-const values = [[
-  operatorName,     // invisible
-  dateVal,          // ✅ Date
-  productVal,       // ✅ Nom
-  codeVal,          // ✅ Code
-  qtyVal,           // ✅ Qté
-  zoneVal,          // ✅ Zone
-  soldVal,          // ✅ Vendues
-  promoVal,          // ✅ Promo
-  ajoutVal // ✅ Date d'ajout (dans le Google Sheet uniquement)
-]];
+    const values = [[
+      operatorName,
+      dateVal,
+      productVal,
+      codeVal,
+      qtyVal,
+      zoneVal,
+      soldVal,
+      promoVal,
+      ajoutVal
+    ]];
 
+    try {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values }
+      });
+
+      setStatus('Ligne ajoutée avec succès !');
+
+      // Réinitialise tous les champs de manière propre
+      document.getElementById('date').value = '';
+      document.getElementById('product').value = '';
+      document.getElementById('code').value = '';
+      document.getElementById('qty').value = '';
+      document.getElementById('zone').value = '';
+      
+      // Enlève le focus pour être sûr
+      document.getElementById('date').blur();
+      
+      loadSheet();
+
+    } catch (e) {
+      setStatus('Erreur : ' + e.message);
+    }
+  };
 
     try {
       await gapi.client.sheets.spreadsheets.values.append({
