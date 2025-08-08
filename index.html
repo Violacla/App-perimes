@@ -686,69 +686,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 <script>
+// Variable pour stocker toutes les données du tableau
+let allData = []; 
+
 function filterTable() {
-  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-  const monthFilter = document.getElementById("filter-month").value.trim(); // format MM/YYYY
-  const productFilter = document.getElementById("quick-product").value.trim().toLowerCase();
-  const rows = document.querySelectorAll("#data-table tbody tr");
+    const filterText = document.getElementById("filter-text").value.trim().toLowerCase();
+    const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+    const monthFilter = document.getElementById("filter-month").value.trim();
 
-  rows.forEach((row) => {
-    const dateCell = row.cells[0].textContent.trim(); // Date = colonne 0
-    const zoneCell = row.cells[4].textContent.trim().toLowerCase(); // Zone = colonne 4
-    //const productCell = row.cells[1].textContent.trim().toLowerCase();
-    let show = true;
+    const rows = document.querySelectorAll("#data-table tbody tr");
+    let visibleRowsCount = 0;
 
-    // Filtre zone
-    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
-      show = false;
-    }
-    //if (productFilter && !productCell.includes(productFilter)) {
-  //show = false;
-//}
-    // Filtre mois MM/YYYY
-    /*if (monthFilter) {
-      const [yyyy, mm, dd] = dateCell.split('-');
-      const rowMonth = `${mm}/${yyyy}`;
-      const [mFilter, yFilter] = monthFilter.split('/');
-      if (rowMonth !== `${mFilter}/${yFilter}`) {
-        show = false;
-      }
-    }*/
-if (monthFilter) {
-  let rowYear = '';
-  let rowMonth = '';
+    rows.forEach((row) => {
+        const dateCell = row.cells[0].textContent.trim();
+        const productCell = row.cells[1].textContent.trim().toLowerCase();
+        const codeCell = row.cells[2].textContent.trim().toLowerCase();
+        const zoneCell = row.cells[4].textContent.trim().toLowerCase();
 
-  if (dateCell.includes('-')) {
-    const parts = dateCell.split('-'); // format YYYY-MM-DD
-    if (parts.length >= 2) {
-      rowYear = parts[0];
-      rowMonth = parts[1];
-    }
-  }
+        let show = true;
 
-  let mFilter = null;
-  let yFilter = null;
+        // Filtre pour "Nom ou Code"
+        if (filterText && !productCell.includes(filterText) && !codeCell.includes(filterText)) {
+            show = false;
+        }
 
-  if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
-    [mFilter, yFilter] = monthFilter.split('/');
-  } else if (/^\d{6}$/.test(monthFilter)) {
-    mFilter = monthFilter.slice(0, 2);
-    yFilter = monthFilter.slice(2);
-  } else if (/^\d{4}$/.test(monthFilter)) {
-    yFilter = monthFilter;
-  }
+        // Filtre pour la "Zone"
+        if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+            show = false;
+        }
 
-  if (yFilter && rowYear !== yFilter) show = false;
-  if (mFilter && rowMonth !== mFilter) show = false;
+        // Filtre pour la "Date"
+        if (monthFilter) {
+            let rowYear = '';
+            let rowMonth = '';
+            if (dateCell.includes('-')) {
+                const parts = dateCell.split('-');
+                if (parts.length >= 2) {
+                    rowYear = parts[0];
+                    rowMonth = parts[1];
+                }
+            }
+            let mFilter = null;
+            let yFilter = null;
+            if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+                [mFilter, yFilter] = monthFilter.split('/');
+            } else if (/^\d{6}$/.test(monthFilter)) {
+                mFilter = monthFilter.slice(0, 2);
+                yFilter = monthFilter.slice(2);
+            } else if (/^\d{4}$/.test(monthFilter)) {
+                yFilter = monthFilter;
+            }
+
+            if (yFilter && rowYear !== yFilter) show = false;
+            if (mFilter && rowMonth !== mFilter) show = false;
+        }
+        
+        if (show) {
+            row.style.display = "";
+            visibleRowsCount++;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    setStatus(`Affichage de ${visibleRowsCount} lignes sur ${allData.length}.`);
 }
 
-    row.style.display = show ? "" : "none";
-  });
-}
 function clearFilter() {
-  document.getElementById('filter-zone').value = '';
-  document.getElementById('filter-month').value = '';
-  filterTable();
+    document.getElementById('filter-text').value = '';
+    document.getElementById('filter-zone').value = '';
+    document.getElementById('filter-month').value = '';
+    filterTable();
 }
 </script></body>
 <!-- Notification Popup -->
@@ -937,14 +945,20 @@ dateInput.focus();
 
   // Load sheet data, exclude operator from table display
   async function loadSheet() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
-      const rows = res.result.values || [];
-      renderTable(rows);
-    } catch (e) {
-      setStatus("Erreur de chargement : " + e.message);
+    if (!gapi.client.getToken()) {
+        setStatus('Veuillez vous connecter.');
+        return;
     }
-  }
+    try {
+        setStatus('Chargement des données...');
+        const res = await gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: RANGE
+        });
+        allData = res.result.values || [];
+        if (allData.length > 0) {
+            allData = allData.slice(1);
+        }
 
   function clearTable() {
     const tbody = document.querySelector('#data-table tbody');
