@@ -141,7 +141,6 @@
     const TARGET_RANGE = 'Feuille3';
     let tokenClient;
     let accessToken = null;
-
     function gapiLoaded() {
         gapi.load('client', async () => {
             await gapi.client.init({
@@ -149,7 +148,6 @@
             });
         });
     }
-
     function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID,
@@ -159,7 +157,9 @@
                 gapi.client.setToken({ access_token: accessToken });
                 document.getElementById('login-block').style.display = 'none';
                 document.getElementById('btn-logout').style.display = 'inline-block';
-                document.getElementById('btn-sync').style.display = 'inline-block';
+                // La ligne ci-dessous est commentée pour éviter d'écraser vos modifications.
+                // Vous pouvez la décommenter pour lancer la copie manuellement si besoin.
+                // await copyPromotionsToFeuille3();
                 await loadSheet();
             }
         });
@@ -173,50 +173,14 @@
             }
         };
     }
-
     document.getElementById('btn-logout').onclick = () => {
         accessToken = null;
         document.getElementById('login-block').style.display = 'flex';
         document.getElementById('btn-logout').style.display = 'none';
-        document.getElementById('btn-sync').style.display = 'none';
         document.getElementById('status').textContent = 'Déconnecté.';
         document.querySelector('#data-table tbody').innerHTML = '';
         document.getElementById('operator').value = '';
     };
-
-    document.getElementById('btn-sync').onclick = async () => {
-        document.getElementById('status').textContent = 'Synchronisation en cours...';
-        await copyPromotionsToFeuille3(); // Appel de la fonction de copie
-        await loadSheet();
-        document.getElementById('status').textContent = 'Synchronisation terminée !';
-    };
-    
-    async function copyPromotionsToFeuille3() {
-        try {
-            const res = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: SOURCE_RANGE
-            });
-            const rows = res.result.values || [];
-            if (rows.length === 0) {
-                console.log("Feuille1 est vide. Aucune donnée à copier.");
-                return;
-            }
-            await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE,
-                valueInputOption: 'RAW',
-                resource: {
-                    values: rows
-                }
-            });
-            console.log("Feuille3 mise à jour avec les promotions de Feuille1.");
-        } catch (error) {
-            console.error("Erreur lors de la synchronisation :", error);
-            document.getElementById('status').textContent = 'Erreur de synchronisation.';
-        }
-    }
-
     async function loadSheet() {
         try {
             const res = await gapi.client.sheets.spreadsheets.values.get({
@@ -230,7 +194,6 @@
             document.getElementById('status').textContent = 'Erreur : ' + e.message;
         }
     }
-
     function renderTable(rows) {
         const tbody = document.querySelector("#data-table tbody");
         tbody.innerHTML = "";
@@ -239,12 +202,12 @@
         let moisSuivant = [];
         let facingCount = 0;
 
-        rows.slice(1).forEach((row, index) => {
-            const promo = parseFloat(row[7]) || 0;
-            const date = new Date(row[1]);
+        rows.slice(1).forEach((row, index) => { // L'index est ici l'index original de la ligne dans la feuille, en omettant l'en-tête.
+            const promo = parseFloat(row[7]) || 0; // colonne H
+            const date = new Date(row[1]); // colonne B
             
             if (promo > 0 && !isNaN(date)) {
-                const originalRowIndex = index + 2;
+                const originalRowIndex = index + 2; // +2 pour correspondre à la numérotation des lignes de Google Sheets (1-based) et à la ligne d'en-tête
                 const [, dateStr, produit, code, , zone, , promoQty, , rawPrix] = row;
                 const numericPrix = parseFloat((rawPrix || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
                 
@@ -307,7 +270,8 @@
                     else if (item.reductionTxt === "-30%") updated = newPrix * 0.7;
                     td8.textContent = updated.toFixed(2) + " €";
                     
-                    const range = `Feuille3!D${item.originalRowIndex}`;
+                    // Code pour sauvegarder le prix dans Google Sheet
+                    const range = `Feuille3!D${item.originalRowIndex}`; // Colonne D pour le prix unitaire
                     try {
                         await gapi.client.sheets.spreadsheets.values.update({
                             spreadsheetId: SPREADSHEET_ID,
@@ -347,7 +311,6 @@
         }
         document.getElementById("status").textContent = 'Données triées et enrichies.';
     }
-
     async function cleanOldEntries(rows) {
         const now = new Date();
         const header = rows[0];
@@ -364,7 +327,32 @@
         });
         console.log("Nettoyage automatique effectué (Feuille3)");
     }
-
+    async function copyPromotionsToFeuille3() {
+        try {
+            const res = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: SOURCE_RANGE
+            });
+            const rows = res.result.values || [];
+            const header = rows[0];
+            const promoRows = rows.slice(1).filter(row => parseFloat(row[7]) > 0);
+            if (promoRows.length === 0) {
+                console.log("Aucune ligne avec Promo > 0 à copier.");
+                return;
+            }
+            await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: SPREADSHEET_ID,
+                range: TARGET_RANGE,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [header, ...promoRows]
+                }
+            });
+            console.log("Feuille3 mise à jour avec promotions > 0.");
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour :", error);
+        }
+    }
     window.onload = () => {
         gapiLoaded();
         gisLoaded();
