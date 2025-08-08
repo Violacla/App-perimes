@@ -1033,6 +1033,9 @@ td.dataset.row = actualSheetRow;
     return letter;
   }
 
+f// Variable pour stocker toutes les données du tableau
+let allData = [];
+
 function filterTable() {
     const filterText = document.getElementById("filter-text").value.trim().toLowerCase();
     const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
@@ -1042,10 +1045,10 @@ function filterTable() {
     let visibleRowsCount = 0;
 
     rows.forEach((row) => {
+        const dateCell = row.cells[0].textContent.trim();
         const productCell = row.cells[1].textContent.trim().toLowerCase();
         const codeCell = row.cells[2].textContent.trim().toLowerCase();
         const zoneCell = row.cells[4].textContent.trim().toLowerCase();
-        const dateCell = row.cells[0].textContent.trim();
 
         let show = true;
 
@@ -1102,13 +1105,6 @@ function clearFilter() {
     document.getElementById('filter-month').value = '';
     filterTable();
 }
-}
-
-  function clearFilter() {
-    document.getElementById('filter-zone').value = '';
-    document.getElementById('filter-month').value = '';
-    filterTable();
-  }
 
   // Notification popup logic
   const notifPopup = document.getElementById('notification-popup');
