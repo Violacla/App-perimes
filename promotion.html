@@ -137,10 +137,11 @@
 <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-    const SOURCE_RANGE = 'Feuille1';
-    const TARGET_RANGE = 'Feuille3';
+    const SOURCE_RANGE = 'Feuille1!A:K';
+    const TARGET_RANGE = 'Feuille3!A:K';
     let tokenClient;
     let accessToken = null;
+
     function gapiLoaded() {
         gapi.load('client', async () => {
             await gapi.client.init({
@@ -148,6 +149,7 @@
             });
         });
     }
+
     function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID,
@@ -157,30 +159,104 @@
                 gapi.client.setToken({ access_token: accessToken });
                 document.getElementById('login-block').style.display = 'none';
                 document.getElementById('btn-logout').style.display = 'inline-block';
-                // La ligne ci-dessous est commentée pour éviter d'écraser vos modifications.
-                // Vous pouvez la décommenter pour lancer la copie manuellement si besoin.
-                // await copyPromotionsToFeuille3();
+                document.getElementById('btn-sync').style.display = 'inline-block';
                 await loadSheet();
             }
         });
-        document.getElementById('btn-validate').onclick = () => {
-            const op = parseInt(document.getElementById("operator").value);
-            if ([1, 6, 7].includes(op)) {
-                document.getElementById("login-error").textContent = "";
-                tokenClient.requestAccessToken();
-            } else {
-                document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
+        document.getElementById('btn-validate').onclick = validateOperator;
+        document.getElementById('operator').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                validateOperator();
             }
-        };
+        });
     }
+
+    function validateOperator() {
+        const op = parseInt(document.getElementById("operator").value);
+        if ([1, 6, 7].includes(op)) {
+            document.getElementById("login-error").textContent = "";
+            tokenClient.requestAccessToken();
+        } else {
+            document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
+        }
+    }
+
     document.getElementById('btn-logout').onclick = () => {
         accessToken = null;
         document.getElementById('login-block').style.display = 'flex';
         document.getElementById('btn-logout').style.display = 'none';
+        document.getElementById('btn-sync').style.display = 'none';
         document.getElementById('status').textContent = 'Déconnecté.';
         document.querySelector('#data-table tbody').innerHTML = '';
         document.getElementById('operator').value = '';
     };
+
+    document.getElementById('btn-sync').onclick = async () => {
+        document.getElementById('status').textContent = 'Synchronisation en cours...';
+        await synchronizeSheets();
+        await loadSheet();
+        document.getElementById('status').textContent = 'Synchronisation terminée !';
+    };
+    
+    async function synchronizeSheets() {
+        try {
+            const resSource = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: SOURCE_RANGE
+            });
+            const resTarget = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: TARGET_RANGE
+            });
+            const sourceRows = resSource.result.values || [];
+            const targetRows = resTarget.result.values || [];
+
+            if (sourceRows.length === 0) {
+                document.getElementById('status').textContent = 'Feuille1 est vide. Aucune donnée à synchroniser.';
+                return;
+            }
+
+            const promoRowsFromSource = sourceRows.slice(1).filter(row => parseFloat(row[7]) > 0);
+            
+            const existingPromos = new Map();
+            if (targetRows.length > 1) {
+                targetRows.slice(1).forEach(row => {
+                    const code = row[3];
+                    if (code) {
+                        existingPromos.set(code, row);
+                    }
+                });
+            }
+
+            const newTargetRows = [];
+            const sourceHeader = sourceRows[0] || [];
+            const targetHeader = targetRows[0] || [...sourceHeader.slice(0, 10), 'Prix_modifié'];
+            newTargetRows.push(targetHeader);
+
+            promoRowsFromSource.forEach(sourceRow => {
+                const code = sourceRow[3];
+                if (existingPromos.has(code)) {
+                    newTargetRows.push(existingPromos.get(code));
+                } else {
+                    const newRow = [...sourceRow];
+                    newTargetRows.push(newRow);
+                }
+            });
+
+            await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: SPREADSHEET_ID,
+                range: 'Feuille3!A1',
+                valueInputOption: 'RAW',
+                resource: { values: newTargetRows }
+            });
+            
+            console.log("Feuille3 synchronisée, les prix modifiés ont été conservés.");
+        } catch (error) {
+            console.error("Erreur de synchronisation:", error);
+            document.getElementById('status').textContent = `Erreur lors de la synchronisation: ${error.message}`;
+        }
+    }
+
     async function loadSheet() {
         try {
             const res = await gapi.client.sheets.spreadsheets.values.get({
@@ -191,9 +267,10 @@
             await cleanOldEntries(rows);
             renderTable(rows);
         } catch (e) {
-            document.getElementById('status').textContent = 'Erreur : ' + e.message;
+            document.getElementById('status').textContent = `Erreur de chargement: ${e.message}`;
         }
     }
+
     function renderTable(rows) {
         const tbody = document.querySelector("#data-table tbody");
         tbody.innerHTML = "";
@@ -202,15 +279,22 @@
         let moisSuivant = [];
         let facingCount = 0;
 
-        rows.slice(1).forEach((row, index) => { // L'index est ici l'index original de la ligne dans la feuille, en omettant l'en-tête.
-            const promo = parseFloat(row[7]) || 0; // colonne H
-            const date = new Date(row[1]); // colonne B
+        rows.slice(1).forEach((row, index) => {
+            const promo = parseFloat(row[7]) || 0;
+            const date = new Date(row[1]);
             
             if (promo > 0 && !isNaN(date)) {
-                const originalRowIndex = index + 2; // +2 pour correspondre à la numérotation des lignes de Google Sheets (1-based) et à la ligne d'en-tête
-                const [, dateStr, produit, code, , zone, , promoQty, , rawPrix] = row;
-                const numericPrix = parseFloat((rawPrix || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+                const originalRowIndex = index + 2;
+                const dateStr = row[1];
+                const produit = row[2];
+                const code = row[3];
+                const prixUnitaireBase = row[9];
+                const prixUnitaireModifie = row[10];
+                const zone = row[5];
+                const promoQty = row[7];
                 
+                const prixFinalUtilise = parseFloat((prixUnitaireModifie || prixUnitaireBase || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+
                 const rowMonth = date.getMonth();
                 const rowYear = date.getFullYear();
                 const now = new Date();
@@ -218,20 +302,20 @@
                 const currentYear = now.getFullYear();
                 const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
                 const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-                let prixFinal = numericPrix;
+                let prixFinal = prixFinalUtilise;
                 let reductionTxt = "";
                 let explication = "Non concerné";
 
                 if (diff === 0) {
-                    prixFinal = numericPrix * 0.5;
+                    prixFinal = prixFinalUtilise * 0.5;
                     reductionTxt = "-50%";
                     explication = `${moisTexte[rowMonth]} : -50%`;
-                    moisEnCours.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
+                    moisEnCours.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
                 } else if (diff === 1) {
-                    prixFinal = numericPrix * 0.7;
+                    prixFinal = prixFinalUtilise * 0.7;
                     reductionTxt = "-30%";
                     explication = `${moisTexte[rowMonth]} : -30%`;
-                    moisSuivant.push({ dateStr, produit, code, prix: numericPrix, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
+                    moisSuivant.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
                 } else if (diff === 2) {
                     facingCount++;
                 }
@@ -270,8 +354,7 @@
                     else if (item.reductionTxt === "-30%") updated = newPrix * 0.7;
                     td8.textContent = updated.toFixed(2) + " €";
                     
-                    // Code pour sauvegarder le prix dans Google Sheet
-                    const range = `Feuille3!D${item.originalRowIndex}`; // Colonne D pour le prix unitaire
+                    const range = `Feuille3!K${item.originalRowIndex}`;
                     try {
                         await gapi.client.sheets.spreadsheets.values.update({
                             spreadsheetId: SPREADSHEET_ID,
@@ -311,6 +394,7 @@
         }
         document.getElementById("status").textContent = 'Données triées et enrichies.';
     }
+
     async function cleanOldEntries(rows) {
         const now = new Date();
         const header = rows[0];
@@ -327,32 +411,7 @@
         });
         console.log("Nettoyage automatique effectué (Feuille3)");
     }
-    async function copyPromotionsToFeuille3() {
-        try {
-            const res = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: SOURCE_RANGE
-            });
-            const rows = res.result.values || [];
-            const header = rows[0];
-            const promoRows = rows.slice(1).filter(row => parseFloat(row[7]) > 0);
-            if (promoRows.length === 0) {
-                console.log("Aucune ligne avec Promo > 0 à copier.");
-                return;
-            }
-            await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE,
-                valueInputOption: 'RAW',
-                resource: {
-                    values: [header, ...promoRows]
-                }
-            });
-            console.log("Feuille3 mise à jour avec promotions > 0.");
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour :", error);
-        }
-    }
+
     window.onload = () => {
         gapiLoaded();
         gisLoaded();
