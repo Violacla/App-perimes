@@ -490,18 +490,24 @@ Déconnexion
 <main>
 <div style="flex-grow:1;">
 <div id="filters">
-  <label for="filter-zone">Filtrer Zone:</label>
-  <input id="filter-zone" type="text" />
-  <label for="filter-month">Date (MM/YYYY ou YYYY):</label>
-  <input id="filter-month" style="width: 140px;" type="text" />
-  <label for="filter-name-code">Nom ou Code:</label>
-  <input id="filter-name-code" type="text" />
-  <button onclick="filterTable()">Filtrer</button>
-  <button onclick="clearFilter()">Réinitialiser</button>
-  <button id="btn-print-table" title="EXPORTER EN PDF">
-    <img src="https://i.imgur.com/WbH9qyS.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;" />
-  </button>
-  <ul class="autocomplete-list" id="filter-zone-suggestions" style="display: none;"></ul>
+    <div class="filter-group">
+        <label for="filter-zone">Zone:</label>
+        <input id="filter-zone" type="text" />
+    </div>
+    <div class="filter-group">
+        <label for="filter-month">Date (MM/YYYY ou YYYY):</label>
+        <input id="filter-month" style="width: 140px;" type="text" />
+    </div>
+    <div class="filter-group">
+        <label for="filter-name-code">Nom ou Code:</label>
+        <input id="filter-name-code" type="text" />
+    </div>
+    <button onclick="filterTable()">Filtrer</button>
+    <button onclick="clearFilter()">Réinitialiser</button>
+    <button id="btn-print-table" title="EXPORTER EN PDF">
+        <img src="https://i.imgur.com/WbH9qyS.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;" />
+    </button>
+    <ul class="autocomplete-list" id="filter-zone-suggestions" style="display: none;"></ul>
 </div>
 <div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
