@@ -1133,25 +1133,41 @@ function formatMonthYear(ym) {
 }
 
   // Load GAPI & GIS on window load
-  window.onload = () => {
+ window.onload = () => {
     gapiLoaded();
     gisLoaded();
-  };</script>
-<script>
-if (document.getElementById('btn-history')) {
-  document.getElementById('btn-history').addEventListener('click', async () => {
-}
-    if (!operatorName) {
-      alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
-      return;
+
+    const updateOverlay = document.getElementById('update-overlay');
+    const btnLogin = document.getElementById('btn-login');
+    const notifBadge = document.getElementById('notif-badge');
+
+    function hideUpdatePopup() {
+        if (updateOverlay) {
+            updateOverlay.style.display = 'none';
+        }
     }
-    try {
-      await transferToHistorique();
-      window.location.href = '/historique.html';
-    } catch (e) {
-      alert("Erreur lors du transfert vers historique : " + e.message);
+
+    // Gestion de la pop-up de mise à jour au chargement
+    if (updateOverlay) {
+        updateOverlay.style.display = 'flex';
+        // Fermeture de la pop-up si on clique sur le bouton de connexion
+        btnLogin.addEventListener('click', () => {
+            hideUpdatePopup();
+            if (tokenClient) {
+                tokenClient.requestAccessToken();
+            }
+        });
     }
-  });
+
+    // Gestion du badge de notification
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
+    if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
+        if (notifBadge) {
+            notifBadge.style.display = 'inline-block';
+        }
+    }
+};
 
   async function transferToHistorique() {
     const res = await gapi.client.sheets.spreadsheets.values.get({
