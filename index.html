@@ -455,23 +455,19 @@ Déconnexion
 <main>
 <div style="flex-grow:1;">
 <div id="filters">
-    <div>
-        <label for="filter-text">Nom ou Code</label>
-        <input type="text" id="filter-text" placeholder="Rechercher..." oninput="filterTable()"/>
-    </div>
-    <div>
-        <label for="filter-zone">Zone</label>
-        <input id="filter-zone" placeholder="Ex: Zone A" type="text" oninput="filterTable()"/>
-    </div>
-    <div>
-        <label for="filter-month">Date</label>
-        <input id="filter-month" placeholder="MM/YYYY ou YYYY" style="width: 140px;" type="text" oninput="filterTable()"/>
-    </div>
-    <button onclick="clearFilter()">Réinitialiser</button>
-    <button id="btn-print-table" title="EXPORTER EN PDF">
-        <img src="https://i.imgur.com/WbH9qyS.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
-        PDF
-    </button>
+<!--<label for="quickSearchProduct">Recherche:</label>-->
+<!-- <input type="text" id="quick-product" placeholder="Nom...." style="margin-left: 10px;" /> -->
+<label for="filter-zone">Filtrer Zone:</label>
+<input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
+<label for="filter-month">Date:</label>
+<input id="filter-month" placeholder="MMYYYY or YYYY" style="width: 140px;" type="text"/>
+<button onclick="filterTable()">Filtrer</button>
+<button onclick="clearFilter()">Réinitialiser</button>
+<button id="btn-print-table" title="EXPORTER EN PDF">
+<img src="https://i.imgur.com/WbH9qyS.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+ PDF
+</button>
+<ul class="autocomplete-list" id="filter-zone-suggestions" style="display: none;"></ul>
 </div>
 <div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
@@ -515,8 +511,9 @@ Déconnexion
       - " 2ème Mois " => Affiche le mois "central" du trimestre (ex : Octobre si nous sommes en Août) <br>
       - " À retirer " => Affiche les produits périmés le mois précédent, à retirer des rayons.<br>
       Vous pouvez imprimer les tableaux avec le bouton imprimante. </li>
-      <li>2. Cette fenêtre de mise à jour s’affiche uniquement au démarrage, et disparaît automatiquement après avoir cliqué sur “Se connecter”. </li>
-      <li>3. Un icone " ? " est apparu à côté de " % promo ", il ouvre une page google drive qui permet d'échanger en direct. Il y aussi un descriptif des différentes fonctionnalités de l'application </li>
+      <li>2.La vérification des dates a été améliorée : un message s’affiche si la date saisie est antérieure à aujourd’hui.</li>
+      <li>3. Cette fenêtre de mise à jour s’affiche uniquement au démarrage, et disparaît automatiquement après avoir cliqué sur “Se connecter”. </li>
+      <li>4. Un icone " ? " est apparu à côté de " % promo ", il ouvre une page google drive qui permet d'échanger en direct. Il y aussi un descriptif des différentes fonctionnalités de l'application </li>
       <li>N’hésitez pas à me faire part de vos suggestions ou remarques pour continuer à améliorer l’application.<br>
     <em>Violaine</em> </li>
     </ul>
@@ -686,77 +683,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 <script>
-// Variable pour stocker toutes les données du tableau
-let allData = []; 
-
 function filterTable() {
-    const filterText = document.getElementById("filter-text").value.trim().toLowerCase();
-    const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-    const monthFilter = document.getElementById("filter-month").value.trim();
+  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+  const monthFilter = document.getElementById("filter-month").value.trim(); // format MM/YYYY
+  const productFilter = document.getElementById("quick-product").value.trim().toLowerCase();
+  const rows = document.querySelectorAll("#data-table tbody tr");
 
-    const rows = document.querySelectorAll("#data-table tbody tr");
-    let visibleRowsCount = 0;
+  rows.forEach((row) => {
+    const dateCell = row.cells[0].textContent.trim(); // Date = colonne 0
+    const zoneCell = row.cells[4].textContent.trim().toLowerCase(); // Zone = colonne 4
+    //const productCell = row.cells[1].textContent.trim().toLowerCase();
+    let show = true;
 
-    rows.forEach((row) => {
-        const dateCell = row.cells[0].textContent.trim();
-        const productCell = row.cells[1].textContent.trim().toLowerCase();
-        const codeCell = row.cells[2].textContent.trim().toLowerCase();
-        const zoneCell = row.cells[4].textContent.trim().toLowerCase();
+    // Filtre zone
+    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+      show = false;
+    }
+    //if (productFilter && !productCell.includes(productFilter)) {
+  //show = false;
+//}
+    // Filtre mois MM/YYYY
+    /*if (monthFilter) {
+      const [yyyy, mm, dd] = dateCell.split('-');
+      const rowMonth = `${mm}/${yyyy}`;
+      const [mFilter, yFilter] = monthFilter.split('/');
+      if (rowMonth !== `${mFilter}/${yFilter}`) {
+        show = false;
+      }
+    }*/
+if (monthFilter) {
+  let rowYear = '';
+  let rowMonth = '';
 
-        let show = true;
+  if (dateCell.includes('-')) {
+    const parts = dateCell.split('-'); // format YYYY-MM-DD
+    if (parts.length >= 2) {
+      rowYear = parts[0];
+      rowMonth = parts[1];
+    }
+  }
 
-        // Filtre pour "Nom ou Code"
-        if (filterText && !productCell.includes(filterText) && !codeCell.includes(filterText)) {
-            show = false;
-        }
+  let mFilter = null;
+  let yFilter = null;
 
-        // Filtre pour la "Zone"
-        if (zoneFilter && !zoneCell.includes(zoneFilter)) {
-            show = false;
-        }
+  if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+    [mFilter, yFilter] = monthFilter.split('/');
+  } else if (/^\d{6}$/.test(monthFilter)) {
+    mFilter = monthFilter.slice(0, 2);
+    yFilter = monthFilter.slice(2);
+  } else if (/^\d{4}$/.test(monthFilter)) {
+    yFilter = monthFilter;
+  }
 
-        // Filtre pour la "Date"
-        if (monthFilter) {
-            let rowYear = '';
-            let rowMonth = '';
-            if (dateCell.includes('-')) {
-                const parts = dateCell.split('-');
-                if (parts.length >= 2) {
-                    rowYear = parts[0];
-                    rowMonth = parts[1];
-                }
-            }
-            let mFilter = null;
-            let yFilter = null;
-            if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
-                [mFilter, yFilter] = monthFilter.split('/');
-            } else if (/^\d{6}$/.test(monthFilter)) {
-                mFilter = monthFilter.slice(0, 2);
-                yFilter = monthFilter.slice(2);
-            } else if (/^\d{4}$/.test(monthFilter)) {
-                yFilter = monthFilter;
-            }
-
-            if (yFilter && rowYear !== yFilter) show = false;
-            if (mFilter && rowMonth !== mFilter) show = false;
-        }
-        
-        if (show) {
-            row.style.display = "";
-            visibleRowsCount++;
-        } else {
-            row.style.display = "none";
-        }
-    });
-
-    setStatus(`Affichage de ${visibleRowsCount} lignes sur ${allData.length}.`);
+  if (yFilter && rowYear !== yFilter) show = false;
+  if (mFilter && rowMonth !== mFilter) show = false;
 }
 
+    row.style.display = show ? "" : "none";
+  });
+}
 function clearFilter() {
-    document.getElementById('filter-text').value = '';
-    document.getElementById('filter-zone').value = '';
-    document.getElementById('filter-month').value = '';
-    filterTable();
+  document.getElementById('filter-zone').value = '';
+  document.getElementById('filter-month').value = '';
+  filterTable();
 }
 </script></body>
 <!-- Notification Popup -->
@@ -899,12 +888,14 @@ const values = [[
 
       loadSheet();
       setStatus('Ligne ajoutée avec succès !');
-// Réinitialise tous les champs de manière propre
-      document.getElementById('date').value = '';
-      document.getElementById('product').value = '';
-      document.getElementById('code').value = '';
-      document.getElementById('qty').value = '';
-      document.getElementById('zone').value = '';
+      // Réinitialise tous les champs AVANT le rechargement
+document.getElementById('date').value = '';
+document.getElementById('product').value = '';
+document.getElementById('code').value = '';
+document.getElementById('qty').value = '';
+document.getElementById('zone').value = '';
+document.getElementById('sold').value = '';
+document.getElementById('promo').value = '';
 
 // Traitement spécial pour le champ date
 const dateInput = document.getElementById('date');
@@ -945,20 +936,14 @@ dateInput.focus();
 
   // Load sheet data, exclude operator from table display
   async function loadSheet() {
-    if (!gapi.client.getToken()) {
-        setStatus('Veuillez vous connecter.');
-        return;
-    }
     try {
-        setStatus('Chargement des données...');
-        const res = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: SPREADSHEET_ID,
-            range: RANGE
-        });
-        allData = res.result.values || [];
-        if (allData.length > 0) {
-            allData = allData.slice(1);
-        }
+      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
+      const rows = res.result.values || [];
+      renderTable(rows);
+    } catch (e) {
+      setStatus("Erreur de chargement : " + e.message);
+    }
+  }
 
   function clearTable() {
     const tbody = document.querySelector('#data-table tbody');
@@ -1033,78 +1018,57 @@ td.dataset.row = actualSheetRow;
     return letter;
   }
 
-f// Variable pour stocker toutes les données du tableau
-let allData = [];
-
 function filterTable() {
-    const filterText = document.getElementById("filter-text").value.trim().toLowerCase();
-    const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-    const monthFilter = document.getElementById("filter-month").value.trim();
+  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+  const monthFilter = document.getElementById("filter-month").value.trim(); // 07/2025 ou 072025 ou 2025
+  const rows = document.querySelectorAll("#data-table tbody tr");
 
-    const rows = document.querySelectorAll("#data-table tbody tr");
-    let visibleRowsCount = 0;
+  rows.forEach((row) => {
+    const dateCell = row.cells[0].textContent.trim(); // format = YYYY-MM-DD
+    const zoneCell = row.cells[4].textContent.trim().toLowerCase();
+    let show = true;
 
-    rows.forEach((row) => {
-        const dateCell = row.cells[0].textContent.trim();
-        const productCell = row.cells[1].textContent.trim().toLowerCase();
-        const codeCell = row.cells[2].textContent.trim().toLowerCase();
-        const zoneCell = row.cells[4].textContent.trim().toLowerCase();
+    // 🔹 Filtrer par zone
+    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+      show = false;
+    }
 
-        let show = true;
+    // 🔹 Filtrer par date
+    if (monthFilter) {
+      let rowYear = '';
+      let rowMonth = '';
 
-        // Filtre pour "Nom ou Code"
-        if (filterText && !productCell.includes(filterText) && !codeCell.includes(filterText)) {
-            show = false;
-        }
+      if (dateCell.includes('-')) {
+        const [yyyy, mm] = dateCell.split('-');
+        rowYear = yyyy;
+        rowMonth = mm;
+      }
 
-        // Filtre pour la "Zone"
-        if (zoneFilter && !zoneCell.includes(zoneFilter)) {
-            show = false;
-        }
+      let mFilter = null;
+      let yFilter = null;
 
-        // Filtre pour la "Date"
-        if (monthFilter) {
-            let rowYear = '';
-            let rowMonth = '';
-            if (dateCell.includes('-')) {
-                const parts = dateCell.split('-');
-                if (parts.length >= 2) {
-                    rowYear = parts[0];
-                    rowMonth = parts[1];
-                }
-            }
-            let mFilter = null;
-            let yFilter = null;
-            if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
-                [mFilter, yFilter] = monthFilter.split('/');
-            } else if (/^\d{6}$/.test(monthFilter)) {
-                mFilter = monthFilter.slice(0, 2);
-                yFilter = monthFilter.slice(2);
-            } else if (/^\d{4}$/.test(monthFilter)) {
-                yFilter = monthFilter;
-            }
+      if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+        [mFilter, yFilter] = monthFilter.split('/');
+      } else if (/^\d{6}$/.test(monthFilter)) {
+        mFilter = monthFilter.slice(0, 2);
+        yFilter = monthFilter.slice(2);
+      } else if (/^\d{4}$/.test(monthFilter)) {
+        yFilter = monthFilter;
+      }
 
-            if (yFilter && rowYear !== yFilter) show = false;
-            if (mFilter && rowMonth !== mFilter) show = false;
-        }
-        
-        if (show) {
-            row.style.display = "";
-            visibleRowsCount++;
-        } else {
-            row.style.display = "none";
-        }
-    });
+      if (yFilter && rowYear !== yFilter) show = false;
+      if (mFilter && rowMonth !== mFilter) show = false;
+    }
 
-    setStatus(`Affichage de ${visibleRowsCount} lignes sur ${allData.length}.`);
+    row.style.display = show ? "" : "none";
+  });
 }
 
-function clearFilter() {
-    document.getElementById('filter-text').value = '';
+  function clearFilter() {
     document.getElementById('filter-zone').value = '';
     document.getElementById('filter-month').value = '';
     filterTable();
-}
+  }
 
   // Notification popup logic
   const notifPopup = document.getElementById('notification-popup');
@@ -1133,41 +1097,25 @@ function formatMonthYear(ym) {
 }
 
   // Load GAPI & GIS on window load
- window.onload = () => {
+  window.onload = () => {
     gapiLoaded();
     gisLoaded();
-
-    const updateOverlay = document.getElementById('update-overlay');
-    const btnLogin = document.getElementById('btn-login');
-    const notifBadge = document.getElementById('notif-badge');
-
-    function hideUpdatePopup() {
-        if (updateOverlay) {
-            updateOverlay.style.display = 'none';
-        }
+  };</script>
+<script>
+if (document.getElementById('btn-history')) {
+  document.getElementById('btn-history').addEventListener('click', async () => {
+}
+    if (!operatorName) {
+      alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
+      return;
     }
-
-    // Gestion de la pop-up de mise à jour au chargement
-    if (updateOverlay) {
-        updateOverlay.style.display = 'flex';
-        // Fermeture de la pop-up si on clique sur le bouton de connexion
-        btnLogin.addEventListener('click', () => {
-            hideUpdatePopup();
-            if (tokenClient) {
-                tokenClient.requestAccessToken();
-            }
-        });
+    try {
+      await transferToHistorique();
+      window.location.href = '/historique.html';
+    } catch (e) {
+      alert("Erreur lors du transfert vers historique : " + e.message);
     }
-
-    // Gestion du badge de notification
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
-    if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
-        if (notifBadge) {
-            notifBadge.style.display = 'inline-block';
-        }
-    }
-};
+  });
 
   async function transferToHistorique() {
     const res = await gapi.client.sheets.spreadsheets.values.get({
