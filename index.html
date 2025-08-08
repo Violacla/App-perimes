@@ -283,6 +283,39 @@
   background-color: #d8c0ca !important; /* ou une autre couleur que tu préfères */
   color: #efe8eb; /* facultatif : texte un peu plus gris */
 }
+  #filters {
+    margin: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+#filters label {
+    font-weight: bold;
+    color: #0a2f51; /* Couleur du titre */
+}
+
+#filters input,
+#filters button {
+    padding: 5px 8px;
+    font-size: 1em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+#filters button {
+    background-color: #bcd7ed; /* Couleur du bouton de connexion */
+    color: black;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#filters button:hover {
+    background-color: #a6c6e1; /* Couleur au survol */
+    color: black;
+}
   /* Styles pour l'impression */
   @media print {
     body > :not(#notification-popup) {
@@ -454,6 +487,13 @@ Déconnexion
 </header>
 <main>
 <div style="flex-grow:1;">
+  <div id="filters">
+    <div>
+        <label for="filter-text">Nom ou Code</label>
+        <input type="text" id="filter-text" placeholder="Rechercher..." oninput="filterTable()"/>
+    </div>
+    <button onclick="clearFilter()">Réinitialiser</button>
+</div>
 <div id="filters">
 <!--<label for="quickSearchProduct">Recherche:</label>-->
 <!-- <input type="text" id="quick-product" placeholder="Nom...." style="margin-left: 10px;" /> -->
