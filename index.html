@@ -678,6 +678,33 @@ document.addEventListener('DOMContentLoaded', () => {
       setStatus("Erreur suppression : " + e.message);
     }
   }
+  function renderTable(data) {
+    const tbody = document.querySelector("#data-table tbody");
+    tbody.innerHTML = "";
+    
+    if (data.length === 0) {
+        setStatus('Aucune donnée à afficher.');
+        return;
+    }
+    
+    data.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${row[1] || ''}</td>
+            <td>${row[2] || ''}</td>
+            <td>${row[3] || ''}</td>
+            <td>${row[4] || ''}</td>
+            <td>${row[5] || ''}</td>
+            <td>${row[6] || ''}</td>
+            <td>${row[7] || ''}</td>
+            <td><button onclick="deleteRow(${index + 2})">Suppr</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    setStatus(`Affichage de ${data.length} lignes.`);
+    filterTable();
+}
 </script>
 <script>
   const filterMonthInput = document.getElementById('filter-month');
@@ -1432,31 +1459,7 @@ tdDelete.addEventListener('click', async () => {
     }
   });
 </script>
-<script>
-  async function deleteRow(rowIndex) {
-    try {
-      await gapi.client.sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        resource: {
-          requests: [{
-            deleteDimension: {
-              range: {
-                sheetId: 0,
-                dimension: "ROWS",
-                startIndex: rowIndex - 1,
-                endIndex: rowIndex
-              }
-            }
-          }]
-        }
-      });
-      setStatus("Ligne supprimée avec succès.");
-      loadSheet();
-    } catch (e) {
-      setStatus("Erreur suppression : " + e.message);
-    }
-  }
-</script>
+
 <script>
  /* if (filterMonthInput) {
     filterMonthInput.addEventListener('input', function(e) {
