@@ -235,8 +235,25 @@
 
             promoRowsFromSource.forEach(sourceRow => {
                 const code = sourceRow[3];
-                if (existingPromos.has(code)) {
-                    newTargetRows.push(existingPromos.get(code));
+                const existingRow = existingPromos.get(code);
+
+                if (existingRow) {
+                    const updatedRow = [...existingRow];
+                    
+                    // Mettre à jour les données de la ligne à partir de Feuille1
+                    sourceRow.forEach((value, index) => {
+                        // On ignore la colonne du prix modifié (index 10)
+                        if (index !== 10) { 
+                             updatedRow[index] = value;
+                        }
+                    });
+
+                    // Si le prix modifié est vide, on met à jour le prix unitaire de base (index 9)
+                    if (!updatedRow[10]) {
+                        updatedRow[9] = sourceRow[9];
+                    }
+
+                    newTargetRows.push(updatedRow);
                 } else {
                     const newRow = [...sourceRow];
                     newTargetRows.push(newRow);
