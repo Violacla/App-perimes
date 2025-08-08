@@ -455,17 +455,19 @@ Déconnexion
 <main>
 <div style="flex-grow:1;">
 <div id="filters">
-<!--<label for="quickSearchProduct">Recherche:</label>-->
-<!-- <input type="text" id="quick-product" placeholder="Nom...." style="margin-left: 10px;" /> -->
 <label for="filter-zone">Filtrer Zone:</label>
 <input id="filter-zone" placeholder="Ex: Zone A" type="text"/>
 <label for="filter-month">Date:</label>
 <input id="filter-month" placeholder="MMYYYY or YYYY" style="width: 140px;" type="text"/>
+
+<label for="filter-name-code">Nom ou Code:</label>
+<input id="filter-name-code" placeholder="Nom du produit ou code" type="text" />
+
 <button onclick="filterTable()">Filtrer</button>
 <button onclick="clearFilter()">Réinitialiser</button>
 <button id="btn-print-table" title="EXPORTER EN PDF">
 <img src="https://i.imgur.com/WbH9qyS.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
- PDF
+PDF
 </button>
 <ul class="autocomplete-list" id="filter-zone-suggestions" style="display: none;"></ul>
 </div>
@@ -684,68 +686,66 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 function filterTable() {
-  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-  const monthFilter = document.getElementById("filter-month").value.trim(); // format MM/YYYY
-  const productFilter = document.getElementById("quick-product").value.trim().toLowerCase();
-  const rows = document.querySelectorAll("#data-table tbody tr");
+const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+const monthFilter = document.getElementById("filter-month").value.trim();
+// NOUVEAU : Récupérer la valeur du nouveau champ de recherche
+const nameCodeFilter = document.getElementById("filter-name-code").value.trim().toLowerCase(); 
+const rows = document.querySelectorAll("#data-table tbody tr");
 
-  rows.forEach((row) => {
-    const dateCell = row.cells[0].textContent.trim(); // Date = colonne 0
-    const zoneCell = row.cells[4].textContent.trim().toLowerCase(); // Zone = colonne 4
-    //const productCell = row.cells[1].textContent.trim().toLowerCase();
-    let show = true;
+rows.forEach((row) => {
+const dateCell = row.cells[0].textContent.trim(); 
+const productCell = row.cells[1].textContent.trim().toLowerCase(); // NOUVEAU : Récupérer le nom du produit
+const codeCell = row.cells[2].textContent.trim().toLowerCase(); // NOUVEAU : Récupérer le code
+const zoneCell = row.cells[4].textContent.trim().toLowerCase();
+let show = true;
 
-    // Filtre zone
-    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
-      show = false;
-    }
-    //if (productFilter && !productCell.includes(productFilter)) {
-  //show = false;
-//}
-    // Filtre mois MM/YYYY
-    /*if (monthFilter) {
-      const [yyyy, mm, dd] = dateCell.split('-');
-      const rowMonth = `${mm}/${yyyy}`;
-      const [mFilter, yFilter] = monthFilter.split('/');
-      if (rowMonth !== `${mFilter}/${yFilter}`) {
-        show = false;
-      }
-    }*/
-if (monthFilter) {
-  let rowYear = '';
-  let rowMonth = '';
-
-  if (dateCell.includes('-')) {
-    const parts = dateCell.split('-'); // format YYYY-MM-DD
-    if (parts.length >= 2) {
-      rowYear = parts[0];
-      rowMonth = parts[1];
-    }
-  }
-
-  let mFilter = null;
-  let yFilter = null;
-
-  if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
-    [mFilter, yFilter] = monthFilter.split('/');
-  } else if (/^\d{6}$/.test(monthFilter)) {
-    mFilter = monthFilter.slice(0, 2);
-    yFilter = monthFilter.slice(2);
-  } else if (/^\d{4}$/.test(monthFilter)) {
-    yFilter = monthFilter;
-  }
-
-  if (yFilter && rowYear !== yFilter) show = false;
-  if (mFilter && rowMonth !== mFilter) show = false;
+// Filtre zone
+if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+show = false;
 }
 
-    row.style.display = show ? "" : "none";
-  });
+// NOUVEAU : Filtre par nom ou code
+// Affiche la ligne si le filtre est vide OU si la ligne contient le texte recherché
+if (nameCodeFilter && !productCell.includes(nameCodeFilter) && !codeCell.includes(nameCodeFilter)) {
+show = false;
+}
+
+// Filtre mois MM/YYYY
+if (monthFilter) {
+let rowYear = '';
+let rowMonth = '';
+
+if (dateCell.includes('-')) {
+const [yyyy, mm] = dateCell.split('-');
+rowYear = yyyy;
+rowMonth = mm;
+}
+
+let mFilter = null;
+let yFilter = null;
+
+if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+[mFilter, yFilter] = monthFilter.split('/');
+} else if (/^\d{6}$/.test(monthFilter)) {
+mFilter = monthFilter.slice(0, 2);
+yFilter = monthFilter.slice(2);
+} else if (/^\d{4}$/.test(monthFilter)) {
+yFilter = monthFilter;
+}
+
+if (yFilter && rowYear !== yFilter) show = false;
+if (mFilter && rowMonth !== mFilter) show = false;
+}
+
+row.style.display = show ? "" : "none";
+});
 }
 function clearFilter() {
-  document.getElementById('filter-zone').value = '';
-  document.getElementById('filter-month').value = '';
-  filterTable();
+document.getElementById('filter-zone').value = '';
+document.getElementById('filter-month').value = '';
+// NOUVEAU : Vider le nouveau champ de recherche
+document.getElementById('filter-name-code').value = ''; 
+filterTable();
 }
 </script></body>
 <!-- Notification Popup -->
