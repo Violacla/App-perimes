@@ -1,290 +1,374 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<title>Historique - Pharmacie du Libron</title>
-<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
-<script src="https://apis.google.com/js/api.js"></script>
-<style>
-    body {
-      font-family: Arial, sans-serif;
-      /*background-color: #f9f9f9;*/
-       background-color:#fffefc;
-      margin: 0;
-    }
-    header {
-     /* background-color: #bcd7ed;*/
-      background-color:#f294a6;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    }
-    #header-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    h1 {
-      margin: 0;
-      /*color: #0a2f51;*/
-      color: white;
-      font-size: 1.3em;
-    }
-    button {
-      cursor: pointer;
-      padding: 8px 12px;
-      font-size: 1em;
-      border: none;
-      border-radius: 4px;
-     /* background-color: #bcd7ed;*/
-      background-color: #f294a6;
-      /*color: #0a2f51;*/
-      color: white;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color:  #fec0cf;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      margin: 20px auto;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px 10px;
-      text-align: center;
-    }
-    tbody tr:nth-child(odd) {
-      /*background-color: rgba(188, 215, 237, 0.15);*/
-        background-color: #ffe0cf;
-    }
-    #status {
-      text-align: center;
-      color: #0a2f51;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-  </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script></head>
+    <meta charset="utf-8"/>
+    <title>Historique - Pharmacie du Libron</title>
+    <script async defer src="https://accounts.google.com/gsi/client"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fffefc;
+            margin: 0;
+            color: #0a2f51;
+        }
+        header {
+            background-color: #bcd7ed;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        #header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        h1 {
+            margin: 0;
+            color: #0a2f51;
+            font-size: 1.3em;
+        }
+        button {
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            background-color: #bcd7ed;
+            color: white;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #a6c6e1;
+        }
+        main {
+            padding: 20px;
+        }
+        #filter-form {
+            background-color: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+        #filter-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #0a2f51;
+            display: block;
+        }
+        #filter-form input, #filter-form select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        #filter-form button {
+            background-color: #0a2f51;
+            color: white;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #ede2e6;
+        }
+        #status {
+            text-align: center;
+            color: #0a2f51;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #operator-form {
+            display: none;
+            gap: 10px;
+            align-items: center;
+        }
+        #btn-confirm-operator, #btn-login {
+            background-color: #0a2f51;
+            color: white;
+            padding: 8px 12px;
+            font-weight: bold;
+        }
+        #login-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #login-error {
+            color: red;
+            margin: 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
 <body>
 <header>
-<div id="header-left">
-<a href="/index.html" style="
-      display:inline-block;
-      width:40px;
-      height:40px;
-      color: black;
-      border-radius:50%;
-      overflow:hidden;
-      border:0px solid black;
-    /*border:0px solid #0a2f51;*/
-      margin-right:10px;" title="Accueil">
-<img alt="Logo" src="https://i.imgur.com/mEtzEsp.png" style="width:100%; height:100%; object-fit:cover;"/>
-</a>
-<h1>Historique des Produits Périmés</h1>
-</div>
-<div>
-<button id="btn-login"style="color: black;">Se connecter</button>
-<button onclick="window.location.href='index.html'"style="color: black;"> Accueil </button>
-</button>
-<button onclick="location.href='promotion.html'"style="color: black;" title="Promo %">
-Promo %
-</button>
-<button id="btn-logout" style="display:none;">
-<img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; color: black; vertical-align:middle; margin-right:6px;"/>
-Déconnexion
-</button>
-</div>
+    <div id="header-left">
+        <a href="/index.html" title="Accueil" style="display:inline-block; width:40px; height:40px; border-radius:50%; overflow:hidden; margin-right:10px;">
+            <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
+        </a>
+        <h1>Historique des ventes</h1>
+    </div>
+    <div id="login-block">
+        <button id="btn-login" style="display: inline-block;">Se connecter</button>
+        <div id="operator-form">
+            <select id="operator-select">
+                <option value="">Opérateur...</option>
+                <option value="1">1</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select>
+            <button id="btn-confirm-operator">Valider</button>
+        </div>
+        <button id="btn-logout" style="display: none;">Déconnexion</button>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="window.location.href='index.html'">
+            <img alt="Accueil" src="https://i.imgur.com/T8E0o39.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+            Accueil
+        </button>
+        <button onclick="window.location.href='promotion.html'">
+            <img alt="Promotions" src="https://i.imgur.com/BasLkpT.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+            Promotions
+        </button>
+        <button onclick="window.print()">
+            <img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
+            Imprimer
+        </button>
+    </div>
 </header>
-<div style="padding: 20px; text-align: center;">
-<input id="filter-zone" placeholder="Zone (ex: A1)" type="text"/>
-<input id="filter-date" placeholder="Date (YYYY ou MMYYYY)" type="text"/>
-<button onclick="applyFilters()">Filtrer</button>
-<button onclick="resetFilters()">Réinitialiser</button>
-<button onclick="downloadPDF()"> Télécharger PDF</button>
-</div>
-<table id="data-table">
-<thead>
-<tr>
-<th>Opérateur</th>
-<th>Produit</th>
-<th>Date</th>
-<th>Qté</th>
-<th>Zone</th>
-<th>Vendues</th>
-<th>Promo</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-<pre id="status">Chargement...</pre>
-<script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com'; // remplacez par votre propre Client ID
-  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'Feuille2';
 
-  let tokenClient;
-  let accessToken = null;
-
-  function gapiLoaded() {
-    gapi.load('client', async () => {
-      await gapi.client.init({
-        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
-      });
-    });
-  }
-
-  function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
-      callback: (response) => {
-        accessToken = response.access_token;
-        gapi.client.setToken({ access_token: accessToken });
-        document.getElementById('btn-login').style.display = 'none';
-        document.getElementById('btn-logout').style.display = 'inline-block';
-        loadSheet();
-      }
-    });
-    document.getElementById('btn-login').onclick = () => {
-      tokenClient.requestAccessToken();
-    };
-  }
-
-  document.getElementById('btn-logout').onclick = () => {
-    accessToken = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
-    document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('status').textContent = 'Déconnecté.';
-    document.querySelector('#data-table tbody').innerHTML = '';
-  };
-
-  async function loadSheet() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE
-      });
-      const rows = res.result.values || [];
-      renderTable(rows);
-    } catch (e) {
-      document.getElementById('status').textContent = 'Erreur : ' + e.message;
-    }
-  }
-
-  function renderTable(rows) {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
-    rows.slice(1).forEach(row => {
-      const tr = document.createElement('tr');
-      for (let i = 0; i <= 6; i++) {
-        const td = document.createElement('td');
-        td.textContent = row[i] || '';
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    });
-    document.getElementById('status').textContent = 'Données chargées.';
-  }
-
-  window.onload = () => {
-    gapiLoaded();
-    gisLoaded();
-  };
-
-let allRows = [];
-
-function loadSheet() {
-  gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: RANGE
-  }).then(res => {
-    allRows = res.result.values || [];
-    renderTable(allRows);
-  }).catch(e => {
-    document.getElementById('status').textContent = 'Erreur : ' + e.message;
-  });
-}
-
-function renderTable(rows) {
-  const tbody = document.querySelector('#data-table tbody');
-  tbody.innerHTML = '';
-  rows.slice(1).forEach(row => {
-    const tr = document.createElement('tr');
-    for (let i = 0; i <= 6; i++) {
-      const td = document.createElement('td');
-      td.textContent = row[i] || '';
-      tr.appendChild(td);
-    }
-    tbody.appendChild(tr);
-  });
-  document.getElementById('status').textContent = 'Données affichées.';
-}
-
-function applyFilters() {
-  const zone = document.getElementById('filter-zone').value.trim().toLowerCase();
-  const date = document.getElementById('filter-date').value.trim();
-
-  const filtered = allRows.filter((row, index) => {
-    if (index === 0) return false;
-    const zoneMatch = zone ? (row[5] || '').toLowerCase().includes(zone) : true;
-    const dateRaw = (row[1] || '').replace(/-/g, '');
-    const dateMatch = date ? dateRaw.startsWith(date) : true;
-    return zoneMatch && dateMatch;
-  });
-
-  renderTable([allRows[0], ...filtered]);
-}
-
-function resetFilters() {
-  document.getElementById('filter-zone').value = '';
-  document.getElementById('filter-date').value = '';
-  renderTable(allRows);
-}
-
-async function downloadPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(14);
-  doc.text("Historique des Produits Périmés", 10, 10);
-
-  const headers = [...document.querySelectorAll("thead th")].map(th => th.textContent);
-  const data = [...document.querySelectorAll("tbody tr")].map(tr =>
-    [...tr.children].map(td => td.textContent)
-  );
-
-  doc.autoTable({
-    head: [headers],
-    body: data,
-    startY: 20,
-    styles: { fontSize: 8 }
-  });
-
-  doc.save("historique_produits.pdf");
-}
-</script>
+<main>
+    <div id="filter-form">
+        <div>
+            <label for="filter-date-start">Date de début</label>
+            <input type="date" id="filter-date-start">
+        </div>
+        <div>
+            <label for="filter-date-end">Date de fin</label>
+            <input type="date" id="filter-date-end">
+        </div>
+        <div>
+            <label for="filter-operator">Opérateur</label>
+            <select id="filter-operator">
+                <option value="">Tous</option>
+                <option value="1">1</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select>
+        </div>
+        <div>
+            <label for="filter-product">Nom produit</label>
+            <input type="text" id="filter-product">
+        </div>
+        <div>
+            <label for="filter-code">Code</label>
+            <input type="text" id="filter-code">
+        </div>
+        <button id="btn-filter">Filtrer</button>
+        <button id="btn-reset">Réinitialiser</button>
+    </div>
+    
+    <table id="data-table">
+        <thead>
+        <tr>
+            <th>Opérateur</th>
+            <th>Date</th>
+            <th>Nom produit</th>
+            <th>Code</th>
+            <th>Vendues</th>
+            <th>Date d'ajout</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
+    <pre id="status">Chargement...</pre>
+</main>
 <footer style="
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 0.6em;
-  color: #666;
-  /*background: #f0f0f0;*/
-  background:#d3f0dd;
-  padding: 8px 0;
-  box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
-  z-index: 10;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 0.5em;
+    color: #666;
+    background: #d3f0dd;
+    padding: 8px 0;
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
+    z-index: 10;
 ">
-  Développé par Violaine Claron
+    Développé par Violaine Claron - Mise à jour
 </footer>
+<script>
+    const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+    const RANGE = 'Feuille2!A:I';
+    const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+    let tokenClient;
+    let allData = [];
+    let gapiInited = false;
+    let gisInited = false;
+
+    function gapiLoaded() {
+        gapi.load('client', async () => {
+            await gapi.client.init({
+                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
+            });
+            gapiInited = true;
+            if (gapiInited && gisInited) {
+                 document.getElementById('btn-login').style.display = 'inline-block';
+            }
+        });
+    }
+
+    function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            callback: (tokenResponse) => {
+                gapi.client.setToken({ access_token: tokenResponse.access_token });
+                loadSheet();
+                document.getElementById('btn-login').style.display = 'none';
+                document.getElementById('operator-form').style.display = 'inline-flex';
+            }
+        });
+        gisInited = true;
+        if (gapiInited && gisInited) {
+             document.getElementById('btn-login').style.display = 'inline-block';
+        }
+    }
+
+    document.getElementById('btn-login').onclick = () => {
+        tokenClient.requestAccessToken();
+    };
+
+    document.getElementById('btn-logout').onclick = () => {
+        gapi.client.setToken(null);
+        document.getElementById('btn-login').style.display = 'inline-block';
+        document.getElementById('btn-logout').style.display = 'none';
+        document.getElementById('operator-form').style.display = 'none';
+        clearTable();
+        setStatus('Déconnecté.');
+    };
+    
+    document.getElementById('btn-confirm-operator').onclick = () => {
+      const op = document.getElementById('operator-select').value;
+      if (!op) return alert("Veuillez choisir un opérateur");
+      document.getElementById('operator-form').style.display = 'none';
+      document.getElementById('btn-logout').style.display = 'inline-block';
+      setStatus(`Connecté en tant qu'opérateur ${op}.`);
+      loadSheet();
+    };
+
+    document.getElementById('btn-filter').onclick = () => {
+        renderTable(allData);
+    };
+
+    document.getElementById('btn-reset').onclick = () => {
+        document.getElementById('filter-date-start').value = '';
+        document.getElementById('filter-date-end').value = '';
+        document.getElementById('filter-operator').value = '';
+        document.getElementById('filter-product').value = '';
+        document.getElementById('filter-code').value = '';
+        renderTable(allData);
+    };
+
+    function clearTable() {
+        const tbody = document.querySelector("#data-table tbody");
+        tbody.innerHTML = '';
+    }
+
+    async function loadSheet() {
+        try {
+            setStatus('Chargement des données...');
+            const res = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: RANGE
+            });
+            allData = res.result.values || [];
+            if (allData.length > 0) {
+                // On retire l'en-tête
+                allData = allData.slice(1);
+            }
+            renderTable(allData);
+        } catch (e) {
+            setStatus('Erreur de chargement des données: ' + e.message);
+        }
+    }
+
+    function renderTable(data) {
+        const tbody = document.querySelector("#data-table tbody");
+        tbody.innerHTML = "";
+
+        const startDate = document.getElementById('filter-date-start').value;
+        const endDate = document.getElementById('filter-date-end').value;
+        const operatorFilter = document.getElementById('filter-operator').value;
+        const productFilter = document.getElementById('filter-product').value.toLowerCase();
+        const codeFilter = document.getElementById('filter-code').value.toLowerCase();
+
+        const filteredData = data.filter(row => {
+            const rowDate = new Date(row[8]); // Date d'ajout est en colonne I
+            
+            // Filtre par date
+            if (startDate && new Date(startDate) > rowDate) return false;
+            if (endDate && new Date(endDate) < rowDate) return false;
+
+            // Filtre par opérateur
+            if (operatorFilter && row[0] !== operatorFilter) return false;
+
+            // Filtre par nom produit
+            if (productFilter && !row[2].toLowerCase().includes(productFilter)) return false;
+
+            // Filtre par code
+            if (codeFilter && row[3].toLowerCase() !== codeFilter) return false;
+
+            return true;
+        });
+
+        if (filteredData.length === 0) {
+            setStatus('Aucun résultat trouvé pour les filtres sélectionnés.');
+            return;
+        }
+
+        filteredData.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${row[0] || ''}</td>
+                <td>${row[1] || ''}</td>
+                <td>${row[2] || ''}</td>
+                <td>${row[3] || ''}</td>
+                <td>${row[6] || ''}</td>
+                <td>${row[8] || ''}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        setStatus(`Affichage de ${filteredData.length} lignes.`);
+    }
+
+    window.onload = () => {
+        gapiLoaded();
+        gisLoaded();
+    };
+</script>
 </body>
 </html>
-
