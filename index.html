@@ -889,12 +889,12 @@ const values = [[
       loadSheet();
       setStatus('Ligne ajoutée avec succès !');
       // Réinitialise tous les champs AVANT le rechargement
-document.getElementById('product').value = '';
-document.getElementById('code').value = '';
-document.getElementById('qty').value = '';
-document.getElementById('zone').value = '';
-document.getElementById('sold').value = '';
-document.getElementById('promo').value = '';
+// Réinitialise tous les champs de manière propre
+      document.getElementById('date').value = '';
+      document.getElementById('product').value = '';
+      document.getElementById('code').value = '';
+      document.getElementById('qty').value = '';
+      document.getElementById('zone').value = '';
 
 // Traitement spécial pour le champ date
 const dateInput = document.getElementById('date');
