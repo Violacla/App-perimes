@@ -1018,57 +1018,6 @@ td.dataset.row = actualSheetRow;
     return letter;
   }
 
-function filterTable() {
-  const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-  const monthFilter = document.getElementById("filter-month").value.trim(); // 07/2025 ou 072025 ou 2025
-  const rows = document.querySelectorAll("#data-table tbody tr");
-
-  rows.forEach((row) => {
-    const dateCell = row.cells[0].textContent.trim(); // format = YYYY-MM-DD
-    const zoneCell = row.cells[4].textContent.trim().toLowerCase();
-    let show = true;
-
-    // 🔹 Filtrer par zone
-    if (zoneFilter && !zoneCell.includes(zoneFilter)) {
-      show = false;
-    }
-
-    // 🔹 Filtrer par date
-    if (monthFilter) {
-      let rowYear = '';
-      let rowMonth = '';
-
-      if (dateCell.includes('-')) {
-        const [yyyy, mm] = dateCell.split('-');
-        rowYear = yyyy;
-        rowMonth = mm;
-      }
-
-      let mFilter = null;
-      let yFilter = null;
-
-      if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
-        [mFilter, yFilter] = monthFilter.split('/');
-      } else if (/^\d{6}$/.test(monthFilter)) {
-        mFilter = monthFilter.slice(0, 2);
-        yFilter = monthFilter.slice(2);
-      } else if (/^\d{4}$/.test(monthFilter)) {
-        yFilter = monthFilter;
-      }
-
-      if (yFilter && rowYear !== yFilter) show = false;
-      if (mFilter && rowMonth !== mFilter) show = false;
-    }
-
-    row.style.display = show ? "" : "none";
-  });
-}
-
-  function clearFilter() {
-    document.getElementById('filter-zone').value = '';
-    document.getElementById('filter-month').value = '';
-    filterTable();
-  }
 
   // Notification popup logic
   const notifPopup = document.getElementById('notification-popup');
