@@ -511,8 +511,9 @@ Déconnexion
       - " 2ème Mois " => Affiche le mois "central" du trimestre (ex : Octobre si nous sommes en Août) <br>
       - " À retirer " => Affiche les produits périmés le mois précédent, à retirer des rayons.<br>
       Vous pouvez imprimer les tableaux avec le bouton imprimante. </li>
-      <li>2. Cette fenêtre de mise à jour s’affiche uniquement au démarrage, et disparaît automatiquement après avoir cliqué sur “Se connecter”. </li>
-      <li>3. Un icone " ? " est apparu à côté de " % promo ", il ouvre une page google drive qui permet d'échanger en direct. Il y aussi un descriptif des différentes fonctionnalités de l'application </li>
+      <li>2.La vérification des dates a été améliorée : un message s’affiche si la date saisie est antérieure à aujourd’hui.</li>
+      <li>3. Cette fenêtre de mise à jour s’affiche uniquement au démarrage, et disparaît automatiquement après avoir cliqué sur “Se connecter”. </li>
+      <li>4. Un icone " ? " est apparu à côté de " % promo ", il ouvre une page google drive qui permet d'échanger en direct. Il y aussi un descriptif des différentes fonctionnalités de l'application </li>
       <li>N’hésitez pas à me faire part de vos suggestions ou remarques pour continuer à améliorer l’application.<br>
     <em>Violaine</em> </li>
     </ul>
@@ -843,63 +844,38 @@ function clearFilter() {
     const zoneVal = document.getElementById('zone').value.trim();
 
     if (!zones.includes(zoneVal)) {
-      alert("Veuillez choisir une zone existante dans la liste.");
-      return;
-    }
-    const codeVal = document.getElementById('code').value.trim();
-    if (!/^\d{6}$/.test(codeVal)) {
-      alert("Le code doit contenir exactement 6 chiffres.");
-      return;
-    }
+  alert("Veuillez choisir une zone existante dans la liste.");
+  return;
+}
+const codeVal = document.getElementById('code').value.trim();
+if (!/^\d{6}$/.test(codeVal)) {
+  alert("Le code doit contenir exactement 6 chiffres.");
+  return;
+}
 
     const soldVal = 0;
     const promoVal = 0;
+
 
     if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
       alert("Veuillez remplir tous les champs correctement.");
       return;
     }
-    const now = new Date();
-    const ajoutVal = now.toLocaleString('fr-FR');
+const now = new Date();
+const ajoutVal = now.toLocaleString('fr-FR'); // Exemple : 12/06/2025, 09:44:31
 
-    const values = [[
-      operatorName,
-      dateVal,
-      productVal,
-      codeVal,
-      qtyVal,
-      zoneVal,
-      soldVal,
-      promoVal,
-      ajoutVal
-    ]];
+const values = [[
+  operatorName,     // invisible
+  dateVal,          // ✅ Date
+  productVal,       // ✅ Nom
+  codeVal,          // ✅ Code
+  qtyVal,           // ✅ Qté
+  zoneVal,          // ✅ Zone
+  soldVal,          // ✅ Vendues
+  promoVal,          // ✅ Promo
+  ajoutVal // ✅ Date d'ajout (dans le Google Sheet uniquement)
+]];
 
-    try {
-      await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values }
-      });
-
-      setStatus('Ligne ajoutée avec succès !');
-
-      // Réinitialise tous les champs de manière propre
-      document.getElementById('date').value = '';
-      document.getElementById('product').value = '';
-      document.getElementById('code').value = '';
-      document.getElementById('qty').value = '';
-      document.getElementById('zone').value = '';
-      
-      // Enlève le focus pour être sûr
-      document.getElementById('date').blur();
-      
-      loadSheet();
-
-    } catch (e) {
-      setStatus('Erreur : ' + e.message);
-    }
-  };
 
     try {
       await gapi.client.sheets.spreadsheets.values.append({
