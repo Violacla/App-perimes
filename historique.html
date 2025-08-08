@@ -96,27 +96,6 @@
             font-weight: bold;
             margin-top: 10px;
         }
-        #operator-form {
-            display: none;
-            gap: 10px;
-            align-items: center;
-        }
-        #btn-confirm-operator, #btn-login {
-            background-color: #0a2f51;
-            color: white;
-            padding: 8px 12px;
-            font-weight: bold;
-        }
-        #login-block {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        #login-error {
-            color: red;
-            margin: 0;
-            font-size: 0.9em;
-        }
     </style>
 </head>
 <body>
@@ -126,19 +105,7 @@
             <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
         </a>
         <h1>Historique des ventes</h1>
-    </div>
-    <div id="login-block">
-        <button id="btn-login" style="display: inline-block;">Se connecter</button>
-        <div id="operator-form">
-            <select id="operator-select">
-                <option value="">Opérateur...</option>
-                <option value="1">1</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-            </select>
-            <button id="btn-confirm-operator">Valider</button>
-        </div>
-        <button id="btn-logout" style="display: none;">Déconnexion</button>
+        <button id="btn-login" style="display: none;">Se connecter</button>
     </div>
     <div style="display: flex; gap: 10px;">
         <button onclick="window.location.href='index.html'">
@@ -153,6 +120,7 @@
             <img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
             Imprimer
         </button>
+        <button id="btn-logout" style="display: none;">Déconnexion</button>
     </div>
 </header>
 
@@ -221,12 +189,16 @@
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
     const RANGE = 'Feuille2!A:I';
-    const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+    const SCOPES = "https://www.googleapis.com/auth/spreadsheets.readonly"; // Changé en lecture seule
 
     let tokenClient;
     let allData = [];
     let gapiInited = false;
     let gisInited = false;
+
+    function setStatus(msg) {
+        document.getElementById('status').textContent = msg;
+    }
 
     function gapiLoaded() {
         gapi.load('client', async () => {
@@ -248,7 +220,8 @@
                 gapi.client.setToken({ access_token: tokenResponse.access_token });
                 loadSheet();
                 document.getElementById('btn-login').style.display = 'none';
-                document.getElementById('operator-form').style.display = 'inline-flex';
+                document.getElementById('btn-logout').style.display = 'inline-block';
+                setStatus('Connecté.');
             }
         });
         gisInited = true;
@@ -265,20 +238,10 @@
         gapi.client.setToken(null);
         document.getElementById('btn-login').style.display = 'inline-block';
         document.getElementById('btn-logout').style.display = 'none';
-        document.getElementById('operator-form').style.display = 'none';
         clearTable();
         setStatus('Déconnecté.');
     };
     
-    document.getElementById('btn-confirm-operator').onclick = () => {
-      const op = document.getElementById('operator-select').value;
-      if (!op) return alert("Veuillez choisir un opérateur");
-      document.getElementById('operator-form').style.display = 'none';
-      document.getElementById('btn-logout').style.display = 'inline-block';
-      setStatus(`Connecté en tant qu'opérateur ${op}.`);
-      loadSheet();
-    };
-
     document.getElementById('btn-filter').onclick = () => {
         renderTable(allData);
     };
@@ -306,7 +269,6 @@
             });
             allData = res.result.values || [];
             if (allData.length > 0) {
-                // On retire l'en-tête
                 allData = allData.slice(1);
             }
             renderTable(allData);
@@ -326,19 +288,15 @@
         const codeFilter = document.getElementById('filter-code').value.toLowerCase();
 
         const filteredData = data.filter(row => {
-            const rowDate = new Date(row[8]); // Date d'ajout est en colonne I
+            const rowDate = new Date(row[8]);
             
-            // Filtre par date
             if (startDate && new Date(startDate) > rowDate) return false;
             if (endDate && new Date(endDate) < rowDate) return false;
 
-            // Filtre par opérateur
             if (operatorFilter && row[0] !== operatorFilter) return false;
 
-            // Filtre par nom produit
             if (productFilter && !row[2].toLowerCase().includes(productFilter)) return false;
 
-            // Filtre par code
             if (codeFilter && row[3].toLowerCase() !== codeFilter) return false;
 
             return true;
