@@ -433,6 +433,11 @@
 #filters button:hover {
   background-color: #5d9e63;
 }
+  /* Style du texte à l'intérieur des champs de saisie */
+#filters input::placeholder {
+  color: #87c08f; /* Vert pastel */
+  opacity: 1; /* S'assure que la couleur est bien visible */
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -495,8 +500,8 @@ Déconnexion
         <input id="filter-zone" type="text" />
     </div>
     <div class="filter-group">
-        <label for="filter-month">Date (MM/YYYY ou YYYY):</label>
-        <input id="filter-month" style="width: 140px;" type="text" />
+        <label for="filter-month">Date:</label>
+       <input id="filter-month" placeholder="MMYYYY/YYYY" style="width: 140px;" type="text" />
     </div>
     <div class="filter-group">
         <label for="filter-name-code">Nom ou Code:</label>
