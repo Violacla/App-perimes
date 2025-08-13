@@ -379,68 +379,67 @@
                 const existingRow = existingPromosMap.get(code);
 
                 const datePeremption = new Date(sourceRow[1]); // Column B: Expiry Date
-                const now = new Date();
+                const now = new Date(); // Define now here for local scope
                 const currentMonth = now.getMonth();
                 const currentYear = now.getFullYear();
                 const diff = (datePeremption.getFullYear() - currentYear) * 12 + (datePeremption.getMonth() - currentMonth);
 
-                let defaultPercentage = 0;
+                let calculatedDefaultPercentage = 0; // Use a distinct variable name
                 if (diff === 0) { // Current month
-                    defaultPercentage = 50;
+                    calculatedDefaultPercentage = 50;
                 } else if (diff === 1) { // Next month
-                    defaultPercentage = 30;
+                    calculatedDefaultPercentage = 30;
                 }
 
-                if (existingRow) {
-                    const updatedRow = [...existingRow]; // Creates a copy of the existing row from Sheet3
-                    
-                    // Updates row data from Sheet1
-                    // Except columns K "Prix_modifié" and L "Is_Additional_Promo", as they must be preserved if already defined
-                    for (let i = 0; i < 12; i++) { // Iterates over all columns A to L
-                        if (i !== 10 && i !== 11) { // Index 10 is Prix_modifié (K), Index 11 is Is_Additional_Promo (L)
-                             updatedRow[i] = sourceRow[i] !== undefined ? sourceRow[i] : ''; // Copies the value from Sheet1
-                        }
-                    }
+                let rowToUpdate = existingRow ? [...existingRow] : [...sourceRow];
+                // Ensure the row has enough columns if it's new
+                while(rowToUpdate.length < 12) rowToUpdate.push('');
 
-                    // If the percentage in Sheet3 (column H) is empty or 0, apply the default based on month.
-                    // Otherwise, preserve the existing percentage.
-                    if (!updatedRow[7] || parseFloat(updatedRow[7]) === 0) {
-                        updatedRow[7] = defaultPercentage; // Sets default percentage based on month
+                // Update common fields from sourceRow (except K and L)
+                for (let i = 0; i < 10; i++) { // Columns A-J. Note: percentage is index 7
+                    if (i !== 7) { // Skip percentage for now, handle it specifically
+                        rowToUpdate[i] = sourceRow[i] !== undefined ? sourceRow[i] : '';
                     }
-
-                    // If modified price in Sheet3 (column K) is empty, use unit price from Sheet1 (column J)
-                    // Otherwise, preserve existing modified price in Sheet3
-                    if (!updatedRow[10] || String(updatedRow[10]).trim() === '') {
-                        updatedRow[10] = sourceRow[9] !== undefined ? sourceRow[9] : ''; // sourceRow[9] is the base unit price from Sheet1 (column J)
-                    }
-
-                    // Ensures the Is_Additional_Promo column is 'FALSE' for regular promotions
-                    if (!updatedRow[11] || updatedRow[11] !== 'TRUE') { // If undefined or not explicitly TRUE
-                        updatedRow[11] = 'FALSE'; 
-                    }
-                    
-                    newTargetRows.push(updatedRow);
+                }
+                
+                // Handle Percentage (column H, index 7)
+                // If it's a regular promo (not additional) and falls into month 0 or 1, apply default
+                // Otherwise, preserve existing percentage in Sheet3 or use Sheet1's value if new
+                const isAdditionalFromExisting = existingRow && existingRow.length > 11 && existingRow[11] === 'TRUE';
+                
+                if (!isAdditionalFromExisting && (diff === 0 || diff === 1)) {
+                    // Force default percentage for automatically categorized items during sync
+                    rowToUpdate[7] = calculatedDefaultPercentage;
                 } else {
-                    // If the product does not exist in Sheet3, adds it.
-                    const newRow = [...sourceRow];
-                    while(newRow.length < 12) newRow.push(''); // Fills with empty strings if needed
-                    newRow[10] = newRow[9] !== undefined ? newRow[9] : ''; // Initializes Prix_modifié with Unit price from Sheet1 (col J)
-                    newRow[11] = 'FALSE'; // Marks as regular promotion
-
-                    // Sets default percentage for new regular promos
-                    if (!newRow[7] || parseFloat(newRow[7]) === 0) {
-                        newRow[7] = defaultPercentage;
-                    }
-                    newTargetRows.push(newRow);
+                    // For additional promos or other months, preserve existing Sheet3 value or use Sheet1's value if new
+                    rowToUpdate[7] = existingRow && existingRow[7] !== undefined ? existingRow[7] : sourceRow[7] !== undefined ? sourceRow[7] : '';
                 }
+
+
+                // Handle Prix_modifié (column K, index 10)
+                // If modified price in Sheet3 (column K) is empty, use unit price from Sheet1 (column J)
+                // Otherwise, preserve existing modified price in Sheet3
+                if (!rowToUpdate[10] || String(rowToUpdate[10]).trim() === '') {
+                    rowToUpdate[10] = sourceRow[9] !== undefined ? sourceRow[9] : '';
+                }
+                
+                // Handle Is_Additional_Promo (column L, index 11)
+                // Regular promos coming from Sheet1 always get 'FALSE' unless explicitly set to TRUE in existingRow
+                if (!existingRow || existingRow[11] !== 'TRUE') {
+                    rowToUpdate[11] = 'FALSE';
+                } else {
+                    rowToUpdate[11] = 'TRUE'; // Preserve 'TRUE' if it was already set in existingRow
+                }
+                
+                newTargetRows.push(rowToUpdate);
             });
 
-            // For rows that were in Sheet3 but not in Sheet1 (manual additional promos, for example)
-            // They are kept unless they have already been updated or are duplicates of new promos from sourceRows
+            // Re-add existing additional promos (that were not updated by Sheet1's filtered list)
             targetRows.slice(1).forEach(targetRow => {
                 const code = targetRow[3];
                 const isAdditional = (targetRow.length > 11 && targetRow[11] === 'TRUE');
-                // If the existing row is an additional promo and has not been processed by promoRowsFromSource
+                // Only add if it's an additional promo and its code wasn't found in promoRowsFromSource
+                // This prevents duplicates and ensures manually added additional promos persist
                 if (isAdditional && !promoRowsFromSource.some(sr => sr[3] === code)) {
                     newTargetRows.push(targetRow);
                 }
@@ -586,7 +585,7 @@
             const tdFacing = document.createElement("td");
             tdFacing.colSpan = 9; // Adjusted for 9 columns
             tdFacing.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
-            tdFacing.textContent = `The ${facingCount} products from the 3rd month must be highlighted in the aisles. ❗`;
+            tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
             finalRow.appendChild(tdFacing);
             targetTbody.appendChild(finalRow);
         }
@@ -677,10 +676,10 @@
         }
 
         // Render automatic promotions (Current month, Next month, and 3rd month message)
-        appendGroup(tbodyMain, `📦 Current Month (50% by default) - ${formatMonthYear(now)}`, moisEnCours);
+        appendGroup(tbodyMain, `📦 Mois en cours (50% par défaut) - ${formatMonthYear(now)}`, moisEnCours);
         const nextMonthDate = new Date();
         nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-        appendGroup(tbodyMain, `📦 Next Month (30% by default) - ${formatMonthYear(nextMonthDate)}`, moisSuivant);
+        appendGroup(tbodyMain, `📦 Mois suivant (30% par défaut) - ${formatMonthYear(nextMonthDate)}`, moisSuivant);
         appendGroup(tbodyMain, "", [], true); // To display the 3rd month message if facingCount > 0
 
         // Render "Additional Promotions" if any
@@ -692,13 +691,13 @@
             });
         }
 
-        document.getElementById("status").textContent = 'Promotion data loaded and sorted.';
+        document.getElementById("status").textContent = 'Données de promotions chargées et triées.';
     }
 
     // Generic function to save a cell to any sheet
     async function saveCellToSheet(rangePrefix, rowIndex, colIndex, newValue) {
         if (!accessToken) {
-            document.getElementById('status').textContent = 'Please log in to save.';
+            document.getElementById('status').textContent = 'Veuillez vous connecter pour sauvegarder.';
             return;
         }
         const sheetName = rangePrefix.split('!')[0]; // Extracts sheet name (e.g., "Feuille3")
@@ -710,18 +709,18 @@
                 valueInputOption: 'RAW',
                 resource: { values: [[newValue]] }
             });
-            console.log(`Cell updated in ${sheetName} (row ${rowIndex}, column ${colIndex})`);
-            document.getElementById('status').textContent = `Cell updated in ${sheetName}.`;
+            console.log(`Cellule mise à jour dans ${sheetName} (ligne ${rowIndex}, colonne ${colIndex})`);
+            document.getElementById('status').textContent = `Cellule mise à jour dans ${sheetName}.`;
         } catch (error) {
-            console.error(`Error updating cell in ${sheetName}:`, error);
-            document.getElementById('status').textContent = `Error saving to ${sheetName}.`;
+            console.error(`Erreur lors de la mise à jour de la cellule dans ${sheetName}:`, error);
+            document.getElementById('status').textContent = `Erreur lors de la sauvegarde dans ${sheetName}.`;
         }
     }
 
     // Function to delete a row from the sheet (Sheet3)
     async function deleteRowFromSheet(rangePrefix, rowIndex) {
         if (!accessToken) {
-            document.getElementById('status').textContent = 'Please log in to delete.';
+            document.getElementById('status').textContent = 'Veuillez vous connecter pour supprimer.';
             return;
         }
         const sheetName = rangePrefix.split('!')[0];
@@ -751,11 +750,11 @@
                 valueInputOption: 'RAW',
                 resource: { values: rows }
             });
-            document.getElementById('status').textContent = `Row deleted from ${sheetName}.`;
+            document.getElementById('status').textContent = `Ligne supprimée de ${sheetName}.`;
             await loadAllPromos(); // Reload to reflect changes
         } catch (error) {
-            console.error(`Error deleting row from ${sheetName}:`, error);
-            document.getElementById('status').textContent = `Error deleting: ${error.message}`;
+            console.error(`Erreur lors de la suppression de la ligne dans ${sheetName}:`, error);
+            document.getElementById('status').textContent = `Erreur lors de la suppression: ${e.message}`;
         }
     }
 
