@@ -508,10 +508,6 @@
                 while(row.length < 12) row.push('');
             }
 
-            const isAdditional = (row[11] === 'TRUE'); // Column L (index 11) for Is_Additional_Promo
-            
-            // Calculate originalRowIndex for saving changes back to the sheet
-            // +2 because of header row in Sheet and 0-based index vs 1-based row number
             const originalRowIndex = index + 2; 
 
             const produit = row[2] || ''; // Column C
@@ -521,47 +517,56 @@
             let percentageFromSheet = parseFloat((row[7] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column H (% Promo) - Now editable
             const prixUnitaire = parseFloat((row[10] || "").replace(/[^\d.,]/g, '').replace(',', '.')) || parseFloat((row[9] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column K (Prix_modifié) or J (Prix unitaire Feuille1)
 
-
-            let percentageToDisplay = percentageFromSheet; // Use the percentage from sheet by default
-
-            // Calculate final price based on the actual percentage from the sheet
+            let percentageToDisplay = percentageFromSheet;
             let prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
 
-            if (!isAdditional) {
-                // Logic for Regular Promotions (Current Month / Next Month)
-                const dateStr = row[1]; // Column B: Expiry Date
-                const date = new Date(dateStr);
-                
-                if (!isNaN(date.getTime())) { // Ensure date is valid
-                    const now = new Date();
-                    const currentMonth = now.getMonth();
-                    const currentYear = now.getFullYear();
-                    const diff = (date.getFullYear() - currentYear) * 12 + (date.getMonth() - currentMonth);
-                    
-                    if (diff === 0) { // Current month
-                        if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // Check original sheet value
-                            percentageToDisplay = 50; // Default to 50% for display if 0 or empty
-                        }
-                        prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                        moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                    } else if (diff === 1) { // Next month
-                        if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // Check original sheet value
-                            percentageToDisplay = 30; // Default to 30% for display if 0 or empty
-                        }
-                        prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                        moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                    } else if (diff === 2) { // 3rd month (Facing)
-                        facingCount++;
+            const dateStr = row[1];
+            const date = new Date(dateStr);
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const diff = (date.getFullYear() - currentYear) * 12 + (date.getMonth() - currentMonth);
+
+            const isAdditionalFlag = (row[11] === 'TRUE'); // Check the flag for additional promo
+
+            let isCategorizedByMonth = false;
+
+            // First, try to categorize by month (Month 1, Month 2, or Month 3) if it's NOT an explicitly additional promo
+            if (!isAdditionalFlag && !isNaN(date.getTime())) {
+                if (diff === 0) { // Current month
+                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
+                        percentageToDisplay = 50;
                     }
+                    prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
+                    moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    isCategorizedByMonth = true;
+                } else if (diff === 1) { // Next month
+                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
+                        percentageToDisplay = 30;
+                    }
+                    prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
+                    moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    isCategorizedByMonth = true;
+                } else if (diff === 2) { // 3rd month (Facing)
+                    facingCount++;
+                    isCategorizedByMonth = true; // Still considered categorized by month
                 }
-            } else {
-                // Logic for Additional Promotions
-                const dateStr = row[1] || ''; // Date can be empty for these, but present in row[1]
-                // For additional promos, percentage is already from row[7] (H) with default 50
-                // So no need to adjust percentageToDisplay here for display, it comes directly from the sheet
+            }
+
+            // If it's explicitly an additional promo AND it was NOT categorized by month
+            // and it has a percentage > 0 (as per user's last request)
+            if (isAdditionalFlag && !isCategorizedByMonth && percentageFromSheet > 0) {
+                // For additional promos, if percentage is 0 or NaN, default to 50% for display and calculation if the user wants a base.
+                if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
+                    percentageToDisplay = 50;
+                } else {
+                    percentageToDisplay = percentageFromSheet; // Keep the sheet's value if it's valid
+                }
+                prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
+
                 additionalPromos.push({
                     dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated,
-                    originalRowIndex // row index in Sheet3
+                    originalRowIndex
                 });
             }
         });
