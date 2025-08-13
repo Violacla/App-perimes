@@ -110,12 +110,13 @@
   /* Formulaire pour ajouter des entrées (à droite) */
  #entry-form {
   width: 320px;
-  background: #e1f4e4; /* CHANGÉ: Fond vert très clair */
+  background: #f2f7f2; /* CHANGÉ: Couleur de fond vert très clair, presque blanc */
   padding: 15px 20px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
   margin-left: 20px;
-  margin-top: 20px; /* Alignement du haut avec la section filtres */
+  margin-top: 20px; /* Alignement du haut avec les filtres */
+  height: 360px; /* Hauteur fixe pour le bloc */
 }
 
   #entry-form h3 {
@@ -183,7 +184,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    align-items: flex-end; /* CHANGÉ: Aligne les éléments en bas (pour les boutons) */
+    align-items: flex-end; /* CHANGÉ: Aligne les éléments en bas pour les boutons */
     margin-bottom: 20px;
   }
   /* Groupe de label + input pour les filtres */
@@ -212,6 +213,7 @@
     font-weight: bold;
     padding: 10px 15px;
     border-radius: 5px;
+    margin-top: auto; /* Pousse les boutons vers le bas de leur conteneur flex */
   }
   #filters button:hover {
     background-color: #5d9e63; /* Vert plus foncé au survol */
@@ -1014,18 +1016,28 @@ Déconnexion
           // Rendu pour l'onglet "2ème mois" (le mois de référence + 1)
           const monthPlus1Date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 1);
           const monthPlus1Title = formatMonthYearLocal(monthPlus1Date);
-          document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus1Title}</h3>` + renderNotificationTableContent(grouped['2nd-month']);
+          // CHANGÉ: Ajout de " - En promotion" au titre du 2ème mois
+          document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus1Title} - En promotion</h3>` + renderNotificationTableContent(grouped['2nd-month']);
 
           // Rendu pour l'onglet "Trimestre" (groupé par mois)
           let trimestreHtml = '';
           const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort(); // Trie les mois du trimestre
+          
+          // Détermine la clé "AAAA-MM" pour le mois de référence (différence 0)
+          const referenceMonthKey = `${currentYearRef}-${String(currentMonthRef + 1).padStart(2, '0')}`;
+
           if (sortedTrimestreMonths.length === 0) {
               trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
           } else {
               sortedTrimestreMonths.forEach(ym => {
                   const [y, m] = ym.split('-');
                   const d = new Date(y, m - 1, 1);
-                  trimestreHtml += `<h3>${formatMonthYearLocal(d)}</h3>`;
+                  let titleSuffix = '';
+                  // CHANGÉ: Ajout de " - En promotion" pour le 1er mois du trimestre
+                  if (ym === referenceMonthKey) {
+                      titleSuffix = ' - En promotion';
+                  }
+                  trimestreHtml += `<h3>${formatMonthYearLocal(d)}${titleSuffix}</h3>`;
                   trimestreHtml += renderNotificationTableContent(grouped['trimestre'][ym]);
               });
           }
