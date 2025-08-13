@@ -273,7 +273,7 @@
                 document.getElementById('btn-logout').style.display = 'inline-block';
                 document.getElementById('btn-sync').style.display = 'inline-block';
                 await loadAllPromos(); // Loads all data after connection
-                document.getElementById('status').textContent = `Connected with operator code ${operatorCode}.`;
+                document.getElementById('status').textContent = `Connecté avec code opérateur ${operatorCode}.`;
             }
         });
         isGisReady = true;
@@ -303,7 +303,7 @@
             document.getElementById("login-error").textContent = "";
             tokenClient.requestAccessToken(); // Triggers the Google login popup
         } else {
-            document.getElementById("login-error").textContent = "Access denied. Unauthorized operator code.";
+            document.getElementById("login-error").textContent = "Accès refusé. Code opérateur non autorisé.";
         }
     }
 
@@ -314,7 +314,7 @@
         document.getElementById('login-block').style.display = 'flex';
         document.getElementById('btn-logout').style.display = 'none';
         document.getElementById('btn-sync').style.display = 'none';
-        document.getElementById('status').textContent = 'Disconnected.';
+        document.getElementById('status').textContent = 'Déconnecté.';
         document.querySelector('#data-table tbody').innerHTML = '';
         document.querySelector('#additional-promo-table tbody').innerHTML = ''; // Clear additional table as well
         document.getElementById('additional-promo-section').style.display = 'none'; // Hide additional section
@@ -325,13 +325,13 @@
     // Synchronization function (Sheet1 to Sheet3 for auto promos)
     document.getElementById('btn-sync').onclick = async () => {
         if (!accessToken) {
-            document.getElementById('status').textContent = 'Please log in first.';
+            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
             return;
         }
-        document.getElementById('status').textContent = 'Synchronization in progress...';
+        document.getElementById('status').textContent = 'Synchronisation en cours...';
         await synchronizeSheets();
         await loadAllPromos();
-        document.getElementById('status').textContent = 'Synchronization complete!';
+        document.getElementById('status').textContent = 'Synchronisation terminée !';
     };
     
     // Synchronizes Sheet1 (source) to Sheet3 (promo target), preserving modified prices and additional promos
@@ -349,7 +349,7 @@
             const targetRows = resTarget.result.values || [];
 
             if (sourceRows.length === 0) {
-                document.getElementById('status').textContent = 'Sheet1 is empty. No data to synchronize.';
+                document.getElementById('status').textContent = 'Feuille1 est vide. Aucune donnée à synchroniser.';
                 return;
             }
 
@@ -384,62 +384,61 @@
                 const currentYear = now.getFullYear();
                 const diff = (datePeremption.getFullYear() - currentYear) * 12 + (datePeremption.getMonth() - currentMonth);
 
-                let calculatedDefaultPercentage = 0; // Use a distinct variable name
-                if (diff === 0) { // Current month
-                    calculatedDefaultPercentage = 50;
-                } else if (diff === 1) { // Next month
-                    calculatedDefaultPercentage = 30;
-                }
-
                 let rowToUpdate = existingRow ? [...existingRow] : [...sourceRow];
                 // Ensure the row has enough columns if it's new
                 while(rowToUpdate.length < 12) rowToUpdate.push('');
 
-                // Update common fields from sourceRow (except K and L)
-                for (let i = 0; i < 10; i++) { // Columns A-J. Note: percentage is index 7
-                    if (i !== 7) { // Skip percentage for now, handle it specifically
-                        rowToUpdate[i] = sourceRow[i] !== undefined ? sourceRow[i] : '';
+                const isCurrentlyAdditional = existingRow && existingRow.length > 11 && existingRow[11] === 'TRUE';
+
+                // --- Handle Percentage (column H, index 7) ---
+                if (!isCurrentlyAdditional && (diff === 0 || diff === 1)) {
+                    // For automatic promos (current/next month) that are NOT explicitly additional
+                    // Always set the default percentage regardless of its current value in Sheet3.
+                    rowToUpdate[7] = (diff === 0) ? 50 : 30;
+                    console.log(`[SYNC] Setting default percentage for automatic promo ${sourceRow[2]} (code: ${code}): ${rowToUpdate[7]}%`);
+                } else if (!isCurrentlyAdditional && diff > 1) {
+                    // For regular promos beyond next month that are NOT explicitly additional:
+                    // If it had a percentage in existing Sheet3 (manually set), preserve it.
+                    // Otherwise (if it came from Sheet1 with a % or was 0/empty), set to 0.
+                    if (existingRow && existingRow[7] !== undefined && parseFloat(existingRow[7]) > 0) {
+                        rowToUpdate[7] = existingRow[7]; // Preserve manual override
+                    } else {
+                        rowToUpdate[7] = 0; // Set to 0 if not manually set in Sheet3
                     }
-                }
-                
-                // Handle Percentage (column H, index 7)
-                // If it's a regular promo (not additional) and falls into month 0 or 1, apply default
-                // Otherwise, preserve existing percentage in Sheet3 or use Sheet1's value if new
-                const isAdditionalFromExisting = existingRow && existingRow.length > 11 && existingRow[11] === 'TRUE';
-                
-                if (!isAdditionalFromExisting && (diff === 0 || diff === 1)) {
-                    // Force default percentage for automatically categorized items during sync
-                    rowToUpdate[7] = calculatedDefaultPercentage;
+                    console.log(`[SYNC] Setting percentage for regular other month promo ${sourceRow[2]} (code: ${code}): ${rowToUpdate[7]}%`);
                 } else {
-                    // For additional promos or other months, preserve existing Sheet3 value or use Sheet1's value if new
+                    // For additional promos (isCurrentlyAdditional === true), or new items that don't fit auto rules:
+                    // Preserve existing Sheet3 value or use Sheet1's value if new.
                     rowToUpdate[7] = existingRow && existingRow[7] !== undefined ? existingRow[7] : sourceRow[7] !== undefined ? sourceRow[7] : '';
+                    console.log(`[SYNC] Setting percentage for additional/other promo ${sourceRow[2]} (code: ${code}): ${rowToUpdate[7]}%`);
                 }
 
-
-                // Handle Prix_modifié (column K, index 10)
-                // If modified price in Sheet3 (column K) is empty, use unit price from Sheet1 (column J)
-                // Otherwise, preserve existing modified price in Sheet3
+                // --- Handle Prix_modifié (column K, index 10) ---
                 if (!rowToUpdate[10] || String(rowToUpdate[10]).trim() === '') {
                     rowToUpdate[10] = sourceRow[9] !== undefined ? sourceRow[9] : '';
                 }
                 
-                // Handle Is_Additional_Promo (column L, index 11)
-                // Regular promos coming from Sheet1 always get 'FALSE' unless explicitly set to TRUE in existingRow
-                if (!existingRow || existingRow[11] !== 'TRUE') {
-                    rowToUpdate[11] = 'FALSE';
+                // --- Handle Is_Additional_Promo (column L, index 11) ---
+                // If it's a new entry, it's FALSE. If existing, preserve its TRUE/FALSE status.
+                // The filtering for 'promoRowsFromSource' only includes items from Feuille1 that *have* a promo
+                // This implies they are "regular" promos initially. Additional promos are usually *manually added* to Feuille3.
+                // So, if we are processing `sourceRow`, it's generally a regular promo.
+                // We only set it to 'TRUE' if it was already 'TRUE' in the `existingRow`.
+                if (existingRow && existingRow[11] === 'TRUE') {
+                    rowToUpdate[11] = 'TRUE';
                 } else {
-                    rowToUpdate[11] = 'TRUE'; // Preserve 'TRUE' if it was already set in existingRow
+                    rowToUpdate[11] = 'FALSE';
                 }
                 
                 newTargetRows.push(rowToUpdate);
             });
 
-            // Re-add existing additional promos (that were not updated by Sheet1's filtered list)
+            // Re-add existing additional promos that were NOT sourced from Feuille1
             targetRows.slice(1).forEach(targetRow => {
                 const code = targetRow[3];
                 const isAdditional = (targetRow.length > 11 && targetRow[11] === 'TRUE');
-                // Only add if it's an additional promo and its code wasn't found in promoRowsFromSource
-                // This prevents duplicates and ensures manually added additional promos persist
+                // Only add if it's an additional promo AND its code was NOT found in the promoRowsFromSource
+                // This prevents duplicates and ensures manually added additional promos persist.
                 if (isAdditional && !promoRowsFromSource.some(sr => sr[3] === code)) {
                     newTargetRows.push(targetRow);
                 }
@@ -463,11 +462,11 @@
     // Loads all data from the promotion sheet (Sheet3)
     async function loadAllPromos() {
         if (!accessToken) {
-            document.getElementById('status').textContent = 'Please log in first.';
+            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
             return;
         }
         try {
-            document.getElementById('status').textContent = 'Loading promotions...';
+            document.getElementById('status').textContent = 'Chargement des promotions...';
 
             const resFeuille3 = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
@@ -513,7 +512,7 @@
         const tdDelete = document.createElement("td");
         tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:20px; height:20px; cursor:pointer;" title="Delete this row">';
         tdDelete.onclick = async () => {
-            const confirmDelete = confirm(`Do you really want to delete "${item.produit}"?`);
+            const confirmDelete = confirm(`Voulez-vous vraiment supprimer "${item.produit}" ?`);
             if (confirmDelete) {
                 await deleteRowFromSheet(TARGET_RANGE, item.originalRowIndex);
             }
@@ -563,7 +562,7 @@
     // Function to add a group of rows to a table
     // isAdditionalTable: true if it's for the additional-promo-table
     function appendGroup(targetTbody, title, group, isThirdMonthFacing = false, isAdditionalTable = false) {
-        if (group.length === 0 && !isThirdMonthFacing) {
+        if (group.length === 0 && !isThirdMonthFacing && !isAdditionalTable) { // Added !isAdditionalTable condition
              // If no items in group and not the special 3rd month message, do not append title
             return;
         }
@@ -637,6 +636,7 @@
             const diff = (date.getFullYear() - currentYear) * 12 + (date.getMonth() - currentMonth);
 
             const isAdditionalFlag = (row[11] === 'TRUE'); // Checks the flag for additional promo
+            console.log(`[RENDER] Produit: ${produit}, isAdditionalFlag: ${isAdditionalFlag}, PourcentageFeuille: ${percentageFromSheet}`); // Debug log
 
             // Categorizes by month (Month 1, Month 2, or Month 3) if it's NOT an explicit additional promo
             if (!isNaN(date.getTime()) && !isAdditionalFlag) {
@@ -646,14 +646,23 @@
                     }
                     prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
                     moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    console.log(`[RENDER] --> Classé comme promo automatique (Mois en cours). Pourcentage affiché: ${percentageToDisplay}`);
                 } else if (diff === 1) { // Next month
                     if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
                         percentageToDisplay = 30; 
                     }
                     prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
                     moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    console.log(`[RENDER] --> Classé comme promo automatique (Mois suivant). Pourcentage affiché: ${percentageToDisplay}`);
                 } else if (diff === 2) { // 3rd month (Facing)
                     facingCount++; 
+                    console.log(`[RENDER] --> Classé comme produit 3e mois à mettre en avant.`);
+                } else {
+                    // This case handles regular promos whose date is beyond month+2 but are not additional.
+                    // Their percentage should be displayed as is from Sheet3 or 0 if it was from Feuille1 with a non-default.
+                    // The percentage for these items is already handled by synchronizeSheets.
+                    moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    console.log(`[RENDER] --> Classé comme autre promo automatique (date > M+1). Pourcentage affiché: ${percentageToDisplay}`);
                 }
             } else if (isAdditionalFlag && percentageFromSheet > 0) {
                 // If it's an explicit additional promo and the percentage is > 0
@@ -661,6 +670,9 @@
                 percentageToDisplay = percentageFromSheet; 
                 prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
                 additionalPromos.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                console.log(`[RENDER] --> Classé comme PROMO SUPPLÉMENTAIRE. Pourcentage: ${percentageToDisplay}`);
+            } else {
+                console.log(`[RENDER] --> Non classé (isAdditionalFlag: ${isAdditionalFlag}, pourcentage: ${percentageFromSheet}). Ignoré de l'affichage principal.`);
             }
         });
         
@@ -680,15 +692,27 @@
         const nextMonthDate = new Date();
         nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
         appendGroup(tbodyMain, `📦 Mois suivant (30% par défaut) - ${formatMonthYear(nextMonthDate)}`, moisSuivant);
-        appendGroup(tbodyMain, "", [], true); // To display the 3rd month message if facingCount > 0
+        // Special row for 3rd month "facing" products
+        if (facingCount > 0) {
+            const finalRow = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 9; 
+            td.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
+            td.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
+            finalRow.appendChild(td);
+            tbodyMain.appendChild(finalRow); // Append to main tbody
+        }
 
         // Render "Additional Promotions" if any
         if (additionalPromos.length > 0) {
             additionalPromoSection.style.display = 'block'; // Show the section if products exist
+            console.log(`[RENDER] Affichage de la section promotions supplémentaires. Total promos supplémentaires: ${additionalPromos.length}`); // Debug log
             // There is no month grouping for this section, just the list
             additionalPromos.forEach(item => {
                 renderPromoRow(item, tbodyAdditional, true); // Use tbodyAdditional for this section
             });
+        } else {
+            console.log("[RENDER] Aucune promotion supplémentaire à afficher. La section restera masquée.");
         }
 
         document.getElementById("status").textContent = 'Données de promotions chargées et triées.';
