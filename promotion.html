@@ -295,7 +295,7 @@
         
         let moisEnCours = [];
         let moisSuivant = [];
-        let facingCount = 0;
+        let promotionsSupplementaires = [];
 
         rows.slice(1).forEach((row, index) => {
             const promo = parseFloat(row[7]) || 0;
@@ -337,8 +337,12 @@
                     reductionTxt = `-30%`;
                     explication = `${moisTexte[rowMonth]} : -30%`;
                     moisSuivant.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex, reductionValue });
-                } else if (diff === 2) {
-                    facingCount++;
+                } else {
+                    reductionValue = 20; // Valeur par défaut pour la promotion supplémentaire
+                    prixFinal = prixFinalUtilise * 0.8;
+                    reductionTxt = `-${reductionValue}%`;
+                    explication = `${moisTexte[rowMonth]} : -${reductionValue}%`;
+                    promotionsSupplementaires.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex, reductionValue });
                 }
             }
         });
@@ -411,17 +415,10 @@
             });
         }
         
-        appendGroup("📦 Mois en cours (-50%)", moisEnCours);
-        appendGroup("📦 Mois suivant (-30%)", moisSuivant);
-        if (facingCount > 0) {
-            const finalRow = document.createElement("tr");
-            const td = document.createElement("td");
-            td.colSpan = 9;
-            td.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
-            td.textContent = `Les produits du 3ᵉ mois (${facingCount} produits) doivent être mis en avant dans les rayons.`;
-            finalRow.appendChild(td);
-            tbody.appendChild(finalRow);
-        }
+        appendGroup(`📦 Mois en cours (-50%)`, moisEnCours);
+        appendGroup(`📦 Mois suivant (-30%)`, moisSuivant);
+        appendGroup("📦 Promotion supplémentaire (-20%)", promotionsSupplementaires);
+        
         document.getElementById("status").textContent = 'Données triées et enrichies.';
     }
 
