@@ -144,7 +144,6 @@
             margin-bottom: 20px;
             font-size: 1.8em;
         }
-        /* Removed #add-additional-promo-form styles as the form is removed */
 
         #additional-promo-table {
             border: 2px solid #86bf8e; /* Bordure verte distinctive */
@@ -214,8 +213,7 @@
 </table>
 
 <div id="additional-promo-section">
-    <h2>🚀 Liste supplémentaire en promo</h2>
-    <!-- The form to add additional promos is removed. Users will mark them directly in Google Sheet. -->
+    <h2>🚀 Autres promotions (non mois 1/2)</h2>
     <table id="additional-promo-table">
         <thead>
         <tr>
@@ -240,7 +238,7 @@
 
 <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvPzE';
     const SOURCE_RANGE = 'Feuille1!A:K'; // Source range for synchronization
     // TARGET_RANGE now includes column L (Is_Additional_Promo)
     const TARGET_RANGE = 'Feuille3!A:L'; 
@@ -486,17 +484,112 @@
         }
     }
 
+    // Function to render a single promo row
+    function renderPromoRow(item, targetTbody) {
+        const tr = document.createElement("tr");
+        const tdDate = document.createElement("td"); tdDate.textContent = item.dateStr;
+        const tdProduit = document.createElement("td"); tdProduit.textContent = item.produit;
+        const tdCode = document.createElement("td"); tdCode.textContent = item.code;
+        const tdPrixUnit = document.createElement("td"); tdPrixUnit.textContent = item.prixUnitaire.toFixed(2); tdPrixUnit.contentEditable = true; // Unit price editable
+        const tdZone = document.createElement("td"); tdZone.textContent = item.zone;
+        const tdQty = document.createElement("td"); tdQty.textContent = item.qty; // Qty
+        
+        const tdPercentage = document.createElement("td"); // New editable percentage cell
+        tdPercentage.textContent = item.percentage.toFixed(0) + "%"; 
+        tdPercentage.contentEditable = true; 
+        
+        const tdPrixFinal = document.createElement("td"); tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+        
+        // Delete button
+        const tdDelete = document.createElement("td");
+        tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:20px; height:20px; cursor:pointer;" title="Supprimer cette ligne">';
+        tdDelete.onclick = async () => {
+            const confirmDelete = confirm(`Voulez-vous vraiment supprimer "${item.produit}" ?`);
+            if (confirmDelete) {
+                await deleteRowFromSheet(TARGET_RANGE, item.originalRowIndex);
+            }
+        };
+
+        // Event listener for unit price modification (Column K / index 10 in Sheet3)
+        tdPrixUnit.addEventListener("blur", async () => {
+            const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+            const newPrix = parseFloat(cleaned) || 0;
+            
+            // Updates local object and displayed final price
+            item.prixUnitaire = newPrix;
+            item.prixFinal = newPrix * (1 - item.percentage / 100); // Uses current percentage
+            tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+
+            // Saves new value to Column K of Sheet3 (index 11 when using columnToLetter)
+            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 11, newPrix);
+        });
+
+        // Event listener for percentage modification (Column H / index 7 in Sheet3)
+        tdPercentage.addEventListener("blur", async () => {
+            const cleaned = tdPercentage.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+            const newPct = parseFloat(cleaned) || 0;
+            
+            // Updates local object and displayed final price
+            item.percentage = newPct;
+            item.prixFinal = item.prixUnitaire * (1 - newPct / 100); // Uses current unit price
+            tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+            tdPercentage.textContent = newPct.toFixed(0) + "%"; // Updates displayed text
+
+            // Saves new value to Column H of Sheet3 (index 8 when using columnToLetter)
+            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 8, newPct);
+        });
+
+        tr.appendChild(tdDate);
+        tr.appendChild(tdProduit);
+        tr.appendChild(tdCode);
+        tr.appendChild(tdPrixUnit);
+        tr.appendChild(tdZone);
+        tr.appendChild(tdQty);
+        tr.appendChild(tdPercentage); // Now editable
+        tr.appendChild(tdPrixFinal);
+        tr.appendChild(tdDelete);
+        targetTbody.appendChild(tr);
+    }
+
+    // Function to add a group of rows to a table
+    function appendGroup(targetTbody, title, group, isThirdMonthFacing = false) {
+        if (group.length === 0 && !isThirdMonthFacing) return;
+
+        const trTitle = document.createElement("tr");
+        trTitle.classList.add('group-title-row'); // Adds a class for group titles
+        const td = document.createElement("td");
+        td.colSpan = 9; // Adjusted for 9 columns
+        td.textContent = title;
+        trTitle.appendChild(td);
+        targetTbody.appendChild(trTitle);
+
+        group.forEach(item => {
+            renderPromoRow(item, targetTbody);
+        });
+
+        if (isThirdMonthFacing && facingCount > 0) {
+            const finalRow = document.createElement("tr");
+            const tdFacing = document.createElement("td");
+            tdFacing.colSpan = 9; // Adjusted for 9 columns
+            tdFacing.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
+            tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
+            finalRow.appendChild(tdFacing);
+            targetTbody.appendChild(finalRow);
+        }
+    }
+
+
     // Renders both promotion tables (Current/Next Month and Additional)
     function renderAllPromos(allPromoRows) {
         const tbodyMain = document.querySelector("#data-table tbody");
-        const tbodyAdditional = document.querySelector("#additional-promo-table tbody");
+        const tbodyOtherMonths = document.querySelector("#additional-promo-table tbody"); // Renamed for clarity
         tbodyMain.innerHTML = "";
-        tbodyAdditional.innerHTML = "";
+        tbodyOtherMonths.innerHTML = "";
         
         let moisEnCours = [];
         let moisSuivant = [];
+        let otherMonthsGrouped = {}; // Use an object to group by year-month
         let facingCount = 0; // Counter for 3rd month products to highlight
-        let additionalPromos = [];
 
         // Skip header row
         const dataRows = allPromoRows.slice(1);
@@ -531,221 +624,113 @@
 
             let isCategorizedByMonth = false;
 
-            // First, try to categorize by month (Month 1, Month 2, or Month 3) if it's NOT an explicitly additional promo
-            if (!isAdditionalFlag && !isNaN(date.getTime())) {
+            // First, try to categorize by month (Month 1, Month 2, or Month 3)
+            // Note: The `isAdditionalFlag` check here `!isAdditionalFlag` prevents items manually marked TRUE from being in M1/M2 even if their date is relevant.
+            // This ensures manual items are distinct.
+            if (!isNaN(date.getTime())) {
                 if (diff === 0) { // Current month
-                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
-                        percentageToDisplay = 50;
+                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // If sheet value is 0 or empty
+                        percentageToDisplay = 50; // Set display default
                     }
                     prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                    moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                    isCategorizedByMonth = true;
+                    // Only add to moisEnCours if it's NOT explicitly marked as additional promo
+                    if (!isAdditionalFlag) {
+                        moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                        isCategorizedByMonth = true;
+                    }
                 } else if (diff === 1) { // Next month
-                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
-                        percentageToDisplay = 30;
+                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // If sheet value is 0 or empty
+                        percentageToDisplay = 30; // Set display default
                     }
                     prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                    moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                    isCategorizedByMonth = true;
+                    // Only add to moisSuivant if it's NOT explicitly marked as additional promo
+                    if (!isAdditionalFlag) {
+                        moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                        isCategorizedByMonth = true;
+                    }
                 } else if (diff === 2) { // 3rd month (Facing)
-                    facingCount++;
-                    isCategorizedByMonth = true; // Still considered categorized by month
+                     // Only count facing if it's NOT explicitly marked as additional promo
+                    if (!isAdditionalFlag) {
+                        facingCount++;
+                        isCategorizedByMonth = true; // Still considered categorized by month for exclusion logic
+                    }
                 }
             }
 
-            // If it's explicitly an additional promo AND it was NOT categorized by month
-            // and it has a percentage > 0 (as per user's last request)
-            if (isAdditionalFlag && !isCategorizedByMonth && percentageFromSheet > 0) {
-                // For additional promos, if percentage is 0 or NaN, default to 50% for display and calculation if the user wants a base.
-                if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
-                    percentageToDisplay = 50;
-                } else {
-                    percentageToDisplay = percentageFromSheet; // Keep the sheet's value if it's valid
-                }
-                prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
+            // If it's explicitly an additional promo OR if it wasn't categorized by month
+            // AND it has a percentage > 0, add it to "Autres promotions".
+            // The `isAdditionalFlag` is kept here to allow manually marked items to bypass date classification if needed.
+            if ( (isAdditionalFlag || !isCategorizedByMonth) && percentageFromSheet > 0) {
+                 // For "Autres promotions", we use the percentage directly from the sheet, no automatic default if 0.
+                 // The user implies they will set a value > 0 for these items.
+                 percentageToDisplay = percentageFromSheet; // Use the exact value from the sheet
+                 prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
 
-                additionalPromos.push({
-                    dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated,
-                    originalRowIndex
-                });
+                 const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                 if (!otherMonthsGrouped[yearMonth]) {
+                     otherMonthsGrouped[yearMonth] = [];
+                 }
+                 otherMonthsGrouped[yearMonth].push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
             }
         });
         
-        // Sort current and next month promos
+        // Sort current and next month promos by date
         moisEnCours.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
         moisSuivant.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
 
-        // Sort additional promos by product name
-        additionalPromos.sort((a, b) => a.produit.localeCompare(b.produit));
-
-
-        // Function to add a group of rows to the main table
-        function appendGroup(targetTbody, title, group, isThirdMonthFacing = false) {
-            if (group.length === 0 && !isThirdMonthFacing) return;
-
-            const trTitle = document.createElement("tr");
-            trTitle.classList.add('group-title-row'); // Adds a class for group titles
-            const td = document.createElement("td");
-            td.colSpan = 9; // Adjusted for 9 columns
-            td.textContent = title;
-            trTitle.appendChild(td);
-            targetTbody.appendChild(trTitle);
-
-            group.forEach(item => {
-                const tr = document.createElement("tr");
-                const tdDate = document.createElement("td"); tdDate.textContent = item.dateStr;
-                const tdProduit = document.createElement("td"); tdProduit.textContent = item.produit;
-                const tdCode = document.createElement("td"); tdCode.textContent = item.code;
-                const tdPrixUnit = document.createElement("td"); tdPrixUnit.textContent = item.prixUnitaire.toFixed(2); tdPrixUnit.contentEditable = true; // Unit price editable
-                const tdZone = document.createElement("td"); tdZone.textContent = item.zone;
-                const tdQty = document.createElement("td"); tdQty.textContent = item.qty; // Qty
-                
-                const tdPercentage = document.createElement("td"); // New editable percentage cell
-                tdPercentage.textContent = item.percentage.toFixed(0) + "%"; 
-                tdPercentage.contentEditable = true; 
-                
-                const tdPrixFinal = document.createElement("td"); tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-                
-                // Delete button for regular promos
-                const tdDelete = document.createElement("td");
-                tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:20px; height:20px; cursor:pointer;" title="Supprimer cette ligne">';
-                tdDelete.onclick = async () => {
-                    const confirmDelete = confirm(`Voulez-vous vraiment supprimer "${item.produit}" ?`);
-                    if (confirmDelete) {
-                        await deleteRowFromSheet(TARGET_RANGE, item.originalRowIndex);
-                    }
-                };
-
-                // Event listener for unit price modification (Column K / index 10 in Sheet3)
-                tdPrixUnit.addEventListener("blur", async () => {
-                    const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-                    const newPrix = parseFloat(cleaned) || 0;
-                    
-                    // Updates local object and displayed final price
-                    item.prixUnitaire = newPrix;
-                    item.prixFinal = newPrix * (1 - item.percentage / 100); // Uses current percentage
-                    tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-
-                    // Saves new value to Column K of Sheet3 (index 11 when using columnToLetter)
-                    await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 11, newPrix);
-                });
-
-                // Event listener for percentage modification (Column H / index 7 in Sheet3)
-                tdPercentage.addEventListener("blur", async () => {
-                    const cleaned = tdPercentage.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-                    const newPct = parseFloat(cleaned) || 0;
-                    
-                    // Updates local object and displayed final price
-                    item.percentage = newPct;
-                    item.prixFinal = item.prixUnitaire * (1 - newPct / 100); // Uses current unit price
-                    tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-                    tdPercentage.textContent = newPct.toFixed(0) + "%"; // Updates displayed text
-
-                    // Saves new value to Column H of Sheet3 (index 8 when using columnToLetter)
-                    await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 8, newPct);
-                });
-
-
-                tr.appendChild(tdDate);
-                tr.appendChild(tdProduit);
-                tr.appendChild(tdCode);
-                tr.appendChild(tdPrixUnit);
-                tr.appendChild(tdZone);
-                tr.appendChild(tdQty);
-                tr.appendChild(tdPercentage); // Now editable
-                tr.appendChild(tdPrixFinal);
-                tr.appendChild(tdDelete); // Add delete button for regular promos too
-                targetTbody.appendChild(tr);
+        // Sort products within each "other month" group by product name, then by date, but not the groups themselves
+        // The groups will be appended in their natural key order (year-month strings)
+        for (const yearMonth in otherMonthsGrouped) {
+            otherMonthsGrouped[yearMonth].sort((a, b) => {
+                const produitCompare = a.produit.localeCompare(b.produit);
+                if (produitCompare !== 0) {
+                    return produitCompare;
+                }
+                return new Date(a.dateStr) - new Date(b.dateStr); // Secondary sort by date
             });
-
-            if (isThirdMonthFacing && facingCount > 0) {
-                const finalRow = document.createElement("tr");
-                const tdFacing = document.createElement("td");
-                tdFacing.colSpan = 9; // Adjusted for 9 columns
-                tdFacing.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
-                tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
-                finalRow.appendChild(tdFacing);
-                targetTbody.appendChild(finalRow);
-            }
         }
-        
-        // Renders automatic promotions
-        appendGroup(tbodyMain, `📦 Mois en cours (-50% par défaut) - ${new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}`, moisEnCours);
+
+        // Function to format month and year for titles
+        function formatMonthYear(date) {
+            return date.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+        }
+
+        // Render automatic promotions (Mois en cours, Mois suivant, and 3rd month message)
+        appendGroup(tbodyMain, `📦 Mois en cours (50% par défaut) - ${formatMonthYear(now)}`, moisEnCours);
         const nextMonthDate = new Date();
         nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-        appendGroup(tbodyMain, `📦 Mois suivant (-30% par défaut) - ${nextMonthDate.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}`, moisSuivant);
+        appendGroup(tbodyMain, `📦 Mois suivant (30% par défaut) - ${formatMonthYear(nextMonthDate)}`, moisSuivant);
         appendGroup(tbodyMain, "", [], true); // To display the 3rd month message if facingCount > 0
 
+        // Render "Autres promotions"
+        const sortedOtherMonthKeys = Object.keys(otherMonthsGrouped).sort();
+        if (sortedOtherMonthKeys.length > 0) {
+            const trTitleSection = document.createElement("tr");
+            trTitleSection.classList.add('group-title-row');
+            const tdSection = document.createElement("td");
+            tdSection.colSpan = 9;
+            tdSection.textContent = 'Autres promotions (non mois 1/2)';
+            trTitleSection.appendChild(tdSection);
+            tbodyOtherMonths.appendChild(trTitleSection);
 
-        // Renders "Liste supplémentaire en promo"
-        additionalPromos.forEach(item => {
-            const tr = document.createElement("tr");
-            const tdDate = document.createElement("td"); tdDate.textContent = item.dateStr;
-            const tdProduit = document.createElement("td"); tdProduit.textContent = item.produit;
-            const tdCode = document.createElement("td"); tdCode.textContent = item.code;
-            const tdPrixUnit = document.createElement("td"); tdPrixUnit.textContent = item.prixUnitaire.toFixed(2); tdPrixUnit.contentEditable = true; // Unit price editable
-            const tdZone = document.createElement("td"); tdZone.textContent = item.zone;
-            const tdQty = document.createElement("td"); tdQty.textContent = item.qty;
-            const tdPercentage = document.createElement("td"); tdPercentage.textContent = item.percentage.toFixed(0) + "%"; tdPercentage.contentEditable = true; // Percentage editable
-            const tdPrixFinal = document.createElement("td"); tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €"; // Calculated final price
+            sortedOtherMonthKeys.forEach(yearMonth => {
+                const monthDate = new Date(yearMonth.split('-')[0], parseInt(yearMonth.split('-')[1]) - 1);
+                const trMonthTitle = document.createElement("tr");
+                trMonthTitle.classList.add('group-title-row'); // Use same style for month subtitles
+                const tdMonth = document.createElement("td");
+                tdMonth.colSpan = 9;
+                tdMonth.textContent = `Période : ${formatMonthYear(monthDate)}`;
+                trMonthTitle.appendChild(tdMonth);
+                tbodyOtherMonths.appendChild(trMonthTitle);
 
-            // Delete button for the row
-            const tdDelete = document.createElement("td");
-            tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:20px; height:20px; cursor:pointer;" title="Supprimer cette ligne">';
-            tdDelete.onclick = async () => {
-                const confirmDelete = confirm(`Voulez-vous vraiment supprimer "${item.produit}" de la liste supplémentaire ?`);
-                if (confirmDelete) {
-                    await deleteRowFromSheet(TARGET_RANGE, item.originalRowIndex);
-                }
-            };
-            
-            // Event listener for unit price modification in Sheet3 (column K / index 10)
-            tdPrixUnit.addEventListener("blur", async () => {
-                const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-                const newPrix = parseFloat(cleaned) || 0;
-                
-                // Updates local object and displayed final price
-                item.prixUnitaire = newPrix;
-                item.prixFinal = newPrix * (1 - item.percentage / 100);
-                tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-
-                // Saves new value to Column K of Sheet3 (index 11 when using columnToLetter)
-                await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 11, newPrix);
+                otherMonthsGrouped[yearMonth].forEach(item => {
+                    renderPromoRow(item, tbodyOtherMonths);
+                });
             });
-
-            // Event listener for percentage modification in Sheet3 (column H / index 7)
-            tdPercentage.addEventListener("blur", async () => {
-                const cleaned = tdPercentage.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-                const newPct = parseFloat(cleaned) || 0;
-                
-                // Updates local object and displayed final price
-                item.percentage = newPct;
-                item.prixFinal = item.prixUnitaire * (1 - newPct / 100);
-                tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-                tdPercentage.textContent = newPct.toFixed(0) + "%"; // Updates displayed text
-
-                // Saves new value to Column H of Sheet3 (index 8 when using columnToLetter)
-                await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 8, newPct);
-            });
-
-            tr.appendChild(tdDate);
-            tr.appendChild(tdProduit);
-            tr.appendChild(tdCode);
-            tr.appendChild(tdPrixUnit);
-            tr.appendChild(tdZone);
-            tr.appendChild(tdQty);
-            tr.appendChild(tdPercentage);
-            tr.appendChild(tdPrixFinal);
-            tr.appendChild(tdDelete);
-            tbodyAdditional.appendChild(tr);
-        });
+        }
 
         document.getElementById("status").textContent = 'Données de promotions chargées et triées.';
     }
-
-    // Function to add a product to the additional list (Sheet3)
-    // REMOVED: This function and its associated button are no longer needed
-    // as users will directly mark rows in Google Sheet for additional promos.
 
     // Generic function to save a cell to any sheet
     async function saveCellToSheet(rangePrefix, rowIndex, colIndex, newValue) {
