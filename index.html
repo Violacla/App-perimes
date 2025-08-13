@@ -1516,16 +1516,37 @@ dateInputField.addEventListener('blur', () => {
 </script>
  <script>
     // Collez la fonction showTab ici
-  function showTab(tabId) {
-  const tabs = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => tab.classList.remove('active'));
+ function showTab(tabId) {
+    const now = new Date();
+    const currentDay = now.getDate();
+    const currentHour = now.getHours();
 
-  const buttons = document.querySelectorAll('#notif-tabs .tab-button');
-  buttons.forEach(button => button.classList.remove('active'));
+    // 🚩 Nouvelle logique : Bloquer l'affichage avant le 15 du mois, 3h du matin
+    if ((tabId === 'trimestre' || tabId === '2nd-month') && (currentDay < 15 || (currentDay === 15 && currentHour < 3))) {
+        // Cacher tous les contenus d'onglets
+        document.querySelectorAll('.tab-content').forEach(el => {
+            el.innerHTML = `<h3 style="text-align: center; color: #f294a6;">Les listes "Trimestre" et "2ème mois" seront disponibles à partir du 15 du mois à 3h.</h3>`;
+            el.style.display = 'none';
+        });
 
-  document.getElementById(tabId).classList.add('active');
-  document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
-}
+        // Afficher le contenu de l'onglet actif avec le message
+        const currentTabContent = document.getElementById(tabId);
+        currentTabContent.style.display = 'block';
+
+        // Mettre à jour la classe "active" du bouton
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+
+        return; // Arrêter l'exécution de la fonction
+    }
+
+    // Si la date et l'heure sont valides, procéder normalement
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+
 
 async function loadNotifications() {
   const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
