@@ -85,6 +85,7 @@
         }
         td[contenteditable="true"] {
             background-color: #f0f8ff;
+            cursor: text;
         }
     </style>
 </head>
@@ -243,15 +244,12 @@
                 if (existingRow) {
                     const updatedRow = [...existingRow];
                     
-                    // Mettre à jour les données de la ligne à partir de Feuille1
                     sourceRow.forEach((value, index) => {
-                        // On ignore la colonne du prix modifié (index 10)
                         if (index !== 10) { 
                              updatedRow[index] = value;
                         }
                     });
 
-                    // Si le prix modifié est vide, on met à jour le prix unitaire de base (index 9)
                     if (!updatedRow[10]) {
                         updatedRow[9] = sourceRow[9];
                     }
@@ -370,7 +368,6 @@
                 const td8 = document.createElement("td"); td8.textContent = item.prixFinal.toFixed(2) + " €";
                 const td9 = document.createElement("td"); td9.textContent = item.explication;
 
-                // Event listener for Prix unitaire
                 td4.addEventListener("blur", async () => {
                     const cleaned = td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
                     const newPrix = parseFloat(cleaned) || 0;
@@ -393,7 +390,6 @@
                     }
                 });
 
-                // Event listener for Promotion percentage
                 td7.addEventListener("blur", () => {
                     const reductionStr = td7.textContent.trim().replace('%', '');
                     const reduction = parseFloat(reductionStr) / 100 || 0;
