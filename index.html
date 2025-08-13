@@ -184,7 +184,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    align-items: flex-end; /* CHANGÉ: Aligne les éléments en bas pour les boutons */
+    align-items: flex-end; /* ALIGNÉ: Aligne les éléments en bas pour les boutons */
     margin-bottom: 20px;
   }
   /* Groupe de label + input pour les filtres */
@@ -1016,16 +1016,13 @@ Déconnexion
           // Rendu pour l'onglet "2ème mois" (le mois de référence + 1)
           const monthPlus1Date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 1);
           const monthPlus1Title = formatMonthYearLocal(monthPlus1Date);
-          // CHANGÉ: Ajout de " - En promotion" au titre du 2ème mois
-          document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus1Title} - En promotion</h3>` + renderNotificationTableContent(grouped['2nd-month']);
+          // AJOUTÉ: Phrase "En promotion" en italique et non gras
+          document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus1Title} <span style="font-style: italic; font-weight: normal;">- En promotion</span></h3>` + renderNotificationTableContent(grouped['2nd-month']);
 
           // Rendu pour l'onglet "Trimestre" (groupé par mois)
           let trimestreHtml = '';
           const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort(); // Trie les mois du trimestre
           
-          // Détermine la clé "AAAA-MM" pour le mois de référence (différence 0)
-          const referenceMonthKey = `${currentYearRef}-${String(currentMonthRef + 1).padStart(2, '0')}`;
-
           if (sortedTrimestreMonths.length === 0) {
               trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
           } else {
@@ -1033,9 +1030,15 @@ Déconnexion
                   const [y, m] = ym.split('-');
                   const d = new Date(y, m - 1, 1);
                   let titleSuffix = '';
-                  // CHANGÉ: Ajout de " - En promotion" pour le 1er mois du trimestre
-                  if (ym === referenceMonthKey) {
-                      titleSuffix = ' - En promotion';
+                  // Calcul de la différence en mois par rapport à la date de référence pour chaque mois du trimestre
+                  const monthDiff = (d.getFullYear() - currentYearRef) * 12 + (d.getMonth() - currentMonthRef);
+
+                  if (monthDiff === 0) { // C'est le 1er mois du trimestre (mois de référence)
+                      titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- En promotion</span>';
+                  } else if (monthDiff === 1) { // C'est le 2ème mois du trimestre
+                      titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- En promotion</span>';
+                  } else if (monthDiff === 2) { // C'est le 3ème mois du trimestre
+                      titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- Mettre en avant dans les rayons</span>';
                   }
                   trimestreHtml += `<h3>${formatMonthYearLocal(d)}${titleSuffix}</h3>`;
                   trimestreHtml += renderNotificationTableContent(grouped['trimestre'][ym]);
