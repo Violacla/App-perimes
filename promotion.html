@@ -126,37 +126,6 @@
             text-align:left;
             padding-left: 30px !important;
         }
-
-        /* Styles pour la nouvelle table de promo supplémentaire */
-        #additional-promo-section {
-            width: 90%;
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: #f2f7f2; /* Vert très clair, presque blanc */
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-        #additional-promo-section h2 {
-            text-align: center;
-            color: #0a2f51;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-
-        #additional-promo-table {
-            border: 2px solid #86bf8e; /* Bordure verte distinctive */
-        }
-        #additional-promo-table th {
-            background-color: #bfdbc4; /* Fond vert pastel pour l'en-tête */
-        }
-        #additional-promo-table tbody tr:nth-child(odd) {
-            background-color: #e8f5e9; /* Fond vert très clair pour les lignes impaires */
-        }
-        #additional-promo-table tbody tr:hover {
-            background-color: #d1eccf; /* Effet de survol vert clair */
-        }
     </style>
 </head>
 <body>
@@ -208,37 +177,16 @@
     </tr>
     </thead>
     <tbody>
-        <!-- Les promotions "Mois en cours" et "Mois suivant" seront insérées ici -->
+        <!-- Toutes les promotions (Mois en cours, Mois suivant, et Autres) seront insérées ici -->
     </tbody>
 </table>
-
-<div id="additional-promo-section">
-    <h2>🚀 Autres promotions (non mois 1/2)</h2>
-    <table id="additional-promo-table">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Nom produit</th>
-            <th>Code</th>
-            <th>Prix unitaire</th>
-            <th>Zone</th>
-            <th>Qté</th>
-            <th>% Promo</th>
-            <th>Prix final</th>
-            <th>Supprimer</th>
-        </tr>
-        </thead>
-        <tbody>
-            <!-- Les promotions supplémentaires seront insérées ici -->
-        </tbody>
-    </table>
-</div>
 
 <pre id="status">Chargement...</pre>
 
 <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvPzE';
+    // CORRECTED SPREADSHEET_ID
+    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE'; 
     const SOURCE_RANGE = 'Feuille1!A:K'; // Source range for synchronization
     // TARGET_RANGE now includes column L (Is_Additional_Promo)
     const TARGET_RANGE = 'Feuille3!A:L'; 
@@ -315,7 +263,6 @@
         document.getElementById('btn-sync').style.display = 'none';
         document.getElementById('status').textContent = 'Déconnecté.';
         document.querySelector('#data-table tbody').innerHTML = '';
-        document.querySelector('#additional-promo-table tbody').innerHTML = ''; // Clears the new table as well
         document.getElementById('operator').value = '';
         document.getElementById('operator').focus(); // Returns focus to the operator field
     };
@@ -439,7 +386,7 @@
                 }
             });
 
-            // 2. Re-add existing additional promotions
+            // 2. Re-add existing additional promos
             existingAdditionalPromos.forEach(row => {
                 // Ensures these rows are well preserved with their edited values
                 newTargetRows.push(row);
@@ -579,18 +526,14 @@
     }
 
 
-    // Renders both promotion tables (Current/Next Month and Additional)
+    // Renders all promotion categories into the single main table
     function renderAllPromos(allPromoRows) {
         const tbodyMain = document.querySelector("#data-table tbody");
-        const tbodyOtherMonths = document.querySelector("#additional-promo-table tbody"); // Renamed for clarity
-        const additionalPromoSection = document.getElementById('additional-promo-section'); // Get the whole section div
-
-        tbodyMain.innerHTML = "";
-        tbodyOtherMonths.innerHTML = "";
+        tbodyMain.innerHTML = ""; // Clear existing content
         
         let moisEnCours = [];
         let moisSuivant = [];
-        let otherMonthsGrouped = {}; // Use an object to group by year-month
+        let otherMonthsGrouped = {}; // Use an object to group by year-month for "Autres promotions"
         let facingCount = 0; // Counter for 3rd month products to highlight
 
         // Skip header row
@@ -626,53 +569,47 @@
 
             let isCategorizedByMonth = false;
 
-            // First, try to categorize by month (Month 1, Month 2, or Month 3)
-            // Note: The `isAdditionalFlag` check here `!isAdditionalFlag` prevents items manually marked TRUE from being in M1/M2 even if their date is relevant.
-            // This ensures manual items are distinct.
-            if (!isNaN(date.getTime())) {
+            // Categorize by month (Month 1, Month 2, or Month 3) if NOT explicitly an additional promo
+            if (!isNaN(date.getTime()) && !isAdditionalFlag) {
                 if (diff === 0) { // Current month
-                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // If sheet value is 0 or empty
-                        percentageToDisplay = 50; // Set display default
+                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
+                        percentageToDisplay = 50; 
                     }
                     prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                    // Only add to moisEnCours if it's NOT explicitly marked as additional promo
-                    if (!isAdditionalFlag) {
-                        moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                        isCategorizedByMonth = true;
-                    }
+                    moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    isCategorizedByMonth = true;
                 } else if (diff === 1) { // Next month
-                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // If sheet value is 0 or empty
-                        percentageToDisplay = 30; // Set display default
+                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
+                        percentageToDisplay = 30; 
                     }
                     prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                    // Only add to moisSuivant if it's NOT explicitly marked as additional promo
-                    if (!isAdditionalFlag) {
-                        moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                        isCategorizedByMonth = true;
-                    }
+                    moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    isCategorizedByMonth = true;
                 } else if (diff === 2) { // 3rd month (Facing)
-                     // Only count facing if it's NOT explicitly marked as additional promo
-                    if (!isAdditionalFlag) {
-                        facingCount++;
-                        isCategorizedByMonth = true; // Still considered categorized by month for exclusion logic
-                    }
+                    facingCount++; // Only count facing if not additional promo
+                    isCategorizedByMonth = true; 
                 }
             }
 
-            // If it's explicitly an additional promo OR if it wasn't categorized by month
-            // AND it has a percentage > 0, add it to "Autres promotions".
-            // The `isAdditionalFlag` is kept here to allow manually marked items to bypass date classification if needed.
-            if ( (isAdditionalFlag || !isCategorizedByMonth) && percentageFromSheet > 0) {
-                 // For "Autres promotions", we use the percentage directly from the sheet, no automatic default if 0.
-                 // The user implies they will set a value > 0 for these items.
-                 percentageToDisplay = percentageFromSheet; // Use the exact value from the sheet
-                 prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
+            // Add to "Autres promotions" if it's explicitly an additional promo
+            // OR if it wasn't categorized by month based on its date and is not an additional promo.
+            // AND it has a percentage > 0.
+            if ( (isAdditionalFlag && percentageFromSheet > 0) || (!isCategorizedByMonth && percentageFromSheet > 0) ) {
+                // Ensure it's not already covered by moisEnCours or moisSuivant in the main categories, unless explicitly additional.
+                // This prevents duplicates if, for example, a M+1 product is also marked as TRUE.
+                // The current logic of `isCategorizedByMonth` and `isAdditionalFlag` handles most cases.
+                // A final check to prevent duplicates: if an item is already in `moisEnCours` or `moisSuivant`, it shouldn't be in `otherMonthsGrouped`.
+                const isInMainMonths = moisEnCours.some(item => item.code === code) || moisSuivant.some(item => item.code === code);
+                if (!isInMainMonths) {
+                    percentageToDisplay = percentageFromSheet; // Use exact value from sheet for these
+                    prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
 
-                 const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                 if (!otherMonthsGrouped[yearMonth]) {
-                     otherMonthsGrouped[yearMonth] = [];
-                 }
-                 otherMonthsGrouped[yearMonth].push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                    const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    if (!otherMonthsGrouped[yearMonth]) {
+                        otherMonthsGrouped[yearMonth] = [];
+                    }
+                    otherMonthsGrouped[yearMonth].push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                }
             }
         });
         
@@ -680,15 +617,14 @@
         moisEnCours.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
         moisSuivant.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
 
-        // Sort products within each "other month" group by product name, then by date, but not the groups themselves
-        // The groups will be appended in their natural key order (year-month strings)
+        // Sort products within each "other month" group by product name, then by date
         for (const yearMonth in otherMonthsGrouped) {
             otherMonthsGrouped[yearMonth].sort((a, b) => {
                 const produitCompare = a.produit.localeCompare(b.produit);
                 if (produitCompare !== 0) {
                     return produitCompare;
                 }
-                return new Date(a.dateStr) - new Date(b.dateStr); // Secondary sort by date
+                return new Date(a.dateStr) - new Date(b.dateStr); 
             });
         }
 
@@ -704,34 +640,17 @@
         appendGroup(tbodyMain, `📦 Mois suivant (30% par défaut) - ${formatMonthYear(nextMonthDate)}`, moisSuivant);
         appendGroup(tbodyMain, "", [], true); // To display the 3rd month message if facingCount > 0
 
-        // Render "Autres promotions"
+        // Render "Autres promotions" if there are any
         const sortedOtherMonthKeys = Object.keys(otherMonthsGrouped).sort();
         if (sortedOtherMonthKeys.length > 0) {
-            additionalPromoSection.style.display = 'block'; // Show the section if there are items
-            const trTitleSection = document.createElement("tr");
-            trTitleSection.classList.add('group-title-row');
-            const tdSection = document.createElement("td");
-            tdSection.colSpan = 9;
-            tdSection.textContent = 'Autres promotions (non mois 1/2)';
-            trTitleSection.appendChild(tdSection);
-            tbodyOtherMonths.appendChild(trTitleSection);
+            // Add the main title for "Autres promotions"
+            appendGroup(tbodyMain, '🚀 Autres promotions (non mois 1/2)', []); // No actual group to append, just the title
 
             sortedOtherMonthKeys.forEach(yearMonth => {
                 const monthDate = new Date(yearMonth.split('-')[0], parseInt(yearMonth.split('-')[1]) - 1);
-                const trMonthTitle = document.createElement("tr");
-                trMonthTitle.classList.add('group-title-row'); // Use same style for month subtitles
-                const tdMonth = document.createElement("td");
-                tdMonth.colSpan = 9;
-                tdMonth.textContent = `Période : ${formatMonthYear(monthDate)}`;
-                trMonthTitle.appendChild(tdMonth);
-                tbodyOtherMonths.appendChild(trMonthTitle);
-
-                otherMonthsGrouped[yearMonth].forEach(item => {
-                    renderPromoRow(item, tbodyOtherMonths);
-                });
+                // Add the period title within the main table
+                appendGroup(tbodyMain, `Période : ${formatMonthYear(monthDate)}`, otherMonthsGrouped[yearMonth]);
             });
-        } else {
-            additionalPromoSection.style.display = 'none'; // Hide the section if no items
         }
 
         document.getElementById("status").textContent = 'Données de promotions chargées et triées.';
@@ -797,7 +716,7 @@
             await loadAllPromos(); // Reload to reflect changes
         } catch (error) {
             console.error(`Erreur lors de la suppression de la ligne dans ${sheetName}:`, error);
-            document.getElementById('status').textContent = `Erreur lors de la suppression: ${e.message}`;
+            document.getElementById('status').textContent = `Erreur lors de la suppression: ${error.message}`;
         }
     }
 
