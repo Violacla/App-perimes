@@ -10,7 +10,6 @@
             font-family: Arial, sans-serif;
             background-color: #fffefc;
             margin: 0;
-            color: #0a2f51; /* Couleur de texte principale */
         }
         header {
             background-color: #bcd7ed;
@@ -39,56 +38,30 @@
             background-color: #bcd7ed;
             color: white;
             font-weight: bold;
-            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #a6c6e1;
         }
         table {
-            width: 90%; /* Ajusté pour une meilleure visibilité */
-            max-width: 1200px; /* Largeur maximale pour les grands écrans */
+            width: 100%;
             border-collapse: collapse;
             background-color: white;
-            margin: 20px auto; /* Centrage et marges */
+            margin: 20px auto;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px; /* Bords arrondis pour le tableau */
-            overflow: hidden; /* Assure que les coins arrondis sont visibles */
         }
         th, td {
-            border: 1px solid #e0e0e0; /* Bordures plus claires */
-            padding: 10px 12px; /* Espacement interne */
+            border: 1px solid #ccc;
+            padding: 8px 10px;
             text-align: center;
         }
-        th {
-            background-color: #e6f0f7; /* Fond d'en-tête de tableau */
-            font-weight: bold;
-            color: #163f5b;
-            position: sticky; /* En-têtes fixes au défilement */
-            top: 0;
-            z-index: 1; /* S'assure que les en-têtes restent au-dessus */
-        }
         tbody tr:nth-child(odd) {
-            background-color: #f9f9f9; /* Lignes impaires légèrement grises */
-        }
-        tbody tr:hover {
-            background-color: #e0f2f7; /* Effet de survol sur les lignes */
+            background-color: #ede2e6;
         }
         #status {
             text-align: center;
             color: #0a2f51;
             font-weight: bold;
             margin-top: 10px;
-            padding: 10px;
-        }
-        #login-block {
-            display:flex;
-            align-items:center;
-            gap:10px;
-        }
-        #operator {
-            padding:8px;
-            border-radius:6px;
-            border:1px solid #ccc;
         }
         #btn-validate {
             background-color: #0a2f51;
@@ -106,25 +79,9 @@
             background-color: #083049;
             transform: translateY(-2px);
         }
-        #login-error {
-            color:red;
-            margin:0;
-            font-size: 0.9em;
-        }
-        /* Cache la colonne "Date ajout feuille 1" et "Is_Additional_Promo" */
-        th:nth-child(9), /* Date ajout feuille 1 */
-        td:nth-child(9),
-        th:nth-child(12), /* Is_Additional_Promo */
-        td:nth-child(12) {
+        th:nth-child(9),
+        td:nth-child(9) {
             display: none;
-        }
-        
-        /* Styles pour les titres de groupe dans les tableaux */
-        .group-title-row td {
-            background:#d3f0dd !important; /* Vert clair pour les titres de groupe */
-            font-weight:bold;
-            text-align:left;
-            padding-left: 30px !important;
         }
     </style>
 </head>
@@ -161,7 +118,6 @@
         </button>
     </div>
 </header>
-
 <table id="data-table">
     <thead>
     <tr>
@@ -171,44 +127,29 @@
         <th>Prix unitaire</th>
         <th>Zone</th>
         <th>Qté</th>
-        <th>% Promo</th> <!-- Rendu éditable -->
+        <th>%</th>
         <th>Prix finale</th>
-        <th>Supprimer</th> <!-- Colonne de suppression pour les promos régulières -->
     </tr>
     </thead>
-    <tbody>
-        <!-- Toutes les promotions (Mois en cours, Mois suivant, et Autres) seront insérées ici -->
-    </tbody>
+    <tbody></tbody>
 </table>
-
 <pre id="status">Chargement...</pre>
-
 <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-    // SPREADSHEET_ID correcté
-    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE'; 
-    const SOURCE_RANGE = 'Feuille1!A:K'; // Source range for synchronization
-    // TARGET_RANGE inclut désormais la colonne L (Is_Additional_Promo)
-    const TARGET_RANGE = 'Feuille3!A:L'; 
-
+    const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+    const SOURCE_RANGE = 'Feuille1!A:K';
+    const TARGET_RANGE = 'Feuille3!A:K';
     let tokenClient;
     let accessToken = null;
-    let isGapiReady = false;
-    let isGisReady = false;
-    let operatorCode = null; // Stocke le code opérateur validé
 
-    // Initialise le client de l'API Google Sheets
     function gapiLoaded() {
         gapi.load('client', async () => {
             await gapi.client.init({
                 discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
             });
-            isGapiReady = true;
-            checkAndInitialize();
         });
     }
 
-    // Initialise le client Google Identity Services (GIS)
     function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID,
@@ -219,67 +160,44 @@
                 document.getElementById('login-block').style.display = 'none';
                 document.getElementById('btn-logout').style.display = 'inline-block';
                 document.getElementById('btn-sync').style.display = 'inline-block';
-                await loadAllPromos(); // Charge toutes les données après la connexion
-                document.getElementById('status').textContent = `Connecté avec code opérateur ${operatorCode}.`;
+                await loadSheet();
             }
         });
-        isGisReady = true;
-        checkAndInitialize();
+        document.getElementById('btn-validate').onclick = validateOperator;
+        document.getElementById('operator').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                validateOperator();
+            }
+        });
     }
 
-    // Vérifie si les deux APIs sont chargées et initialise les écouteurs de validation
-    function checkAndInitialize() {
-        if (isGapiReady && isGisReady) {
-            document.getElementById('btn-validate').onclick = validateOperator;
-            document.getElementById('operator').addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    validateOperator();
-                }
-            });
-            // Focus initial sur l'entrée de l'opérateur
-            document.getElementById('operator').focus();
-        }
-    }
-
-    // Valide le code opérateur et lance la connexion Google
     function validateOperator() {
         const op = parseInt(document.getElementById("operator").value);
-        // Codes opérateurs autorisés : 1 (pharmacien) 6 (réceptionniste) 7 (préparateur)
         if ([1, 6, 7].includes(op)) {
-            operatorCode = op; // Stocke le code opérateur validé
             document.getElementById("login-error").textContent = "";
-            tokenClient.requestAccessToken(); // Déclenche la popup de connexion Google
+            tokenClient.requestAccessToken();
         } else {
-            document.getElementById("login-error").textContent = "Accès refusé. Code opérateur non autorisé.";
+            document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
         }
     }
 
-    // Fonction de déconnexion
     document.getElementById('btn-logout').onclick = () => {
         accessToken = null;
-        operatorCode = null;
         document.getElementById('login-block').style.display = 'flex';
         document.getElementById('btn-logout').style.display = 'none';
         document.getElementById('btn-sync').style.display = 'none';
         document.getElementById('status').textContent = 'Déconnecté.';
         document.querySelector('#data-table tbody').innerHTML = '';
         document.getElementById('operator').value = '';
-        document.getElementById('operator').focus(); // Redonne le focus au champ opérateur
     };
 
-    // Fonction de synchronisation (Feuille1 vers Feuille3 pour les promos auto)
     document.getElementById('btn-sync').onclick = async () => {
-        if (!accessToken) {
-            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
-            return;
-        }
         document.getElementById('status').textContent = 'Synchronisation en cours...';
         await synchronizeSheets();
-        await loadAllPromos();
+        await loadSheet();
         document.getElementById('status').textContent = 'Synchronisation terminée !';
     };
     
-    // Synchronise Feuille1 (source) vers Feuille3 (cible promo), en conservant les prix modifiés et les promos additionnelles
     async function synchronizeSheets() {
         try {
             const resSource = await gapi.client.sheets.spreadsheets.values.get({
@@ -298,492 +216,219 @@
                 return;
             }
 
-            // Filtre les produits de Feuille1 qui ont un pourcentage de promo (>0)
-            const promoRowsFromSource = sourceRows.slice(1).filter(row => parseFloat(row[7]) > 0); // row[7] est le '%'
+            const promoRowsFromSource = sourceRows.slice(1).filter(row => parseFloat(row[7]) > 0);
             
-            // Crée une map des promos existantes dans Feuille3 par code produit pour faciliter les mises à jour
-            // Distingue par code et type de promo (régulière vs additionnelle)
-            const existingPromosMap = new Map();
+            const existingPromos = new Map();
             if (targetRows.length > 1) {
                 targetRows.slice(1).forEach(row => {
-                    const code = row[3]; // Code est dans la colonne D (index 3)
+                    const code = row[3];
                     if (code) {
-                        existingPromosMap.set(code, row);
+                        existingPromos.set(code, row);
                     }
                 });
             }
 
             const newTargetRows = [];
             const sourceHeader = sourceRows[0] || [];
-            // S'assure que l'en-tête de Feuille3 est correct, incluant la colonne K "Prix_modifié" et L "Is_Additional_Promo"
-            const targetHeader = targetRows[0] && targetRows[0].length >= 12 ? targetRows[0] : [...sourceHeader.slice(0, 10), 'Prix_modifié', 'Is_Additional_Promo'];
+            const targetHeader = targetRows[0] || [...sourceHeader.slice(0, 10), 'Prix_modifié'];
             newTargetRows.push(targetHeader);
 
-            // Traite toutes les lignes de Feuille1 pour la synchronisation dans Feuille3
             promoRowsFromSource.forEach(sourceRow => {
                 const code = sourceRow[3];
-                const existingRow = existingPromosMap.get(code);
-
-                const datePeremption = new Date(sourceRow[1]); // Colonne B : Date de Péremption
-                const now = new Date();
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
-                const diff = (datePeremption.getFullYear() - currentYear) * 12 + (datePeremption.getMonth() - currentMonth);
-
-                let defaultPercentage = 0;
-                if (diff === 0) { // Mois en cours
-                    defaultPercentage = 50;
-                } else if (diff === 1) { // Mois suivant
-                    defaultPercentage = 30;
-                }
+                const existingRow = existingPromos.get(code);
 
                 if (existingRow) {
-                    const updatedRow = [...existingRow]; // Crée une copie de la ligne existante de Feuille3
+                    const updatedRow = [...existingRow];
                     
-                    // Met à jour les données de la ligne à partir de Feuille1
-                    // Sauf les colonnes K "Prix_modifié" et L "Is_Additional_Promo", car elles doivent être conservées si déjà définies
-                    for (let i = 0; i < 12; i++) { // Itère sur toutes les colonnes A à L
-                        if (i !== 10 && i !== 11) { // Index 10 est Prix_modifié (K), Index 11 est Is_Additional_Promo (L)
-                             updatedRow[i] = sourceRow[i] !== undefined ? sourceRow[i] : ''; // Copie la valeur de Feuille1
+                    // Mettre à jour les données de la ligne à partir de Feuille1
+                    sourceRow.forEach((value, index) => {
+                        // On ignore la colonne du prix modifié (index 10)
+                        if (index !== 10) { 
+                             updatedRow[index] = value;
                         }
+                    });
+
+                    // Si le prix modifié est vide, on met à jour le prix unitaire de base (index 9)
+                    if (!updatedRow[10]) {
+                        updatedRow[9] = sourceRow[9];
                     }
 
-                    // Si le pourcentage dans Feuille3 (colonne H) est vide ou 0, applique la valeur par défaut basée sur le mois.
-                    // Sinon, conserve le pourcentage existant.
-                    if (!updatedRow[7] || parseFloat(updatedRow[7]) === 0) {
-                        updatedRow[7] = defaultPercentage; // Définit le pourcentage par défaut basé sur le mois
-                    }
-
-                    // Si le prix modifié dans Feuille3 (colonne K) est vide, utilise le prix unitaire de Feuille1 (colonne J)
-                    // Sinon, conserve le prix modifié existant dans Feuille3
-                    if (!updatedRow[10] || String(updatedRow[10]).trim() === '') {
-                        updatedRow[10] = sourceRow[9] !== undefined ? sourceRow[9] : ''; // sourceRow[9] est le prix unitaire de base de Feuille1 (col J)
-                    }
-
-                    // S'assure que la colonne Is_Additional_Promo est 'FALSE' pour les promotions régulières
-                    if (!updatedRow[11] || updatedRow[11] !== 'TRUE') { // Si non défini ou pas explicitement TRUE
-                        updatedRow[11] = 'FALSE'; 
-                    }
-                    
                     newTargetRows.push(updatedRow);
                 } else {
-                    // Si le produit n'existe pas dans Feuille3, l'ajoute.
                     const newRow = [...sourceRow];
-                    while(newRow.length < 12) newRow.push(''); // Complète avec des chaînes vides si nécessaire
-                    newRow[10] = newRow[9] !== undefined ? newRow[9] : ''; // Initialise Prix_modifié avec Prix unitaire de Feuille1 (col J)
-                    newRow[11] = 'FALSE'; // Marque comme promotion régulière
-
-                    // Définit le pourcentage par défaut pour les nouvelles promos régulières
-                    if (!newRow[7] || parseFloat(newRow[7]) === 0) {
-                        newRow[7] = defaultPercentage;
-                    }
                     newTargetRows.push(newRow);
-                }
-            });
-
-            // Pour les lignes qui étaient dans Feuille3 mais pas dans Feuille1 (promos additionnelles manuelles, par exemple)
-            // On les conserve à moins qu'elles n'aient déjà été mises à jour ou soient des doublons des nouvelles promos de sourceRows
-            targetRows.slice(1).forEach(targetRow => {
-                const code = targetRow[3];
-                const isAdditional = (targetRow.length > 11 && targetRow[11] === 'TRUE');
-                // Si la ligne existante est une promo additionnelle et n'a pas été traitée par promoRowsFromSource
-                if (isAdditional && !promoRowsFromSource.some(sr => sr[3] === code)) {
-                    newTargetRows.push(targetRow);
                 }
             });
 
             await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
-                range: 'Feuille3!A1', // Commence la mise à jour à partir de A1
+                range: 'Feuille3!A1',
                 valueInputOption: 'RAW',
                 resource: { values: newTargetRows }
             });
             
-            console.log("Feuille3 synchronisée. Les prix modifiés et les promos additionnelles ont été conservés.");
+            console.log("Feuille3 synchronisée, les prix modifiés ont été conservés.");
         } catch (error) {
             console.error("Erreur de synchronisation:", error);
             document.getElementById('status').textContent = `Erreur lors de la synchronisation: ${error.message}`;
         }
     }
 
-
-    // Charge toutes les données de la feuille de promotions (Feuille3)
-    async function loadAllPromos() {
-        if (!accessToken) {
-            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
-            return;
-        }
+    async function loadSheet() {
         try {
-            document.getElementById('status').textContent = 'Chargement des promotions...';
-
-            const resFeuille3 = await gapi.client.sheets.spreadsheets.values.get({
+            const res = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE // Feuille3
+                range: TARGET_RANGE
             });
-            const allPromoRows = resFeuille3.result.values || [];
-
-            // IMPORTANT: cleanOldEntries doit être appelé avant renderAllPromos pour que les données soient à jour
-            await cleanOldEntries(allPromoRows); 
-            // Re-fetch after cleaning to get the latest state of the sheet
-            const resFeuille3AfterClean = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE 
-            });
-            const cleanedPromoRows = resFeuille3AfterClean.result.values || [];
-
-
-            renderAllPromos(cleanedPromoRows); // Rend les deux tableaux
-            document.getElementById('status').textContent = 'Promotions chargées.';
+            const rows = res.result.values || [];
+            await cleanOldEntries(rows);
+            renderTable(rows);
         } catch (e) {
             document.getElementById('status').textContent = `Erreur de chargement: ${e.message}`;
-            console.error("Erreur de chargement des feuilles:", e);
         }
     }
 
-    // Fonction pour rendre une seule ligne de promotion
-    function renderPromoRow(item, targetTbody) {
-        const tr = document.createElement("tr");
-        const tdDate = document.createElement("td"); tdDate.textContent = item.dateStr;
-        const tdProduit = document.createElement("td"); tdProduit.textContent = item.produit;
-        const tdCode = document.createElement("td"); tdCode.textContent = item.code;
-        const tdPrixUnit = document.createElement("td"); tdPrixUnit.textContent = item.prixUnitaire.toFixed(2); tdPrixUnit.contentEditable = true; // Prix unitaire éditable
-        const tdZone = document.createElement("td"); tdZone.textContent = item.zone;
-        const tdQty = document.createElement("td"); tdQty.textContent = item.qty; // Qté
-        
-        const tdPercentage = document.createElement("td"); // Nouvelle cellule de pourcentage éditable
-        tdPercentage.textContent = item.percentage.toFixed(0) + "%"; 
-        tdPercentage.contentEditable = true; 
-        
-        const tdPrixFinal = document.createElement("td"); tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-        
-        // Bouton de suppression
-        const tdDelete = document.createElement("td");
-        tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:20px; height:20px; cursor:pointer;" title="Supprimer cette ligne">';
-        tdDelete.onclick = async () => {
-            const confirmDelete = confirm(`Voulez-vous vraiment supprimer "${item.produit}" ?`);
-            if (confirmDelete) {
-                await deleteRowFromSheet(TARGET_RANGE, item.originalRowIndex);
-            }
-        };
-
-        // Écouteur d'événement pour la modification du prix unitaire (Colonne K / index 10 dans Feuille3)
-        tdPrixUnit.addEventListener("blur", async () => {
-            const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-            const newPrix = parseFloat(cleaned) || 0;
-            
-            // Met à jour l'objet local et le prix final affiché
-            item.prixUnitaire = newPrix;
-            item.prixFinal = newPrix * (1 - item.percentage / 100); // Utilise le pourcentage actuel
-            tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-
-            // Sauvegarde la nouvelle valeur dans la colonne K de Feuille3 (index 11 lors de l'utilisation de columnToLetter)
-            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 11, newPrix);
-        });
-
-        // Écouteur d'événement pour la modification du pourcentage (Colonne H / index 7 dans Feuille3)
-        tdPercentage.addEventListener("blur", async () => {
-            const cleaned = tdPercentage.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-            const newPct = parseFloat(cleaned) || 0;
-            
-            // Met à jour l'objet local et le prix final affiché
-            item.percentage = newPct;
-            item.prixFinal = item.prixUnitaire * (1 - newPct / 100); // Utilise le prix unitaire actuel
-            tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-            tdPercentage.textContent = newPct.toFixed(0) + "%"; // Met à jour le texte affiché
-
-            // Sauvegarde la nouvelle valeur dans la colonne H de Feuille3 (index 8 lors de l'utilisation de columnToLetter)
-            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 8, newPct);
-        });
-
-        tr.appendChild(tdDate);
-        tr.appendChild(tdProduit);
-        tr.appendChild(tdCode);
-        tr.appendChild(tdPrixUnit);
-        tr.appendChild(tdZone);
-        tr.appendChild(tdQty);
-        tr.appendChild(tdPercentage); // Maintenant éditable
-        tr.appendChild(tdPrixFinal);
-        tr.appendChild(tdDelete);
-        targetTbody.appendChild(tr);
-    }
-
-    // Fonction pour ajouter un groupe de lignes à un tableau
-    function appendGroup(targetTbody, title, group, isThirdMonthFacing = false) {
-        if (group.length === 0 && !isThirdMonthFacing) {
-             // If no items in group and not the special 3rd month message, do not append title
-            return;
-        }
-
-        const trTitle = document.createElement("tr");
-        trTitle.classList.add('group-title-row'); // Ajoute une classe pour les titres de groupe
-        const td = document.createElement("td");
-        td.colSpan = 9; // Ajusté pour 9 colonnes
-        td.textContent = title;
-        trTitle.appendChild(td);
-        targetTbody.appendChild(trTitle);
-
-        group.forEach(item => {
-            renderPromoRow(item, targetTbody);
-        });
-
-        if (isThirdMonthFacing && facingCount > 0) {
-            const finalRow = document.createElement("tr");
-            const tdFacing = document.createElement("td");
-            tdFacing.colSpan = 9; // Ajusté pour 9 colonnes
-            tdFacing.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
-            tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
-            finalRow.appendChild(tdFacing);
-            targetTbody.appendChild(finalRow);
-        }
-    }
-
-
-    // Rend toutes les catégories de promotion dans le tableau principal unique
-    function renderAllPromos(allPromoRows) {
-        const tbodyMain = document.querySelector("#data-table tbody");
-        tbodyMain.innerHTML = ""; // Vide le contenu existant
+    function renderTable(rows) {
+        const tbody = document.querySelector("#data-table tbody");
+        tbody.innerHTML = "";
         
         let moisEnCours = [];
         let moisSuivant = [];
-        let otherPromosGrouped = {}; // Utilise un objet pour grouper par année-mois pour les "Autres promotions"
-        let facingCount = 0; // Compteur pour les produits du 3ème mois à mettre en avant
+        let facingCount = 0;
 
-        // Ignore la ligne d'en-tête
-        const dataRows = allPromoRows.slice(1);
+        rows.slice(1).forEach((row, index) => {
+            const promo = parseFloat(row[7]) || 0;
+            const date = new Date(row[1]);
+            
+            if (promo > 0 && !isNaN(date)) {
+                const originalRowIndex = index + 2;
+                const dateStr = row[1];
+                const produit = row[2];
+                const code = row[3];
+                const prixUnitaireBase = row[9];
+                const prixUnitaireModifie = row[10];
+                const zone = row[5];
+                const promoQty = row[7];
+                
+                const prixFinalUtilise = parseFloat((prixUnitaireModifie || prixUnitaireBase || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
 
-        dataRows.forEach((row, index) => {
-            // S'assure que la ligne a suffisamment de colonnes (au moins 12 pour Is_Additional_Promo)
-            if (row.length < 12) { 
-                // Complète la ligne avec des chaînes vides si elle est trop courte pour la colonne 'Is_Additional_Promo'
-                while(row.length < 12) row.push('');
-            }
+                const rowMonth = date.getMonth();
+                const rowYear = date.getFullYear();
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
+                const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+                let prixFinal = prixFinalUtilise;
+                let reductionTxt = "";
+                let explication = "Non concerné";
 
-            const originalRowIndex = index + 2; // Indice de ligne basé sur 1 dans la feuille de calcul
-
-            const produit = row[2] || ''; // Colonne C
-            const code = row[3] || ''; // Colonne D
-            const zone = row[5] || ''; // Colonne F
-            const qty = row[4] || ''; // Colonne E (Quantité)
-            let percentageFromSheet = parseFloat((row[7] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Colonne H (% Promo) - Maintenant éditable
-            const prixUnitaire = parseFloat((row[10] || "").replace(/[^\d.,]/g, '').replace(',', '.')) || parseFloat((row[9] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Colonne K (Prix_modifié) ou J (Prix unitaire Feuille1)
-
-            let percentageToDisplay = percentageFromSheet;
-            let prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-
-            const dateStr = row[1];
-            const date = new Date(dateStr);
-            const now = new Date();
-            const currentMonth = now.getMonth();
-            const currentYear = now.getFullYear();
-            const diff = (date.getFullYear() - currentYear) * 12 + (date.getMonth() - currentMonth);
-
-            const isAdditionalFlag = (row[11] === 'TRUE'); // Vérifie le flag pour la promo additionnelle
-
-            let isCategorizedByMonth = false;
-
-            // Catégorise par mois (Mois 1, Mois 2, ou Mois 3) si CE N'EST PAS une promo additionnelle explicite
-            if (!isNaN(date.getTime()) && !isAdditionalFlag) {
-                if (diff === 0) { // Mois en cours
-                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
-                        percentageToDisplay = 50; 
-                    }
-                    prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                    moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                    isCategorizedByMonth = true;
-                } else if (diff === 1) { // Mois suivant
-                    if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
-                        percentageToDisplay = 30; 
-                    }
-                    prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-                    moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                    isCategorizedByMonth = true;
-                } else if (diff === 2) { // 3ème mois (Facing)
-                    facingCount++; // Compte le facing uniquement si ce n'est pas une promo additionnelle
-                    isCategorizedByMonth = true; 
-                }
-            }
-
-            // Ajoute aux "Autres promotions" si c'est une promo additionnelle explicite
-            // OU si ce n'était pas catégorisé par mois et que le pourcentage est > 0
-            if ( (isAdditionalFlag && percentageFromSheet > 0) || (!isCategorizedByMonth && percentageFromSheet > 0) ) {
-                // S'assure qu'il n'est pas déjà couvert par moisEnCours ou moisSuivant dans les catégories principales
-                const isInMainMonths = moisEnCours.some(item => item.code === code) || moisSuivant.some(item => item.code === code);
-                if (!isInMainMonths) {
-                    percentageToDisplay = percentageFromSheet; // Utilise la valeur exacte de la feuille pour ceux-ci
-                    prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-
-                    const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                    if (!otherPromosGrouped[yearMonth]) {
-                        otherPromosGrouped[yearMonth] = [];
-                    }
-                    otherPromosGrouped[yearMonth].push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                if (diff === 0) {
+                    prixFinal = prixFinalUtilise * 0.5;
+                    reductionTxt = "-50%";
+                    explication = `${moisTexte[rowMonth]} : -50%`;
+                    moisEnCours.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
+                } else if (diff === 1) {
+                    prixFinal = prixFinalUtilise * 0.7;
+                    reductionTxt = "-30%";
+                    explication = `${moisTexte[rowMonth]} : -30%`;
+                    moisSuivant.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
+                } else if (diff === 2) {
+                    facingCount++;
                 }
             }
         });
         
-        // Trie les promos du mois en cours et du mois suivant par date
         moisEnCours.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
         moisSuivant.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
 
-        // Trie les produits au sein de chaque groupe "autres mois" par nom de produit, puis par date
-        for (const yearMonth in otherPromosGrouped) {
-            otherPromosGrouped[yearMonth].sort((a, b) => {
-                const produitCompare = a.produit.localeCompare(b.produit);
-                if (produitCompare !== 0) {
-                    return produitCompare;
-                }
-                return new Date(a.dateStr) - new Date(b.dateStr); 
-            });
-        }
+        function appendGroup(title, group) {
+            if (group.length === 0) return;
+            const trTitle = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 9;
+            td.style = "background:#d3f0dd; font-weight:bold; text-align:left; padding-left: 30px;";
+            td.textContent = title;
+            trTitle.appendChild(td);
+            tbody.appendChild(trTitle);
 
-        // Fonction pour formater le mois et l'année pour les titres
-        function formatMonthYear(date) {
-            return date.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-        }
-
-        // Rend les promotions automatiques (Mois en cours, Mois suivant, et message du 3ème mois)
-        appendGroup(tbodyMain, `📦 Mois en cours (50% par défaut) - ${formatMonthYear(now)}`, moisEnCours);
-        const nextMonthDate = new Date();
-        nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-        appendGroup(tbodyMain, `📦 Mois suivant (30% par défaut) - ${formatMonthYear(nextMonthDate)}`, moisSuivant);
-        appendGroup(tbodyMain, "", [], true); // Pour afficher le message du 3ème mois si facingCount > 0
-
-        // Rend les "Autres promotions" s'il y en a
-        const sortedOtherMonthKeys = Object.keys(otherPromosGrouped).sort();
-        if (sortedOtherMonthKeys.length > 0) {
-            // Ajoute le titre principal pour "Autres promotions"
-            appendGroup(tbodyMain, '🚀 Autres promotions (non mois 1/2)', []); 
-
-            sortedOtherMonthKeys.forEach(yearMonth => {
-                const monthDate = new Date(yearMonth.split('-')[0], parseInt(yearMonth.split('-')[1]) - 1);
-                // Ajoute le titre de la période dans le tableau principal
-                appendGroup(tbodyMain, `Période : ${formatMonthYear(monthDate)}`, otherPromosGrouped[yearMonth]);
-            });
-        }
-
-        document.getElementById("status").textContent = 'Données de promotions chargées et triées.';
-    }
-
-    // Fonction générique pour sauvegarder une cellule dans n'importe quelle feuille
-    async function saveCellToSheet(rangePrefix, rowIndex, colIndex, newValue) {
-        if (!accessToken) {
-            document.getElementById('status').textContent = 'Veuillez vous connecter pour sauvegarder.';
-            return;
-        }
-        const sheetName = rangePrefix.split('!')[0]; // Extrait le nom de la feuille (ex: "Feuille3")
-        
-        try {
-            await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: SPREADSHEET_ID,
-                range: `${sheetName}!${columnToLetter(colIndex)}${rowIndex}`,
-                valueInputOption: 'RAW',
-                resource: { values: [[newValue]] }
-            });
-            console.log(`Cellule mise à jour dans ${sheetName} (ligne ${rowIndex}, colonne ${colIndex})`);
-            document.getElementById('status').textContent = `Cellule mise à jour dans ${sheetName}.`;
-        } catch (error) {
-            console.error(`Erreur lors de la mise à jour de la cellule dans ${sheetName}:`, error);
-            document.getElementById('status').textContent = `Erreur lors de la sauvegarde dans ${sheetName}.`;
-        }
-    }
-
-    // Fonction pour supprimer une ligne de la feuille (Feuille3)
-    async function deleteRowFromSheet(rangePrefix, rowIndex) {
-        if (!accessToken) {
-            document.getElementById('status').textContent = 'Veuillez vous connecter pour supprimer.';
-            return;
-        }
-        const sheetName = rangePrefix.split('!')[0];
-        try {
-            // Lit toutes les données d'abord
-            const res = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: sheetName // Obtient toutes les données de la feuille
-            });
-            let rows = res.result.values || [];
-
-            // Supprime la ligne à l'index spécifié (ajustement pour l'en-tête et le tableau basé sur 0)
-            // rowIndex de la fonction de rendu est basé sur 1 (commence à 2 pour les lignes de données)
-            // Donc, pour le tableau basé sur 0, c'est rowIndex - 1
-            if (rowIndex > 0 && rowIndex <= rows.length) {
-                rows.splice(rowIndex - 1, 1); // Supprime 1 ligne à (rowIndex - 1)
-            } else {
-                console.error("Index de ligne invalide pour la suppression:", rowIndex);
-                document.getElementById('status').textContent = "Erreur: Index de ligne invalide pour la suppression.";
-                return;
-            }
-
-            // Écrit les données modifiées dans la feuille
-            await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: SPREADSHEET_ID,
-                range: `${sheetName}!A1`, // Commence l'écriture à partir de A1
-                valueInputOption: 'RAW',
-                resource: { values: rows }
-            });
-            document.getElementById('status').textContent = `Ligne supprimée de ${sheetName}.`;
-            await loadAllPromos(); // Recharge pour refléter les changements
-        } catch (error) {
-            console.error(`Erreur lors de la suppression de la ligne dans ${sheetName}:`, error);
-            document.getElementById('status').textContent = `Erreur lors de la suppression: ${error.message}`;
-        }
-    }
-
-
-    // Convertit l'index numérique de colonne en lettre (1->A, 2->B...)
-    function columnToLetter(column) {
-        let temp, letter = '';
-        while(column > 0) {
-            temp = (column - 1) % 26;
-            letter = String.fromCharCode(temp + 65) + letter;
-            column = (column - temp - 1) / 26;
-        }
-        return letter;
-    }
-
-    // Nettoie les anciennes entrées (s'applique uniquement aux promos régulières dans Feuille3)
-    async function cleanOldEntries(allRows) {
-        const now = new Date();
-        const header = allRows[0];
-        
-        // Filtre les lignes à conserver :
-        // 1. La ligne d'en-tête
-        // 2. Les lignes qui NE SONT PAS des promos additionnelles (row[11] n'est pas 'TRUE') ET ont une date future ou actuelle
-        // 3. Les lignes qui SONT des promos additionnelles (row[11] est 'TRUE') quelle que soit la date (car elles sont gérées manuellement)
-        const filteredRows = allRows.filter((row, i) => {
-            if (i === 0) return true; // Conserve toujours la ligne d'en-tête
-            if (row.length < 12) { // Si la ligne est trop courte, la traite comme une promo régulière à des fins de nettoyage
-                const datePeremption = new Date(row[1]); // La date est dans la colonne B (index 1)
-                return !isNaN(datePeremption.getTime()) && datePeremption >= now;
-            }
-            const isAdditional = (row[11] === 'TRUE');
-            if (isAdditional) {
-                return true; // Conserve les promos additionnelles quelle que soit la date
-            } else {
-                const datePeremption = new Date(row[1]); // La date est dans la colonne B (index 1)
-                return !isNaN(datePeremption.getTime()) && datePeremption >= now;
-            }
-        });
-
-        // Si des lignes ont été supprimées, met à jour la feuille.
-        if (filteredRows.length !== allRows.length) {
-            try {
-                await gapi.client.sheets.spreadsheets.values.update({
-                    spreadsheetId: SPREADSHEET_ID,
-                    range: TARGET_RANGE, // Met à jour toute la Feuille3
-                    valueInputOption: 'RAW',
-                    resource: { values: filteredRows }
+            group.forEach(item => {
+                const tr = document.createElement("tr");
+                const td1 = document.createElement("td"); td1.textContent = item.dateStr;
+                const td2 = document.createElement("td"); td2.textContent = item.produit;
+                const td3 = document.createElement("td"); td3.textContent = item.code;
+                const td4 = document.createElement("td"); td4.textContent = item.prix.toFixed(2); td4.contentEditable = true;
+                const td5 = document.createElement("td"); td5.textContent = item.zone;
+                const td6 = document.createElement("td"); td6.textContent = item.promoQty;
+                const td7 = document.createElement("td"); td7.textContent = item.reductionTxt;
+                const td8 = document.createElement("td"); td8.textContent = item.prixFinal.toFixed(2) + " €";
+                const td9 = document.createElement("td"); td9.textContent = item.explication;
+                td4.addEventListener("blur", async () => {
+                    const cleaned = td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+                    const newPrix = parseFloat(cleaned) || 0;
+                    let updated = newPrix;
+                    if (item.reductionTxt === "-50%") updated = newPrix * 0.5;
+                    else if (item.reductionTxt === "-30%") updated = newPrix * 0.7;
+                    td8.textContent = updated.toFixed(2) + " €";
+                    
+                    const range = `Feuille3!K${item.originalRowIndex}`;
+                    try {
+                        await gapi.client.sheets.spreadsheets.values.update({
+                            spreadsheetId: SPREADSHEET_ID,
+                            range: range,
+                            valueInputOption: 'RAW',
+                            resource: { values: [[newPrix]] }
+                        });
+                        console.log(`Prix mis à jour dans la feuille de calcul pour la ligne ${item.originalRowIndex}`);
+                    } catch (error) {
+                        console.error("Erreur lors de la mise à jour du prix :", error);
+                        document.getElementById('status').textContent = 'Erreur lors de la sauvegarde du prix.';
+                    }
                 });
-                console.log("Nettoyage automatique effectué (Feuille3) pour les promos régulières.");
-            } catch (error) {
-                console.error("Erreur lors du nettoyage de Feuille3 :", error);
-                document.getElementById('status').textContent = `Erreur lors du nettoyage automatique: ${error.message}`;
-            }
-        } else {
-             console.log("Aucune ancienne entrée de promotion régulière à nettoyer dans Feuille3.");
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                tr.appendChild(td5);
+                tr.appendChild(td6);
+                tr.appendChild(td7);
+                tr.appendChild(td8);
+                tr.appendChild(td9);
+                tbody.appendChild(tr);
+            });
         }
+        
+        appendGroup("📦 Mois en cours (-50%)", moisEnCours);
+        appendGroup("📦 Mois suivant (-30%)", moisSuivant);
+        if (facingCount > 0) {
+            const finalRow = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 9;
+            td.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
+            td.textContent = "Les produits du 3ᵉ mois doivent être mis en avant dans les rayons.";
+            finalRow.appendChild(td);
+            tbody.appendChild(finalRow);
+        }
+        document.getElementById("status").textContent = 'Données triées et enrichies.';
     }
 
-    // Chargement initial des APIs Google
+    async function cleanOldEntries(rows) {
+        const now = new Date();
+        const header = rows[0];
+        const filtered = rows.filter((row, i) => {
+            if (i === 0) return true;
+            const date = new Date(row[1]);
+            return !isNaN(date) && date >= now;
+        });
+        await gapi.client.sheets.spreadsheets.values.update({
+            spreadsheetId: SPREADSHEET_ID,
+            range: TARGET_RANGE,
+            valueInputOption: 'RAW',
+            resource: { values: filtered }
+        });
+        console.log("Nettoyage automatique effectué (Feuille3)");
+    }
+
     window.onload = () => {
         gapiLoaded();
         gisLoaded();
@@ -794,9 +439,9 @@
     bottom: 0;
     width: 100%;
     text-align: center;
-    font-size: 0.6em;
+    font-size: 0.5em;
     color: #666;
-    background: #bfdbc4;
+    background: #d3f0dd;
     padding: 8px 0;
     box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
     z-index: 10;
