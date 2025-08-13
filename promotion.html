@@ -322,19 +322,7 @@
         document.getElementById('operator').focus(); // Return focus to operator field
     };
 
-    // Synchronization function (Sheet1 to Sheet3 for auto promos)
-    document.getElementById('btn-sync').onclick = async () => {
-        if (!accessToken) {
-            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
-            return;
-        }
-        document.getElementById('status').textContent = 'Synchronisation en cours...';
-        await synchronizeSheets();
-        await loadAllPromos();
-        document.getElementById('status').textContent = 'Synchronisation terminée !';
-    };
-    
-    // Synchronizes Sheet1 (source) to Sheet3 (promo target), preserving modified prices and additional promos
+    // Synchronization function (Feuille1 to Feuille3)
     async function synchronizeSheets() {
         try {
             const resSource = await gapi.client.sheets.spreadsheets.values.get({
@@ -353,14 +341,10 @@
                 return;
             }
 
-            // Filters products from Sheet1 that have a promo percentage (>0)
-            const promoRowsFromSource = sourceRows.slice(1).filter(row => parseFloat(row[7]) > 0); // row[7] is the '%'
-            
-            // Creates a map of existing promos in Sheet3 by product code to facilitate updates
             const existingPromosMap = new Map();
             if (targetRows.length > 1) {
                 targetRows.slice(1).forEach(row => {
-                    const code = row[3]; // Code is in column D (index 3)
+                    const code = row[2]; // Code is in column C (index 2) in Feuille3
                     if (code) {
                         existingPromosMap.set(code, row);
                     }
@@ -368,85 +352,127 @@
             }
 
             const newTargetRows = [];
-            const sourceHeader = sourceRows[0] || [];
-            // Ensures that Sheet3's header is correct, including column K "Prix_modifié" and L "Is_Additional_Promo"
-            const targetHeader = targetRows[0] && targetRows[0].length >= 12 ? targetRows[0] : [...sourceHeader.slice(0, 10), 'Prix_modifié', 'Is_Additional_Promo'];
+            const targetHeader = targetRows[0] && targetRows[0].length >= 12 
+                                ? targetRows[0] 
+                                : ['Date', 'Nom produit', 'Code', 'Prix unitaire', 'Zone', 'Qté', '% Promo', 'Prix finale', 'Date ajout feuille 1', 'Supprimer', 'Prix_modifié', 'Is_Additional_Promo'];
             newTargetRows.push(targetHeader);
+            
+            const processedCodes = new Set(); // To keep track of codes processed from Feuille1
 
-            // Processes all rows from Sheet1 for synchronization into Sheet3
-            promoRowsFromSource.forEach(sourceRow => {
-                const code = sourceRow[3];
+            sourceRows.slice(1).forEach(sourceRow => { // Iterate through all data rows from Feuille1
+                const datePeremption = new Date(sourceRow[1]); // Column B (Feuille1)
+                const code = sourceRow[3]; // Column D (Feuille1)
+                const now = new Date();
+
+                // Skip if expired or has no product code
+                if (isNaN(datePeremption.getTime()) || datePeremption < now || !code) {
+                    return; 
+                }
+
                 const existingRow = existingPromosMap.get(code);
+                let rowToUpdate = existingRow ? [...existingRow] : new Array(12).fill(''); // Initialize with existing or empty
+                
+                // Set fixed Feuille3 column indices from Feuille1 data
+                rowToUpdate[0] = sourceRow[1] || ''; // Date (Feuille3 A from Feuille1 B)
+                rowToUpdate[1] = sourceRow[2] || ''; // Nom produit (Feuille3 B from Feuille1 C)
+                rowToUpdate[2] = sourceRow[3] || ''; // Code (Feuille3 C from Feuille1 D)
+                rowToUpdate[3] = sourceRow[9] || ''; // Prix unitaire (Feuille3 D from Feuille1 J)
+                rowToUpdate[4] = sourceRow[5] || ''; // Zone (Feuille3 E from Feuille1 F)
+                rowToUpdate[5] = sourceRow[4] || ''; // Qté (Feuille3 F from Feuille1 E)
+                // rowToUpdate[6] (Prix Promo is H, index 7, will be handled below)
+                // rowToUpdate[7] (Prix finale is I, index 8, will be recalculated)
+                // rowToUpdate[8] (Date ajout feuille 1 is J, index 9, not directly mapped or needed for sync logic)
+                // rowToUpdate[9] (Supprimer is K, index 10, not mapped, default for delete button)
+                // rowToUpdate[10] (Prix_modifié is K, index 10, will be handled below)
+                // rowToUpdate[11] (Is_Additional_Promo is L, index 11, will be handled below)
 
-                const datePeremption = new Date(sourceRow[1]); // Column B: Expiry Date
-                const now = new Date(); // Define now here for local scope
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
-                const diff = (datePeremption.getFullYear() - currentYear) * 12 + (datePeremption.getMonth() - currentMonth);
+                const diff = (datePeremption.getFullYear() - now.getFullYear()) * 12 + (datePeremption.getMonth() - now.getMonth());
 
-                let rowToUpdate = existingRow ? [...existingRow] : [...sourceRow];
-                // Ensure the row has enough columns if it's new
-                while(rowToUpdate.length < 12) rowToUpdate.push('');
+                // --- Handle Is_Additional_Promo (Feuille3 column L, index 11) ---
+                let shouldBeAdditional = false;
+                const isCurrentlyAdditionalInFeuille3 = existingRow && existingRow.length > 11 && existingRow[11] === 'TRUE';
 
-                const isCurrentlyAdditional = existingRow && existingRow.length > 11 && existingRow[11] === 'TRUE';
+                if (isCurrentlyAdditionalInFeuille3) {
+                    shouldBeAdditional = true; // Preserve TRUE if already set in Feuille3
+                    console.log(`[SYNC] Product ${code} was already additional. Preserving.`);
+                } else if (diff > 1 && parseFloat(sourceRow[4]) > 0) { // Product is beyond M+1 AND has quantity in Feuille1
+                    shouldBeAdditional = true; // Mark as new additional promo
+                    console.log(`[SYNC] Product ${code} flagged as new additional promo (diff: ${diff}, qty: ${sourceRow[4]}).`);
+                }
+                rowToUpdate[11] = shouldBeAdditional ? 'TRUE' : 'FALSE';
 
-                // --- Handle Percentage (column H, index 7) ---
-                if (!isCurrentlyAdditional && (diff === 0 || diff === 1)) {
-                    // For automatic promos (current/next month) that are NOT explicitly additional
-                    // Always set the default percentage regardless of its current value in Sheet3.
-                    rowToUpdate[7] = (diff === 0) ? 50 : 30;
-                    console.log(`[SYNC] Setting default percentage for automatic promo ${sourceRow[2]} (code: ${code}): ${rowToUpdate[7]}%`);
-                } else if (!isCurrentlyAdditional && diff > 1) {
-                    // For regular promos beyond next month that are NOT explicitly additional:
-                    // If it had a percentage in existing Sheet3 (manually set), preserve it.
-                    // Otherwise (if it came from Sheet1 with a % or was 0/empty), set to 0.
-                    if (existingRow && existingRow[7] !== undefined && parseFloat(existingRow[7]) > 0) {
-                        rowToUpdate[7] = existingRow[7]; // Preserve manual override
+                // --- Handle Percentage (Feuille3 column G, index 6 - NOTE: this was H, index 7 in previous comments. Re-verify columns) ---
+                // Let's assume % Promo is actually column G, index 6 based on your earlier table headers
+                // If it's column H, index 7. Let's stick with index 7 as used in renderAllPromos too.
+                // Re-checking the table headers: Date, Nom produit, Code, Prix unitaire, Zone, Qté, % Promo, Prix finale, Supprimer
+                // So % Promo is column G, which is index 6. Let's correct this everywhere.
+                // Correction: The HTML table header has 9 columns: Date (0), Nom produit (1), Code (2), Prix unitaire (3), Zone (4), Qté (5), % Promo (6), Prix finale (7), Supprimer (8)
+                // Feuille3 columns are A (0) to L (11).
+                // Feuille3 mapping:
+                // Date (A, 0), Nom (B, 1), Code (C, 2), Prix unitaire (D, 3), Zone (E, 4), Qté (F, 5), % Promo (G, 6), Prix finale (H, 7), Date ajout feuille 1 (I, 8), Supprimer (J, 9), Prix_modifié (K, 10), Is_Additional_Promo (L, 11)
+                // Yes, so % Promo is index 6. Prix finale is index 7. Prix_modifié is index 10. Is_Additional_Promo is index 11.
+                // My apologies for the previous index confusion. I will correct all occurrences of index 7 (% Promo) to index 6, and index 8 (Prix finale) to index 7 etc.
+
+                // Corrected indices:
+                // targetRow[6] is % Promo
+                // targetRow[7] is Prix finale
+                // targetRow[10] is Prix_modifié
+                // targetRow[11] is Is_Additional_Promo
+
+                if (shouldBeAdditional) {
+                    // For additional promos, use existing percentage from Feuille3 or default to 0 if new/empty
+                    rowToUpdate[6] = existingRow && existingRow[6] !== undefined ? existingRow[6] : '0'; // % Promo (index 6)
+                    console.log(`[SYNC] Additional promo ${code} percentage: ${rowToUpdate[6]}`);
+                } else {
+                    // For regular promos (not additional)
+                    if (diff === 0) { // Current month
+                        rowToUpdate[6] = 50; // % Promo (index 6)
+                        console.log(`[SYNC] Regular promo ${code} (Mois en cours) percentage: 50%`);
+                    } else if (diff === 1) { // Next month
+                        rowToUpdate[6] = 30; // % Promo (index 6)
+                        console.log(`[SYNC] Regular promo ${code} (Mois suivant) percentage: 30%`);
                     } else {
-                        rowToUpdate[7] = 0; // Set to 0 if not manually set in Sheet3
+                        // For regular promos whose date is beyond M+1, set percentage to 0
+                        rowToUpdate[6] = 0; // % Promo (index 6)
+                        console.log(`[SYNC] Regular promo ${code} (Mois > M+1) percentage: 0%`);
                     }
-                    console.log(`[SYNC] Setting percentage for regular other month promo ${sourceRow[2]} (code: ${code}): ${rowToUpdate[7]}%`);
-                } else {
-                    // For additional promos (isCurrentlyAdditional === true), or new items that don't fit auto rules:
-                    // Preserve existing Sheet3 value or use Sheet1's value if new.
-                    rowToUpdate[7] = existingRow && existingRow[7] !== undefined ? existingRow[7] : sourceRow[7] !== undefined ? sourceRow[7] : '';
-                    console.log(`[SYNC] Setting percentage for additional/other promo ${sourceRow[2]} (code: ${code}): ${rowToUpdate[7]}%`);
                 }
 
-                // --- Handle Prix_modifié (column K, index 10) ---
-                if (!rowToUpdate[10] || String(rowToUpdate[10]).trim() === '') {
-                    rowToUpdate[10] = sourceRow[9] !== undefined ? sourceRow[9] : '';
-                }
-                
-                // --- Handle Is_Additional_Promo (column L, index 11) ---
-                // If it's a new entry, it's FALSE. If existing, preserve its TRUE/FALSE status.
-                // The filtering for 'promoRowsFromSource' only includes items from Feuille1 that *have* a promo
-                // This implies they are "regular" promos initially. Additional promos are usually *manually added* to Feuille3.
-                // So, if we are processing `sourceRow`, it's generally a regular promo.
-                // We only set it to 'TRUE' if it was already 'TRUE' in the `existingRow`.
-                if (existingRow && existingRow[11] === 'TRUE') {
-                    rowToUpdate[11] = 'TRUE';
+                // --- Handle Prix_modifié (Feuille3 column K, index 10) ---
+                // Preserve existing modified price if it exists, otherwise use unit price from Feuille1 J (sourceRow[9])
+                rowToUpdate[10] = existingRow && existingRow[10] !== undefined && String(existingRow[10]).trim() !== '' 
+                                 ? existingRow[10] : sourceRow[9] !== undefined ? sourceRow[9] : '';
+
+                // Add to newTargetRows only if it's not already there (if existing) or is a new entry
+                if (existingRow) {
+                    const existingIdx = newTargetRows.findIndex(r => r[2] === code); // Find by code
+                    if (existingIdx !== -1) {
+                        newTargetRows[existingIdx] = rowToUpdate; // Update in place
+                    } else {
+                        newTargetRows.push(rowToUpdate); // Should not happen if map is correct
+                    }
                 } else {
-                    rowToUpdate[11] = 'FALSE';
+                    newTargetRows.push(rowToUpdate); // Add new item
                 }
-                
-                newTargetRows.push(rowToUpdate);
+                processedCodes.add(code);
             });
 
-            // Re-add existing additional promos that were NOT sourced from Feuille1
+            // Add back any existing "additional" promos from Feuille3 that were NOT processed from Feuille1
+            // (meaning they are manually added to Feuille3 and don't originate from Feuille1)
             targetRows.slice(1).forEach(targetRow => {
-                const code = targetRow[3];
+                const code = targetRow[2]; // Code is at index 2 in Feuille3
                 const isAdditional = (targetRow.length > 11 && targetRow[11] === 'TRUE');
-                // Only add if it's an additional promo AND its code was NOT found in the promoRowsFromSource
-                // This prevents duplicates and ensures manually added additional promos persist.
-                if (isAdditional && !promoRowsFromSource.some(sr => sr[3] === code)) {
+                
+                if (isAdditional && !processedCodes.has(code)) {
                     newTargetRows.push(targetRow);
+                    console.log(`[SYNC] Preserving manual additional promo ${code} not found in Feuille1.`);
                 }
             });
 
+            // Update the sheet
             await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
-                range: 'Feuille3!A1', // Starts updating from A1
+                range: 'Feuille3!A1', 
                 valueInputOption: 'RAW',
                 resource: { values: newTargetRows }
             });
@@ -460,6 +486,18 @@
 
 
     // Loads all data from the promotion sheet (Sheet3)
+    document.getElementById('btn-sync').onclick = async () => { // Moved this listener here
+        if (!accessToken) {
+            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
+            return;
+        }
+        document.getElementById('status').textContent = 'Synchronisation en cours...';
+        await synchronizeSheets();
+        await loadAllPromos();
+        document.getElementById('status').textContent = 'Synchronisation terminée !';
+    };
+
+
     async function loadAllPromos() {
         if (!accessToken) {
             document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
@@ -470,12 +508,12 @@
 
             const resFeuille3 = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE // Sheet3
+                range: TARGET_RANGE 
             });
             const allPromoRows = resFeuille3.result.values || [];
 
-            // IMPORTANT: cleanOldEntries must be called before renderAllPromos for data to be up-to-date
             await cleanOldEntries(allPromoRows); 
+            
             // Re-fetch after cleaning to get the latest state of the sheet
             const resFeuille3AfterClean = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
@@ -483,12 +521,12 @@
             });
             const cleanedPromoRows = resFeuille3AfterClean.result.values || [];
 
-            const now = new Date(); // Definition of 'now' here
-            renderAllPromos(cleanedPromoRows, now); // Pass 'now' to renderAllPromos
-            document.getElementById('status').textContent = 'Promotions loaded.';
+            const now = new Date(); 
+            renderAllPromos(cleanedPromoRows, now); 
+            document.getElementById('status').textContent = 'Promotions chargées.';
         } catch (e) {
-            document.getElementById('status').textContent = `Loading error: ${e.message}`;
-            console.error("Sheet loading error:", e);
+            document.getElementById('status').textContent = `Erreur de chargement: ${e.message}`;
+            console.error("Erreur de chargement des feuilles:", e);
         }
     }
 
@@ -502,7 +540,7 @@
         const tdZone = document.createElement("td"); tdZone.textContent = item.zone;
         const tdQty = document.createElement("td"); tdQty.textContent = item.qty; // Quantity
         
-        const tdPercentage = document.createElement("td"); // New editable percentage cell
+        const tdPercentage = document.createElement("td"); // Editable percentage cell
         tdPercentage.textContent = item.percentage.toFixed(0) + "%"; 
         tdPercentage.contentEditable = true; 
         
@@ -518,33 +556,29 @@
             }
         };
 
-        // Event listener for unit price modification (Column K / index 10 in Sheet3)
+        // Event listener for unit price modification (Feuille3 Column K / index 10)
         tdPrixUnit.addEventListener("blur", async () => {
             const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
             const newPrix = parseFloat(cleaned) || 0;
             
-            // Updates local object and displayed final price
             item.prixUnitaire = newPrix;
-            item.prixFinal = newPrix * (1 - item.percentage / 100); // Uses current percentage
+            item.prixFinal = newPrix * (1 - item.percentage / 100); 
             tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
 
-            // Saves new value to Column K of Sheet3 (index 11 when using columnToLetter)
-            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 11, newPrix);
+            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 10, newPrix); // Index 10 for Prix_modifié
         });
 
-        // Event listener for percentage modification (Column H / index 7 in Sheet3)
+        // Event listener for percentage modification (Feuille3 Column G / index 6)
         tdPercentage.addEventListener("blur", async () => {
             const cleaned = tdPercentage.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
             const newPct = parseFloat(cleaned) || 0;
             
-            // Updates local object and displayed final price
             item.percentage = newPct;
-            item.prixFinal = item.prixUnitaire * (1 - newPct / 100); // Uses current unit price
+            item.prixFinal = item.prixUnitaire * (1 - newPct / 100); 
             tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
-            tdPercentage.textContent = newPct.toFixed(0) + "%"; // Updates displayed text
+            tdPercentage.textContent = newPct.toFixed(0) + "%"; 
 
-            // Saves new value to Column H of Sheet3 (index 8 when using columnToLetter)
-            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 8, newPct);
+            await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 6, newPct); // Index 6 for % Promo
         });
 
         tr.appendChild(tdDate);
@@ -553,93 +587,77 @@
         tr.appendChild(tdPrixUnit);
         tr.appendChild(tdZone);
         tr.appendChild(tdQty);
-        tr.appendChild(tdPercentage); // Now editable
+        tr.appendChild(tdPercentage); 
         tr.appendChild(tdPrixFinal);
         tr.appendChild(tdDelete);
         targetTbody.appendChild(tr);
     }
 
     // Function to add a group of rows to a table
-    // isAdditionalTable: true if it's for the additional-promo-table
-    function appendGroup(targetTbody, title, group, isThirdMonthFacing = false, isAdditionalTable = false) {
-        if (group.length === 0 && !isThirdMonthFacing && !isAdditionalTable) { // Added !isAdditionalTable condition
-             // If no items in group and not the special 3rd month message, do not append title
+    function appendGroup(targetTbody, title, group) { // Removed isThirdMonthFacing, isAdditionalTable for this helper, simplified
+        if (group.length === 0 && title !== "") { // If group is empty and title is not empty string (for 3rd month msg)
             return;
         }
 
         const trTitle = document.createElement("tr");
-        trTitle.classList.add('group-title-row'); // Adds a class for group titles
+        trTitle.classList.add('group-title-row'); 
         const td = document.createElement("td");
-        td.colSpan = 9; // Adjusted for 9 columns
+        td.colSpan = 9; 
         td.textContent = title;
         trTitle.appendChild(td);
         targetTbody.appendChild(trTitle);
 
         group.forEach(item => {
-            renderPromoRow(item, targetTbody, isAdditionalTable);
+            renderPromoRow(item, targetTbody);
         });
-
-        if (isThirdMonthFacing && facingCount > 0) {
-            const finalRow = document.createElement("tr");
-            const tdFacing = document.createElement("td");
-            tdFacing.colSpan = 9; // Adjusted for 9 columns
-            tdFacing.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
-            tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
-            finalRow.appendChild(tdFacing);
-            targetTbody.appendChild(finalRow);
-        }
     }
 
 
     // Renders all promotion categories
-    function renderAllPromos(allPromoRows, now) { // 'now' is now a parameter
+    function renderAllPromos(allPromoRows, now) { 
         const tbodyMain = document.querySelector("#data-table tbody");
         const tbodyAdditional = document.querySelector("#additional-promo-table tbody");
         const additionalPromoSection = document.getElementById('additional-promo-section');
 
-        tbodyMain.innerHTML = ""; // Clear existing content of main table
-        tbodyAdditional.innerHTML = ""; // Clear existing content of additional table
-        additionalPromoSection.style.display = 'none'; // Hide additional section by default
+        tbodyMain.innerHTML = ""; 
+        tbodyAdditional.innerHTML = ""; 
+        additionalPromoSection.style.display = 'none'; 
         
         let moisEnCours = [];
         let moisSuivant = [];
-        let additionalPromos = []; // List for additional promotions
-        let facingCount = 0; // Counter for 3rd month products to highlight
+        let additionalPromos = []; 
+        let facingCount = 0; 
 
-        // Skip header row
         const dataRows = allPromoRows.slice(1);
 
         dataRows.forEach((row, index) => {
-            // Ensures the row has enough columns (at least 12 for Is_Additional_Promo)
             if (row.length < 12) { 
-                // Pads the row with empty strings if it's too short
                 while(row.length < 12) row.push('');
             }
 
-            const originalRowIndex = index + 2; // 1-based row index in the spreadsheet
+            const originalRowIndex = index + 2; 
 
-            const produit = row[2] || ''; // Column C
-            const code = row[3] || ''; // Column D
-            const zone = row[5] || ''; // Column F
-            const qty = row[4] || ''; // Column E (Quantity)
-            let percentageFromSheet = parseFloat((row[7] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column H (% Promo)
-            const prixUnitaire = parseFloat((row[10] || "").replace(/[^\d.,]/g, '').replace(',', '.')) || parseFloat((row[9] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column K (Modified Price) or J (Unit Price Sheet1)
-
+            const produit = row[1] || ''; // Feuille3 Column B (Nom produit)
+            const code = row[2] || ''; // Feuille3 Column C (Code)
+            const zone = row[4] || ''; // Feuille3 Column E (Zone)
+            const qty = row[5] || ''; // Feuille3 Column F (Qté)
+            let percentageFromSheet = parseFloat((row[6] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Feuille3 Column G (% Promo)
+            const prixUnitaire = parseFloat((row[3] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Feuille3 Column D (Prix unitaire)
+            
             let percentageToDisplay = percentageFromSheet;
             let prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
-
-            const dateStr = row[1];
+            
+            const dateStr = row[0]; // Feuille3 Column A (Date)
             const date = new Date(dateStr);
-            // 'now' is already available via the function parameter
+            
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
             const diff = (date.getFullYear() - currentYear) * 12 + (date.getMonth() - currentMonth);
 
-            const isAdditionalFlag = (row[11] === 'TRUE'); // Checks the flag for additional promo
-            console.log(`[RENDER] Produit: ${produit}, isAdditionalFlag: ${isAdditionalFlag}, PourcentageFeuille: ${percentageFromSheet}`); // Debug log
+            const isAdditionalFlag = (row[11] === 'TRUE'); // Feuille3 Column L (Is_Additional_Promo)
+            console.log(`[RENDER] Produit: ${produit}, isAdditionalFlag: ${isAdditionalFlag}, PourcentageFeuille: ${percentageFromSheet}`); 
 
-            // Categorizes by month (Month 1, Month 2, or Month 3) if it's NOT an explicit additional promo
-            if (!isNaN(date.getTime()) && !isAdditionalFlag) {
+            if (!isNaN(date.getTime()) && !isAdditionalFlag) { // Not an additional promo
                 if (diff === 0) { // Current month
                     if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) {
                         percentageToDisplay = 50; 
@@ -658,21 +676,22 @@
                     facingCount++; 
                     console.log(`[RENDER] --> Classé comme produit 3e mois à mettre en avant.`);
                 } else {
-                    // This case handles regular promos whose date is beyond month+2 but are not additional.
-                    // Their percentage should be displayed as is from Sheet3 or 0 if it was from Feuille1 with a non-default.
-                    // The percentage for these items is already handled by synchronizeSheets.
-                    moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
-                    console.log(`[RENDER] --> Classé comme autre promo automatique (date > M+1). Pourcentage affiché: ${percentageToDisplay}`);
+                    // This handles regular promos whose date is beyond month+2 but are not additional.
+                    // Their percentage should be displayed as is from Sheet3.
+                    if (percentageFromSheet > 0) { // Only add to display if it has a non-zero percentage
+                        moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
+                        console.log(`[RENDER] --> Classé comme autre promo automatique (date > M+1). Pourcentage affiché: ${percentageToDisplay}`);
+                    } else {
+                        console.log(`[RENDER] --> Produit ${produit} (code: ${code}) ignoré (date > M+1 et % promo 0 ou vide).`);
+                    }
                 }
-            } else if (isAdditionalFlag && percentageFromSheet > 0) {
-                // If it's an explicit additional promo and the percentage is > 0
-                // The percentage to display is taken from the sheet, no automatic default here
+            } else if (isAdditionalFlag && percentageFromSheet > 0) { // Explicitly additional promo with a percentage
                 percentageToDisplay = percentageFromSheet; 
                 prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
                 additionalPromos.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
                 console.log(`[RENDER] --> Classé comme PROMO SUPPLÉMENTAIRE. Pourcentage: ${percentageToDisplay}`);
             } else {
-                console.log(`[RENDER] --> Non classé (isAdditionalFlag: ${isAdditionalFlag}, pourcentage: ${percentageFromSheet}). Ignoré de l'affichage principal.`);
+                console.log(`[RENDER] --> Produit ${produit} (code: ${code}) ignoré (isAdditionalFlag: ${isAdditionalFlag}, pourcentage: ${percentageFromSheet}).`);
             }
         });
         
@@ -692,7 +711,7 @@
         const nextMonthDate = new Date();
         nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
         appendGroup(tbodyMain, `📦 Mois suivant (30% par défaut) - ${formatMonthYear(nextMonthDate)}`, moisSuivant);
-        // Special row for 3rd month "facing" products
+        
         if (facingCount > 0) {
             const finalRow = document.createElement("tr");
             const td = document.createElement("td");
@@ -700,16 +719,16 @@
             td.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
             td.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
             finalRow.appendChild(td);
-            tbodyMain.appendChild(finalRow); // Append to main tbody
+            tbodyMain.appendChild(finalRow); 
         }
 
         // Render "Additional Promotions" if any
         if (additionalPromos.length > 0) {
-            additionalPromoSection.style.display = 'block'; // Show the section if products exist
-            console.log(`[RENDER] Affichage de la section promotions supplémentaires. Total promos supplémentaires: ${additionalPromos.length}`); // Debug log
+            additionalPromoSection.style.display = 'block'; 
+            console.log(`[RENDER] Affichage de la section promotions supplémentaires. Total promos supplémentaires: ${additionalPromos.length}`); 
             // There is no month grouping for this section, just the list
             additionalPromos.forEach(item => {
-                renderPromoRow(item, tbodyAdditional, true); // Use tbodyAdditional for this section
+                renderPromoRow(item, tbodyAdditional, true); 
             });
         } else {
             console.log("[RENDER] Aucune promotion supplémentaire à afficher. La section restera masquée.");
@@ -724,7 +743,7 @@
             document.getElementById('status').textContent = 'Veuillez vous connecter pour sauvegarder.';
             return;
         }
-        const sheetName = rangePrefix.split('!')[0]; // Extracts sheet name (e.g., "Feuille3")
+        const sheetName = rangePrefix.split('!')[0]; 
         
         try {
             await gapi.client.sheets.spreadsheets.values.update({
@@ -749,36 +768,31 @@
         }
         const sheetName = rangePrefix.split('!')[0];
         try {
-            // Read all data first
             const res = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
-                range: sheetName // Get all data from the sheet
+                range: sheetName 
             });
             let rows = res.result.values || [];
 
-            // Remove the row at the specified index (adjusting for header and 0-based array)
-            // rowIndex from render function is 1-based (starts at 2 for data rows)
-            // So, for 0-based array, it's rowIndex - 1
             if (rowIndex > 0 && rowIndex <= rows.length) {
-                rows.splice(rowIndex - 1, 1); // Remove 1 row at (rowIndex - 1)
+                rows.splice(rowIndex - 1, 1); 
             } else {
                 console.error("Invalid row index for deletion:", rowIndex);
                 document.getElementById('status').textContent = "Error: Invalid row index for deletion.";
                 return;
             }
 
-            // Write the modified data back to the sheet
             await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
-                range: `${sheetName}!A1`, // Start writing from A1
+                range: `${sheetName}!A1`, 
                 valueInputOption: 'RAW',
                 resource: { values: rows }
             });
             document.getElementById('status').textContent = `Ligne supprimée de ${sheetName}.`;
-            await loadAllPromos(); // Reload to reflect changes
+            await loadAllPromos(); 
         } catch (error) {
             console.error(`Erreur lors de la suppression de la ligne dans ${sheetName}:`, error);
-            document.getElementById('status').textContent = `Erreur lors de la suppression: ${e.message}`;
+            document.getElementById('status').textContent = `Erreur lors de la suppression: ${error.message}`;
         }
     }
 
@@ -796,34 +810,29 @@
 
     // Cleans old entries (only applies to regular promos in Sheet3)
     async function cleanOldEntries(allRows) {
-        const now = new Date(); // Definition of 'now' here for this function
+        const now = new Date(); 
         const header = allRows[0];
         
-        // Filters rows to keep:
-        // 1. The header row
-        // 2. Rows that are NOT additional promos (row[11] is not 'TRUE') AND have a future or current date
-        // 3. Rows that ARE additional promos (row[11] is 'TRUE') regardless of date (as they are manually managed)
         const filteredRows = allRows.filter((row, i) => {
-            if (i === 0) return true; // Always keep the header row
-            if (row.length < 12) { // If row is too short, treat as regular promo for cleaning purposes
-                const datePeremption = new Date(row[1]); // Date is in column B (index 1)
+            if (i === 0) return true; 
+            if (row.length < 12) { 
+                const datePeremption = new Date(row[0]); // Feuille3 Column A (Date)
                 return !isNaN(datePeremption.getTime()) && datePeremption >= now;
             }
             const isAdditional = (row[11] === 'TRUE');
             if (isAdditional) {
-                return true; // Keep additional promos regardless of date
+                return true; 
             } else {
-                const datePeremption = new Date(row[1]); // Date is in column B (index 1)
+                const datePeremption = new Date(row[0]); // Feuille3 Column A (Date)
                 return !isNaN(datePeremption.getTime()) && datePeremption >= now;
             }
         });
 
-        // If rows were removed, update the sheet.
         if (filteredRows.length !== allRows.length) {
             try {
                 await gapi.client.sheets.spreadsheets.values.update({
                     spreadsheetId: SPREADSHEET_ID,
-                    range: TARGET_RANGE, // Update all of Sheet3
+                    range: TARGET_RANGE, 
                     valueInputOption: 'RAW',
                     resource: { values: filteredRows }
                 });
