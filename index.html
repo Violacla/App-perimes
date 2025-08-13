@@ -1609,6 +1609,21 @@ async function loadNotifications() {
         renderTable('trimestre', trimestre);
         renderTable('2nd-month', secondMonth);
         
+        // Afficher la popup et l'onglet par défaut sans écran de chargement
+        document.querySelector(".notification-popup").style.display = "block";
+        showTab('trimestre');
+
+    } catch (e) {
+        console.error("Erreur lors du chargement des notifications:", e);
+        // Gérer l'erreur sans écran de chargement
+        document.getElementById("notification-popup").innerHTML = "Erreur de chargement des données. Veuillez réessayer.";
+    }
+}
+
+        renderTable('a-retirer', aEnlever);
+        renderTable('trimestre', trimestre);
+        renderTable('2nd-month', secondMonth);
+        
         showTab('trimestre');
         document.querySelector("#loading-screen-notif").style.display = "none";
         document.querySelector(".notification-popup").style.display = "block";
