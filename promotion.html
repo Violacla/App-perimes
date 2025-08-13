@@ -144,34 +144,7 @@
             margin-bottom: 20px;
             font-size: 1.8em;
         }
-        #add-additional-promo-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-            justify-content: center;
-            align-items: center;
-        }
-        #add-additional-promo-form input[type="text"],
-        #add-additional-promo-form input[type="number"] {
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            flex: 1; /* Permet aux champs de prendre de l'espace */
-            min-width: 120px; /* Largeur minimale pour les champs */
-        }
-        #add-additional-promo-form button {
-            background-color: #87c08f; /* Vert pour le bouton d'ajout */
-            color: black;
-            font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 5px;
-            flex-shrink: 0; /* Empêche le bouton de rétrécir */
-        }
-        #add-additional-promo-form button:hover {
-            background-color: #5d9e63;
-            color: white;
-        }
+        /* Removed #add-additional-promo-form styles as the form is removed */
 
         #additional-promo-table {
             border: 2px solid #86bf8e; /* Bordure verte distinctive */
@@ -242,15 +215,7 @@
 
 <div id="additional-promo-section">
     <h2>🚀 Liste supplémentaire en promo</h2>
-    <form id="add-additional-promo-form">
-        <input type="text" id="add-promo-product-name" placeholder="Nom produit" required>
-        <input type="text" id="add-promo-code" placeholder="Code" required>
-        <input type="number" id="add-promo-price-unit" placeholder="Prix unitaire" step="0.01" required>
-        <input type="text" id="add-promo-zone" placeholder="Zone">
-        <input type="number" id="add-promo-qty" placeholder="Qté">
-        <input type="number" id="add-promo-percentage" placeholder="% Promo (ex: 50)" value="50">
-        <button type="button" id="btn-add-additional-promo">Ajouter à la liste promo</button>
-    </form>
+    <!-- The form to add additional promos is removed. Users will mark them directly in Google Sheet. -->
     <table id="additional-promo-table">
         <thead>
         <tr>
@@ -465,7 +430,7 @@
                     // Ensures the new row has 12 columns (A-L)
                     const newRow = [...sourceRow];
                     while(newRow.length < 12) newRow.push(''); // Fills with empty strings if needed
-                    newRow[10] = sourceRow[9]; // Initializes Prix_modifié with Unit price from Sheet1
+                    newRow[10] = newRow[9]; // Initializes Prix_modifié with Unit price from Feuille1 (col J)
                     newRow[11] = 'FALSE'; // Marks as regular promotion
 
                     // Set default percentage for new regular promos
@@ -553,12 +518,14 @@
             const code = row[3] || ''; // Column D
             const zone = row[5] || ''; // Column F
             const qty = row[4] || ''; // Column E (Quantity)
-            const percentage = parseFloat((row[7] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column H (% Promo) - Now editable
+            let percentageFromSheet = parseFloat((row[7] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column H (% Promo) - Now editable
             const prixUnitaire = parseFloat((row[10] || "").replace(/[^\d.,]/g, '').replace(',', '.')) || parseFloat((row[9] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column K (Prix_modifié) or J (Prix unitaire Feuille1)
 
 
+            let percentageToDisplay = percentageFromSheet; // Use the percentage from sheet by default
+
             // Calculate final price based on the actual percentage from the sheet
-            const prixFinalCalculated = prixUnitaire * (1 - percentage / 100);
+            let prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
 
             if (!isAdditional) {
                 // Logic for Regular Promotions (Current Month / Next Month)
@@ -572,9 +539,17 @@
                     const diff = (date.getFullYear() - currentYear) * 12 + (date.getMonth() - currentMonth);
                     
                     if (diff === 0) { // Current month
-                        moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage, prixFinal: prixFinalCalculated, originalRowIndex });
+                        if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // Check original sheet value
+                            percentageToDisplay = 50; // Default to 50% for display if 0 or empty
+                        }
+                        prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
+                        moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
                     } else if (diff === 1) { // Next month
-                        moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage, prixFinal: prixFinalCalculated, originalRowIndex });
+                        if (percentageFromSheet === 0 || isNaN(percentageFromSheet)) { // Check original sheet value
+                            percentageToDisplay = 30; // Default to 30% for display if 0 or empty
+                        }
+                        prixFinalCalculated = prixUnitaire * (1 - percentageToDisplay / 100);
+                        moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated, originalRowIndex });
                     } else if (diff === 2) { // 3rd month (Facing)
                         facingCount++;
                     }
@@ -582,8 +557,10 @@
             } else {
                 // Logic for Additional Promotions
                 const dateStr = row[1] || ''; // Date can be empty for these, but present in row[1]
+                // For additional promos, percentage is already from row[7] (H) with default 50
+                // So no need to adjust percentageToDisplay here for display, it comes directly from the sheet
                 additionalPromos.push({
-                    dateStr, produit, code, prixUnitaire, zone, qty, percentage, prixFinal: prixFinalCalculated,
+                    dateStr, produit, code, prixUnitaire, zone, qty, percentage: percentageToDisplay, prixFinal: prixFinalCalculated,
                     originalRowIndex // row index in Sheet3
                 });
             }
@@ -681,7 +658,7 @@
                 const tdFacing = document.createElement("td");
                 tdFacing.colSpan = 9; // Adjusted for 9 columns
                 tdFacing.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
-                tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons.`;
+                tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons. ❗`;
                 finalRow.appendChild(tdFacing);
                 targetTbody.appendChild(finalRow);
             }
@@ -717,7 +694,7 @@
                 }
             };
             
-            // Event listener for unit price modification in Sheet3 (column J / index 9)
+            // Event listener for unit price modification in Sheet3 (column K / index 10)
             tdPrixUnit.addEventListener("blur", async () => {
                 const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
                 const newPrix = parseFloat(cleaned) || 0;
@@ -727,8 +704,8 @@
                 item.prixFinal = newPrix * (1 - item.percentage / 100);
                 tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
 
-                // Saves new value to Column J of Sheet3 (index 10 when using columnToLetter)
-                await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 10, newPrix);
+                // Saves new value to Column K of Sheet3 (index 11 when using columnToLetter)
+                await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 11, newPrix);
             });
 
             // Event listener for percentage modification in Sheet3 (column H / index 7)
@@ -762,81 +739,8 @@
     }
 
     // Function to add a product to the additional list (Sheet3)
-    document.getElementById('btn-add-additional-promo').onclick = async () => {
-        if (!accessToken) {
-            alert("Veuillez vous connecter d'abord.");
-            return;
-        }
-
-        const productName = document.getElementById('add-promo-product-name').value.trim();
-        const code = document.getElementById('add-promo-code').value.trim();
-        const priceUnit = parseFloat(document.getElementById('add-promo-price-unit').value);
-        const zone = document.getElementById('add-promo-zone').value.trim();
-        const qty = parseInt(document.getElementById('add-promo-qty').value);
-        const percentage = parseFloat(document.getElementById('add-promo-percentage').value) || 50; // Default 50%
-
-        if (!productName || !code || isNaN(priceUnit) || priceUnit <= 0) {
-            alert("Veuillez remplir le nom du produit, le code et un prix unitaire valide.");
-            return;
-        }
-        if (!/^\d{6}$/.test(code)) {
-            alert("Le code doit contenir exactement 6 chiffres.");
-            return;
-        }
-
-        // Generate a date for the new entry (today's date, or leave empty if not relevant)
-        const today = new Date();
-        const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-        // Prepare the new row for Sheet3. Ensure all 12 columns (A-L) are present.
-        // A: Opérateur (col B, index 1)
-        // B: Date (col C, index 2) - Expiry date, for additional promos, use today or empty
-        // C: Nom produit (col D, index 3)
-        // D: Code (col E, index 4)
-        // E: Qté (col F, index 5)
-        // F: Zone (col G, index 6)
-        // G: Vendues (col H, index 7) - Leave empty
-        // H: % (col I, index 8) - This is our custom percentage!
-        // I: Date d'ajout (col J, index 9) - Today's date
-        // J: Prix unitaire base (col K, index 10) - This is the base price from Feuille1
-        // K: Prix_modifié (col L, index 11) - This is the base price for additional promo
-        // L: Is_Additional_Promo (col M, index 12) - TRUE
-        const newRow = [
-            operatorCode,           // A: Opérateur (from login)
-            dateString,             // B: Date (today's date for reference, can be ignored for display if not needed)
-            productName,            // C: Nom produit
-            code,                   // D: Code
-            qty || '',              // E: Qté (can be empty)
-            zone,                   // F: Zone
-            '',                     // G: Vendues (not applicable for this list, leave empty)
-            percentage,             // H: % (custom percentage) -> Column H in Sheet3
-            today.toLocaleString('fr-FR'), // I: Date d'ajout (full datetime)
-            '',                     // J: Prix unitaire base (from Sheet1, leave empty for manual)
-            priceUnit,              // K: Prix_modifié (this is the editable base price for additional)
-            'TRUE'                  // L: Is_Additional_Promo marker
-        ];
-
-        try {
-            await gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE, // Append to Sheet3
-                valueInputOption: 'RAW',
-                resource: { values: [newRow] }
-            });
-            document.getElementById('status').textContent = `Produit "${productName}" ajouté à la liste promo.`;
-            // Clear form fields
-            document.getElementById('add-promo-product-name').value = '';
-            document.getElementById('add-promo-code').value = '';
-            document.getElementById('add-promo-price-unit').value = '';
-            document.getElementById('add-promo-zone').value = '';
-            document.getElementById('add-promo-qty').value = '';
-            document.getElementById('add-promo-percentage').value = '50'; // Reset to default
-            await loadAllPromos(); // Reload all promos to show new entry
-        } catch (error) {
-            console.error("Erreur lors de l'ajout du produit supplémentaire :", error);
-            document.getElementById('status').textContent = `Erreur lors de l'ajout: ${error.message}`;
-        }
-    };
+    // REMOVED: This function and its associated button are no longer needed
+    // as users will directly mark rows in Google Sheet for additional promos.
 
     // Generic function to save a cell to any sheet
     async function saveCellToSheet(rangePrefix, rowIndex, colIndex, newValue) {
@@ -975,7 +879,7 @@
     box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
     z-index: 10;
 ">
-    Développé par Violaine Claron - Mise à jour 14/08/2025
+    Développé par Violaine Claron - Mise à jour
 </footer>
 </body>
 </html>
