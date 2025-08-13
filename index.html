@@ -110,7 +110,7 @@
   /* Formulaire pour ajouter des entrées (à droite) */
  #entry-form {
   width: 320px;
-  background: #f2f7f2; /* CHANGÉ: Couleur de fond vert très clair, presque blanc */
+  background: #f2f7f2; /* Couleur de fond vert très clair, presque blanc */
   padding: 15px 20px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
@@ -398,23 +398,9 @@
   height: auto;
 }
   
-/* Styles du bouton de connexion */
+/* Styles du bouton de connexion - NE SERA PLUS UTILISÉ */
 #btn-login {
-  background-color: #0a2f51;       /* Bleu foncé */
-  color: #bcd7ed;                  /* Bleu glacial */
-  font-weight: bold;
-  padding: 12px 24px;
-  font-size: 1.2em;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-#btn-login:hover {
-  background-color: #083049;      /* Bleu un peu plus foncé au survol */
-  transform: translateY(-2px);
+  display: none !important; /* Masqué de manière forcée */
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -433,13 +419,12 @@
 <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
 </a>
 <h1>Gestion Périmé - Pharmacie du Libron</h1>
-<!-- Groupe opérateur -->
-<div id="operator-form" style="display:none; margin-left:10px;">
+<!-- Groupe opérateur - MAINTENANT VISIBLE PAR DEFAUT -->
+<div id="operator-form" style="display:inline-flex; margin-left:10px;">
 <input id="operator" placeholder="Nom de l'opérateur" type="text"/>
 <button id="btn-confirm-operator">Valider</button>
 </div>
-<!-- Bouton connexion -->
-<button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
+<!-- Bouton connexion - SUPPRIMÉ -->
 </div>
 <div id="header-right">
 <button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
@@ -591,6 +576,7 @@ Déconnexion
   const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
   let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
+  let pendingOperatorName = null; // Variable pour stocker le nom de l'opérateur temporairement
 
   // Initialisation de l'API Google Sheets
   function gapiLoaded() { gapi.load('client', initializeGapiClient); }
@@ -606,24 +592,37 @@ Déconnexion
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
+        // Cette fonction est appelée APRÈS que l'utilisateur se soit connecté via Google
         accessToken = tokenResponse.access_token;
-        document.getElementById('operator-form').style.display = 'inline-flex';
-        document.getElementById('btn-login').style.display = 'none';
-        setStatus('Connecté. Choisissez un opérateur.');
-        document.getElementById('operator').focus(); // Focus clavier automatique
-        // Masquer l'overlay de mise à jour après connexion
-        const overlay = document.getElementById('update-overlay');
-        if (overlay) overlay.style.display = 'none';
+        if (pendingOperatorName) { // Si un nom d'opérateur a été saisi avant la connexion Google
+            operatorName = pendingOperatorName; // On l'assigne comme opérateur final
+            
+            document.getElementById('operator-form').style.display = 'none'; // Cache le formulaire opérateur
+            document.getElementById('btn-logout').style.display = 'inline-block'; // Affiche le bouton déconnexion
+            document.getElementById('entry-form').style.display = 'block'; // Affiche le formulaire d'ajout
+            loadSheet(); // Charge les données principales
+            setStatus(`Connecté en tant que ${operatorName}.`);
+            
+            // Masquer l'overlay de mise à jour après connexion
+            const overlay = document.getElementById('update-overlay');
+            if (overlay) overlay.style.display = 'none';
+        } else {
+            // Cas d'erreur si pendingOperatorName n'est pas défini (ne devrait pas arriver avec le nouveau flux)
+            setStatus('Erreur : Nom d\'opérateur non trouvé après connexion Google.');
+            console.error('Pending operator name was null after successful Google login.');
+        }
+        pendingOperatorName = null; // Réinitialise la variable temporaire
       },
     });
     gisInited = true;
-    maybeEnableButtons();
+    maybeEnableButtons(); // S'assure que tout est chargé et gère le focus initial
   }
 
-  // Active les boutons si les deux APIs sont chargées
+  // Active les fonctionnalités quand les APIs sont chargées
   function maybeEnableButtons() {
     if (gapiInited && gisInited) {
-      document.getElementById('btn-login').style.display = 'inline-block';
+      document.getElementById('operator').focus(); // Met le focus sur le champ opérateur
+      setStatus('Veuillez entrer votre nom d\'opérateur pour vous connecter.');
     }
   }
 
@@ -632,29 +631,55 @@ Déconnexion
     document.getElementById('status').textContent = msg;
   }
 
-  // Gestion des clics sur les boutons de connexion/déconnexion et confirmation opérateur
-  document.getElementById('btn-login').onclick = () => { tokenClient.requestAccessToken(); };
-  document.getElementById('btn-logout').onclick = () => {
-    accessToken = null; operatorName = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
-    document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('entry-form').style.display = 'none';
-    clearTable();
-    setStatus('Déconnecté.');
-  };
-  document.getElementById('btn-confirm-operator').onclick = () => {
-    const op = document.getElementById('operator').value;
+  // --- Nouvelle fonction pour initier la connexion (opérateur + Google) ---
+  async function initiateGoogleAndOperatorLogin() {
+    const op = document.getElementById('operator').value.trim();
     if (!op) {
-      alert("Veuillez choisir un opérateur.");
-      return;
+        alert("Veuillez entrer un nom d'opérateur.");
+        return;
     }
-    operatorName = op;
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('btn-logout').style.display = 'inline-block';
-    document.getElementById('entry-form').style.display = 'block';
-    loadSheet(); // Charge les données principales après connexion
+    pendingOperatorName = op; // Stocke le nom de l'opérateur temporairement
+
+    try {
+        // Déclenche la requête de jeton Google, ce qui ouvrira la popup de connexion Google si nécessaire
+        await tokenClient.requestAccessToken();
+        setStatus('Connexion Google en cours...'); // Message affiché pendant la connexion Google
+    } catch (error) {
+        console.error("Erreur lors de la requête du token Google:", error);
+        setStatus("Erreur de connexion Google. Veuillez réessayer.");
+        pendingOperatorName = null; // Nettoie le nom temporaire en cas d'erreur
+    }
+  }
+
+  // Gestion des clics sur les boutons de connexion/déconnexion et confirmation opérateur
+  // Le bouton 'btn-login' a été supprimé
+  document.getElementById('btn-logout').onclick = () => {
+    accessToken = null;
+    operatorName = null;
+    pendingOperatorName = null; // Réinitialise également la variable temporaire
+    
+    document.getElementById('operator-form').style.display = 'inline-flex'; // Réaffiche le formulaire opérateur
+    document.getElementById('operator').value = ''; // Efface le nom de l'opérateur
+    document.getElementById('btn-logout').style.display = 'none'; // Cache le bouton déconnexion
+    document.getElementById('entry-form').style.display = 'none'; // Cache le formulaire d'ajout
+    clearTable(); // Vide le tableau principal
+    setStatus('Déconnecté.');
+    document.getElementById('operator').focus(); // Remet le focus sur le champ opérateur
   };
+
+  // Lie le bouton "Valider" à la nouvelle fonction de connexion
+  document.getElementById('btn-confirm-operator').onclick = initiateGoogleAndOperatorLogin;
+
+  // Gère la touche "Entrée" dans le champ opérateur pour déclencher la connexion
+  const operatorInput = document.getElementById('operator');
+  if (operatorInput) {
+    operatorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        initiateGoogleAndOperatorLogin();
+      }
+    });
+  }
 
   // Logique du bouton "Ajouter la ligne"
   document.getElementById('btn-add').onclick = async () => {
@@ -1016,7 +1041,6 @@ Déconnexion
           // Rendu pour l'onglet "2ème mois" (le mois de référence + 1)
           const monthPlus1Date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 1);
           const monthPlus1Title = formatMonthYearLocal(monthPlus1Date);
-          // AJOUTÉ: Phrase "En promotion" en italique et non gras
           document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus1Title} <span style="font-style: italic; font-weight: normal;">- En promotion</span></h3>` + renderNotificationTableContent(grouped['2nd-month']);
 
           // Rendu pour l'onglet "Trimestre" (groupé par mois)
@@ -1035,8 +1059,11 @@ Déconnexion
 
                   if (monthDiff === 0) { // C'est le 1er mois du trimestre (mois de référence)
                       titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- En promotion</span>';
-                  } else if (monthDiff === 1) { // C'est le 2ème mois du trimestre
-                      titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- En promotion</span>';
+                  } else if (monthDiff === 1) { // C'est le 2ème mois du trimestre (qui est déjà l'onglet "2ème mois")
+                      // On ne fait rien ici pour éviter la duplication de la phrase "En promotion"
+                      // car le 2ème mois a son propre onglet et sa propre phrase.
+                      // OU si vous voulez l'inclure aussi dans le trimestre pour le 2ème mois:
+                      // titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- En promotion</span>';
                   } else if (monthDiff === 2) { // C'est le 3ème mois du trimestre
                       titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- Mettre en avant dans les rayons</span>';
                   }
@@ -1159,24 +1186,16 @@ Déconnexion
     });
 
     // Gestion du focus pour l'opérateur (touche Entrée)
-    const operatorInput = document.getElementById('operator');
-    const btnOperator = document.getElementById('btn-confirm-operator');
-    if (operatorInput && btnOperator) {
-      operatorInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          btnOperator.click();
-        }
-      });
-    }
+    // Cette partie est maintenant déplacée vers les eventListeners du bouton de validation de l'opérateur
+    // pour déclencher initiateGoogleAndOperatorLogin.
 
     // Gestion de la navigation avec Entrée dans le formulaire d'ajout
     const fields = [
-      'date', 'product', 'code', 'qty', 'zone', // 'sold' et 'promo' ne sont pas des champs de saisie directs ici
+      'date', 'product', 'code', 'qty', 'zone', 
     ];
     fields.forEach((id, index) => {
       const input = document.getElementById(id);
-      if(input) { // Vérifie que l'input existe
+      if(input) { 
         input.addEventListener('keydown', function (e) {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -1184,7 +1203,7 @@ Déconnexion
             if (nextField) {
               nextField.focus();
             } else {
-              document.getElementById('btn-add').click(); // Clique sur le bouton "Ajouter" si c'est le dernier champ
+              document.getElementById('btn-add').click(); 
             }
           }
         });
@@ -1195,9 +1214,9 @@ Déconnexion
     const dateInput = document.getElementById('date');
     if (dateInput) {
       dateInput.addEventListener('input', function(e) {
-        let val = e.target.value.replace(/[^\d]/g, ''); // Ne garde que les chiffres
+        let val = e.target.value.replace(/[^\d]/g, ''); 
         if (val.length > 2) {
-          val = val.slice(0,2) + '/' + val.slice(2,6); // Insère le slash après 2 chiffres
+          val = val.slice(0,2) + '/' + val.slice(2,6); 
         }
         e.target.value = val;
       });
