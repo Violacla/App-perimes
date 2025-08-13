@@ -83,27 +83,8 @@
         td:nth-child(9) {
             display: none;
         }
-        .promo-controls {
-            margin: 10px 0;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            align-items: center;
-            padding: 10px;
+        td[contenteditable="true"] {
             background-color: #f0f8ff;
-            border-bottom: 1px solid #ccc;
-        }
-        .promo-controls label {
-            font-weight: bold;
-            color: #0a2f51;
-        }
-        .promo-controls input {
-            width: 50px;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 5px;
         }
     </style>
 </head>
@@ -140,12 +121,6 @@
         </button>
     </div>
 </header>
-<div class="promo-controls">
-    <label for="promo-mois-en-cours">Réduction mois en cours (%) :</label>
-    <input type="number" id="promo-mois-en-cours" value="50" min="0" max="100">
-    <label for="promo-mois-suivant">Réduction mois suivant (%) :</label>
-    <input type="number" id="promo-mois-suivant" value="30" min="0" max="100">
-</div>
 <table id="data-table">
     <thead>
     <tr>
@@ -197,8 +172,6 @@
                 validateOperator();
             }
         });
-        document.getElementById('promo-mois-en-cours').addEventListener('change', loadSheet);
-        document.getElementById('promo-mois-suivant').addEventListener('change', loadSheet);
     }
 
     function validateOperator() {
@@ -326,9 +299,6 @@
         let moisSuivant = [];
         let facingCount = 0;
 
-        const promoMoisEnCours = parseFloat(document.getElementById('promo-mois-en-cours').value) / 100;
-        const promoMoisSuivant = parseFloat(document.getElementById('promo-mois-suivant').value) / 100;
-
         rows.slice(1).forEach((row, index) => {
             const promo = parseFloat(row[7]) || 0;
             const date = new Date(row[1]);
@@ -355,17 +325,20 @@
                 let prixFinal = prixFinalUtilise;
                 let reductionTxt = "";
                 let explication = "Non concerné";
+                let reductionValue = 0;
 
                 if (diff === 0) {
-                    prixFinal = prixFinalUtilise * (1 - promoMoisEnCours);
-                    reductionTxt = `-${promoMoisEnCours * 100}%`;
-                    explication = `${moisTexte[rowMonth]} : -${promoMoisEnCours * 100}%`;
-                    moisEnCours.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex, reduction: promoMoisEnCours });
+                    reductionValue = 50;
+                    prixFinal = prixFinalUtilise * 0.5;
+                    reductionTxt = `-50%`;
+                    explication = `${moisTexte[rowMonth]} : -50%`;
+                    moisEnCours.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex, reductionValue });
                 } else if (diff === 1) {
-                    prixFinal = prixFinalUtilise * (1 - promoMoisSuivant);
-                    reductionTxt = `-${promoMoisSuivant * 100}%`;
-                    explication = `${moisTexte[rowMonth]} : -${promoMoisSuivant * 100}%`;
-                    moisSuivant.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex, reduction: promoMoisSuivant });
+                    reductionValue = 30;
+                    prixFinal = prixFinalUtilise * 0.7;
+                    reductionTxt = `-30%`;
+                    explication = `${moisTexte[rowMonth]} : -30%`;
+                    moisSuivant.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex, reductionValue });
                 } else if (diff === 2) {
                     facingCount++;
                 }
@@ -393,13 +366,16 @@
                 const td4 = document.createElement("td"); td4.textContent = item.prix.toFixed(2); td4.contentEditable = true;
                 const td5 = document.createElement("td"); td5.textContent = item.zone;
                 const td6 = document.createElement("td"); td6.textContent = item.promoQty;
-                const td7 = document.createElement("td"); td7.textContent = item.reductionTxt;
+                const td7 = document.createElement("td"); td7.textContent = `${item.reductionValue}%`; td7.contentEditable = true;
                 const td8 = document.createElement("td"); td8.textContent = item.prixFinal.toFixed(2) + " €";
                 const td9 = document.createElement("td"); td9.textContent = item.explication;
+
+                // Event listener for Prix unitaire
                 td4.addEventListener("blur", async () => {
                     const cleaned = td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
                     const newPrix = parseFloat(cleaned) || 0;
-                    let updated = newPrix * (1 - item.reduction);
+                    const reduction = parseFloat(td7.textContent.replace('%', '')) / 100 || 0;
+                    const updated = newPrix * (1 - reduction);
                     td8.textContent = updated.toFixed(2) + " €";
                     
                     const range = `Feuille3!K${item.originalRowIndex}`;
@@ -410,12 +386,22 @@
                             valueInputOption: 'RAW',
                             resource: { values: [[newPrix]] }
                         });
-                        console.log(`Prix mis à jour dans la feuille de calcul pour la ligne ${item.originalRowIndex}`);
+                        console.log(`Prix unitaire mis à jour dans la feuille de calcul pour la ligne ${item.originalRowIndex}`);
                     } catch (error) {
-                        console.error("Erreur lors de la mise à jour du prix :", error);
+                        console.error("Erreur lors de la mise à jour du prix unitaire :", error);
                         document.getElementById('status').textContent = 'Erreur lors de la sauvegarde du prix.';
                     }
                 });
+
+                // Event listener for Promotion percentage
+                td7.addEventListener("blur", () => {
+                    const reductionStr = td7.textContent.trim().replace('%', '');
+                    const reduction = parseFloat(reductionStr) / 100 || 0;
+                    const prixBase = parseFloat(td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+                    const updatedPrix = prixBase * (1 - reduction);
+                    td8.textContent = updatedPrix.toFixed(2) + " €";
+                });
+
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
@@ -429,8 +415,8 @@
             });
         }
         
-        appendGroup(`📦 Mois en cours (-${promoMoisEnCours * 100}%)`, moisEnCours);
-        appendGroup(`📦 Mois suivant (-${promoMoisSuivant * 100}%)`, moisSuivant);
+        appendGroup("📦 Mois en cours (-50%)", moisEnCours);
+        appendGroup("📦 Mois suivant (-30%)", moisSuivant);
         if (facingCount > 0) {
             const finalRow = document.createElement("tr");
             const td = document.createElement("td");
