@@ -10,6 +10,7 @@
             font-family: Arial, sans-serif;
             background-color: #fffefc;
             margin: 0;
+            color: #0a2f51; /* Couleur de texte principale */
         }
         header {
             background-color: #bcd7ed;
@@ -38,30 +39,56 @@
             background-color: #bcd7ed;
             color: white;
             font-weight: bold;
+            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #a6c6e1;
         }
         table {
-            width: 100%;
+            width: 90%; /* Ajusté pour une meilleure visibilité */
+            max-width: 1200px; /* Largeur maximale pour les grands écrans */
             border-collapse: collapse;
             background-color: white;
-            margin: 20px auto;
+            margin: 20px auto; /* Centrage et marges */
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px; /* Bords arrondis pour le tableau */
+            overflow: hidden; /* Assure que les coins arrondis sont visibles */
         }
         th, td {
-            border: 1px solid #ccc;
-            padding: 8px 10px;
+            border: 1px solid #e0e0e0; /* Bordures plus claires */
+            padding: 10px 12px; /* Espacement interne */
             text-align: center;
         }
+        th {
+            background-color: #e6f0f7; /* Fond d'en-tête de tableau */
+            font-weight: bold;
+            color: #163f5b;
+            position: sticky; /* En-têtes fixes au défilement */
+            top: 0;
+            z-index: 1; /* S'assure que les en-têtes restent au-dessus */
+        }
         tbody tr:nth-child(odd) {
-            background-color: #ede2e6;
+            background-color: #f9f9f9; /* Lignes impaires légèrement grises */
+        }
+        tbody tr:hover {
+            background-color: #e0f2f7; /* Effet de survol sur les lignes */
         }
         #status {
             text-align: center;
             color: #0a2f51;
             font-weight: bold;
             margin-top: 10px;
+            padding: 10px;
+        }
+        #login-block {
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        #operator {
+            padding:8px;
+            border-radius:6px;
+            border:1px solid #ccc;
         }
         #btn-validate {
             background-color: #0a2f51;
@@ -79,9 +106,84 @@
             background-color: #083049;
             transform: translateY(-2px);
         }
-        th:nth-child(9),
-        td:nth-child(9) {
+        #login-error {
+            color:red;
+            margin:0;
+            font-size: 0.9em;
+        }
+        /* Cache la colonne "Date ajout feuille 1" et "Is_Additional_Promo" */
+        th:nth-child(9), /* Date ajout feuille 1 */
+        td:nth-child(9),
+        th:nth-child(12), /* Is_Additional_Promo */
+        td:nth-child(12) {
             display: none;
+        }
+        
+        /* Styles pour les titres de groupe dans les tableaux */
+        .group-title-row td {
+            background:#d3f0dd !important; /* Vert clair pour les titres de groupe */
+            font-weight:bold;
+            text-align:left;
+            padding-left: 30px !important;
+        }
+
+        /* Styles pour la nouvelle table de promo supplémentaire */
+        #additional-promo-section {
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f2f7f2; /* Vert très clair, presque blanc */
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        #additional-promo-section h2 {
+            text-align: center;
+            color: #0a2f51;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        #add-additional-promo-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+        #add-additional-promo-form input[type="text"],
+        #add-additional-promo-form input[type="number"] {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            flex: 1; /* Permet aux champs de prendre de l'espace */
+            min-width: 120px; /* Largeur minimale pour les champs */
+        }
+        #add-additional-promo-form button {
+            background-color: #87c08f; /* Vert pour le bouton d'ajout */
+            color: black;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            flex-shrink: 0; /* Empêche le bouton de rétrécir */
+        }
+        #add-additional-promo-form button:hover {
+            background-color: #5d9e63;
+            color: white;
+        }
+
+        #additional-promo-table {
+            border: 2px solid #86bf8e; /* Bordure verte distinctive */
+        }
+        #additional-promo-table th {
+            background-color: #bfdbc4; /* Fond vert pastel pour l'en-tête */
+        }
+        #additional-promo-table tbody tr:nth-child(odd) {
+            background-color: #e8f5e9; /* Fond vert très clair pour les lignes impaires */
+        }
+        #additional-promo-table tbody tr:hover {
+            background-color: #d1eccf; /* Effet de survol vert clair */
         }
     </style>
 </head>
@@ -118,6 +220,7 @@
         </button>
     </div>
 </header>
+
 <table id="data-table">
     <thead>
     <tr>
@@ -127,29 +230,74 @@
         <th>Prix unitaire</th>
         <th>Zone</th>
         <th>Qté</th>
-        <th>%</th>
+        <th>% Promo</th> <!-- Rendu éditable -->
         <th>Prix finale</th>
+        <th>Supprimer</th> <!-- Colonne de suppression pour les promos régulières -->
     </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+        <!-- Les promotions "Mois en cours" et "Mois suivant" seront insérées ici -->
+    </tbody>
 </table>
+
+<div id="additional-promo-section">
+    <h2>🚀 Liste supplémentaire en promo</h2>
+    <form id="add-additional-promo-form">
+        <input type="text" id="add-promo-product-name" placeholder="Nom produit" required>
+        <input type="text" id="add-promo-code" placeholder="Code" required>
+        <input type="number" id="add-promo-price-unit" placeholder="Prix unitaire" step="0.01" required>
+        <input type="text" id="add-promo-zone" placeholder="Zone">
+        <input type="number" id="add-promo-qty" placeholder="Qté">
+        <input type="number" id="add-promo-percentage" placeholder="% Promo (ex: 50)" value="50">
+        <button type="button" id="btn-add-additional-promo">Ajouter à la liste promo</button>
+    </form>
+    <table id="additional-promo-table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Nom produit</th>
+            <th>Code</th>
+            <th>Prix unitaire</th>
+            <th>Zone</th>
+            <th>Qté</th>
+            <th>% Promo</th>
+            <th>Prix final</th>
+            <th>Supprimer</th>
+        </tr>
+        </thead>
+        <tbody>
+            <!-- Les promotions supplémentaires seront insérées ici -->
+        </tbody>
+    </table>
+</div>
+
 <pre id="status">Chargement...</pre>
+
 <script>
     const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
     const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-    const SOURCE_RANGE = 'Feuille1!A:K';
-    const TARGET_RANGE = 'Feuille3!A:K';
+    const SOURCE_RANGE = 'Feuille1!A:K'; // Source range for synchronization
+    // TARGET_RANGE now includes column L (Is_Additional_Promo)
+    const TARGET_RANGE = 'Feuille3!A:L'; 
+
     let tokenClient;
     let accessToken = null;
+    let isGapiReady = false;
+    let isGisReady = false;
+    let operatorCode = null; // Stores the validated operator code
 
+    // Initializes the Google Sheets API client
     function gapiLoaded() {
         gapi.load('client', async () => {
             await gapi.client.init({
                 discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
             });
+            isGapiReady = true;
+            checkAndInitialize();
         });
     }
 
+    // Initializes the Google Identity Services (GIS) client
     function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID,
@@ -160,44 +308,68 @@
                 document.getElementById('login-block').style.display = 'none';
                 document.getElementById('btn-logout').style.display = 'inline-block';
                 document.getElementById('btn-sync').style.display = 'inline-block';
-                await loadSheet();
+                await loadAllPromos(); // Loads all data after connection
+                document.getElementById('status').textContent = `Connecté avec code opérateur ${operatorCode}.`;
             }
         });
-        document.getElementById('btn-validate').onclick = validateOperator;
-        document.getElementById('operator').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                validateOperator();
-            }
-        });
+        isGisReady = true;
+        checkAndInitialize();
     }
 
-    function validateOperator() {
-        const op = parseInt(document.getElementById("operator").value);
-        if ([1, 6, 7].includes(op)) {
-            document.getElementById("login-error").textContent = "";
-            tokenClient.requestAccessToken();
-        } else {
-            document.getElementById("login-error").textContent = "Accès refusé. Opérateur non autorisé.";
+    // Checks if both APIs are loaded and initializes validation listeners
+    function checkAndInitialize() {
+        if (isGapiReady && isGisReady) {
+            document.getElementById('btn-validate').onclick = validateOperator;
+            document.getElementById('operator').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    validateOperator();
+                }
+            });
+            // Initial focus on operator input
+            document.getElementById('operator').focus();
         }
     }
 
+    // Validates the operator code and initiates Google login
+    function validateOperator() {
+        const op = parseInt(document.getElementById("operator").value);
+        // Authorized operator codes: 1 (pharmacy) 6 (receiver) 7 (preparer)
+        if ([1, 6, 7].includes(op)) {
+            operatorCode = op; // Stores the validated operator code
+            document.getElementById("login-error").textContent = "";
+            tokenClient.requestAccessToken(); // Triggers the Google login popup
+        } else {
+            document.getElementById("login-error").textContent = "Accès refusé. Code opérateur non autorisé.";
+        }
+    }
+
+    // Logout function
     document.getElementById('btn-logout').onclick = () => {
         accessToken = null;
+        operatorCode = null;
         document.getElementById('login-block').style.display = 'flex';
         document.getElementById('btn-logout').style.display = 'none';
         document.getElementById('btn-sync').style.display = 'none';
         document.getElementById('status').textContent = 'Déconnecté.';
         document.querySelector('#data-table tbody').innerHTML = '';
+        document.querySelector('#additional-promo-table tbody').innerHTML = ''; // Clears the new table as well
         document.getElementById('operator').value = '';
+        document.getElementById('operator').focus(); // Returns focus to the operator field
     };
 
+    // Synchronization function (Sheet1 to Sheet3 for auto promos)
     document.getElementById('btn-sync').onclick = async () => {
+        if (!accessToken) {
+            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
+            return;
+        }
         document.getElementById('status').textContent = 'Synchronisation en cours...';
         await synchronizeSheets();
-        await loadSheet();
+        await loadAllPromos();
         document.getElementById('status').textContent = 'Synchronisation terminée !';
     };
     
+    // Synchronizes Sheet1 (source) to Sheet3 (promo target), preserving modified prices and additional promos
     async function synchronizeSheets() {
         try {
             const resSource = await gapi.client.sheets.spreadsheets.values.get({
@@ -216,219 +388,576 @@
                 return;
             }
 
-            const promoRowsFromSource = sourceRows.slice(1).filter(row => parseFloat(row[7]) > 0);
-            
-            const existingPromos = new Map();
+            // Filters products from Sheet1 that have a promo percentage (>0)
+            const promoRowsFromSource = sourceRows.slice(1).filter(row => parseFloat(row[7]) > 0); // row[7] is the '%'
+
+            // Creates a map of existing promos in Sheet3 by product code to facilitate updates
+            // Distinguishes by code and promo type (regular vs additional)
+            const existingRegularPromos = new Map();
+            const existingAdditionalPromos = []; // To store additional promos that are not synchronized
             if (targetRows.length > 1) {
                 targetRows.slice(1).forEach(row => {
-                    const code = row[3];
+                    // Check if row has enough columns before accessing index 11
+                    const isAdditional = (row.length > 11 && row[11] === 'TRUE'); 
+                    const code = row[3]; // Code is in column D (index 3)
                     if (code) {
-                        existingPromos.set(code, row);
+                        if (!isAdditional) {
+                            existingRegularPromos.set(code, row);
+                        } else {
+                            existingAdditionalPromos.push(row);
+                        }
                     }
                 });
             }
 
             const newTargetRows = [];
             const sourceHeader = sourceRows[0] || [];
-            const targetHeader = targetRows[0] || [...sourceHeader.slice(0, 10), 'Prix_modifié'];
+            // Ensures that Sheet3's header is correct, including column K "Prix_modifié" and L "Is_Additional_Promo"
+            const targetHeader = targetRows[0] && targetRows[0].length >= 12 ? targetRows[0] : [...sourceHeader.slice(0, 10), 'Prix_modifié', 'Is_Additional_Promo'];
             newTargetRows.push(targetHeader);
 
+            // 1. Handles regular promotions (from Sheet1)
             promoRowsFromSource.forEach(sourceRow => {
                 const code = sourceRow[3];
-                const existingRow = existingPromos.get(code);
+                const existingRow = existingRegularPromos.get(code);
+
+                const datePeremption = new Date(sourceRow[1]); // Column B: Expiry Date
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                const diff = (datePeremption.getFullYear() - currentYear) * 12 + (datePeremption.getMonth() - currentMonth);
+
+                let defaultPercentage = 0;
+                if (diff === 0) { // Current month
+                    defaultPercentage = 50;
+                } else if (diff === 1) { // Next month
+                    defaultPercentage = 30;
+                }
 
                 if (existingRow) {
-                    const updatedRow = [...existingRow];
+                    const updatedRow = [...existingRow]; // Creates a copy of the existing row from Sheet3
                     
-                    // Mettre à jour les données de la ligne à partir de Feuille1
-                    sourceRow.forEach((value, index) => {
-                        // On ignore la colonne du prix modifié (index 10)
-                        if (index !== 10) { 
-                             updatedRow[index] = value;
+                    // Updates row data from Sheet1
+                    // Except columns K "Prix_modifié" and L "Is_Additional_Promo", as they must be preserved
+                    for (let i = 0; i < 11; i++) { // Iterates through columns A to K (index 0 to 10)
+                        if (i !== 10) { // Index 10 is the modified price column (K)
+                             updatedRow[i] = sourceRow[i]; // Copies the value from Sheet1
                         }
-                    });
+                    }
+                    // Column L is implicitly handled by the fact that these are regular promos
+                    updatedRow[11] = 'FALSE'; // Ensures this row is marked as not additional
 
-                    // Si le prix modifié est vide, on met à jour le prix unitaire de base (index 9)
-                    if (!updatedRow[10]) {
-                        updatedRow[9] = sourceRow[9];
+                    // If the percentage in Sheet3 (column H) is empty or 0, apply the default based on month.
+                    // Otherwise, preserve the existing percentage.
+                    if (!updatedRow[7] || parseFloat(updatedRow[7]) === 0) {
+                        updatedRow[7] = defaultPercentage; // Set default percentage based on month
+                    }
+
+                    // If modified price in Sheet3 (column K) is empty, use unit price from Sheet1 (column J)
+                    // Otherwise, preserve existing modified price in Sheet3
+                    if (!updatedRow[10] || updatedRow[10].trim() === '') {
+                        updatedRow[10] = sourceRow[9]; // sourceRow[9] is the base unit price from Sheet1 (column J)
                     }
 
                     newTargetRows.push(updatedRow);
                 } else {
+                    // If the product does not exist in Sheet3, adds it.
+                    // Ensures the new row has 12 columns (A-L)
                     const newRow = [...sourceRow];
+                    while(newRow.length < 12) newRow.push(''); // Fills with empty strings if needed
+                    newRow[10] = sourceRow[9]; // Initializes Prix_modifié with Unit price from Sheet1
+                    newRow[11] = 'FALSE'; // Marks as regular promotion
+
+                    // Set default percentage for new regular promos
+                    if (!newRow[7] || parseFloat(newRow[7]) === 0) {
+                        newRow[7] = defaultPercentage;
+                    }
                     newTargetRows.push(newRow);
                 }
             });
 
+            // 2. Re-add existing additional promotions
+            existingAdditionalPromos.forEach(row => {
+                // Ensures these rows are well preserved with their edited values
+                newTargetRows.push(row);
+            });
+
+            // Sends updated data to Sheet3
             await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
-                range: 'Feuille3!A1',
+                range: 'Feuille3!A1', // Starts updating from A1
                 valueInputOption: 'RAW',
                 resource: { values: newTargetRows }
             });
             
-            console.log("Feuille3 synchronisée, les prix modifiés ont été conservés.");
+            console.log("Feuille3 synchronisée. Les prix modifiés et les promos supplémentaires ont été conservés.");
         } catch (error) {
             console.error("Erreur de synchronisation:", error);
             document.getElementById('status').textContent = `Erreur lors de la synchronisation: ${error.message}`;
         }
     }
 
-    async function loadSheet() {
+    // Loads all data from the promotion sheet (Sheet3)
+    async function loadAllPromos() {
+        if (!accessToken) {
+            document.getElementById('status').textContent = 'Veuillez vous connecter d\'abord.';
+            return;
+        }
         try {
-            const res = await gapi.client.sheets.spreadsheets.values.get({
+            document.getElementById('status').textContent = 'Chargement des promotions...';
+
+            const resFeuille3 = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
-                range: TARGET_RANGE
+                range: TARGET_RANGE // Sheet3
             });
-            const rows = res.result.values || [];
-            await cleanOldEntries(rows);
-            renderTable(rows);
+            const allPromoRows = resFeuille3.result.values || [];
+            await cleanOldEntries(allPromoRows); // Cleans old entries from Sheet3 (only regular ones)
+
+            renderAllPromos(allPromoRows); // Renders both tables
+            document.getElementById('status').textContent = 'Promotions loaded.';
         } catch (e) {
             document.getElementById('status').textContent = `Erreur de chargement: ${e.message}`;
+            console.error("Erreur de chargement des feuilles:", e);
         }
     }
 
-    function renderTable(rows) {
-        const tbody = document.querySelector("#data-table tbody");
-        tbody.innerHTML = "";
+    // Renders both promotion tables (Current/Next Month and Additional)
+    function renderAllPromos(allPromoRows) {
+        const tbodyMain = document.querySelector("#data-table tbody");
+        const tbodyAdditional = document.querySelector("#additional-promo-table tbody");
+        tbodyMain.innerHTML = "";
+        tbodyAdditional.innerHTML = "";
         
         let moisEnCours = [];
         let moisSuivant = [];
-        let facingCount = 0;
+        let facingCount = 0; // Counter for 3rd month products to highlight
+        let additionalPromos = [];
 
-        rows.slice(1).forEach((row, index) => {
-            const promo = parseFloat(row[7]) || 0;
-            const date = new Date(row[1]);
+        // Skip header row
+        const dataRows = allPromoRows.slice(1);
+
+        dataRows.forEach((row, index) => {
+            // Ensure row has enough columns (at least 12 for Is_Additional_Promo)
+            if (row.length < 12) { 
+                // Pad row with empty strings if it's too short for 'Is_Additional_Promo' column
+                while(row.length < 12) row.push('');
+            }
+
+            const isAdditional = (row[11] === 'TRUE'); // Column L (index 11) for Is_Additional_Promo
             
-            if (promo > 0 && !isNaN(date)) {
-                const originalRowIndex = index + 2;
-                const dateStr = row[1];
-                const produit = row[2];
-                const code = row[3];
-                const prixUnitaireBase = row[9];
-                const prixUnitaireModifie = row[10];
-                const zone = row[5];
-                const promoQty = row[7];
+            // Calculate originalRowIndex for saving changes back to the sheet
+            // +2 because of header row in Sheet and 0-based index vs 1-based row number
+            const originalRowIndex = index + 2; 
+
+            const produit = row[2] || ''; // Column C
+            const code = row[3] || ''; // Column D
+            const zone = row[5] || ''; // Column F
+            const qty = row[4] || ''; // Column E (Quantity)
+            const percentage = parseFloat((row[7] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column H (% Promo) - Now editable
+            const prixUnitaire = parseFloat((row[10] || "").replace(/[^\d.,]/g, '').replace(',', '.')) || parseFloat((row[9] || "0").replace(/[^\d.,]/g, '').replace(',', '.')) || 0; // Column K (Prix_modifié) or J (Prix unitaire Feuille1)
+
+
+            // Calculate final price based on the actual percentage from the sheet
+            const prixFinalCalculated = prixUnitaire * (1 - percentage / 100);
+
+            if (!isAdditional) {
+                // Logic for Regular Promotions (Current Month / Next Month)
+                const dateStr = row[1]; // Column B: Expiry Date
+                const date = new Date(dateStr);
                 
-                const prixFinalUtilise = parseFloat((prixUnitaireModifie || prixUnitaireBase || "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-
-                const rowMonth = date.getMonth();
-                const rowYear = date.getFullYear();
-                const now = new Date();
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
-                const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
-                const moisTexte = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-                let prixFinal = prixFinalUtilise;
-                let reductionTxt = "";
-                let explication = "Non concerné";
-
-                if (diff === 0) {
-                    prixFinal = prixFinalUtilise * 0.5;
-                    reductionTxt = "-50%";
-                    explication = `${moisTexte[rowMonth]} : -50%`;
-                    moisEnCours.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
-                } else if (diff === 1) {
-                    prixFinal = prixFinalUtilise * 0.7;
-                    reductionTxt = "-30%";
-                    explication = `${moisTexte[rowMonth]} : -30%`;
-                    moisSuivant.push({ dateStr, produit, code, prix: prixFinalUtilise, zone, promoQty, reductionTxt, prixFinal, explication, originalRowIndex });
-                } else if (diff === 2) {
-                    facingCount++;
+                if (!isNaN(date.getTime())) { // Ensure date is valid
+                    const now = new Date();
+                    const currentMonth = now.getMonth();
+                    const currentYear = now.getFullYear();
+                    const diff = (date.getFullYear() - currentYear) * 12 + (date.getMonth() - currentMonth);
+                    
+                    if (diff === 0) { // Current month
+                        moisEnCours.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage, prixFinal: prixFinalCalculated, originalRowIndex });
+                    } else if (diff === 1) { // Next month
+                        moisSuivant.push({ dateStr, produit, code, prixUnitaire, zone, qty, percentage, prixFinal: prixFinalCalculated, originalRowIndex });
+                    } else if (diff === 2) { // 3rd month (Facing)
+                        facingCount++;
+                    }
                 }
+            } else {
+                // Logic for Additional Promotions
+                const dateStr = row[1] || ''; // Date can be empty for these, but present in row[1]
+                additionalPromos.push({
+                    dateStr, produit, code, prixUnitaire, zone, qty, percentage, prixFinal: prixFinalCalculated,
+                    originalRowIndex // row index in Sheet3
+                });
             }
         });
         
+        // Sort current and next month promos
         moisEnCours.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
         moisSuivant.sort((a, b) => new Date(a.dateStr) - new Date(b.dateStr));
 
-        function appendGroup(title, group) {
-            if (group.length === 0) return;
+        // Sort additional promos by product name
+        additionalPromos.sort((a, b) => a.produit.localeCompare(b.produit));
+
+
+        // Function to add a group of rows to the main table
+        function appendGroup(targetTbody, title, group, isThirdMonthFacing = false) {
+            if (group.length === 0 && !isThirdMonthFacing) return;
+
             const trTitle = document.createElement("tr");
+            trTitle.classList.add('group-title-row'); // Adds a class for group titles
             const td = document.createElement("td");
-            td.colSpan = 9;
-            td.style = "background:#d3f0dd; font-weight:bold; text-align:left; padding-left: 30px;";
+            td.colSpan = 9; // Adjusted for 9 columns
             td.textContent = title;
             trTitle.appendChild(td);
-            tbody.appendChild(trTitle);
+            targetTbody.appendChild(trTitle);
 
             group.forEach(item => {
                 const tr = document.createElement("tr");
-                const td1 = document.createElement("td"); td1.textContent = item.dateStr;
-                const td2 = document.createElement("td"); td2.textContent = item.produit;
-                const td3 = document.createElement("td"); td3.textContent = item.code;
-                const td4 = document.createElement("td"); td4.textContent = item.prix.toFixed(2); td4.contentEditable = true;
-                const td5 = document.createElement("td"); td5.textContent = item.zone;
-                const td6 = document.createElement("td"); td6.textContent = item.promoQty;
-                const td7 = document.createElement("td"); td7.textContent = item.reductionTxt;
-                const td8 = document.createElement("td"); td8.textContent = item.prixFinal.toFixed(2) + " €";
-                const td9 = document.createElement("td"); td9.textContent = item.explication;
-                td4.addEventListener("blur", async () => {
-                    const cleaned = td4.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
-                    const newPrix = parseFloat(cleaned) || 0;
-                    let updated = newPrix;
-                    if (item.reductionTxt === "-50%") updated = newPrix * 0.5;
-                    else if (item.reductionTxt === "-30%") updated = newPrix * 0.7;
-                    td8.textContent = updated.toFixed(2) + " €";
-                    
-                    const range = `Feuille3!K${item.originalRowIndex}`;
-                    try {
-                        await gapi.client.sheets.spreadsheets.values.update({
-                            spreadsheetId: SPREADSHEET_ID,
-                            range: range,
-                            valueInputOption: 'RAW',
-                            resource: { values: [[newPrix]] }
-                        });
-                        console.log(`Prix mis à jour dans la feuille de calcul pour la ligne ${item.originalRowIndex}`);
-                    } catch (error) {
-                        console.error("Erreur lors de la mise à jour du prix :", error);
-                        document.getElementById('status').textContent = 'Erreur lors de la sauvegarde du prix.';
+                const tdDate = document.createElement("td"); tdDate.textContent = item.dateStr;
+                const tdProduit = document.createElement("td"); tdProduit.textContent = item.produit;
+                const tdCode = document.createElement("td"); tdCode.textContent = item.code;
+                const tdPrixUnit = document.createElement("td"); tdPrixUnit.textContent = item.prixUnitaire.toFixed(2); tdPrixUnit.contentEditable = true; // Unit price editable
+                const tdZone = document.createElement("td"); tdZone.textContent = item.zone;
+                const tdQty = document.createElement("td"); tdQty.textContent = item.qty; // Qty
+                
+                const tdPercentage = document.createElement("td"); // New editable percentage cell
+                tdPercentage.textContent = item.percentage.toFixed(0) + "%"; 
+                tdPercentage.contentEditable = true; 
+                
+                const tdPrixFinal = document.createElement("td"); tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+                
+                // Delete button for regular promos
+                const tdDelete = document.createElement("td");
+                tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:20px; height:20px; cursor:pointer;" title="Supprimer cette ligne">';
+                tdDelete.onclick = async () => {
+                    const confirmDelete = confirm(`Voulez-vous vraiment supprimer "${item.produit}" ?`);
+                    if (confirmDelete) {
+                        await deleteRowFromSheet(TARGET_RANGE, item.originalRowIndex);
                     }
+                };
+
+                // Event listener for unit price modification (Column K / index 10 in Sheet3)
+                tdPrixUnit.addEventListener("blur", async () => {
+                    const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+                    const newPrix = parseFloat(cleaned) || 0;
+                    
+                    // Updates local object and displayed final price
+                    item.prixUnitaire = newPrix;
+                    item.prixFinal = newPrix * (1 - item.percentage / 100); // Uses current percentage
+                    tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+
+                    // Saves new value to Column K of Sheet3 (index 11 when using columnToLetter)
+                    await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 11, newPrix);
                 });
-                tr.appendChild(td1);
-                tr.appendChild(td2);
-                tr.appendChild(td3);
-                tr.appendChild(td4);
-                tr.appendChild(td5);
-                tr.appendChild(td6);
-                tr.appendChild(td7);
-                tr.appendChild(td8);
-                tr.appendChild(td9);
-                tbody.appendChild(tr);
+
+                // Event listener for percentage modification (Column H / index 7 in Sheet3)
+                tdPercentage.addEventListener("blur", async () => {
+                    const cleaned = tdPercentage.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+                    const newPct = parseFloat(cleaned) || 0;
+                    
+                    // Updates local object and displayed final price
+                    item.percentage = newPct;
+                    item.prixFinal = item.prixUnitaire * (1 - newPct / 100); // Uses current unit price
+                    tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+                    tdPercentage.textContent = newPct.toFixed(0) + "%"; // Updates displayed text
+
+                    // Saves new value to Column H of Sheet3 (index 8 when using columnToLetter)
+                    await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 8, newPct);
+                });
+
+
+                tr.appendChild(tdDate);
+                tr.appendChild(tdProduit);
+                tr.appendChild(tdCode);
+                tr.appendChild(tdPrixUnit);
+                tr.appendChild(tdZone);
+                tr.appendChild(tdQty);
+                tr.appendChild(tdPercentage); // Now editable
+                tr.appendChild(tdPrixFinal);
+                tr.appendChild(tdDelete); // Add delete button for regular promos too
+                targetTbody.appendChild(tr);
             });
+
+            if (isThirdMonthFacing && facingCount > 0) {
+                const finalRow = document.createElement("tr");
+                const tdFacing = document.createElement("td");
+                tdFacing.colSpan = 9; // Adjusted for 9 columns
+                tdFacing.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
+                tdFacing.textContent = `Les ${facingCount} produits du 3ᵉ mois doivent être mis en avant dans les rayons.`;
+                finalRow.appendChild(tdFacing);
+                targetTbody.appendChild(finalRow);
+            }
         }
         
-        appendGroup("📦 Mois en cours (-50%)", moisEnCours);
-        appendGroup("📦 Mois suivant (-30%)", moisSuivant);
-        if (facingCount > 0) {
-            const finalRow = document.createElement("tr");
-            const td = document.createElement("td");
-            td.colSpan = 9;
-            td.style = "font-style: italic; text-align:left; padding-top:10px; background:#f0f8ff;";
-            td.textContent = "Les produits du 3ᵉ mois doivent être mis en avant dans les rayons.";
-            finalRow.appendChild(td);
-            tbody.appendChild(finalRow);
+        // Renders automatic promotions
+        appendGroup(tbodyMain, `📦 Mois en cours (-50% par défaut) - ${new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}`, moisEnCours);
+        const nextMonthDate = new Date();
+        nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+        appendGroup(tbodyMain, `📦 Mois suivant (-30% par défaut) - ${nextMonthDate.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}`, moisSuivant);
+        appendGroup(tbodyMain, "", [], true); // To display the 3rd month message if facingCount > 0
+
+
+        // Renders "Liste supplémentaire en promo"
+        additionalPromos.forEach(item => {
+            const tr = document.createElement("tr");
+            const tdDate = document.createElement("td"); tdDate.textContent = item.dateStr;
+            const tdProduit = document.createElement("td"); tdProduit.textContent = item.produit;
+            const tdCode = document.createElement("td"); tdCode.textContent = item.code;
+            const tdPrixUnit = document.createElement("td"); tdPrixUnit.textContent = item.prixUnitaire.toFixed(2); tdPrixUnit.contentEditable = true; // Unit price editable
+            const tdZone = document.createElement("td"); tdZone.textContent = item.zone;
+            const tdQty = document.createElement("td"); tdQty.textContent = item.qty;
+            const tdPercentage = document.createElement("td"); tdPercentage.textContent = item.percentage.toFixed(0) + "%"; tdPercentage.contentEditable = true; // Percentage editable
+            const tdPrixFinal = document.createElement("td"); tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €"; // Calculated final price
+
+            // Delete button for the row
+            const tdDelete = document.createElement("td");
+            tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:20px; height:20px; cursor:pointer;" title="Supprimer cette ligne">';
+            tdDelete.onclick = async () => {
+                const confirmDelete = confirm(`Voulez-vous vraiment supprimer "${item.produit}" de la liste supplémentaire ?`);
+                if (confirmDelete) {
+                    await deleteRowFromSheet(TARGET_RANGE, item.originalRowIndex);
+                }
+            };
+            
+            // Event listener for unit price modification in Sheet3 (column J / index 9)
+            tdPrixUnit.addEventListener("blur", async () => {
+                const cleaned = tdPrixUnit.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+                const newPrix = parseFloat(cleaned) || 0;
+                
+                // Updates local object and displayed final price
+                item.prixUnitaire = newPrix;
+                item.prixFinal = newPrix * (1 - item.percentage / 100);
+                tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+
+                // Saves new value to Column J of Sheet3 (index 10 when using columnToLetter)
+                await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 10, newPrix);
+            });
+
+            // Event listener for percentage modification in Sheet3 (column H / index 7)
+            tdPercentage.addEventListener("blur", async () => {
+                const cleaned = tdPercentage.textContent.replace(/[^\d.,]/g, '').replace(',', '.');
+                const newPct = parseFloat(cleaned) || 0;
+                
+                // Updates local object and displayed final price
+                item.percentage = newPct;
+                item.prixFinal = item.prixUnitaire * (1 - newPct / 100);
+                tdPrixFinal.textContent = item.prixFinal.toFixed(2) + " €";
+                tdPercentage.textContent = newPct.toFixed(0) + "%"; // Updates displayed text
+
+                // Saves new value to Column H of Sheet3 (index 8 when using columnToLetter)
+                await saveCellToSheet(TARGET_RANGE, item.originalRowIndex, 8, newPct);
+            });
+
+            tr.appendChild(tdDate);
+            tr.appendChild(tdProduit);
+            tr.appendChild(tdCode);
+            tr.appendChild(tdPrixUnit);
+            tr.appendChild(tdZone);
+            tr.appendChild(tdQty);
+            tr.appendChild(tdPercentage);
+            tr.appendChild(tdPrixFinal);
+            tr.appendChild(tdDelete);
+            tbodyAdditional.appendChild(tr);
+        });
+
+        document.getElementById("status").textContent = 'Données de promotions chargées et triées.';
+    }
+
+    // Function to add a product to the additional list (Sheet3)
+    document.getElementById('btn-add-additional-promo').onclick = async () => {
+        if (!accessToken) {
+            alert("Veuillez vous connecter d'abord.");
+            return;
         }
-        document.getElementById("status").textContent = 'Données triées et enrichies.';
+
+        const productName = document.getElementById('add-promo-product-name').value.trim();
+        const code = document.getElementById('add-promo-code').value.trim();
+        const priceUnit = parseFloat(document.getElementById('add-promo-price-unit').value);
+        const zone = document.getElementById('add-promo-zone').value.trim();
+        const qty = parseInt(document.getElementById('add-promo-qty').value);
+        const percentage = parseFloat(document.getElementById('add-promo-percentage').value) || 50; // Default 50%
+
+        if (!productName || !code || isNaN(priceUnit) || priceUnit <= 0) {
+            alert("Veuillez remplir le nom du produit, le code et un prix unitaire valide.");
+            return;
+        }
+        if (!/^\d{6}$/.test(code)) {
+            alert("Le code doit contenir exactement 6 chiffres.");
+            return;
+        }
+
+        // Generate a date for the new entry (today's date, or leave empty if not relevant)
+        const today = new Date();
+        const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        // Prepare the new row for Sheet3. Ensure all 12 columns (A-L) are present.
+        // A: Opérateur (col B, index 1)
+        // B: Date (col C, index 2) - Expiry date, for additional promos, use today or empty
+        // C: Nom produit (col D, index 3)
+        // D: Code (col E, index 4)
+        // E: Qté (col F, index 5)
+        // F: Zone (col G, index 6)
+        // G: Vendues (col H, index 7) - Leave empty
+        // H: % (col I, index 8) - This is our custom percentage!
+        // I: Date d'ajout (col J, index 9) - Today's date
+        // J: Prix unitaire base (col K, index 10) - This is the base price from Feuille1
+        // K: Prix_modifié (col L, index 11) - This is the base price for additional promo
+        // L: Is_Additional_Promo (col M, index 12) - TRUE
+        const newRow = [
+            operatorCode,           // A: Opérateur (from login)
+            dateString,             // B: Date (today's date for reference, can be ignored for display if not needed)
+            productName,            // C: Nom produit
+            code,                   // D: Code
+            qty || '',              // E: Qté (can be empty)
+            zone,                   // F: Zone
+            '',                     // G: Vendues (not applicable for this list, leave empty)
+            percentage,             // H: % (custom percentage) -> Column H in Sheet3
+            today.toLocaleString('fr-FR'), // I: Date d'ajout (full datetime)
+            '',                     // J: Prix unitaire base (from Sheet1, leave empty for manual)
+            priceUnit,              // K: Prix_modifié (this is the editable base price for additional)
+            'TRUE'                  // L: Is_Additional_Promo marker
+        ];
+
+        try {
+            await gapi.client.sheets.spreadsheets.values.append({
+                spreadsheetId: SPREADSHEET_ID,
+                range: TARGET_RANGE, // Append to Sheet3
+                valueInputOption: 'RAW',
+                resource: { values: [newRow] }
+            });
+            document.getElementById('status').textContent = `Produit "${productName}" ajouté à la liste promo.`;
+            // Clear form fields
+            document.getElementById('add-promo-product-name').value = '';
+            document.getElementById('add-promo-code').value = '';
+            document.getElementById('add-promo-price-unit').value = '';
+            document.getElementById('add-promo-zone').value = '';
+            document.getElementById('add-promo-qty').value = '';
+            document.getElementById('add-promo-percentage').value = '50'; // Reset to default
+            await loadAllPromos(); // Reload all promos to show new entry
+        } catch (error) {
+            console.error("Erreur lors de l'ajout du produit supplémentaire :", error);
+            document.getElementById('status').textContent = `Erreur lors de l'ajout: ${error.message}`;
+        }
+    };
+
+    // Generic function to save a cell to any sheet
+    async function saveCellToSheet(rangePrefix, rowIndex, colIndex, newValue) {
+        if (!accessToken) {
+            document.getElementById('status').textContent = 'Veuillez vous connecter pour sauvegarder.';
+            return;
+        }
+        const sheetName = rangePrefix.split('!')[0]; // Extracts sheet name (e.g., "Feuille3")
+        
+        try {
+            await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: SPREADSHEET_ID,
+                range: `${sheetName}!${columnToLetter(colIndex)}${rowIndex}`,
+                valueInputOption: 'RAW',
+                resource: { values: [[newValue]] }
+            });
+            console.log(`Cellule mise à jour dans ${sheetName} (ligne ${rowIndex}, colonne ${colIndex})`);
+            document.getElementById('status').textContent = `Cellule mise à jour dans ${sheetName}.`;
+        } catch (error) {
+            console.error(`Erreur lors de la mise à jour de la cellule dans ${sheetName}:`, error);
+            document.getElementById('status').textContent = `Erreur lors de la sauvegarde dans ${sheetName}.`;
+        }
     }
 
-    async function cleanOldEntries(rows) {
+    // Function to delete a row from the sheet (Sheet3)
+    async function deleteRowFromSheet(rangePrefix, rowIndex) {
+        if (!accessToken) {
+            document.getElementById('status').textContent = 'Veuillez vous connecter pour supprimer.';
+            return;
+        }
+        const sheetName = rangePrefix.split('!')[0];
+        try {
+            // Read all data first
+            const res = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: sheetName // Get all data from the sheet
+            });
+            let rows = res.result.values || [];
+
+            // Remove the row at the specified index (adjusting for header and 0-based array)
+            // rowIndex from render function is 1-based (starts at 2 for data rows)
+            // So, for 0-based array, it's rowIndex - 1
+            if (rowIndex > 0 && rowIndex <= rows.length) {
+                rows.splice(rowIndex - 1, 1); // Remove 1 row at (rowIndex - 1)
+            } else {
+                console.error("Invalid row index for deletion:", rowIndex);
+                document.getElementById('status').textContent = "Erreur: Index de ligne invalide pour la suppression.";
+                return;
+            }
+
+            // Write the modified data back to the sheet
+            await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: SPREADSHEET_ID,
+                range: `${sheetName}!A1`, // Start writing from A1
+                valueInputOption: 'RAW',
+                resource: { values: rows }
+            });
+            document.getElementById('status').textContent = `Ligne supprimée de ${sheetName}.`;
+            await loadAllPromos(); // Reload to reflect changes
+        } catch (error) {
+            console.error(`Erreur lors de la suppression de la ligne dans ${sheetName}:`, error);
+            document.getElementById('status').textContent = `Erreur lors de la suppression: ${error.message}`;
+        }
+    }
+
+
+    // Converts numeric column index to letter (1->A, 2->B...)
+    function columnToLetter(column) {
+        let temp, letter = '';
+        while(column > 0) {
+            temp = (column - 1) % 26;
+            letter = String.fromCharCode(temp + 65) + letter;
+            column = (column - temp - 1) / 26;
+        }
+        return letter;
+    }
+
+    // Cleans old entries (only applies to regular promos in Sheet3)
+    async function cleanOldEntries(allRows) {
         const now = new Date();
-        const header = rows[0];
-        const filtered = rows.filter((row, i) => {
-            if (i === 0) return true;
-            const date = new Date(row[1]);
-            return !isNaN(date) && date >= now;
+        const header = allRows[0];
+        
+        // Filter rows to keep:
+        // 1. The header row
+        // 2. Rows that are NOT additional promos (row[11] is not 'TRUE') AND have a future or current date
+        // 3. Rows that ARE additional promos (row[11] is 'TRUE') regardless of date (as they are manually managed)
+        const filteredRows = allRows.filter((row, i) => {
+            if (i === 0) return true; // Always keep the header row
+            if (row.length < 12) { // If row is too short, treat as regular promo for cleaning purposes
+                const datePeremption = new Date(row[1]); // Date is in column B (index 1)
+                return !isNaN(datePeremption.getTime()) && datePeremption >= now;
+            }
+            const isAdditional = (row[11] === 'TRUE');
+            if (isAdditional) {
+                return true; // Keep additional promos regardless of date
+            } else {
+                const datePeremption = new Date(row[1]); // Date is in column B (index 1)
+                return !isNaN(datePeremption.getTime()) && datePeremption >= now;
+            }
         });
-        await gapi.client.sheets.spreadsheets.values.update({
-            spreadsheetId: SPREADSHEET_ID,
-            range: TARGET_RANGE,
-            valueInputOption: 'RAW',
-            resource: { values: filtered }
-        });
-        console.log("Nettoyage automatique effectué (Feuille3)");
+
+        // If rows were removed, update the sheet.
+        if (filteredRows.length !== allRows.length) {
+            try {
+                await gapi.client.sheets.spreadsheets.values.update({
+                    spreadsheetId: SPREADSHEET_ID,
+                    range: TARGET_RANGE, // Update all of Sheet3
+                    valueInputOption: 'RAW',
+                    resource: { values: filteredRows }
+                });
+                console.log("Nettoyage automatique effectué (Feuille3) pour les promos régulières.");
+            } catch (error) {
+                console.error("Erreur lors du nettoyage de Feuille3 :", error);
+                document.getElementById('status').textContent = `Erreur lors du nettoyage automatique: ${error.message}`;
+            }
+        } else {
+             console.log("Aucune ancienne entrée de promotion régulière à nettoyer dans Feuille3.");
+        }
     }
 
+    // Initial loading of Google APIs
     window.onload = () => {
         gapiLoaded();
         gisLoaded();
@@ -439,9 +968,9 @@
     bottom: 0;
     width: 100%;
     text-align: center;
-    font-size: 0.5em;
+    font-size: 0.6em;
     color: #666;
-    background: #d3f0dd;
+    background: #bfdbc4;
     padding: 8px 0;
     box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
     z-index: 10;
