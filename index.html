@@ -1515,176 +1515,187 @@ dateInputField.addEventListener('blur', () => {
 
 </script>
  <script>
-    // Collez la fonction showTab ici
+   document.getElementById('btn-notif').addEventListener('click', () => {
+    loadNotifications(); // Appelle la nouvelle fonction loadNotifications
+});
+
+document.getElementById("close-notif").addEventListener("click", () => {
+    document.getElementById("notification-popup").style.display = "none";
+});
   function showTab(tabId) {
-  const tabs = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => tab.classList.remove('active'));
-
-  const buttons = document.querySelectorAll('#notif-tabs .tab-button');
-  buttons.forEach(button => button.classList.remove('active'));
-
-  document.getElementById(tabId).classList.add('active');
-  document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
 }
+ async function loadNotifications() {
+    const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
+    // Assurez-vous que 'RANGE' est bien défini globalement comme 'Feuille1'
+    // ex: const RANGE = 'Feuille1';
 
-async function loadNotifications() {
-  const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
-  const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    let parts = dateStr.split('-');
-    if (parts.length === 3) {
-      // Format AAAA-MM-JJ
-      return new Date(parts[0], parts[1] - 1, parts[2]);
-    }
-    parts = dateStr.split('/');
-    if (parts.length === 3) {
-      // Format JJ/MM/AAAA
-      return new Date(parts[2], parts[1] - 1, parts[0]);
-    }
-    return null;
-  };
-
-  try {
-    // Appel pour la Feuille1 (Trimestre et 2ème mois)
-    const resFeuille1 = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE
-    });
-    const dataFeuille1 = (resFeuille1.result.values || []).slice(1);
-
-    // Appel pour la feuille 'Feuille2' (À enlever)
-    const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE_A_ENLEVER
-    });
-    const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
-
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
-    const grouped = {
-      'trimestre': {},
-      '2nd-month': [],
-      'current-month': []
+    const parseDate = (dateStr) => {
+        if (!dateStr) return null;
+        let parts = dateStr.split('-');
+        if (parts.length === 3) { return new Date(parts[0], parts[1] - 1, parts[2]); }
+        parts = dateStr.split('/');
+        if (parts.length === 3) { return new Date(parts[2], parts[1] - 1, parts[0]); }
+        return null;
     };
 
-    // Logique pour le mois précédent ("À enlever")
-    const prevMonth = (currentMonth - 1 + 12) % 12;
-    const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
-
-    dataFeuille2.forEach(row => {
-      const dateStr = row[1];
-      const d = parseDate(dateStr);
-      if (!d) return;
-
-      const rowMonth = d.getMonth();
-      const rowYear = d.getFullYear();
-
-      if (rowYear === prevMonthYear && rowMonth === prevMonth) {
-        grouped['current-month'].push(row);
-      }
-    });
-
-    // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
-    dataFeuille1.forEach(row => {
-      const dateStr = row[1];
-      const d = parseDate(dateStr);
-      if (!d) return;
-
-      const rowMonth = d.getMonth();
-      const rowYear = d.getFullYear();
-      const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
-
-      // Logique pour le trimestre (3 mois suivants à partir d'aujourd'hui)
-      const nextMonth1 = (currentMonth + 1) % 12;
-      const nextMonth2 = (currentMonth + 2) % 12;
-      const nextMonth3 = (currentMonth + 3) % 12;
-
-      const nextYear1 = (currentMonth === 11) ? currentYear + 1 : currentYear;
-      const nextYear2 = (currentMonth >= 11) ? currentYear + 1 : currentYear;
-      const nextYear3 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
-
-      if ((rowMonth === nextMonth1 && rowYear === nextYear1) ||
-          (rowMonth === nextMonth2 && rowYear === nextYear2) ||
-          (rowMonth === nextMonth3 && rowYear === nextYear3)) {
-        if (!grouped['trimestre'][ym]) {
-          grouped['trimestre'][ym] = [];
+    try {
+        // --- Calcul de la date de référence décalée au 15 du mois ---
+        const now = new Date();
+        let referenceDate = new Date(now.getFullYear(), now.getMonth(), 15);
+        // Si nous sommes le 15 ou après, la référence passe au 15 du mois suivant
+        if (now.getDate() >= 15) {
+            referenceDate.setMonth(referenceDate.getMonth() + 1);
         }
-        grouped['trimestre'][ym].push(row);
-      }
+        const currentMonthRef = referenceDate.getMonth();
+        const currentYearRef = referenceDate.getFullYear();
+        // --- Fin du calcul de la date de référence ---
 
-      // Logique pour le "2ème mois" (mois + 2)
-      const monthPlus2 = (currentMonth + 2) % 12;
-      const yearPlus2 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
-      if (rowYear === yearPlus2 && rowMonth === monthPlus2) {
-        grouped['2nd-month'].push(row);
-      }
-    });
-
-    const formatMonthYear = (d) => {
-      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-      return months[d.getMonth()] + ' ' + d.getFullYear();
-    };
-
-    const renderTable = (rows) => {
-      if (rows.length === 0) {
-        return '<p>Aucun produit périmé pour ce mois.</p>';
-      }
-      rows.sort((a, b) => (a[5] || '').localeCompare(b[5] || ''));
-
-      let tableHtml = `<table>
-          <thead>
-              <tr>
-                  <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-              </tr>
-          </thead>
-          <tbody>`;
-
-      rows.forEach(row => {
-        const qte = parseInt(row[4] || '0');
-        const vendu = parseInt(row[6] || '0');
-        const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
-        tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
-        [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
-          tableHtml += `<td>${row[ci] || ''}</td>`;
+        // Fetch des données des deux feuilles
+        const resFeuille1 = await gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: RANGE // Utilise la portée globale pour 'RANGE' ('Feuille1')
         });
-        tableHtml += '</tr>';
-      });
-      tableHtml += '</tbody></table>';
-      return tableHtml;
-    };
+        const dataFeuille1 = (resFeuille1.result.values || []).slice(1);
 
-    // Rendu pour le trimestre
-    let trimestreHtml = '';
-    const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort();
-    if (sortedTrimestreMonths.length === 0) {
-      trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
-    } else {
-      sortedTrimestreMonths.forEach(ym => {
-        const [y, m] = ym.split('-');
-        const d = new Date(y, m - 1, 1);
-        trimestreHtml += `<h3>${formatMonthYear(d)}</h3>`;
-        trimestreHtml += renderTable(grouped['trimestre'][ym]);
-      });
+        const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: RANGE_A_ENLEVER // Utilise 'Feuille2'
+        });
+        const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
+
+        let grouped = {
+            'trimestre': {}, // Groupé par mois pour le trimestre
+            '2nd-month': [],
+            'current-month': [] // Ceci correspond à "À retirer"
+        };
+
+        // --- Logique de filtrage "À retirer" (basé sur Feuille2) ---
+        // Mois précédent la date de référence
+        const prevMonthRef = (currentMonthRef - 1 + 12) % 12;
+        const prevMonthYearRef = (currentMonthRef === 0) ? currentYearRef - 1 : currentYearRef;
+
+        dataFeuille2.forEach(row => {
+            const datePeremption = parseDate(row[1]); // Date de péremption est en colonne B (index 1) dans Feuille2
+            if (datePeremption && !isNaN(datePeremption)) {
+                const rowMonth = datePeremption.getMonth();
+                const rowYear = datePeremption.getFullYear();
+
+                if (rowYear === prevMonthYearRef && rowMonth === prevMonthRef) {
+                    grouped['current-month'].push(row);
+                }
+            }
+        });
+
+        // --- Logique de filtrage "Trimestre" et "2ème mois" (basé sur Feuille1) ---
+        dataFeuille1.forEach(row => {
+            const datePeremption = parseDate(row[1]); // Date de péremption est en colonne B (index 1) dans Feuille1
+            if (datePeremption && !isNaN(datePeremption)) {
+                const rowMonth = datePeremption.getMonth();
+                const rowYear = datePeremption.getFullYear();
+                const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
+
+                // Différence en mois par rapport à la referenceDate
+                const diffFromRef = (rowYear - currentYearRef) * 12 + (rowMonth - currentMonthRef);
+
+                // Trimestre (mois de référence + 0, +1, +2)
+                if (diffFromRef >= 0 && diffFromRef <= 2) {
+                    if (!grouped['trimestre'][ym]) {
+                        grouped['trimestre'][ym] = [];
+                    }
+                    grouped['trimestre'][ym].push(row);
+                }
+
+                // 2ème mois (mois de référence + 1)
+                if (diffFromRef === 1) {
+                    grouped['2nd-month'].push(row);
+                }
+            }
+        });
+
+        // --- Fonctions utilitaires locales pour le rendu des tables de notification ---
+        const formatMonthYearLocal = (d) => {
+            const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+            return months[d.getMonth()] + ' ' + d.getFullYear();
+        };
+
+        const renderNotificationTableContent = (rowsToRender) => {
+            if (rowsToRender.length === 0) {
+                return '<p>Aucun produit périmé pour ce mois.</p>';
+            }
+            // Trie par date de péremption (colonne B, index 1)
+            rowsToRender.sort((a, b) => {
+                const dateA = parseDate(a[1]);
+                const dateB = parseDate(b[1]);
+                if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+                return 0;
+            });
+
+            let tableHtml = `<table>
+                <thead>
+                    <tr>
+                        <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            rowsToRender.forEach(row => {
+                const qte = parseInt(row[4] || '0');
+                const vendu = parseInt(row[6] || '0');
+                const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
+                tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
+                // Colonnes affichées dans la popup: Date(1), Nom(2), Code(3), Qté(4), Zone(5), Vendues(6), Promo(7)
+                [1, 2, 3, 4, 5, 6, 7].forEach(colIndex => {
+                    tableHtml += `<td>${row[colIndex] || ''}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody></table>';
+            return tableHtml;
+        };
+        // --- Fin des fonctions utilitaires locales ---
+
+
+        // --- Rendu final dans les onglets de la popup ---
+
+        // Rendu pour "À retirer"
+        const prevMonthDateForTitle = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - 1, 1);
+        const prevMonthTitle = formatMonthYearLocal(prevMonthDateForTitle);
+        document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderNotificationTableContent(grouped['current-month']);
+
+        // Rendu pour le 2ème mois
+        const monthPlus1Date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 1);
+        const monthPlus1Title = formatMonthYearLocal(monthPlus1Date);
+        document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus1Title}</h3>` + renderNotificationTableContent(grouped['2nd-month']);
+
+        // Rendu pour le trimestre (gère le regroupement par mois pour l'affichage)
+        let trimestreHtml = '';
+        const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort();
+        if (sortedTrimestreMonths.length === 0) {
+            trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
+        } else {
+            sortedTrimestreMonths.forEach(ym => {
+                const [y, m] = ym.split('-');
+                const d = new Date(y, m - 1, 1);
+                trimestreHtml += `<h3>${formatMonthYearLocal(d)}</h3>`;
+                trimestreHtml += renderNotificationTableContent(grouped['trimestre'][ym]);
+            });
+        }
+        document.getElementById('trimestre').innerHTML = trimestreHtml;
+
+        // Afficher la popup et l'onglet par défaut (trimestre)
+        document.getElementById("notification-popup").style.display = "flex";
+        showTab('trimestre');
+
+    } catch (e) {
+        console.error("Erreur lors du chargement des notifications:", e);
+        const notifContent = document.getElementById('notification-popup').querySelector('.content');
+        notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
     }
-    document.getElementById('trimestre').innerHTML = trimestreHtml;
-
-    // Rendu pour le 2ème mois (mois + 2)
-    const monthPlus2Date = new Date(now.getFullYear(), now.getMonth() + 2);
-    const monthPlus2Title = formatMonthYear(monthPlus2Date);
-    document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus2Title}</h3>` + renderTable(grouped['2nd-month']);
-
-    // Rendu pour le mois précédent ("À enlever")
-    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
-    const prevMonthTitle = formatMonthYear(prevMonthDate);
-    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
-
-  } catch (e) {
-    console.error("Erreur chargement notifications :", e);
-    const notifContent = document.getElementById('notification-popup').querySelector('.content');
-    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
-  }
 }
 </script>
   <script>
