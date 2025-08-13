@@ -1516,70 +1516,90 @@ dateInputField.addEventListener('blur', () => {
 </script>
  <script>
     // Collez la fonction showTab ici
- function showTab(tabId) {
-    const now = new Date();
-    const currentDay = now.getDate();
-    const currentHour = now.getHours();
+document.getElementById('btn-notif').addEventListener('click', () => {
+    loadNotifications();
+  });
+  
+  document.getElementById("close-notif").addEventListener("click", () => {
+    document.getElementById("notification-popup").style.display = "none";
+  });
 
-    // 🚩 Nouvelle logique : Bloquer l'affichage avant le 15 du mois, 3h du matin
-    if ((tabId === 'trimestre' || tabId === '2nd-month') && (currentDay < 15 || (currentDay === 15 && currentHour < 3))) {
-        // Cacher tous les contenus d'onglets
-        document.querySelectorAll('.tab-content').forEach(el => {
-            el.innerHTML = `<h3 style="text-align: center; color: #f294a6;">Les listes "Trimestre" et "2ème mois" seront disponibles à partir du 15 du mois à 3h.</h3>`;
-            el.style.display = 'none';
-        });
-
-        // Afficher le contenu de l'onglet actif avec le message
-        const currentTabContent = document.getElementById(tabId);
-        currentTabContent.style.display = 'block';
-
-        // Mettre à jour la classe "active" du bouton
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
-
-        return; // Arrêter l'exécution de la fonction
-    }
-
-    // Si la date et l'heure sont valides, procéder normalement
+  function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
     document.getElementById(tabId).style.display = 'block';
-
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+  }
 
-    // ⚠️ Ici, vous devrez ajouter ou appeler la fonction qui charge les données
-    // par exemple :
-    // if (tabId === 'trimestre') loadTrimestreData();
-    // else if (tabId === '2nd-month') loadSecondMonthData();
-}
+  async function loadNotifications() {
+      const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
+      const parseDate = (dateStr) => {
+          if (!dateStr) return null;
+          let parts = dateStr.split('-');
+          if (parts.length === 3) {
+              return new Date(parts[0], parts[1] - 1, parts[2]);
+          }
+          parts = dateStr.split('/');
+          if (parts.length === 3) {
+              return new Date(parts[2], parts[1] - 1, parts[0]);
+          }
+          return null;
+      };
 
-async function loadNotifications() {
-    const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
-    const parseDate = (dateStr) => {
-        if (!dateStr) return null;
-        let parts = dateStr.split('-');
-        if (parts.length === 3) {
-            return new Date(parts[0], parts[1] - 1, parts[2]);
-        }
-        parts = dateStr.split('/');
-        if (parts.length === 3) {
-            return new Date(parts[2], parts[1] - 1, parts[0]);
-        }
-        return null;
-    };
+      try {
+          const res = await gapi.client.sheets.spreadsheets.values.get({
+              spreadsheetId: SPREADSHEET_ID,
+              range: RANGE_A_ENLEVER
+          });
+          const rows = res.result.values || [];
+          
+          const now = new Date();
+          let referenceDate = new Date(now.getFullYear(), now.getMonth(), 15);
+          if (now.getDate() >= 15) {
+              referenceDate.setMonth(referenceDate.getMonth() + 1);
+          }
 
-    try {
-        const res = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: SPREADSHEET_ID,
-            range: RANGE_A_ENLEVER
-        });
-        const rows = res.result.values || [];
-        
-        const now = new Date();
-        let referenceDate = new Date(now.getFullYear(), now.getMonth(), 15);
-        if (now.getDate() >= 15) {
-            referenceDate.setMonth(referenceDate.getMonth() + 1);
-        }
+          const currentMonth = referenceDate.getMonth();
+          const currentYear = referenceDate.getFullYear();
+
+          let aEnlever = [];
+          let trimestre = [];
+          let secondMonth = [];
+
+          rows.slice(1).forEach(row => {
+              const datePeremption = parseDate(row[5]);
+              if (datePeremption && !isNaN(datePeremption)) {
+                  const rowMonth = datePeremption.getMonth();
+                  const rowYear = datePeremption.getFullYear();
+                  const diff = (rowYear - currentYear) * 12 + (rowMonth - currentMonth);
+
+                  if (diff === -1) {
+                      aEnlever.push(row);
+                  } else if (diff >= 0 && diff <= 2) {
+                      trimestre.push(row);
+                  } else if (diff === 1) {
+                      secondMonth.push(row);
+                  }
+              }
+          });
+
+          renderTable('a-retirer', aEnlever);
+          renderTable('trimestre', trimestre);
+          renderTable('2nd-month', secondMonth);
+          
+          // Afficher la popup et l'onglet par défaut sans écran de chargement
+          document.getElementById("notification-popup").style.display = "flex"; // Notez que le display est 'flex'
+          showTab('trimestre');
+
+      } catch (e) {
+          console.error("Erreur lors du chargement des notifications:", e);
+          document.getElementById("notification-popup").innerHTML = "Erreur de chargement des données. Veuillez réessayer.";
+      }
+  }
+
+
+
+   //ICI JE REFLECHI
 
         const currentMonth = referenceDate.getMonth();
         const currentYear = referenceDate.getFullYear();
