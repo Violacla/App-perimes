@@ -1547,6 +1547,11 @@ dateInputField.addEventListener('blur', () => {
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
 
+    // ⚠️ Ici, vous devrez ajouter ou appeler la fonction qui charge les données
+    // par exemple :
+    // if (tabId === 'trimestre') loadTrimestreData();
+    // else if (tabId === '2nd-month') loadSecondMonthData();
+}
 
 async function loadNotifications() {
   const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
