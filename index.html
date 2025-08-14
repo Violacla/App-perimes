@@ -460,11 +460,7 @@
 <button id="btn-confirm-operator">Valider</button>
 </div>
 <!-- Bouton connexion -->
-<div id="operator-form" style="display:inline-flex; margin-left:10px;">
-  <input id="operator" placeholder="Code opérateur" type="text"/>
-  <button id="btn-confirm-operator">Valider</button>
-</div>
-
+<button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
 <button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
@@ -813,12 +809,12 @@ filterTable();
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
-     callback: (tokenResponse) => {
+      callback: (tokenResponse) => {
   accessToken = tokenResponse.access_token;
-  document.getElementById('btn-logout').style.display = 'inline-block';
-  document.getElementById('entry-form').style.display = 'block';
-  setStatus('Connecté en tant que ' + operatorName);
-  loadSheet();
+  document.getElementById('operator-form').style.display = 'inline-flex';
+  document.getElementById('btn-login').style.display = 'none';
+  setStatus('Connecté. Choisissez un opérateur.');
+  document.getElementById('operator').focus(); // 👈 focus clavier automatique
 },
 
     });
@@ -851,17 +847,14 @@ filterTable();
   };
 
   document.getElementById('btn-confirm-operator').onclick = () => {
-  const op = document.getElementById('operator').value.trim();
-  if (!op) return alert("Entrez votre code opérateur");
-    
- if (!window.tokenClient) {
-    alert("Connexion Google pas encore prête, réessayez dans 1 seconde.");
-    return;
-  }
-  operatorName = op;
-  tokenClient.requestAccessToken(); // Connexion Google
-};
-
+    const op = document.getElementById('operator').value;
+    if (!op) return alert("Choisir un opérateur");
+    operatorName = op;
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    document.getElementById('entry-form').style.display = 'block';
+    loadSheet();
+  };
 
   document.getElementById('btn-add').onclick = async () => {
     if(!operatorName) {
