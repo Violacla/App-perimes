@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
@@ -6,10 +7,10 @@
 <script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
-  /* Styles pour l'autocomplétion des listes */
   .autocomplete-list {
   position: absolute;
   background-color: white;
+ /* background-color: #fffefc;*/
   border: 1px solid #ccc;
   border-radius: 4px;
   list-style: none;
@@ -29,26 +30,27 @@
 
 .autocomplete-list li:hover,
 .autocomplete-list li.active {
- background-color: #86bf8e; /* Couleur de survol pour les suggestions */
+ background-color: #86bf8e;
+/*background-color: #f294a6;*/
   color: white;
 }
 
-  /* Variables de couleurs */
   :root {
-    --bleu-glacial: #bcd7ed; /* Bleu clair */
+    --bleu-glacial: #bcd7ed;
+   /*--bleu-glacial: #f294a6;*/
   }
 
-  /* Styles généraux du corps de page */
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #fffefc; /* Fond blanc cassé */
+    /*background: #f9f9f9;*/
+    background: #fffefc;
   }
 
-  /* Styles de l'en-tête */
+  /* Bandeau bleu glacial */
   header {
     background-color: var(--bleu-glacial);
-    color: #163f5b; /* Couleur du texte de l'en-tête */
+    color: #163f5b;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -68,7 +70,6 @@
     font-size: 1.3em;
   }
 
-  /* Styles des boutons généraux de l'en-tête */
   button {
     cursor: pointer;
     border: none;
@@ -80,68 +81,42 @@
     transition: background-color 0.3s ease;
   }
   button:hover {
-    background-color: rgba(255 255 255 / 0.3); /* Effet de survol léger */
+    background-color: rgba(255 255 255 / 0.3);
   }
 
-  /* Icônes utilisées */
+  /* Icons with emoji for simplicity */
   .icon {
     font-size: 1.2em;
     margin-right: 6px;
   }
 
-  /* Boutons de droite de l'en-tête */
+  /* Header right buttons */
   #header-right {
     display: flex;
     gap: 15px;
     align-items: center;
   }
 
-  /* Formulaire d'opérateur */
+  /* Operator form */
   #operator-form {
     margin-left: 10px;
-    display: inline-flex; /* Assure que les éléments sont sur la même ligne */
-    align-items: center; /* Aligne verticalement les éléments */
-    gap: 10px; /* Espace entre les éléments du formulaire opérateur */
   }
 
-  #operator-form input {
-    padding: 8px;
-    font-size: 1em;
-    border-radius: 5px; /* Angles arrondis */
-    border: 1px solid #0a2f51; /* Contour bleu foncé */
-    box-sizing: border-box; /* Inclut le padding et le border dans la largeur */
-  }
-
-  #operator-form button {
-    background-color: #0a2f51; /* Fond bleu foncé */
-    color: white; /* Texte blanc */
-    font-weight: bold; /* Texte en gras */
-    padding: 8px 12px;
-    border-radius: 5px; /* Angles arrondis */
-    border: 1px solid #0a2f51; /* Contour bleu foncé */
-    transition: background-color 0.3s ease;
-  }
-  #operator-form button:hover {
-    background-color: #163f5b; /* Bleu foncé un peu plus clair au survol */
-  }
-
-
-  /* Layout principal de la page */
+  /* Layout */
   main {
     display: flex;
     margin: 20px;
   }
 
-  /* Formulaire pour ajouter des entrées (à droite) */
+  /* Form to add entries on right */
  #entry-form {
   width: 320px;
-  background: #f2f7f2; /* Couleur de fond vert très clair, presque blanc */
+  background: f294a6;
   padding: 15px 20px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
   margin-left: 20px;
-  margin-top: 3px; /* Alignement du haut avec les filtres */
-  height: 485px; /* Hauteur fixe pour le bloc */
+  margin-top: 20px; /* Aligne avec les filtres */
 }
 
   #entry-form h3 {
@@ -150,7 +125,7 @@
     font-weight: normal;
   }
   #entry-form input {
-    background-color: #e1f4e4; /* Fond vert très clair pour les champs */
+    background-color: #e1f4e4;
     width: 100%;
     margin: 6px 0;
     padding: 6px 8px;
@@ -160,16 +135,17 @@
   }
   #entry-form button {
     width: 100%;
-    background-color: #bfdbc4; /* Vert pastel pour le bouton */
+    /*background-color: var(--bleu-glacial);*/
+    background-color: #bfdbc4;
     color: black;
     font-weight: bold;
     margin-top: 10px;
   }
   #entry-form button:hover {
-    background-color: #86bf8e; /* Vert plus foncé au survol */
+    background-color: #86bf8e;
   }
 
-  /* Styles du tableau principal */
+  /* Table styles */
   table {
     border-collapse: collapse;
     width: 100%;
@@ -185,79 +161,61 @@
     text-align: center;
   }
 
-  /* Couleur de fond alternée pour les lignes du tableau */
+  /* Alternate row background with 15% opacity bleu glacial */
   tbody tr:nth-child(odd) {
-    background-color: #ede2e6; /* Rose très clair */
+   /* background-color: rgba(188, 215, 237, 0.15);*/
+    background-color: #ede2e6
   }
 
-  /* Surlignage de la ligne sélectionnée */
+  /* Selected row highlight 50% opacity */
   tbody tr.selected {
-    background-color: #f2b4bb!important; /* Rose vif */
+    /*background-color: rgba(188, 215, 237, 0.5) !important;*/
+    background-color: #f2b4bb!important;
   }
 
-  /* Cellules éditables */
+  /* Editable cells */
   tbody td {
     cursor: text;
   }
 
-  /* Section des filtres */
+  /* Filter section */
   #filters {
-    background-color: #f2f7f2; /* Couleur de fond verte */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin: 20px;
     display: flex;
-    flex-wrap: wrap;
     gap: 15px;
-    align-items: flex-end; /* ALIGNÉ: Aligne les éléments en bas pour les boutons */
-    margin-bottom: 20px;
-  }
-  /* Groupe de label + input pour les filtres */
-  .filter-group {
-    display: flex;
-    flex-direction: column; /* Empile le label au-dessus de l'input */
-    align-items: flex-start;
+    align-items: flex-end;
   }
   #filters label {
     font-weight: bold;
-    color: #0a2f51; /* Couleur du texte des labels */
-    margin-bottom: 5px; /* Espace sous le label */
-    display: block;
+     color: #86bf8e;
   }
-  #filters input, #filters select {
-    padding: 8px;
+  #filters input, #filters button {
+    padding: 5px 8px;
     font-size: 1em;
     border-radius: 4px;
     border: 1px solid #ccc;
   }
   #filters button {
-    background-color: #bfdbc4; /* Vert pour les boutons de filtre */
+    /*background-color: var(--bleu-glacial);*/
+    background-color: #bfdbc4;
     color: black;
     border: none;
     cursor: pointer;
     font-weight: bold;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-top: auto; /* Pousse les boutons vers le bas de leur conteneur flex */
   }
   #filters button:hover {
-    background-color: #5d9e63; /* Vert plus foncé au survol */
+    background-color: #86bf8e;
     color: white;
   }
-  /* Style du texte à l'intérieur des champs de saisie (placeholder) */
-  #filters input::placeholder {
-    color: #87c08f; /* Vert pastel pour le placeholder */
-    opacity: 1; /* S'assure que la couleur est bien visible */
-  }
 
-  /* Texte de statut */
+  /* Status text */
   #status {
     margin: 10px 20px;
     font-weight: bold;
     color: #0a2f51;
   }
 
-  /* Styles pour la popup de notification */
+ /* Styles pour la popup de notification */
   #notification-popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -269,13 +227,13 @@
     max-height: 92vh;
     overflow-y: auto;
     z-index: 9999;
-    display: none; /* Masqué par défaut */
+    display: none;
     flex-direction: column;
   }
   #notification-popup header {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Alignement centré pour les éléments de l'en-tête de la popup */
+    align-items: right;
     padding: 10px 20px;
     background-color: var(--bleu-glacial);
     color: #163f5b;
@@ -284,7 +242,7 @@
   #notif-tabs {
     display: flex;
     gap: 10px;
-    margin-left: auto; /* Aligne les onglets à droite du titre */
+    margin-left: auto;
   }
   .header-buttons {
     display: flex;
@@ -292,12 +250,13 @@
   }
   .tab-button {
     background-color: transparent;
-    color: #163f5b; /* Texte du bouton d'onglet par défaut */
+    color: #163f5b; /* Texte en noir par défaut */
     border: none;
     padding: 10px 15px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s, color 0.3s;
+    text-align: right;
     border-radius: 5px 5px 0 0;
   }
   .tab-button:hover,
@@ -306,10 +265,10 @@
     color: white; /* Texte blanc au survol et pour l'onglet actif */
   }
   .tab-content {
-    display: none; /* Contenu de l'onglet masqué par défaut */
+    display: none;
     padding: 15px;
     overflow-y: auto;
-    max-height: calc(92vh - 80px); /* Hauteur calculée pour le contenu */
+    max-height: calc(92vh - 80px);
     color: black;
   }
   .tab-content h3 {
@@ -321,10 +280,10 @@
   }
   .ligne-vendue td {
   text-decoration: line-through;
-  background-color: #d8c0ca !important; /* Couleur de fond pour les lignes vendues */
-  color: #efe8eb; /* Couleur du texte pour les lignes vendues */
+  background-color: #d8c0ca !important; /* ou une autre couleur que tu préfères */
+  color: #efe8eb; /* facultatif : texte un peu plus gris */
 }
-  /* Styles pour l'impression (cache tout sauf la popup de notification) */
+  /* Styles pour l'impression */
   @media print {
     body > :not(#notification-popup) {
       display: none;
@@ -361,7 +320,6 @@
       overflow: visible !important;
     }
   }
-  /* Style pour les messages d'erreur de date */
   #date-error {
   display: none;
   background-color: white;
@@ -376,14 +334,13 @@
   max-width: 90%;
   margin: 0 auto 10px auto;
 }
-/* Overlay de mise à jour au démarrage */
 #update-overlay {
   position: fixed;
-  top: 60px; /* Laisse le bandeau de l'en-tête visible */
+  top: 60px; /* Pour laisser le bandeau visible */
   left: 0;
   width: 100%;
   height: calc(100% - 60px);
-  background-color: rgba(188, 215, 237, 0.9); /* Bleu glacial transparent */
+  background-color: rgba(188, 215, 237, 0.9); /* bleu glacial transparent */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -402,7 +359,7 @@
 
 #update-popup h2 {
   margin-top: 0;
-  color: #87c08f; /* Vert */
+  color: #87c08f;
 }
 
 #update-popup ul {
@@ -413,7 +370,7 @@
 }
 
 #update-popup ul li::before {
-  content: "🔹 "; /* Puce personnalisée */
+  content: "🔹 ";
 }
 
 #update-logo {
@@ -423,14 +380,66 @@
   height: auto;
 }
   
-/* Styles du bouton de connexion - NE SERA PLUS UTILISÉ */
 #btn-login {
-  display: none !important; /* Masqué de manière forcée */
+  background-color: #0a2f51;       /* 🔵 Bleu foncé */
+  color: #bcd7ed;                  /* 💙 Bleu glacial (ton style principal) */
+  font-weight: bold;
+  padding: 12px 24px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#btn-login:hover {
+  background-color: #083049;      /* un peu plus foncé au hover */
+  transform: translateY(-2px);
+}
+#filters {
+  background-color: #dce5dd; /* Couleur de fond verte */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+#filters label {
+  font-weight: bold;
+  color: #0a2f51; /* Couleur du texte des labels */
+  display: block;
+}
+
+#filters input, #filters select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+#filters button {
+  background-color: #87c08f;
+  color: black;
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+
+#filters button:hover {
+  background-color: #5d9e63;
+}
+  /* Style du texte à l'intérieur des champs de saisie */
+#filters input::placeholder {
+  color: #87c08f; /* Vert pastel */
+  opacity: 1; /* S'assure que la couleur est bien visible */
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
-<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
 <div id="header-left">
 <a href="/index.html" style="
@@ -441,15 +450,17 @@
       overflow:hidden;
       border:0px solid #0a2f51;
     " title="Accueil">
+<!--<img alt="Logo" src="https://i.imgur.com/FmevFyY.png" style="width:100%; height:100%; object-fit:cover;"/> -->
 <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
 </a>
 <h1>Gestion Périmé - Pharmacie du Libron</h1>
-<!-- Groupe opérateur - MAINTENANT VISIBLE PAR DEFAUT -->
-<div id="operator-form" style="display:inline-flex; margin-left:10px;">
+<!-- Groupe opérateur -->
+<div id="operator-form" style="display:none; margin-left:10px;">
 <input id="operator" placeholder="Nom de l'opérateur" type="text"/>
 <button id="btn-confirm-operator">Valider</button>
 </div>
-<!-- Bouton connexion - SUPPRIMÉ -->
+<!-- Bouton connexion -->
+<button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
 <button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
@@ -469,10 +480,12 @@ Historique
   <button onclick="location.href='promotion.html'" title="Promo %">
 % Promo
 </button>
+  </button>
   <button id="btn-open-my-pdf" title="Ouvrir mon PDF personnalisé">
-  <img src="https://i.imgur.com/kGXfRUa.png" style="width:18px; height:18px; vertical-align:middle;"/>
+  <img src=https://i.imgur.com/kGXfRUa.png" style="width:18px; height:18px; vertical-align:middle;"/>
 </button>
 <button id="btn-logout" style="display:none;" title="Déconnexion">
+<!-- <img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/> -->
 <img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Déconnexion
 </button>
@@ -488,7 +501,7 @@ Déconnexion
     </div>
     <div class="filter-group">
         <label for="filter-month">Date:</label>
-        <input id="filter-month" placeholder="MM/YYYY ou YYYY" style="width: 140px;" type="text" />
+       <input id="filter-month" placeholder="MMYYYY ou YYYY" style="width: 140px;" type="text" />
     </div>
     <div class="filter-group">
         <label for="filter-name-code">Nom ou Code:</label>
@@ -531,17 +544,17 @@ Déconnexion
 <button id="btn-add" type="button">Ajouter la ligne</button>
 </form>
 </main>
-<!-- Popup de mise à jour (s'affiche au démarrage, disparaît à la connexion) -->
+<body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 14/08/2025</h2>
+    <h2>Mise à jour - 08/08/2025</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
-      <li>1.La connection a été modifié : la saisie du nom de l'opérateur suivie de la touche Entrée ou d'un clic sur "Valider" lance directement la connexion Google. </li>
-      <li>2. Le bouton "Suivi Périmés" remplace "Notification" avec 3 onglets : <br>
+      <li>1. Le bouton "Suivi Périmés" remplace "Notification" avec 3 onglets : <br>
       - " Trimestre " => Affiche les produits qui périmeront dans les 3 prochains mois.<br>
       - " 2ème Mois " => Affiche le mois "central" du trimestre (ex : Octobre si nous sommes en Août) <br>
       - " À retirer " => Affiche les produits périmés le mois précédent, à retirer des rayons. </li>
+      <li>2.Nouveau filtre : Cherchez un produit par nom ou code. </li>
       <li>3. Cette fenêtre d'information ne s'affichera qu'au démarrage et disparaîtra automatiquement une fois que vous serez connecté. </li>
       <li>4. Un icone "?" a été ajouté à côté de "% promo". Il vous donne accès à une page Google Drive pour un échange direct et propose une description détaillée des fonctionnalités de l'application. </li>
       <li>N'hésitez pas à nous faire part de vos suggestions et remarques.<br>
@@ -551,12 +564,11 @@ Déconnexion
   </div>
 </div>
 
-<!-- Popup de notification (Suivi Périmés) -->
 <div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog" style="display: none;">
     <header style="display: flex; align-items: center; gap: 20px;">
   <div style="display: flex; align-items: center; gap: 20px;">
     <span id="notif-title"> Produits périmés</span>
-    <div id="notif-tabs" style="margin: 0;">
+    <div id="notif-tabs" style="margin: 0;"> <!-- ← on le déplace ici -->
       <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
       <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
       <button class="tab-button" onclick="showTab('current-month')">À retirer</button>
@@ -578,32 +590,214 @@ Déconnexion
     </div>
 </div>
 
-<footer style="
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 0.6em;
-  color: #666;
-  background: #bfdbc4;
-  padding: 8px 0;
-  box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
-  z-index: 10;
-">
-  Développé par Violaine Claron - Mise à jour 14/08/2025
-</footer>
-
 <script>
-  // Constantes d'API Google Sheets
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('notif-badge');
+  const btnNotif = document.getElementById('btn-notif');
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
+  if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
+    badge.style.display = 'inline-block';
+  }
+  btnNotif.addEventListener('click', () => {
+    badge.style.display = 'none';
+    localStorage.setItem('notifSeen', monthKey);
+  });
+
+  const operatorInput = document.getElementById('operator');
+  const btnOperator = document.getElementById('btn-confirm-operator');
+  if (operatorInput && btnOperator) {
+    operatorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnOperator.click();
+      }
+    });
+  }
+});
+</script>
+<script>
+  document.getElementById("btn-print-table").addEventListener("click", async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+
+    const zoneFilter = document.getElementById("filter-zone").value;
+    const monthFilter = document.getElementById("filter-month").value;
+
+    doc.setFontSize(14);
+    doc.text("Résultats filtrés - Produits périmés", 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+    y += 6;
+    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+    y += 10;
+
+    const rows = document.querySelectorAll("#data-table tbody tr");
+    rows.forEach((row) => {
+      if (row.style.display === "none") return;
+
+      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+      doc.text(cells.join(" | "), 10, y);
+      y += 6;
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
+      }
+    });
+
+    doc.save("resultats_perimes.pdf");
+  });
+</script>
+<script>
+  const filterInput = document.getElementById('filter-zone');
+  const suggestionList = document.getElementById('filter-zone-suggestions');
+
+  filterInput.addEventListener('input', function () {
+    const val = this.value.toLowerCase();
+    suggestionList.innerHTML = '';
+    if (val.length < 1) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    const matches = zones.filter(z => z.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    matches.forEach((zone) => {
+      const li = document.createElement('li');
+      li.textContent = zone;
+      li.addEventListener('click', () => {
+        filterInput.value = zone;
+        suggestionList.innerHTML = '';
+        suggestionList.style.display = 'none';
+      });
+      suggestionList.appendChild(li);
+    });
+
+    const rect = filterInput.getBoundingClientRect();
+    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
+    suggestionList.style.left = rect.left + window.scrollX + 'px';
+    suggestionList.style.width = filterInput.offsetWidth + 'px';
+    suggestionList.style.display = 'block';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
+      suggestionList.style.display = 'none';
+    }
+  });
+</script>
+<script>
+  async function deleteRow(rowIndex) {
+    try {
+      await gapi.client.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId: 0,
+                dimension: "ROWS",
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex
+              }
+            }
+          }]
+        }
+      });
+      setStatus("Ligne supprimée avec succès.");
+      loadSheet();
+    } catch (e) {
+      setStatus("Erreur suppression : " + e.message);
+    }
+  }
+</script>
+<script>
+  const filterMonthInput = document.getElementById('filter-month');
+  filterMonthInput.addEventListener('input', function(e) {
+  // On laisse l'utilisateur taper librement MMYYYY ou YYYY sans forcer le /
+  e.target.value = e.target.value.replace(/[^\d\/]/g, ''); // empêche lettres
+});
+
+</script>
+<script>
+function filterTable() {
+const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
+const monthFilter = document.getElementById("filter-month").value.trim();
+// NOUVEAU : Récupérer la valeur du nouveau champ de recherche
+const nameCodeFilter = document.getElementById("filter-name-code").value.trim().toLowerCase(); 
+const rows = document.querySelectorAll("#data-table tbody tr");
+
+rows.forEach((row) => {
+const dateCell = row.cells[0].textContent.trim(); 
+const productCell = row.cells[1].textContent.trim().toLowerCase(); // NOUVEAU : Récupérer le nom du produit
+const codeCell = row.cells[2].textContent.trim().toLowerCase(); // NOUVEAU : Récupérer le code
+const zoneCell = row.cells[4].textContent.trim().toLowerCase();
+let show = true;
+
+// Filtre zone
+if (zoneFilter && !zoneCell.includes(zoneFilter)) {
+show = false;
+}
+
+// NOUVEAU : Filtre par nom ou code
+// Affiche la ligne si le filtre est vide OU si la ligne contient le texte recherché
+if (nameCodeFilter && !productCell.includes(nameCodeFilter) && !codeCell.includes(nameCodeFilter)) {
+show = false;
+}
+
+// Filtre mois MM/YYYY
+if (monthFilter) {
+let rowYear = '';
+let rowMonth = '';
+
+if (dateCell.includes('-')) {
+const [yyyy, mm] = dateCell.split('-');
+rowYear = yyyy;
+rowMonth = mm;
+}
+
+let mFilter = null;
+let yFilter = null;
+
+if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
+[mFilter, yFilter] = monthFilter.split('/');
+} else if (/^\d{6}$/.test(monthFilter)) {
+mFilter = monthFilter.slice(0, 2);
+yFilter = monthFilter.slice(2);
+} else if (/^\d{4}$/.test(monthFilter)) {
+yFilter = monthFilter;
+}
+
+if (yFilter && rowYear !== yFilter) show = false;
+if (mFilter && rowMonth !== mFilter) show = false;
+}
+
+row.style.display = show ? "" : "none";
+});
+}
+function clearFilter() {
+document.getElementById('filter-zone').value = '';
+document.getElementById('filter-month').value = '';
+// NOUVEAU : Vider le nouveau champ de recherche
+document.getElementById('filter-name-code').value = ''; 
+filterTable();
+}
+</script></body>
+<!-- Notification Popup -->
+<script>
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'Feuille1'; // Plage par défaut pour les données principales
+  const RANGE = 'Feuille1';
   const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
   let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
-  let pendingOperatorName = null; // Variable pour stocker le nom de l'opérateur temporairement
 
-  // Initialisation de l'API Google Sheets
   function gapiLoaded() { gapi.load('client', initializeGapiClient); }
   async function initializeGapiClient() {
     await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
@@ -611,105 +805,60 @@ Déconnexion
     maybeEnableButtons();
   }
 
-  // Initialisation du client d'authentification Google Identity Services (GIS)
   function gisLoaded() {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
-        // Cette fonction est appelée APRÈS que l'utilisateur se soit connecté via Google
-        accessToken = tokenResponse.access_token;
-        if (pendingOperatorName) { // Si un nom d'opérateur a été saisi avant la connexion Google
-            operatorName = pendingOperatorName; // On l'assigne comme opérateur final
-            
-            document.getElementById('operator-form').style.display = 'none'; // Cache le formulaire opérateur
-            document.getElementById('btn-logout').style.display = 'inline-block'; // Affiche le bouton déconnexion
-            document.getElementById('entry-form').style.display = 'block'; // Affiche le formulaire d'ajout
-            loadSheet(); // Charge les données principales
-            setStatus(`Connecté en tant que ${operatorName}.`);
-            
-            // Masquer l'overlay de mise à jour après connexion
-            const overlay = document.getElementById('update-overlay');
-            if (overlay) overlay.style.display = 'none';
-        } else {
-            // Cas d'erreur si pendingOperatorName n'est pas défini (ne devrait pas arriver avec le nouveau flux)
-            setStatus('Erreur : Nom d\'opérateur non trouvé après connexion Google.');
-            console.error('Pending operator name was null after successful Google login.');
-        }
-        pendingOperatorName = null; // Réinitialise la variable temporaire
-      },
+  accessToken = tokenResponse.access_token;
+  document.getElementById('operator-form').style.display = 'inline-flex';
+  document.getElementById('btn-login').style.display = 'none';
+  setStatus('Connecté. Choisissez un opérateur.');
+  document.getElementById('operator').focus(); // 👈 focus clavier automatique
+},
+
     });
     gisInited = true;
-    maybeEnableButtons(); // S'assure que tout est chargé et gère le focus initial
+    maybeEnableButtons();
   }
 
-  // Active les fonctionnalités quand les APIs sont chargées
   function maybeEnableButtons() {
     if (gapiInited && gisInited) {
-      document.getElementById('operator').focus(); // Met le focus sur le champ opérateur
-      setStatus('Veuillez entrer votre nom d\'opérateur pour vous connecter.');
+      document.getElementById('btn-login').style.display = 'inline-block';
     }
   }
 
-  // Affiche un message de statut en bas de page
   function setStatus(msg) {
     document.getElementById('status').textContent = msg;
   }
 
-  // --- Nouvelle fonction pour initier la connexion (opérateur + Google) ---
-  async function initiateGoogleAndOperatorLogin() {
-    const op = document.getElementById('operator').value.trim();
-    if (!op) {
-        alert("Veuillez entrer un nom d'opérateur.");
-        return;
-    }
-    pendingOperatorName = op; // Stocke le nom de l'opérateur temporairement
-
-    try {
-        // Déclenche la requête de jeton Google, ce qui ouvrira la popup de connexion Google si nécessaire
-        await tokenClient.requestAccessToken();
-        setStatus('Connexion Google en cours...'); // Message affiché pendant la connexion Google
-    } catch (error) {
-        console.error("Erreur lors de la requête du token Google:", error);
-        setStatus("Erreur de connexion Google. Veuillez réessayer.");
-        pendingOperatorName = null; // Nettoie le nom temporaire en cas d'erreur
-    }
-  }
-
-  // Gestion des clics sur les boutons de connexion/déconnexion et confirmation opérateur
-  // Le bouton 'btn-login' a été supprimé
-  document.getElementById('btn-logout').onclick = () => {
-    accessToken = null;
-    operatorName = null;
-    pendingOperatorName = null; // Réinitialise également la variable temporaire
-    
-    document.getElementById('operator-form').style.display = 'inline-flex'; // Réaffiche le formulaire opérateur
-    document.getElementById('operator').value = ''; // Efface le nom de l'opérateur
-    document.getElementById('btn-logout').style.display = 'none'; // Cache le bouton déconnexion
-    document.getElementById('entry-form').style.display = 'none'; // Cache le formulaire d'ajout
-    clearTable(); // Vide le tableau principal
-    setStatus('Déconnecté.');
-    document.getElementById('operator').focus(); // Remet le focus sur le champ opérateur
+  document.getElementById('btn-login').onclick = () => {
+    tokenClient.requestAccessToken();
   };
 
-  // Lie le bouton "Valider" à la nouvelle fonction de connexion
-  document.getElementById('btn-confirm-operator').onclick = initiateGoogleAndOperatorLogin;
+  document.getElementById('btn-logout').onclick = () => {
+    accessToken = null; operatorName = null;
+    document.getElementById('btn-login').style.display = 'inline-block';
+    document.getElementById('btn-logout').style.display = 'none';
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('entry-form').style.display = 'none';
+    clearTable();
+    setStatus('Déconnecté.');
+  };
 
-  // Gère la touche "Entrée" dans le champ opérateur pour déclencher la connexion
-  const operatorInput = document.getElementById('operator');
-  if (operatorInput) {
-    operatorInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        initiateGoogleAndOperatorLogin();
-      }
-    });
-  }
+  document.getElementById('btn-confirm-operator').onclick = () => {
+    const op = document.getElementById('operator').value;
+    if (!op) return alert("Choisir un opérateur");
+    operatorName = op;
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    document.getElementById('entry-form').style.display = 'block';
+    loadSheet();
+  };
 
-  // Logique du bouton "Ajouter la ligne"
   document.getElementById('btn-add').onclick = async () => {
     if(!operatorName) {
-      alert("Veuillez vous connecter et choisir un opérateur.");
+      alert("Veuillez vous connecter et choisir un opérateur");
       return;
     }
 
@@ -723,7 +872,7 @@ Déconnexion
         dateVal = `${year}-${paddedMonth}-${lastDay}`;
       }
     }
-    if (!dateVal) { // Date par défaut si non saisie
+    if (!dateVal) {
       const today = new Date();
       const m = String(today.getMonth() + 1).padStart(2, '0');
       const y = today.getFullYear();
@@ -734,38 +883,40 @@ Déconnexion
     const productVal = document.getElementById('product').value.trim();
     const qtyVal = parseInt(document.getElementById('qty').value);
     const zoneVal = document.getElementById('zone').value.trim();
-    const codeVal = document.getElementById('code').value.trim();
 
-    // Validations
     if (!zones.includes(zoneVal)) {
-      alert("Veuillez choisir une zone existante dans la liste.");
-      return;
-    }
-    if (!/^\d{6}$/.test(codeVal)) {
-      alert("Le code doit contenir exactement 6 chiffres.");
-      return;
-    }
-    if (!productVal || isNaN(qtyVal) || !zoneVal) { // Pas besoin de valider soldVal et promoVal car ils sont 0
-      alert("Veuillez remplir tous les champs obligatoires (Nom Boîte, Nb Boîtes, Zone).");
-      return;
-    }
+  alert("Veuillez choisir une zone existante dans la liste.");
+  return;
+}
+const codeVal = document.getElementById('code').value.trim();
+if (!/^\d{6}$/.test(codeVal)) {
+  alert("Le code doit contenir exactement 6 chiffres.");
+  return;
+}
 
-    const soldVal = 0; // Valeur par défaut
-    const promoVal = 0; // Valeur par défaut
-    const now = new Date();
-    const ajoutVal = now.toLocaleString('fr-FR'); // Date d'ajout au format local
+    const soldVal = 0;
+    const promoVal = 0;
 
-    const values = [[
-      operatorName,     // Colonne A (invisible dans le tableau)
-      dateVal,          // Colonne B (Date de péremption)
-      productVal,       // Colonne C (Nom du produit)
-      codeVal,          // Colonne D (Code produit)
-      qtyVal,           // Colonne E (Quantité)
-      zoneVal,          // Colonne F (Zone)
-      soldVal,          // Colonne G (Vendues)
-      promoVal,         // Colonne H (Promo)
-      ajoutVal          // Colonne I (Date d'ajout, uniquement dans Google Sheet)
-    ]];
+
+    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
+      alert("Veuillez remplir tous les champs correctement.");
+      return;
+    }
+const now = new Date();
+const ajoutVal = now.toLocaleString('fr-FR'); // Exemple : 12/06/2025, 09:44:31
+
+const values = [[
+  operatorName,     // invisible
+  dateVal,          // ✅ Date
+  productVal,       // ✅ Nom
+  codeVal,          // ✅ Code
+  qtyVal,           // ✅ Qté
+  zoneVal,          // ✅ Zone
+  soldVal,          // ✅ Vendues
+  promoVal,          // ✅ Promo
+  ajoutVal // ✅ Date d'ajout (dans le Google Sheet uniquement)
+]];
+
 
     try {
       await gapi.client.sheets.spreadsheets.values.append({
@@ -775,33 +926,56 @@ Déconnexion
         resource: { values }
       });
 
-      loadSheet(); // Recharge le tableau principal
-      setStatus('Ligne ajoutée avec succès !');
-      // Réinitialise les champs du formulaire après ajout
-      document.getElementById('date').value = '';
-      document.getElementById('product').value = '';
-      document.getElementById('code').value = '';
-      document.getElementById('qty').value = '';
-      document.getElementById('zone').value = '';
-      // Assurez-vous que les champs 'sold' et 'promo' ne sont pas remis à zéro s'ils n'existent pas dans le formulaire
-      const soldInput = document.getElementById('sold');
-      if(soldInput) soldInput.value = '';
-      const promoInput = document.getElementById('promo');
-      if(promoInput) promoInput.value = '';
 
-      const dateInput = document.getElementById('date');
-      dateInput.value = '';
-      dateInput.dataset.raw = '';
-      dateInput.blur();
-      setTimeout(() => { dateInput.value = ''; dateInput.removeAttribute('value'); dateInput.dataset.raw = ''; }, 200);
-      dateInput.focus();
+      loadSheet();
+      setStatus('Ligne ajoutée avec succès !');
+      // Réinitialise tous les champs AVANT le rechargement
+document.getElementById('date').value = '';
+document.getElementById('product').value = '';
+document.getElementById('code').value = '';
+document.getElementById('qty').value = '';
+document.getElementById('zone').value = '';
+document.getElementById('sold').value = '';
+document.getElementById('promo').value = '';
+
+// Traitement spécial pour le champ date
+const dateInput = document.getElementById('date');
+dateInput.value = '';
+dateInput.dataset.raw = '';
+dateInput.blur(); // enlève le focus
+
+// Sécurité : s'il se remplit tout seul, on le vide à nouveau après 100ms
+setTimeout(() => {
+  dateInput.value = '';
+  dateInput.removeAttribute('value'); // ⬅️ Ajout important ici
+  dateInput.dataset.raw = '';
+}, 200);
+      // Clear form inputs
+//document.getElementById('product').value = '';
+//document.getElementById('code').value = '';
+//document.getElementById('qty').value = '';
+//document.getElementById('zone').value = '';
+//document.getElementById('sold').value = '';
+//document.getElementById('promo').value = '';
+
+// Forcer l'effacement du champ date (même si un autre script le remplit après)
+//const dateInput = document.getElementById('date');
+//dateInput.value = '';
+//dateInput.dataset.raw = ''; // utile si un masque est utilisé
+
+//setTimeout(() => {
+// dateInput.value = '';
+//}, 50);
+
+dateInput.focus();
+
 
     } catch (e) {
       setStatus('Erreur : ' + e.message);
     }
   };
 
-  // Charge les données de la feuille principale et rend le tableau
+  // Load sheet data, exclude operator from table display
   async function loadSheet() {
     try {
       const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
@@ -812,65 +986,40 @@ Déconnexion
     }
   }
 
-  // Vide le tableau principal
   function clearTable() {
     const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
   }
 
-  // Rend le tableau principal (exclut la colonne opérateur)
+  // Render table without opérateur column (index 0)
   function renderTable(rows) {
     const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
-    rows.slice(1).reverse().forEach((row, i) => { // Inverse l'ordre pour afficher les dernières entrées en premier
+    //rows.slice(1).forEach((row, i) => {
+    rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
       const qte = parseInt(row[4] || '0');
-      const vendu = parseInt(row[6] || '0');
-      if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-        tr.classList.add('ligne-vendue'); // Ajoute la classe si stock est zéro
-      }
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
 
-      // Indices des colonnes à afficher (basés sur votre Google Sheet)
-      // Colonne B (index 1) = Date
-      // Colonne C (index 2) = Produit
-      // Colonne D (index 3) = Code
-      // Colonne E (index 4) = Qté
-      // Colonne F (index 5) = Zone
-      // Colonne G (index 6) = Vendues
-      // Colonne H (index 7) = Promo
-      const colsToDisplay = [1, 2, 3, 4, 5, 6, 7];
-
-      colsToDisplay.forEach(colIndex => {
+      // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
+      // We skip opérateur (col 0)
+      const cols = [1, 2, 3, 4, 5, 6];
+      cols.forEach(colIndex => {
         const td = document.createElement('td');
         td.textContent = row[colIndex] || '';
-        td.contentEditable = true; // Rendre la cellule éditable
-        const actualSheetRow = rows.length - i; // Calcul la ligne réelle dans Google Sheets
-        td.dataset.row = actualSheetRow;
-        td.dataset.col = colIndex + 1; // Col + 1 car les colonnes Sheets commencent à 1
-        td.addEventListener('blur', onCellEdit); // Met à jour la feuille quand la cellule perd le focus
+        td.contentEditable = true;
+       // td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
+        const actualSheetRow = rows.length - i;
+td.dataset.row = actualSheetRow;
+        td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
+        td.addEventListener('blur', onCellEdit);
         tr.appendChild(td);
       });
-
-      // Ajout de la colonne "Suppr" (icône croix)
-      const tdDelete = document.createElement('td');
-      tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:15%; height:5%; object-fit:cover;"/>';
-      tdDelete.style.cursor = 'pointer';
-      tdDelete.style.color = '#bbb';
-      tdDelete.style.fontSize = '1.1em';
-      tdDelete.title = 'Supprimer cette ligne';
-      tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
-      tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
-      tdDelete.addEventListener('click', async () => {
-        const confirmed = confirm("Supprimer cette ligne ?"); // Utilisation de confirm() pour la suppression
-        if (confirmed) {
-          const rowToDelete = rows.length - i; // Ligne réelle à supprimer
-          await deleteRow(rowToDelete);
-        }
-      });
-      tr.appendChild(tdDelete);
-
-      // Gestion de la sélection de ligne
       tr.addEventListener('click', () => {
+        // Unselect all
         document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
         tr.classList.add('selected');
       });
@@ -878,9 +1027,9 @@ Déconnexion
     });
   }
 
-  // Met à jour une cellule dans Google Sheets
+  // Update cell in Google Sheets on edit
   async function onCellEdit(e) {
-    if(!operatorName) return; // Ne permet pas la modification si non connecté
+    if(!operatorName) return;
     const td = e.target;
     const newValue = td.textContent.trim();
     const row = td.dataset.row;
@@ -899,7 +1048,7 @@ Déconnexion
     }
   }
 
-  // Convertit l'index de colonne numérique en lettre (1->A, 2->B...)
+  // Convert number to letter for column (1->A, 2->B ...)
   function columnToLetter(column) {
     let temp, letter = '';
     while(column > 0) {
@@ -910,451 +1059,640 @@ Déconnexion
     return letter;
   }
 
-  // --- Fonctions pour la popup de notification "Suivi Périmés" ---
 
-  // Gestion de l'affichage des onglets dans la popup de notification
-  function showTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none'); // Cache tous les contenus d'onglets
-    document.getElementById(tabId).style.display = 'block'; // Affiche le contenu de l'onglet actif
-
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active')); // Retire la classe active de tous les boutons
-    document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active'); // Ajoute la classe active au bouton cliqué
-  }
-
-  // Charge et filtre les données pour la popup de notification
-  async function loadNotifications() {
-      const RANGE_A_ENLEVER = "Feuille2!A1:H1000"; // Plage pour les produits à retirer
-      // 'RANGE' est déjà défini globalement pour Feuille1
-
-      const parseDate = (dateStr) => { // Fonction utilitaire pour parser les dates
-          if (!dateStr) return null;
-          let parts = dateStr.split('-');
-          if (parts.length === 3) { return new Date(parts[0], parts[1] - 1, parts[2]); } // Format AAAA-MM-JJ
-          parts = dateStr.split('/');
-          if (parts.length === 3) { return new Date(parts[2], parts[1] - 1, parts[0]); } // Format JJ/MM/AAAA
-          return null;
-      };
-
-      try {
-          // --- Calcul de la date de référence décalée au 15 du mois ---
-          const now = new Date();
-          let referenceDate = new Date(now.getFullYear(), now.getMonth(), 15);
-          // Si nous sommes le 15 ou après, la date de référence passe au 15 du mois suivant
-          if (now.getDate() >= 15) {
-              referenceDate.setMonth(referenceDate.getMonth() + 1);
-          }
-          const currentMonthRef = referenceDate.getMonth();
-          const currentYearRef = referenceDate.getFullYear();
-          // --- Fin du calcul de la date de référence ---
-
-          // Récupération des données des deux feuilles Google Sheets
-          const resFeuille1 = await gapi.client.sheets.spreadsheets.values.get({
-              spreadsheetId: SPREADSHEET_ID,
-              range: RANGE // Données principales (Feuille1)
-          });
-          const dataFeuille1 = (resFeuille1.result.values || []).slice(1); // Exclut l'en-tête
-
-          const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
-              spreadsheetId: SPREADSHEET_ID,
-              range: RANGE_A_ENLEVER // Données "À retirer" (Feuille2)
-          });
-          const dataFeuille2 = (resFeuille2.result.values || []).slice(1); // Exclut l'en-tête
-
-          let grouped = {
-              'trimestre': {}, // Les produits du trimestre sont groupés par mois (clés "AAAA-MM")
-              '2nd-month': [], // Liste simple pour les produits du 2ème mois
-              'current-month': [] // Liste simple pour les produits "À retirer" (mois précédent)
-          };
-
-          // --- Logique de filtrage "À retirer" (basée sur Feuille2) ---
-          // Il s'agit du mois PRÉCÉDENT la date de référence
-          const prevMonthRef = (currentMonthRef - 1 + 12) % 12; // Gère le passage de janvier à décembre
-          const prevMonthYearRef = (currentMonthRef === 0) ? currentYearRef - 1 : currentYearRef;
-
-          dataFeuille2.forEach(row => {
-              const datePeremption = parseDate(row[1]); // La date de péremption est en colonne B (index 1) dans Feuille2
-              if (datePeremption && !isNaN(datePeremption)) {
-                  const rowMonth = datePeremption.getMonth();
-                  const rowYear = datePeremption.getFullYear();
-
-                  if (rowYear === prevMonthYearRef && rowMonth === prevMonthRef) {
-                      grouped['current-month'].push(row);
-                  }
-              }
-          });
-
-          // --- Logique de filtrage "Trimestre" et "2ème mois" (basée sur Feuille1) ---
-          // Ces calculs se font par rapport à la 'referenceDate' (le 15 du mois)
-          dataFeuille1.forEach(row => {
-              const datePeremption = parseDate(row[1]); // La date de péremption est en colonne B (index 1) dans Feuille1
-              if (datePeremption && !isNaN(datePeremption)) {
-                  const rowMonth = datePeremption.getMonth();
-                  const rowYear = datePeremption.getFullYear();
-                  const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`; // Clé de groupement "AAAA-MM"
-
-                  // Calcul de la différence en mois entre la date de péremption et la date de référence
-                  const diffFromRef = (rowYear - currentYearRef) * 12 + (rowMonth - currentMonthRef);
-
-                  // Pour le trimestre (inclut le mois de référence, le mois suivant, et le mois d'après)
-                  if (diffFromRef >= 0 && diffFromRef <= 2) {
-                      if (!grouped['trimestre'][ym]) {
-                          grouped['trimestre'][ym] = [];
-                      }
-                      grouped['trimestre'][ym].push(row);
-                  }
-
-                  // Pour le "2ème mois" (spécifiquement le mois de référence + 1)
-                  if (diffFromRef === 1) {
-                      grouped['2nd-month'].push(row);
-                  }
-              }
-          });
-
-          // --- Fonctions utilitaires locales pour le rendu des tableaux de notification ---
-          // Convertit "Date" en "Mois Année" (ex: "Mai 2025")
-          const formatMonthYearLocal = (d) => {
-              const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                              'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-              return months[d.getMonth()] + ' ' + d.getFullYear();
-          };
-
-          // Génère le HTML pour un tableau de produits
-          const renderNotificationTableContent = (rowsToRender) => {
-              if (rowsToRender.length === 0) {
-                  return '<p>Aucun produit périmé pour ce mois.</p>';
-              }
-              // Trie les lignes par date de péremption
-              rowsToRender.sort((a, b) => {
-                  const dateA = parseDate(a[1]);
-                  const dateB = parseDate(b[1]);
-                  if (dateA && dateB) return dateA.getTime() - dateB.getTime();
-                  return 0;
-              });
-
-              let tableHtml = `<table>
-                  <thead>
-                      <tr>
-                          <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-                      </tr>
-                  </thead>
-                  <tbody>`;
-
-              rowsToRender.forEach(row => {
-                  const qte = parseInt(row[4] || '0'); // Quantité en stock
-                  const vendu = parseInt(row[6] || '0'); // Quantité vendue
-                  const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu; // Vérifie si le stock est à zéro
-                  tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
-                  // Colonnes affichées dans la popup: Date(1), Nom(2), Code(3), Qté(4), Zone(5), Vendues(6), Promo(7)
-                  [1, 2, 3, 4, 5, 6, 7].forEach(colIndex => {
-                      tableHtml += `<td>${row[colIndex] || ''}</td>`;
-                  });
-                  tableHtml += '</tr>';
-              });
-              tableHtml += '</tbody></table>';
-              return tableHtml;
-          };
-          // --- Fin des fonctions utilitaires locales ---
-
-
-          // --- Rendu final des contenus dans les divs des onglets ---
-
-          // Rendu pour l'onglet "À retirer" (le mois PRÉCÉDENT la date de référence)
-          const prevMonthDateForTitle = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - 1, 1);
-          const prevMonthTitle = formatMonthYearLocal(prevMonthDateForTitle);
-          document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderNotificationTableContent(grouped['current-month']);
-
-          // Rendu pour l'onglet "2ème mois" (le mois de référence + 1)
-          const monthPlus1Date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 1);
-          const monthPlus1Title = formatMonthYearLocal(monthPlus1Date);
-          document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus1Title} <span style="font-style: italic; font-weight: normal;">- En promotion</span></h3>` + renderNotificationTableContent(grouped['2nd-month']);
-
-          // Rendu pour l'onglet "Trimestre" (groupé par mois)
-          let trimestreHtml = '';
-          const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort(); // Trie les mois du trimestre
-          
-          if (sortedTrimestreMonths.length === 0) {
-              trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
-          } else {
-              sortedTrimestreMonths.forEach(ym => {
-                  const [y, m] = ym.split('-');
-                  const d = new Date(y, m - 1, 1);
-                  let titleSuffix = '';
-                  // Calcul de la différence en mois par rapport à la date de référence pour chaque mois du trimestre
-                  const monthDiff = (d.getFullYear() - currentYearRef) * 12 + (d.getMonth() - currentMonthRef);
-
-                  if (monthDiff === 0) { // C'est le 1er mois du trimestre (mois de référence)
-                      titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- En promotion</span>';
-                  } else if (monthDiff === 1) { // C'est le 2ème mois du trimestre
-                      titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- En promotion</span>';
-                  } else if (monthDiff === 2) { // C'est le 3ème mois du trimestre
-                      titleSuffix = ' <span style="font-style: italic; font-weight: normal;">- Mettre en avant dans les rayons</span>';
-                  }
-                  trimestreHtml += `<h3>${formatMonthYearLocal(d)}${titleSuffix}</h3>`;
-                  trimestreHtml += renderNotificationTableContent(grouped['trimestre'][ym]);
-              });
-          }
-          document.getElementById('trimestre').innerHTML = trimestreHtml;
-
-          // Afficher la popup et l'onglet par défaut (trimestre)
-          document.getElementById("notification-popup").style.display = "flex"; // S'assure que la popup est visible
-          showTab('trimestre'); // Active l'onglet "Trimestre" par défaut
-
-      } catch (e) {
-          console.error("Erreur lors du chargement des notifications:", e);
-          const notifContent = document.getElementById('notification-popup').querySelector('.content');
-          notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
-      }
-  }
-
-  // --- Écouteurs d'événements pour les boutons de notification ---
-  document.getElementById('btn-notif').addEventListener('click', () => {
-    if(!operatorName) { // Vérifie si l'opérateur est connecté avant d'ouvrir
+  // Notification popup logic
+  const notifPopup = document.getElementById('notification-popup');
+  const notifContent = notifPopup.querySelector('.content');
+  document.getElementById('btn-notif').onclick = () => {
+    if(!operatorName) {
       alert("Connectez-vous et choisissez un opérateur pour voir les notifications.");
       return;
     }
-    loadNotifications(); // Appelle la fonction loadNotifications qui charge et affiche
-    // Le badge sera masqué une fois la popup ouverte (logique déjà existante)
-    const badge = document.getElementById('notif-badge');
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
-    badge.style.display = 'none';
-    localStorage.setItem('notifSeen', monthKey);
-  });
-  
-  document.getElementById("close-notif").addEventListener("click", () => {
-    document.getElementById("notification-popup").style.display = "none";
-  });
+    loadNotifications();
+    notifPopup.style.display = 'flex';
+  };
+  document.getElementById('close-notif').onclick = () => {
+    notifPopup.style.display = 'none';
+  };
   document.getElementById('print-notif').onclick = () => {
-    window.print(); // Fonction d'impression
+    window.print();
   };
 
-  // --- Fonctions de filtrage du tableau principal ---
-  function filterTable() {
-    const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-    const monthFilter = document.getElementById("filter-month").value.trim();
-    const nameCodeFilter = document.getElementById("filter-name-code").value.trim().toLowerCase(); 
-    const rows = document.querySelectorAll("#data-table tbody tr");
+// Format "YYYY-MM" en "Mois Année" (ex : "2025-05" -> "Mai 2025")
+function formatMonthYear(ym) {
+  const [y, m] = ym.split('-');
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  return months[parseInt(m, 10) - 1] + ' ' + y;
+}
 
-    rows.forEach((row) => {
-      const dateCell = row.cells[0].textContent.trim(); 
-      const productCell = row.cells[1].textContent.trim().toLowerCase();
-      const codeCell = row.cells[2].textContent.trim().toLowerCase();
-      const zoneCell = row.cells[5].textContent.trim().toLowerCase(); // Zone est maintenant à l'index 5 (colonne F)
-      let show = true;
-
-      // Filtre par zone
-      if (zoneFilter && !zoneCell.includes(zoneFilter)) {
-        show = false;
-      }
-
-      // Filtre par nom ou code
-      if (nameCodeFilter && !productCell.includes(nameCodeFilter) && !codeCell.includes(nameCodeFilter)) {
-        show = false;
-      }
-
-      // Filtre par mois MM/YYYY ou YYYY
-      if (monthFilter) {
-        let rowYear = '';
-        let rowMonth = '';
-
-        // Assurez-vous que la date est au bon format (YYYY-MM-DD)
-        if (dateCell.includes('-')) {
-          const [yyyy, mm] = dateCell.split('-');
-          rowYear = yyyy;
-          rowMonth = mm;
-        }
-
-        let mFilter = null;
-        let yFilter = null;
-
-        if (/^\d{2}\/\d{4}$/.test(monthFilter)) { // Format MM/YYYY
-          [mFilter, yFilter] = monthFilter.split('/');
-        } else if (/^\d{6}$/.test(monthFilter)) { // Format MMYYYY
-          mFilter = monthFilter.slice(0, 2);
-          yFilter = monthFilter.slice(2);
-        } else if (/^\d{4}$/.test(monthFilter)) { // Format YYYY
-          yFilter = monthFilter;
-        }
-
-        if (yFilter && rowYear !== yFilter) show = false;
-        if (mFilter && String(parseInt(rowMonth, 10)).padStart(2, '0') !== mFilter) show = false; // Compare les mois formatés
-      }
-      row.style.display = show ? "" : "none";
-    });
-  }
-
-  function clearFilter() {
-    document.getElementById('filter-zone').value = '';
-    document.getElementById('filter-month').value = '';
-    document.getElementById('filter-name-code').value = ''; 
-    filterTable(); // Applique les filtres après effacement
-  }
-
-  // --- Logic pour les champs de formulaire et les interactions ---
-  document.addEventListener('DOMContentLoaded', () => {
-    // Logique du badge de notification
-    const badge = document.getElementById('notif-badge');
-    const btnNotif = document.getElementById('btn-notif');
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
-    // Affiche le badge si on est après le 15 du mois et que la notif n'a pas été vue
-    if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
-      badge.style.display = 'inline-block';
-    }
-    // Masque le badge quand on clique sur "Suivi Périmés"
-    btnNotif.addEventListener('click', () => {
-      badge.style.display = 'none';
-      localStorage.setItem('notifSeen', monthKey);
-    });
-
-    // Gestion du focus pour l'opérateur (touche Entrée)
-    // Cette partie est maintenant déplacée vers les eventListeners du bouton de validation de l'opérateur
-    // pour déclencher initiateGoogleAndOperatorLogin.
-
-    // Gestion de la navigation avec Entrée dans le formulaire d'ajout
-    const fields = [
-      'date', 'product', 'code', 'qty', 'zone', 
-    ];
-    fields.forEach((id, index) => {
-      const input = document.getElementById(id);
-      if(input) { 
-        input.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            const nextField = document.getElementById(fields[index + 1]);
-            if (nextField) {
-              nextField.focus();
-            } else {
-              document.getElementById('btn-add').click(); 
-            }
-          }
-        });
-      }
-    });
-
-    // Formatage auto de la date (MM/YYYY)
-    const dateInput = document.getElementById('date');
-    if (dateInput) {
-      dateInput.addEventListener('input', function(e) {
-        let val = e.target.value.replace(/[^\d]/g, ''); 
-        if (val.length > 2) {
-          val = val.slice(0,2) + '/' + val.slice(2,6); 
-        }
-        e.target.value = val;
-      });
-      // Validation de la date au "blur" (quand le champ perd le focus)
-      const dateErrorDiv = document.getElementById('date-error');
-      dateInput.addEventListener('blur', () => {
-        const val = dateInput.value.trim();
-        const parts = val.split('/');
-        if (parts.length !== 2) {
-          dateErrorDiv.style.display = 'block'; return;
-        }
-        const [mm, yyyy] = parts;
-        const parsedMonth = parseInt(mm, 10);
-        const parsedYear = parseInt(yyyy, 10);
-        if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
-          dateErrorDiv.style.display = 'block'; return;
-        }
-        const enteredDate = new Date(parsedYear, parsedMonth - 1, 1);
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-        if (enteredDate < now) {
-          dateErrorDiv.style.display = 'block';
-        } else {
-          dateErrorDiv.style.display = 'none';
-        }
-      });
-    }
-
-    // Logic for zone autocomplete suggestions
-    const zones = [
-      "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
-      "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
-      "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
-      "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
-      "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
-      "la roche posay","LRP", "la rosee", "levres et mains", "moustik",
-      "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
-      "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
-      "nature", "vichy", "yeux", "1ersoins", "4patte"
-    ];
-    const inputZone = document.getElementById('zone');
-    const listZoneSuggestions = document.getElementById('zone-suggestions');
-
-    if(inputZone && listZoneSuggestions) { // Vérifie si les éléments existent
-      inputZone.addEventListener('input', function () {
-        const val = this.value.toLowerCase();
-        listZoneSuggestions.innerHTML = '';
-        if (val.length < 1) { // Affiche les suggestions dès la première lettre
-          listZoneSuggestions.style.display = 'none';
-          return;
-        }
-        const matches = zones.filter(z => z.toLowerCase().includes(val));
-        if (matches.length === 0) {
-          listZoneSuggestions.style.display = 'none';
-          return;
-        }
-        matches.forEach((zone) => {
-          const li = document.createElement('li');
-          li.textContent = zone;
-          li.addEventListener('click', () => {
-            inputZone.value = zone;
-            listZoneSuggestions.innerHTML = '';
-            listZoneSuggestions.style.display = 'none';
-          });
-          listZoneSuggestions.appendChild(li);
-        });
-        const rect = inputZone.getBoundingClientRect();
-        listZoneSuggestions.style.top = rect.bottom + window.scrollY + 'px';
-        listZoneSuggestions.style.left = rect.left + window.scrollX + 'px';
-        listZoneSuggestions.style.width = inputZone.offsetWidth + 'px';
-        listZoneSuggestions.style.display = 'block';
-      });
-
-      document.addEventListener('click', function (e) {
-        if (!inputZone.contains(e.target) && !listZoneSuggestions.contains(e.target)) {
-          listZoneSuggestions.style.display = 'none';
-        }
-      });
-
-      // Gestion de la navigation clavier pour les suggestions de zone
-      let currentFocusZone = -1;
-      inputZone.addEventListener('keydown', function (e) {
-        const items = listZoneSuggestions.querySelectorAll("li");
-        if (!items.length) return;
-
-        if (e.key === "ArrowDown") {
-          currentFocusZone++;
-          if (currentFocusZone >= items.length) currentFocusZone = 0;
-          updateActiveSuggestion(items, currentFocusZone);
-        } else if (e.key === "ArrowUp") {
-          currentFocusZone--;
-          if (currentFocusZone < 0) currentFocusZone = items.length - 1;
-          updateActiveSuggestion(items, currentFocusZone);
-        } else if (e.key === "Enter") {
-          e.preventDefault();
-          if (currentFocusZone > -1) {
-            items[currentFocusZone].click();
-          }
-        }
-      });
-
-      function updateActiveSuggestion(items, focusIndex) {
-        items.forEach(i => i.classList.remove("active"));
-        if (items[focusIndex]) {
-          items[focusIndex].classList.add("active");
-          items[focusIndex].scrollIntoView({ block: "nearest" });
-        }
-      }
-    }
-  }); // Fin de DOMContentLoaded
-
-  // --- Chargement initial des APIs Google ---
+  // Load GAPI & GIS on window load
   window.onload = () => {
     gapiLoaded();
     gisLoaded();
+  };</script>
+<script>
+if (document.getElementById('btn-history')) {
+  document.getElementById('btn-history').addEventListener('click', async () => {
+}
+    if (!operatorName) {
+      alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
+      return;
+    }
+    try {
+      await transferToHistorique();
+      window.location.href = '/historique.html';
+    } catch (e) {
+      alert("Erreur lors du transfert vers historique : " + e.message);
+    }
+  });
+
+  async function transferToHistorique() {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Feuille1'
+    });
+    const allRows = res.result.values || [];
+    if (allRows.length <= 1) return;
+
+    const now = new Date();
+    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const toMove = [];
+    const remaining = [allRows[0]];
+
+    allRows.slice(1).forEach(row => {
+      const dateStr = row[1];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (ym < currentYM) toMove.push(row);
+      else remaining.push(row);
+    });
+
+    if (toMove.length > 0) {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'historique',
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: toMove }
+      });
+    }
+
+    await gapi.client.sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Feuille1',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: remaining }
+    });
+    setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
+  }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const fields = [
+    'date',
+    'product',
+    'code',
+    'qty',
+    'zone',
+    'sold',
+    'promo'
+  ];
+
+  fields.forEach((id, index) => {
+    const input = document.getElementById(id);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const nextField = document.getElementById(fields[index + 1]);
+        if (nextField) {
+          nextField.focus();
+        } else {
+          // Si c'est le dernier champ → clique sur le bouton
+          document.getElementById('btn-add').click();
+        }
+      }
+    });
+  });
+});
+</script>
+<script>
+  const dateInput = document.getElementById('date');
+  if (dateInput) {
+    dateInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/[^\d]/g, '');
+      if (val.length > 2) {
+        val = val.slice(0,2) + '/' + val.slice(2,6);
+      }
+      e.target.value = val;
+    });
+  }
+</script>
+<script>
+const zones = [
+  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
+  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
+  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
+  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
+  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
+  "la roche posay","LRP", "la rosee", "levres et mains", "moustik",
+  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
+  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
+  "nature", "vichy", "yeux", "1ersoins", "4patte"
+];
+
+const input = document.getElementById('zone');
+const list = document.getElementById('zone-suggestions');
+
+input.addEventListener('input', function () {
+  const val = this.value.toLowerCase();
+  list.innerHTML = '';
+  if (val.length < 1) {
+    list.style.display = 'none';
+    return;
+  }
+
+  const matches = zones.filter(z => z.toLowerCase().includes(val));
+  if (matches.length === 0) {
+    list.style.display = 'none';
+    return;
+  }
+
+  matches.forEach((zone, index) => {
+    const li = document.createElement('li');
+    li.textContent = zone;
+    li.addEventListener('click', () => {
+      input.value = zone;
+      list.innerHTML = '';
+      list.style.display = 'none';
+    });
+    list.appendChild(li);
+  });
+
+  const rect = input.getBoundingClientRect();
+  list.style.top = rect.bottom + window.scrollY + 'px';
+  list.style.left = rect.left + window.scrollX + 'px';
+  list.style.width = input.offsetWidth + 'px';
+  list.style.display = 'block';
+});
+
+document.addEventListener('click', function (e) {
+  if (!input.contains(e.target) && !list.contains(e.target)) {
+    list.style.display = 'none';
+  }
+});
+  function renderTable(rows) {
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = '';
+
+  //rows.slice(1).forEach((row, i) => {
+    rows.slice(1).reverse().forEach((row, i) => {
+    const tr = document.createElement('tr');
+      const qte = parseInt(row[4] || '0');
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
+    const cols = [1, 2, 3, 4, 5, 6, 7];
+
+    cols.forEach(colIndex => {
+      const td = document.createElement('td');
+     td.textContent = row[colIndex] || '';
+      td.contentEditable = true;
+      //td.dataset.row = i + 2;
+      const actualSheetRow = rows.length - i;
+td.dataset.row = actualSheetRow;
+      td.dataset.col = colIndex + 1;
+      td.addEventListener('blur', onCellEdit);
+      tr.appendChild(td);
+    });
+
+    // ✅ Ajout de la colonne "✖️"
+    const tdDelete = document.createElement('td');
+    tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:15%; height:5%; object-fit:cover;"/>';
+    tdDelete.style.cursor = 'pointer';
+    tdDelete.style.color = '#bbb';
+    tdDelete.style.fontSize = '1.1em';
+    tdDelete.title = 'Supprimer cette ligne';
+    tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
+    tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
+ //   tdDelete.addEventListener('click', async () => {
+ //     const confirmed = confirm("Supprimer cette ligne ?");
+ //     if (confirmed) {
+ //       await deleteRow(i + 2);
+ //     }
+ //   });
+      const actualSheetRow = rows.length - i;
+
+tdDelete.addEventListener('click', async () => {
+  const confirmed = confirm("Supprimer cette ligne ?");
+  if (confirmed) {
+    await deleteRow(actualSheetRow);
+  }
+});
+    tr.appendChild(tdDelete);
+
+    tr.addEventListener('click', () => {
+      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+      tr.classList.add('selected');
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+</script>
+<script>
+  // Filtrer en appuyant sur Entrée dans les champs
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterZone = document.getElementById('filter-zone');
+    const filterMonth = document.getElementById('filter-month');
+
+    [filterZone, filterMonth].forEach(input => {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          filterTable(); // fonction que tu as déjà
+        }
+      });
+    });
+  });
+</script>
+<footer style="
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 0.6em;
+  color: #666;
+  background: #bfdbc4;
+  padding: 8px 0;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+">
+  Développé par Violaine Claron - Mise à jour 08/08/2025
+</footer>
+<script>
+ function exportFilteredTableAsPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+
+  const zoneFilter = document.getElementById("filter-zone").value;
+  const monthFilter = document.getElementById("filter-month").value;
+
+  doc.setFontSize(14);
+  doc.text("Résultats filtrés - Produits périmés", 10, y);
+  y += 10;
+  doc.setFontSize(10);
+  doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
+  y += 6;
+  doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
+  y += 10;
+
+  const rows = document.querySelectorAll("#data-table tbody tr");
+  rows.forEach((row) => {
+    if (row.style.display === "none") return;
+    const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
+    doc.text(cells.join(" | "), 10, y);
+    y += 6;
+    if (y > 280) {
+      doc.addPage();
+      y = 10;
+    }
+  });
+
+  doc.save("resultats_perimes.pdf");
+}
+
+
+
+</script>
+<script>
+  const suggestionList = document.getElementById('filter-zone-suggestions');
+
+  filterInput.addEventListener('input', function () {
+    const val = this.value.toLowerCase();
+    suggestionList.innerHTML = '';
+    if (val.length < 2) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    const matches = zones.filter(z => z.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      suggestionList.style.display = 'none';
+      return;
+    }
+
+    matches.forEach((zone) => {
+      const li = document.createElement('li');
+      li.textContent = zone;
+      li.addEventListener('click', () => {
+        filterInput.value = zone;
+        suggestionList.innerHTML = '';
+        suggestionList.style.display = 'none';
+      });
+      suggestionList.appendChild(li);
+    });
+
+    const rect = filterInput.getBoundingClientRect();
+    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
+    suggestionList.style.left = rect.left + window.scrollX + 'px';
+    suggestionList.style.width = filterInput.offsetWidth + 'px';
+    suggestionList.style.display = 'block';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
+      suggestionList.style.display = 'none';
+    }
+  });
+</script>
+<script>
+  async function deleteRow(rowIndex) {
+    try {
+      await gapi.client.sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId: 0,
+                dimension: "ROWS",
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex
+              }
+            }
+          }]
+        }
+      });
+      setStatus("Ligne supprimée avec succès.");
+      loadSheet();
+    } catch (e) {
+      setStatus("Erreur suppression : " + e.message);
+    }
+  }
+</script>
+<script>
+ /* if (filterMonthInput) {
+    filterMonthInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/[^\d]/g, '');
+      if (val.length > 2) {
+        val = val.slice(0,2) + '/' + val.slice(2,6);
+      }
+      e.target.value = val;
+    });
+  }*/
+
+let currentFocus = -1;
+
+input.addEventListener('keydown', function (e) {
+  const items = list.querySelectorAll("li");
+  if (!items.length) return;
+
+  if (e.key === "ArrowDown") {
+    currentFocus++;
+    if (currentFocus >= items.length) currentFocus = 0;
+    updateActive(items);
+  } else if (e.key === "ArrowUp") {
+    currentFocus--;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+    updateActive(items);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (currentFocus > -1) {
+      items[currentFocus].click();
+    }
+  }
+});
+
+function updateActive(items) {
+  items.forEach(i => i.classList.remove("active"));
+  if (items[currentFocus]) {
+    items[currentFocus].classList.add("active");
+    items[currentFocus].scrollIntoView({ block: "nearest" });
+  }
+}
+
+</script>
+<script>
+document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
+  window.open("https://docs.google.com/document/d/1zzPXerqNLJfAJFOshI8lk1hOAcXGBd0o/edit?usp=sharing&ouid=101646951122744714292&rtpof=true&sd=true", "_blank");
+});
+</script>
+  <script>
+ const dateInputField = document.getElementById('date');
+const dateErrorDiv = document.getElementById('date-error');
+
+dateInputField.addEventListener('blur', () => {
+  const val = dateInputField.value.trim();
+  const parts = val.split('/');
+  if (parts.length !== 2) {
+    dateErrorDiv.style.display = 'block';
+    return;
+  }
+
+  const [mm, yyyy] = parts;
+  const parsedMonth = parseInt(mm, 10);
+  const parsedYear = parseInt(yyyy, 10);
+
+  if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
+    dateErrorDiv.style.display = 'block';
+    return;
+  }
+
+  const enteredDate = new Date(parsedYear, parsedMonth - 1, 1);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0); // pour éviter les bugs d’heure
+
+  if (enteredDate < now) {
+    dateErrorDiv.style.display = 'block';
+  } else {
+    dateErrorDiv.style.display = 'none';
+  }
+});
+
+</script>
+ <script>
+    // Collez la fonction showTab ici
+  function showTab(tabId) {
+  const tabs = document.querySelectorAll('.tab-content');
+  tabs.forEach(tab => tab.classList.remove('active'));
+
+  const buttons = document.querySelectorAll('#notif-tabs .tab-button');
+  buttons.forEach(button => button.classList.remove('active'));
+
+  document.getElementById(tabId).classList.add('active');
+  document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+}
+
+async function loadNotifications() {
+  const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    let parts = dateStr.split('-');
+    if (parts.length === 3) {
+      // Format AAAA-MM-JJ
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    parts = dateStr.split('/');
+    if (parts.length === 3) {
+      // Format JJ/MM/AAAA
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+    return null;
   };
+
+  try {
+    // Appel pour la Feuille1 (Trimestre et 2ème mois)
+    const resFeuille1 = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE
+    });
+    const dataFeuille1 = (resFeuille1.result.values || []).slice(1);
+
+    // Appel pour la feuille 'Feuille2' (À enlever)
+    const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE_A_ENLEVER
+    });
+    const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const grouped = {
+      'trimestre': {},
+      '2nd-month': [],
+      'current-month': []
+    };
+
+    // Logique pour le mois précédent ("À enlever")
+    const prevMonth = (currentMonth - 1 + 12) % 12;
+    const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+
+    dataFeuille2.forEach(row => {
+      const dateStr = row[1];
+      const d = parseDate(dateStr);
+      if (!d) return;
+
+      const rowMonth = d.getMonth();
+      const rowYear = d.getFullYear();
+
+      if (rowYear === prevMonthYear && rowMonth === prevMonth) {
+        grouped['current-month'].push(row);
+      }
+    });
+
+    // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
+    dataFeuille1.forEach(row => {
+      const dateStr = row[1];
+      const d = parseDate(dateStr);
+      if (!d) return;
+
+      const rowMonth = d.getMonth();
+      const rowYear = d.getFullYear();
+      const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
+
+      // Logique pour le trimestre (3 mois suivants à partir d'aujourd'hui)
+      const nextMonth1 = (currentMonth + 1) % 12;
+      const nextMonth2 = (currentMonth + 2) % 12;
+      const nextMonth3 = (currentMonth + 3) % 12;
+
+      const nextYear1 = (currentMonth === 11) ? currentYear + 1 : currentYear;
+      const nextYear2 = (currentMonth >= 11) ? currentYear + 1 : currentYear;
+      const nextYear3 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
+
+      if ((rowMonth === nextMonth1 && rowYear === nextYear1) ||
+          (rowMonth === nextMonth2 && rowYear === nextYear2) ||
+          (rowMonth === nextMonth3 && rowYear === nextYear3)) {
+        if (!grouped['trimestre'][ym]) {
+          grouped['trimestre'][ym] = [];
+        }
+        grouped['trimestre'][ym].push(row);
+      }
+
+      // Logique pour le "2ème mois" (mois + 2)
+      const monthPlus2 = (currentMonth + 2) % 12;
+      const yearPlus2 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
+      if (rowYear === yearPlus2 && rowMonth === monthPlus2) {
+        grouped['2nd-month'].push(row);
+      }
+    });
+
+    const formatMonthYear = (d) => {
+      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      return months[d.getMonth()] + ' ' + d.getFullYear();
+    };
+
+    const renderTable = (rows) => {
+      if (rows.length === 0) {
+        return '<p>Aucun produit périmé pour ce mois.</p>';
+      }
+      rows.sort((a, b) => (a[5] || '').localeCompare(b[5] || ''));
+
+      let tableHtml = `<table>
+          <thead>
+              <tr>
+                  <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
+              </tr>
+          </thead>
+          <tbody>`;
+
+      rows.forEach(row => {
+        const qte = parseInt(row[4] || '0');
+        const vendu = parseInt(row[6] || '0');
+        const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
+        tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
+        [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
+          tableHtml += `<td>${row[ci] || ''}</td>`;
+        });
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</tbody></table>';
+      return tableHtml;
+    };
+
+    // Rendu pour le trimestre
+    let trimestreHtml = '';
+    const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort();
+    if (sortedTrimestreMonths.length === 0) {
+      trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
+    } else {
+      sortedTrimestreMonths.forEach(ym => {
+        const [y, m] = ym.split('-');
+        const d = new Date(y, m - 1, 1);
+        trimestreHtml += `<h3>${formatMonthYear(d)}</h3>`;
+        trimestreHtml += renderTable(grouped['trimestre'][ym]);
+      });
+    }
+    document.getElementById('trimestre').innerHTML = trimestreHtml;
+
+    // Rendu pour le 2ème mois (mois + 2)
+    const monthPlus2Date = new Date(now.getFullYear(), now.getMonth() + 2);
+    const monthPlus2Title = formatMonthYear(monthPlus2Date);
+    document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus2Title}</h3>` + renderTable(grouped['2nd-month']);
+
+    // Rendu pour le mois précédent ("À enlever")
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
+    const prevMonthTitle = formatMonthYear(prevMonthDate);
+    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
+
+  } catch (e) {
+    console.error("Erreur chargement notifications :", e);
+    const notifContent = document.getElementById('notification-popup').querySelector('.content');
+    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
+  }
+}
+</script>
+  <script>
+  document.getElementById('btn-login').addEventListener('click', () => {
+    const overlay = document.getElementById('update-overlay');
+    if (overlay) overlay.style.display = 'none';
+  });
 </script>
 </body>
 </html>
+
