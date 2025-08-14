@@ -98,9 +98,13 @@
   }
 
   /* Operator form */
-  #operator-form {
-    margin-left: 10px;
-  }
+  #operator-form input {
+  padding: 8px;
+  border: 1px solid #16416d;
+  border-radius: 8px;
+  font-size: 1em;
+  width: 180px; /* Adaptez la largeur si besoin */
+}
 
   /* Layout */
   main {
@@ -437,6 +441,19 @@
 #filters input::placeholder {
   color: #87c08f; /* Vert pastel */
   opacity: 1; /* S'assure que la couleur est bien visible */
+}
+  #btn-confirm-operator {
+  background-color: #16416d; /* Un bleu foncé */
+  color: white;
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 8px; /* Pour des angles arrondis */
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+#btn-confirm-operator:hover {
+  background-color: #1a4d78; /* Un bleu plus foncé au survol */
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
