@@ -455,12 +455,11 @@
 </a>
 <h1>Gestion Périmé - Pharmacie du Libron</h1>
 <!-- Groupe opérateur -->
-<div id="operator-form" style="display:none; margin-left:10px;">
 <input id="operator" placeholder="Nom de l'opérateur" type="text"/>
 <button id="btn-confirm-operator">Valider</button>
 </div>
 <!-- Bouton connexion -->
-<button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
+<button id="btn-login" style="display:none; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
 <button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
@@ -811,10 +810,12 @@ filterTable();
       scope: SCOPES,
       callback: (tokenResponse) => {
   accessToken = tokenResponse.access_token;
-  document.getElementById('operator-form').style.display = 'inline-flex';
-  document.getElementById('btn-login').style.display = 'none';
-  setStatus('Connecté. Choisissez un opérateur.');
-  document.getElementById('operator').focus(); // 👈 focus clavier automatique
+  // Afficher le reste de l'application
+  document.getElementById('operator-form').style.display = 'none';
+  document.getElementById('btn-logout').style.display = 'inline-block';
+  document.getElementById('entry-form').style.display = 'block';
+  setStatus(`Connecté en tant que ${operatorName}.`);
+  loadSheet();
 },
 
     });
@@ -846,15 +847,17 @@ filterTable();
     setStatus('Déconnecté.');
   };
 
-  document.getElementById('btn-confirm-operator').onclick = () => {
-    const op = document.getElementById('operator').value;
-    if (!op) return alert("Choisir un opérateur");
-    operatorName = op;
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('btn-logout').style.display = 'inline-block';
-    document.getElementById('entry-form').style.display = 'block';
-    loadSheet();
-  };
+ document.getElementById('btn-confirm-operator').onclick = () => {
+  const op = document.getElementById('operator').value;
+  if (!op) {
+    alert("Veuillez saisir votre nom d'opérateur.");
+    return;
+  }
+  // On stocke le nom de l'opérateur temporairement avant la connexion
+  operatorName = op; 
+  // On lance la connexion Google
+  tokenClient.requestAccessToken();
+};
 
   document.getElementById('btn-add').onclick = async () => {
     if(!operatorName) {
