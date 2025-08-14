@@ -7,10 +7,10 @@
 <script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
+  /* Styles pour l'autocomplétion des listes */
   .autocomplete-list {
   position: absolute;
   background-color: white;
- /* background-color: #fffefc;*/
   border: 1px solid #ccc;
   border-radius: 4px;
   list-style: none;
@@ -30,27 +30,26 @@
 
 .autocomplete-list li:hover,
 .autocomplete-list li.active {
- background-color: #86bf8e;
-/*background-color: #f294a6;*/
+ background-color: #86bf8e; /* Couleur de survol pour les suggestions */
   color: white;
 }
 
+  /* Variables de couleurs */
   :root {
-    --bleu-glacial: #bcd7ed;
-   /*--bleu-glacial: #f294a6;*/
+    --bleu-glacial: #bcd7ed; /* Bleu clair */
   }
 
+  /* Styles généraux du corps de page */
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    /*background: #f9f9f9;*/
-    background: #fffefc;
+    background: #fffefc; /* Fond blanc cassé */
   }
 
-  /* Bandeau bleu glacial */
+  /* Styles de l'en-tête */
   header {
     background-color: var(--bleu-glacial);
-    color: #163f5b;
+    color: #163f5b; /* Couleur du texte de l'en-tête */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -70,6 +69,7 @@
     font-size: 1.3em;
   }
 
+  /* Styles des boutons généraux de l'en-tête */
   button {
     cursor: pointer;
     border: none;
@@ -81,42 +81,68 @@
     transition: background-color 0.3s ease;
   }
   button:hover {
-    background-color: rgba(255 255 255 / 0.3);
+    background-color: rgba(255 255 255 / 0.3); /* Effet de survol léger */
   }
 
-  /* Icons with emoji for simplicity */
+  /* Icônes utilisées */
   .icon {
     font-size: 1.2em;
     margin-right: 6px;
   }
 
-  /* Header right buttons */
+  /* Boutons de droite de l'en-tête */
   #header-right {
     display: flex;
     gap: 15px;
     align-items: center;
   }
 
-  /* Operator form */
+  /* Formulaire d'opérateur */
   #operator-form {
     margin-left: 10px;
+    display: inline-flex; /* Assure que les éléments sont sur la même ligne */
+    align-items: center; /* Aligne verticalement les éléments */
+    gap: 10px; /* Espace entre les éléments du formulaire opérateur */
   }
 
-  /* Layout */
+  #operator-form input {
+    padding: 8px;
+    font-size: 1em;
+    border-radius: 5px; /* Angles arrondis */
+    border: 1px solid #0a2f51; /* Contour bleu foncé */
+    box-sizing: border-box; /* Inclut le padding et le border dans la largeur */
+  }
+
+  #operator-form button {
+    background-color: #0a2f51; /* Fond bleu foncé */
+    color: white; /* Texte blanc */
+    font-weight: bold; /* Texte en gras */
+    padding: 8px 12px;
+    border-radius: 5px; /* Angles arrondis */
+    border: 1px solid #0a2f51; /* Contour bleu foncé */
+    transition: background-color 0.3s ease;
+  }
+  #operator-form button:hover {
+    background-color: #163f5b; /* Bleu foncé un peu plus clair au survol */
+  }
+
+
+  /* Layout principal de la page */
   main {
     display: flex;
     margin: 20px;
   }
 
-  /* Form to add entries on right */
+  /* Formulaire pour ajouter des entrées (à droite) */
  #entry-form {
   width: 320px;
-  background: f294a6;
+  background: #f2f7f2; /* Couleur de fond vert très clair, presque blanc */
   padding: 15px 20px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
   margin-left: 20px;
-  margin-top: 20px; /* Aligne avec les filtres */
+  margin-top: 3px; /* Alignement du haut avec les filtres */
+  height: 485px; /* Hauteur fixe pour le bloc */
 }
 
   #entry-form h3 {
@@ -125,7 +151,7 @@
     font-weight: normal;
   }
   #entry-form input {
-    background-color: #e1f4e4;
+    background-color: #e1f4e4; /* Fond vert très clair pour les champs */
     width: 100%;
     margin: 6px 0;
     padding: 6px 8px;
@@ -135,17 +161,16 @@
   }
   #entry-form button {
     width: 100%;
-    /*background-color: var(--bleu-glacial);*/
-    background-color: #bfdbc4;
+    background-color: #bfdbc4; /* Vert pastel pour le bouton */
     color: black;
     font-weight: bold;
     margin-top: 10px;
   }
   #entry-form button:hover {
-    background-color: #86bf8e;
+    background-color: #86bf8e; /* Vert plus foncé au survol */
   }
 
-  /* Table styles */
+  /* Styles du tableau principal */
   table {
     border-collapse: collapse;
     width: 100%;
@@ -161,61 +186,79 @@
     text-align: center;
   }
 
-  /* Alternate row background with 15% opacity bleu glacial */
+  /* Couleur de fond alternée pour les lignes du tableau */
   tbody tr:nth-child(odd) {
-   /* background-color: rgba(188, 215, 237, 0.15);*/
-    background-color: #ede2e6
+    background-color: #ede2e6; /* Rose très clair */
   }
 
-  /* Selected row highlight 50% opacity */
+  /* Surlignage de la ligne sélectionnée */
   tbody tr.selected {
-    /*background-color: rgba(188, 215, 237, 0.5) !important;*/
-    background-color: #f2b4bb!important;
+    background-color: #f2b4bb!important; /* Rose vif */
   }
 
-  /* Editable cells */
+  /* Cellules éditables */
   tbody td {
     cursor: text;
   }
 
-  /* Filter section */
+  /* Section des filtres */
   #filters {
-    margin: 20px;
+    background-color: #f2f7f2; /* Couleur de fond verte */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: flex;
+    flex-wrap: wrap;
     gap: 15px;
-    align-items: flex-end;
+    align-items: flex-end; /* ALIGNÉ: Aligne les éléments en bas pour les boutons */
+    margin-bottom: 20px;
+  }
+  /* Groupe de label + input pour les filtres */
+  .filter-group {
+    display: flex;
+    flex-direction: column; /* Empile le label au-dessus de l'input */
+    align-items: flex-start;
   }
   #filters label {
     font-weight: bold;
-     color: #86bf8e;
+    color: #0a2f51; /* Couleur du texte des labels */
+    margin-bottom: 5px; /* Espace sous le label */
+    display: block;
   }
-  #filters input, #filters button {
-    padding: 5px 8px;
+  #filters input, #filters select {
+    padding: 8px;
     font-size: 1em;
     border-radius: 4px;
     border: 1px solid #ccc;
   }
   #filters button {
-    /*background-color: var(--bleu-glacial);*/
-    background-color: #bfdbc4;
+    background-color: #bfdbc4; /* Vert pour les boutons de filtre */
     color: black;
     border: none;
     cursor: pointer;
     font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-top: auto; /* Pousse les boutons vers le bas de leur conteneur flex */
   }
   #filters button:hover {
-    background-color: #86bf8e;
+    background-color: #5d9e63; /* Vert plus foncé au survol */
     color: white;
   }
+  /* Style du texte à l'intérieur des champs de saisie (placeholder) */
+  #filters input::placeholder {
+    color: #87c08f; /* Vert pastel pour le placeholder */
+    opacity: 1; /* S'assure que la couleur est bien visible */
+  }
 
-  /* Status text */
+  /* Texte de statut */
   #status {
     margin: 10px 20px;
     font-weight: bold;
     color: #0a2f51;
   }
 
- /* Styles pour la popup de notification */
+  /* Styles pour la popup de notification */
   #notification-popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -227,13 +270,13 @@
     max-height: 92vh;
     overflow-y: auto;
     z-index: 9999;
-    display: none;
+    display: none; /* Masqué par défaut */
     flex-direction: column;
   }
   #notification-popup header {
     display: flex;
     justify-content: space-between;
-    align-items: right;
+    align-items: center; /* Alignement centré pour les éléments de l'en-tête de la popup */
     padding: 10px 20px;
     background-color: var(--bleu-glacial);
     color: #163f5b;
@@ -242,7 +285,7 @@
   #notif-tabs {
     display: flex;
     gap: 10px;
-    margin-left: auto;
+    margin-left: auto; /* Aligne les onglets à droite du titre */
   }
   .header-buttons {
     display: flex;
@@ -250,13 +293,12 @@
   }
   .tab-button {
     background-color: transparent;
-    color: #163f5b; /* Texte en noir par défaut */
+    color: #163f5b; /* Texte du bouton d'onglet par défaut */
     border: none;
     padding: 10px 15px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s, color 0.3s;
-    text-align: right;
     border-radius: 5px 5px 0 0;
   }
   .tab-button:hover,
@@ -265,10 +307,10 @@
     color: white; /* Texte blanc au survol et pour l'onglet actif */
   }
   .tab-content {
-    display: none;
+    display: none; /* Contenu de l'onglet masqué par défaut */
     padding: 15px;
     overflow-y: auto;
-    max-height: calc(92vh - 80px);
+    max-height: calc(92vh - 80px); /* Hauteur calculée pour le contenu */
     color: black;
   }
   .tab-content h3 {
@@ -280,10 +322,10 @@
   }
   .ligne-vendue td {
   text-decoration: line-through;
-  background-color: #d8c0ca !important; /* ou une autre couleur que tu préfères */
-  color: #efe8eb; /* facultatif : texte un peu plus gris */
+  background-color: #d8c0ca !important; /* Couleur de fond pour les lignes vendues */
+  color: #efe8eb; /* Couleur du texte pour les lignes vendues */
 }
-  /* Styles pour l'impression */
+  /* Styles pour l'impression (cache tout sauf la popup de notification) */
   @media print {
     body > :not(#notification-popup) {
       display: none;
@@ -320,6 +362,7 @@
       overflow: visible !important;
     }
   }
+  /* Style pour les messages d'erreur de date */
   #date-error {
   display: none;
   background-color: white;
@@ -334,13 +377,14 @@
   max-width: 90%;
   margin: 0 auto 10px auto;
 }
+/* Overlay de mise à jour au démarrage */
 #update-overlay {
   position: fixed;
-  top: 60px; /* Pour laisser le bandeau visible */
+  top: 60px; /* Laisse le bandeau de l'en-tête visible */
   left: 0;
   width: 100%;
   height: calc(100% - 60px);
-  background-color: rgba(188, 215, 237, 0.9); /* bleu glacial transparent */
+  background-color: rgba(188, 215, 237, 0.9); /* Bleu glacial transparent */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -359,7 +403,7 @@
 
 #update-popup h2 {
   margin-top: 0;
-  color: #87c08f;
+  color: #87c08f; /* Vert */
 }
 
 #update-popup ul {
@@ -370,7 +414,7 @@
 }
 
 #update-popup ul li::before {
-  content: "🔹 ";
+  content: "🔹 "; /* Puce personnalisée */
 }
 
 #update-logo {
@@ -380,66 +424,14 @@
   height: auto;
 }
   
+/* Styles du bouton de connexion - NE SERA PLUS UTILISÉ */
 #btn-login {
-  background-color: #0a2f51;       /* 🔵 Bleu foncé */
-  color: #bcd7ed;                  /* 💙 Bleu glacial (ton style principal) */
-  font-weight: bold;
-  padding: 12px 24px;
-  font-size: 1.2em;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-#btn-login:hover {
-  background-color: #083049;      /* un peu plus foncé au hover */
-  transform: translateY(-2px);
-}
-#filters {
-  background-color: #dce5dd; /* Couleur de fond verte */
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  align-items: flex-end;
-  margin-bottom: 20px;
-}
-
-#filters label {
-  font-weight: bold;
-  color: #0a2f51; /* Couleur du texte des labels */
-  display: block;
-}
-
-#filters input, #filters select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1em;
-}
-
-#filters button {
-  background-color: #87c08f;
-  color: black;
-  font-weight: bold;
-  padding: 10px 15px;
-  border-radius: 5px;
-}
-
-#filters button:hover {
-  background-color: #5d9e63;
-}
-  /* Style du texte à l'intérieur des champs de saisie */
-#filters input::placeholder {
-  color: #87c08f; /* Vert pastel */
-  opacity: 1; /* S'assure que la couleur est bien visible */
+  display: none !important; /* Masqué de manière forcée */
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
 <header>
 <div id="header-left">
 <a href="/index.html" style="
@@ -450,17 +442,13 @@
       overflow:hidden;
       border:0px solid #0a2f51;
     " title="Accueil">
-<!--<img alt="Logo" src="https://i.imgur.com/FmevFyY.png" style="width:100%; height:100%; object-fit:cover;"/> -->
 <img alt="Logo" src="https://i.imgur.com/AExTPc7.png" style="width:100%; height:100%; object-fit:cover;"/>
 </a>
 <h1>Gestion Périmé - Pharmacie du Libron</h1>
-<!-- Groupe opérateur -->
-<div id="operator-form" style="display:none; margin-left:10px;">
+<div id="operator-form" style="display:inline-flex; margin-left:10px;">
 <input id="operator" placeholder="Nom de l'opérateur" type="text"/>
 <button id="btn-confirm-operator">Valider</button>
 </div>
-<!-- Bouton connexion -->
-<button id="btn-login" style="display:inline-block; margin-left:10px;">Se connecter</button>
 </div>
 <div id="header-right">
 <button id="btn-notif" style="position: relative; display: inline-flex; align-items: center; gap: 5px;" title="Notifications">
@@ -480,12 +468,10 @@ Historique
   <button onclick="location.href='promotion.html'" title="Promo %">
 % Promo
 </button>
-  </button>
   <button id="btn-open-my-pdf" title="Ouvrir mon PDF personnalisé">
-  <img src=https://i.imgur.com/kGXfRUa.png" style="width:18px; height:18px; vertical-align:middle;"/>
+  <img src="https://i.imgur.com/kGXfRUa.png" style="width:18px; height:18px; vertical-align:middle;"/>
 </button>
 <button id="btn-logout" style="display:none;" title="Déconnexion">
-<!-- <img alt="Déconnexion" src="https://i.imgur.com/Ku9oMjb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/> -->
 <img alt="Déconnexion" src="https://i.imgur.com/OPA1EuF.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"/>
 Déconnexion
 </button>
@@ -501,7 +487,7 @@ Déconnexion
     </div>
     <div class="filter-group">
         <label for="filter-month">Date:</label>
-       <input id="filter-month" placeholder="MMYYYY ou YYYY" style="width: 140px;" type="text" />
+        <input id="filter-month" placeholder="MM/YYYY ou YYYY" style="width: 140px;" type="text" />
     </div>
     <div class="filter-group">
         <label for="filter-name-code">Nom ou Code:</label>
@@ -517,7 +503,6 @@ Déconnexion
 <div style="max-height: 400px; overflow-y: auto; border-radius: 6px; margin-top: 10px;"><table aria-label="Données des produits périmés" id="data-table" tabindex="0">
 <thead>
 <tr>
-<!-- Ne PAS afficher colonne opérateur -->
 <th>Date</th>
 <th>Produit</th>
 <th>Code</th>
@@ -535,7 +520,7 @@ Déconnexion
 <form id="entry-form" onsubmit="return false;" style="display: none;">
 <h3>Ajouter un produit</h3>
 <input id="date" placeholder="MM/YYYY" type="text"/>
-  <div id="date-error">DATE<br>INVALIDE</div>
+<div id="date-error">DATE<br>INVALIDE</div>
 <input id="product" placeholder="Nom Boîte" type="text"/>
 <input id="code" maxlength="6" minlength="6" pattern="\d{6}" placeholder="Code (6 chiffres)" required="" type="text"/>
 <input id="qty" min="0" placeholder="Nb Boîtes" type="number"/>
@@ -544,1155 +529,713 @@ Déconnexion
 <button id="btn-add" type="button">Ajouter la ligne</button>
 </form>
 </main>
-<body>
-  <div id="update-overlay">
+<div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 08/08/2025</h2>
+    <h2>Mise à jour - 14/08/2025</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
-      <li>1. Le bouton "Suivi Périmés" remplace "Notification" avec 3 onglets : <br>
-      - " Trimestre " => Affiche les produits qui périmeront dans les 3 prochains mois.<br>
-      - " 2ème Mois " => Affiche le mois "central" du trimestre (ex : Octobre si nous sommes en Août) <br>
-      - " À retirer " => Affiche les produits périmés le mois précédent, à retirer des rayons. </li>
-      <li>2.Nouveau filtre : Cherchez un produit par nom ou code. </li>
+      <li>1.La connection a été modifié : la saisie du nom de l'opérateur suivie de la touche Entrée ou d'un clic sur "Valider" lance directement la connexion Google. </li>
+      <li>2. Le bouton "Suivi Périmés" remplace "Notification" avec 3 onglets : <br> - " Trimestre " => Affiche les produits qui périmeront dans les 3 prochains mois.<br> - " 2ème Mois " => Affiche le mois "central" du trimestre (ex : Octobre si nous sommes en Août) <br> - " À retirer " => Affiche les produits périmés le mois précédent, à retirer des rayons. </li>
       <li>3. Cette fenêtre d'information ne s'affichera qu'au démarrage et disparaîtra automatiquement une fois que vous serez connecté. </li>
       <li>4. Un icone "?" a été ajouté à côté de "% promo". Il vous donne accès à une page Google Drive pour un échange direct et propose une description détaillée des fonctionnalités de l'application. </li>
-      <li>N'hésitez pas à nous faire part de vos suggestions et remarques.<br>
-    <em>Violaine</em> </li>
+      <li>N'hésitez pas à nous faire part de vos suggestions et remarques.<br> <em>Violaine</em> </li>
     </ul>
     <img src="https://i.imgur.com/yqzUg16.png" alt="Logo Mises à jour" id="update-logo">
   </div>
 </div>
-
 <div aria-labelledby="notif-title" aria-modal="true" id="notification-popup" role="dialog" style="display: none;">
-    <header style="display: flex; align-items: center; gap: 20px;">
+ <header style="display: flex; align-items: center; gap: 20px;">
   <div style="display: flex; align-items: center; gap: 20px;">
-    <span id="notif-title"> Produits périmés</span>
-    <div id="notif-tabs" style="margin: 0;"> <!-- ← on le déplace ici -->
-      <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
-      <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
-      <button class="tab-button" onclick="showTab('current-month')">À retirer</button>
-    </div>
+  <span id="notif-title"> Produits périmés</span>
+  <div id="notif-tabs" style="margin: 0;"> <button class="tab-button active" onclick="showTab('trimestre')">Trimestre</button>
+    <button class="tab-button" onclick="showTab('2nd-month')">2ème mois</button>
+    <button class="tab-button" onclick="showTab('current-month')">À retirer</button>
+  </div>
   </div>
   <div class="header-buttons" style="margin-left: auto;">
-    <button id="print-notif" title="Imprimer">
-      <img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
-    </button>
-    <button id="close-notif" title="Fermer">
-      <img src="https://i.imgur.com/7NKMuZy.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
-    </button>
+  <button id="print-notif" title="Imprimer">
+    <img src="https://i.imgur.com/qY1buNb.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
+  </button>
+  <button id="close-notif" title="Fermer">
+    <img src="https://i.imgur.com/7NKMuZy.png" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;">
+  </button>
   </div>
-</header>
-    <div class="content">
-        <div id="trimestre" class="tab-content active"></div>
-        <div id="2nd-month" class="tab-content"></div>
-        <div id="current-month" class="tab-content"></div>
-    </div>
+ </header>
+ <div class="content">
+  <div id="trimestre" class="tab-content active"></div>
+  <div id="2nd-month" class="tab-content"></div>
+  <div id="current-month" class="tab-content"></div>
+ </div>
 </div>
-
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const badge = document.getElementById('notif-badge');
-  const btnNotif = document.getElementById('btn-notif');
-  const now = new Date();
-  const monthKey = `${now.getFullYear()}-${now.getMonth()+1}`;
-  if (now.getDate() >= 15 && localStorage.getItem('notifSeen') !== monthKey) {
-    badge.style.display = 'inline-block';
-  }
-  btnNotif.addEventListener('click', () => {
-    badge.style.display = 'none';
-    localStorage.setItem('notifSeen', monthKey);
-  });
-
-  const operatorInput = document.getElementById('operator');
-  const btnOperator = document.getElementById('btn-confirm-operator');
-  if (operatorInput && btnOperator) {
-    operatorInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        btnOperator.click();
-      }
-    });
-  }
-});
-</script>
-<script>
-  document.getElementById("btn-print-table").addEventListener("click", async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 10;
-
-    const zoneFilter = document.getElementById("filter-zone").value;
-    const monthFilter = document.getElementById("filter-month").value;
-
-    doc.setFontSize(14);
-    doc.text("Résultats filtrés - Produits périmés", 10, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
-    y += 6;
-    doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
-    y += 10;
-
-    const rows = document.querySelectorAll("#data-table tbody tr");
-    rows.forEach((row) => {
-      if (row.style.display === "none") return;
-
-      const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
-      doc.text(cells.join(" | "), 10, y);
-      y += 6;
-      if (y > 280) {
-        doc.addPage();
-        y = 10;
-      }
-    });
-
-    doc.save("resultats_perimes.pdf");
-  });
-</script>
-<script>
-  const filterInput = document.getElementById('filter-zone');
-  const suggestionList = document.getElementById('filter-zone-suggestions');
-
-  filterInput.addEventListener('input', function () {
-    const val = this.value.toLowerCase();
-    suggestionList.innerHTML = '';
-    if (val.length < 1) {
-      suggestionList.style.display = 'none';
-      return;
-    }
-
-    const matches = zones.filter(z => z.toLowerCase().includes(val));
-    if (matches.length === 0) {
-      suggestionList.style.display = 'none';
-      return;
-    }
-
-    matches.forEach((zone) => {
-      const li = document.createElement('li');
-      li.textContent = zone;
-      li.addEventListener('click', () => {
-        filterInput.value = zone;
-        suggestionList.innerHTML = '';
-        suggestionList.style.display = 'none';
-      });
-      suggestionList.appendChild(li);
-    });
-
-    const rect = filterInput.getBoundingClientRect();
-    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
-    suggestionList.style.left = rect.left + window.scrollX + 'px';
-    suggestionList.style.width = filterInput.offsetWidth + 'px';
-    suggestionList.style.display = 'block';
-  });
-
-  document.addEventListener('click', function (e) {
-    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
-      suggestionList.style.display = 'none';
-    }
-  });
-</script>
-<script>
-  async function deleteRow(rowIndex) {
-    try {
-      await gapi.client.sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        resource: {
-          requests: [{
-            deleteDimension: {
-              range: {
-                sheetId: 0,
-                dimension: "ROWS",
-                startIndex: rowIndex - 1,
-                endIndex: rowIndex
-              }
-            }
-          }]
-        }
-      });
-      setStatus("Ligne supprimée avec succès.");
-      loadSheet();
-    } catch (e) {
-      setStatus("Erreur suppression : " + e.message);
-    }
-  }
-</script>
-<script>
-  const filterMonthInput = document.getElementById('filter-month');
-  filterMonthInput.addEventListener('input', function(e) {
-  // On laisse l'utilisateur taper librement MMYYYY ou YYYY sans forcer le /
-  e.target.value = e.target.value.replace(/[^\d\/]/g, ''); // empêche lettres
-});
-
-</script>
-<script>
-function filterTable() {
-const zoneFilter = document.getElementById("filter-zone").value.trim().toLowerCase();
-const monthFilter = document.getElementById("filter-month").value.trim();
-// NOUVEAU : Récupérer la valeur du nouveau champ de recherche
-const nameCodeFilter = document.getElementById("filter-name-code").value.trim().toLowerCase(); 
-const rows = document.querySelectorAll("#data-table tbody tr");
-
-rows.forEach((row) => {
-const dateCell = row.cells[0].textContent.trim(); 
-const productCell = row.cells[1].textContent.trim().toLowerCase(); // NOUVEAU : Récupérer le nom du produit
-const codeCell = row.cells[2].textContent.trim().toLowerCase(); // NOUVEAU : Récupérer le code
-const zoneCell = row.cells[4].textContent.trim().toLowerCase();
-let show = true;
-
-// Filtre zone
-if (zoneFilter && !zoneCell.includes(zoneFilter)) {
-show = false;
-}
-
-// NOUVEAU : Filtre par nom ou code
-// Affiche la ligne si le filtre est vide OU si la ligne contient le texte recherché
-if (nameCodeFilter && !productCell.includes(nameCodeFilter) && !codeCell.includes(nameCodeFilter)) {
-show = false;
-}
-
-// Filtre mois MM/YYYY
-if (monthFilter) {
-let rowYear = '';
-let rowMonth = '';
-
-if (dateCell.includes('-')) {
-const [yyyy, mm] = dateCell.split('-');
-rowYear = yyyy;
-rowMonth = mm;
-}
-
-let mFilter = null;
-let yFilter = null;
-
-if (/^\d{2}\/\d{4}$/.test(monthFilter)) {
-[mFilter, yFilter] = monthFilter.split('/');
-} else if (/^\d{6}$/.test(monthFilter)) {
-mFilter = monthFilter.slice(0, 2);
-yFilter = monthFilter.slice(2);
-} else if (/^\d{4}$/.test(monthFilter)) {
-yFilter = monthFilter;
-}
-
-if (yFilter && rowYear !== yFilter) show = false;
-if (mFilter && rowMonth !== mFilter) show = false;
-}
-
-row.style.display = show ? "" : "none";
-});
-}
-function clearFilter() {
-document.getElementById('filter-zone').value = '';
-document.getElementById('filter-month').value = '';
-// NOUVEAU : Vider le nouveau champ de recherche
-document.getElementById('filter-name-code').value = ''; 
-filterTable();
-}
-</script></body>
-<!-- Notification Popup -->
-<script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-  const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'Feuille1';
-  const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
-
-  let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
-
-  function gapiLoaded() { gapi.load('client', initializeGapiClient); }
-  async function initializeGapiClient() {
-    await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
-    gapiInited = true;
-    maybeEnableButtons();
-  }
-
-  function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: (tokenResponse) => {
-  accessToken = tokenResponse.access_token;
-  document.getElementById('operator-form').style.display = 'inline-flex';
-  document.getElementById('btn-login').style.display = 'none';
-  setStatus('Connecté. Choisissez un opérateur.');
-  document.getElementById('operator').focus(); // 👈 focus clavier automatique
-},
-
-    });
-    gisInited = true;
-    maybeEnableButtons();
-  }
-
-  function maybeEnableButtons() {
-    if (gapiInited && gisInited) {
-      document.getElementById('btn-login').style.display = 'inline-block';
-    }
-  }
-
-  function setStatus(msg) {
-    document.getElementById('status').textContent = msg;
-  }
-
-  document.getElementById('btn-login').onclick = () => {
-    tokenClient.requestAccessToken();
-  };
-
-  document.getElementById('btn-logout').onclick = () => {
-    accessToken = null; operatorName = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
-    document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('entry-form').style.display = 'none';
-    clearTable();
-    setStatus('Déconnecté.');
-  };
-
-  document.getElementById('btn-confirm-operator').onclick = () => {
-    const op = document.getElementById('operator').value;
-    if (!op) return alert("Choisir un opérateur");
-    operatorName = op;
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('btn-logout').style.display = 'inline-block';
-    document.getElementById('entry-form').style.display = 'block';
-    loadSheet();
-  };
-
-  document.getElementById('btn-add').onclick = async () => {
-    if(!operatorName) {
-      alert("Veuillez vous connecter et choisir un opérateur");
-      return;
-    }
-
-    let rawDate = document.getElementById('date').value;
-    let dateVal = "";
-    if (rawDate) {
-      const [month, year] = rawDate.split('/');
-      if (month && year) {
-        const paddedMonth = month.padStart(2, '0');
-        const lastDay = new Date(year, parseInt(paddedMonth), 0).getDate();
-        dateVal = `${year}-${paddedMonth}-${lastDay}`;
-      }
-    }
-    if (!dateVal) {
-      const today = new Date();
-      const m = String(today.getMonth() + 1).padStart(2, '0');
-      const y = today.getFullYear();
-      const d = new Date(y, today.getMonth() + 1, 0).getDate();
-      dateVal = `${y}-${m}-${d}`;
-    }
-
-    const productVal = document.getElementById('product').value.trim();
-    const qtyVal = parseInt(document.getElementById('qty').value);
-    const zoneVal = document.getElementById('zone').value.trim();
-
-    if (!zones.includes(zoneVal)) {
-  alert("Veuillez choisir une zone existante dans la liste.");
-  return;
-}
-const codeVal = document.getElementById('code').value.trim();
-if (!/^\d{6}$/.test(codeVal)) {
-  alert("Le code doit contenir exactement 6 chiffres.");
-  return;
-}
-
-    const soldVal = 0;
-    const promoVal = 0;
-
-
-    if (!productVal || isNaN(qtyVal) || !zoneVal || isNaN(soldVal) || isNaN(promoVal)) {
-      alert("Veuillez remplir tous les champs correctement.");
-      return;
-    }
-const now = new Date();
-const ajoutVal = now.toLocaleString('fr-FR'); // Exemple : 12/06/2025, 09:44:31
-
-const values = [[
-  operatorName,     // invisible
-  dateVal,          // ✅ Date
-  productVal,       // ✅ Nom
-  codeVal,          // ✅ Code
-  qtyVal,           // ✅ Qté
-  zoneVal,          // ✅ Zone
-  soldVal,          // ✅ Vendues
-  promoVal,          // ✅ Promo
-  ajoutVal // ✅ Date d'ajout (dans le Google Sheet uniquement)
-]];
-
-
-    try {
-      await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values }
-      });
-
-
-      loadSheet();
-      setStatus('Ligne ajoutée avec succès !');
-      // Réinitialise tous les champs AVANT le rechargement
-document.getElementById('date').value = '';
-document.getElementById('product').value = '';
-document.getElementById('code').value = '';
-document.getElementById('qty').value = '';
-document.getElementById('zone').value = '';
-document.getElementById('sold').value = '';
-document.getElementById('promo').value = '';
-
-// Traitement spécial pour le champ date
-const dateInput = document.getElementById('date');
-dateInput.value = '';
-dateInput.dataset.raw = '';
-dateInput.blur(); // enlève le focus
-
-// Sécurité : s'il se remplit tout seul, on le vide à nouveau après 100ms
-setTimeout(() => {
-  dateInput.value = '';
-  dateInput.removeAttribute('value'); // ⬅️ Ajout important ici
-  dateInput.dataset.raw = '';
-}, 200);
-      // Clear form inputs
-//document.getElementById('product').value = '';
-//document.getElementById('code').value = '';
-//document.getElementById('qty').value = '';
-//document.getElementById('zone').value = '';
-//document.getElementById('sold').value = '';
-//document.getElementById('promo').value = '';
-
-// Forcer l'effacement du champ date (même si un autre script le remplit après)
-//const dateInput = document.getElementById('date');
-//dateInput.value = '';
-//dateInput.dataset.raw = ''; // utile si un masque est utilisé
-
-//setTimeout(() => {
-// dateInput.value = '';
-//}, 50);
-
-dateInput.focus();
-
-
-    } catch (e) {
-      setStatus('Erreur : ' + e.message);
-    }
-  };
-
-  // Load sheet data, exclude operator from table display
-  async function loadSheet() {
-    try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
-      const rows = res.result.values || [];
-      renderTable(rows);
-    } catch (e) {
-      setStatus("Erreur de chargement : " + e.message);
-    }
-  }
-
-  function clearTable() {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
-  }
-
-  // Render table without opérateur column (index 0)
-  function renderTable(rows) {
-    const tbody = document.querySelector('#data-table tbody');
-    tbody.innerHTML = '';
-    //rows.slice(1).forEach((row, i) => {
-    rows.slice(1).reverse().forEach((row, i) => {
-      const tr = document.createElement('tr');
-      const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[6] || '0');
-if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-  tr.classList.add('ligne-vendue');
-}
-
-      // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
-      // We skip opérateur (col 0)
-      const cols = [1, 2, 3, 4, 5, 6];
-      cols.forEach(colIndex => {
-        const td = document.createElement('td');
-        td.textContent = row[colIndex] || '';
-        td.contentEditable = true;
-       // td.dataset.row = i + 2; // Google Sheets rows start at 1 + header row
-        const actualSheetRow = rows.length - i;
-td.dataset.row = actualSheetRow;
-        td.dataset.col = colIndex + 1; // Google Sheets columns start at 1
-        td.addEventListener('blur', onCellEdit);
-        tr.appendChild(td);
-      });
-      tr.addEventListener('click', () => {
-        // Unselect all
-        document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-        tr.classList.add('selected');
-      });
-      tbody.appendChild(tr);
-    });
-  }
-
-  // Update cell in Google Sheets on edit
-  async function onCellEdit(e) {
-    if(!operatorName) return;
-    const td = e.target;
-    const newValue = td.textContent.trim();
-    const row = td.dataset.row;
-    const col = td.dataset.col;
-
-    try {
-      await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `Feuille1!${columnToLetter(col)}${row}`,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: [[newValue]] }
-      });
-      setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
-    } catch (err) {
-      setStatus('Erreur mise à jour : ' + err.message);
-    }
-  }
-
-  // Convert number to letter for column (1->A, 2->B ...)
-  function columnToLetter(column) {
-    let temp, letter = '';
-    while(column > 0) {
-      temp = (column - 1) % 26;
-      letter = String.fromCharCode(temp + 65) + letter;
-      column = (column - temp - 1) / 26;
-    }
-    return letter;
-  }
-
-
-  // Notification popup logic
-  const notifPopup = document.getElementById('notification-popup');
-  const notifContent = notifPopup.querySelector('.content');
-  document.getElementById('btn-notif').onclick = () => {
-    if(!operatorName) {
-      alert("Connectez-vous et choisissez un opérateur pour voir les notifications.");
-      return;
-    }
-    loadNotifications();
-    notifPopup.style.display = 'flex';
-  };
-  document.getElementById('close-notif').onclick = () => {
-    notifPopup.style.display = 'none';
-  };
-  document.getElementById('print-notif').onclick = () => {
-    window.print();
-  };
-
-// Format "YYYY-MM" en "Mois Année" (ex : "2025-05" -> "Mai 2025")
-function formatMonthYear(ym) {
-  const [y, m] = ym.split('-');
-  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-  return months[parseInt(m, 10) - 1] + ' ' + y;
-}
-
-  // Load GAPI & GIS on window load
-  window.onload = () => {
-    gapiLoaded();
-    gisLoaded();
-  };</script>
-<script>
-if (document.getElementById('btn-history')) {
-  document.getElementById('btn-history').addEventListener('click', async () => {
-}
-    if (!operatorName) {
-      alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
-      return;
-    }
-    try {
-      await transferToHistorique();
-      window.location.href = '/historique.html';
-    } catch (e) {
-      alert("Erreur lors du transfert vers historique : " + e.message);
-    }
-  });
-
-  async function transferToHistorique() {
-    const res = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1'
-    });
-    const allRows = res.result.values || [];
-    if (allRows.length <= 1) return;
-
-    const now = new Date();
-    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const toMove = [];
-    const remaining = [allRows[0]];
-
-    allRows.slice(1).forEach(row => {
-      const dateStr = row[1];
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
-      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (ym < currentYM) toMove.push(row);
-      else remaining.push(row);
-    });
-
-    if (toMove.length > 0) {
-      await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'historique',
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: toMove }
-      });
-    }
-
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: remaining }
-    });
-    setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
-  }
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const fields = [
-    'date',
-    'product',
-    'code',
-    'qty',
-    'zone',
-    'sold',
-    'promo'
+  let gapiLoaded = false;
+  let gDriveClient;
+  const SPREADSHEET_ID = '123x-aX3u97sQdO_y-P754Q4G15Q4f6789g';
+  let dataFromSheet = [];
+  const zonesFromSheet = [];
+  const entriesForNotif = [];
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+  const nextMonth = (currentMonth % 12) + 1;
+  const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+  const monthAfterNext = (nextMonth % 12) + 1;
+  const yearAfterNext = nextMonth === 12 ? nextYear + 1 : nextYear;
+
+  const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}`;
+  
+  const MONTHS_IN_FRENCH = [
+      "", "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
   ];
 
-  fields.forEach((id, index) => {
-    const input = document.getElementById(id);
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const nextField = document.getElementById(fields[index + 1]);
-        if (nextField) {
-          nextField.focus();
-        } else {
-          // Si c'est le dernier champ → clique sur le bouton
-          document.getElementById('btn-add').click();
-        }
-      }
+  function getMonthName(monthNumber) {
+      return MONTHS_IN_FRENCH[monthNumber] || "";
+  }
+  
+  window.initClient = () => {
+    google.accounts.oauth2.initTokenClient({
+        client_id: '109965306634-6i5c35g9s16p649q1032g58189680a6b.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.metadata.readonly',
+        callback: (response) => {
+          if (response.access_token) {
+            gapiLoaded = true;
+            gDriveClient = google.accounts.oauth2.initTokenClient({
+                client_id: '109965306634-6i5c35g9s16p649q1032g58189680a6b.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/drive.readonly',
+                callback: (response) => {
+                    if (response.access_token) {
+                        gapi.client.setToken(response);
+                        loadGapi();
+                    }
+                }
+            });
+            gapi.client.setToken(response);
+            loadGapi();
+          }
+        },
     });
-  });
-});
-</script>
-<script>
-  const dateInput = document.getElementById('date');
-  if (dateInput) {
-    dateInput.addEventListener('input', function(e) {
-      let val = e.target.value.replace(/[^\d]/g, '');
-      if (val.length > 2) {
-        val = val.slice(0,2) + '/' + val.slice(2,6);
-      }
-      e.target.value = val;
-    });
-  }
-</script>
-<script>
-const zones = [
-  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
-  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
-  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
-  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
-  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
-  "la roche posay","LRP", "la rosee", "levres et mains", "moustik",
-  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
-  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
-  "nature", "vichy", "yeux", "1ersoins", "4patte"
-];
-
-const input = document.getElementById('zone');
-const list = document.getElementById('zone-suggestions');
-
-input.addEventListener('input', function () {
-  const val = this.value.toLowerCase();
-  list.innerHTML = '';
-  if (val.length < 1) {
-    list.style.display = 'none';
-    return;
-  }
-
-  const matches = zones.filter(z => z.toLowerCase().includes(val));
-  if (matches.length === 0) {
-    list.style.display = 'none';
-    return;
-  }
-
-  matches.forEach((zone, index) => {
-    const li = document.createElement('li');
-    li.textContent = zone;
-    li.addEventListener('click', () => {
-      input.value = zone;
-      list.innerHTML = '';
-      list.style.display = 'none';
-    });
-    list.appendChild(li);
-  });
-
-  const rect = input.getBoundingClientRect();
-  list.style.top = rect.bottom + window.scrollY + 'px';
-  list.style.left = rect.left + window.scrollX + 'px';
-  list.style.width = input.offsetWidth + 'px';
-  list.style.display = 'block';
-});
-
-document.addEventListener('click', function (e) {
-  if (!input.contains(e.target) && !list.contains(e.target)) {
-    list.style.display = 'none';
-  }
-});
-  function renderTable(rows) {
-  const tbody = document.querySelector('#data-table tbody');
-  tbody.innerHTML = '';
-
-  //rows.slice(1).forEach((row, i) => {
-    rows.slice(1).reverse().forEach((row, i) => {
-    const tr = document.createElement('tr');
-      const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[6] || '0');
-if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-  tr.classList.add('ligne-vendue');
-}
-    const cols = [1, 2, 3, 4, 5, 6, 7];
-
-    cols.forEach(colIndex => {
-      const td = document.createElement('td');
-     td.textContent = row[colIndex] || '';
-      td.contentEditable = true;
-      //td.dataset.row = i + 2;
-      const actualSheetRow = rows.length - i;
-td.dataset.row = actualSheetRow;
-      td.dataset.col = colIndex + 1;
-      td.addEventListener('blur', onCellEdit);
-      tr.appendChild(td);
-    });
-
-    // ✅ Ajout de la colonne "✖️"
-    const tdDelete = document.createElement('td');
-    tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:15%; height:5%; object-fit:cover;"/>';
-    tdDelete.style.cursor = 'pointer';
-    tdDelete.style.color = '#bbb';
-    tdDelete.style.fontSize = '1.1em';
-    tdDelete.title = 'Supprimer cette ligne';
-    tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
-    tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
- //   tdDelete.addEventListener('click', async () => {
- //     const confirmed = confirm("Supprimer cette ligne ?");
- //     if (confirmed) {
- //       await deleteRow(i + 2);
- //     }
- //   });
-      const actualSheetRow = rows.length - i;
-
-tdDelete.addEventListener('click', async () => {
-  const confirmed = confirm("Supprimer cette ligne ?");
-  if (confirmed) {
-    await deleteRow(actualSheetRow);
-  }
-});
-    tr.appendChild(tdDelete);
-
-    tr.addEventListener('click', () => {
-      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-      tr.classList.add('selected');
-    });
-
-    tbody.appendChild(tr);
-  });
-}
-</script>
-<script>
-  // Filtrer en appuyant sur Entrée dans les champs
-  document.addEventListener('DOMContentLoaded', function () {
-    const filterZone = document.getElementById('filter-zone');
-    const filterMonth = document.getElementById('filter-month');
-
-    [filterZone, filterMonth].forEach(input => {
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          filterTable(); // fonction que tu as déjà
-        }
-      });
-    });
-  });
-</script>
-<footer style="
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 0.6em;
-  color: #666;
-  background: #bfdbc4;
-  padding: 8px 0;
-  box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
-  z-index: 10;
-">
-  Développé par Violaine Claron - Mise à jour 08/08/2025
-</footer>
-<script>
- function exportFilteredTableAsPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  let y = 10;
-
-  const zoneFilter = document.getElementById("filter-zone").value;
-  const monthFilter = document.getElementById("filter-month").value;
-
-  doc.setFontSize(14);
-  doc.text("Résultats filtrés - Produits périmés", 10, y);
-  y += 10;
-  doc.setFontSize(10);
-  doc.text(`Zone : ${zoneFilter || "Toutes"}`, 10, y);
-  y += 6;
-  doc.text(`Mois : ${monthFilter || "Tous"}`, 10, y);
-  y += 10;
-
-  const rows = document.querySelectorAll("#data-table tbody tr");
-  rows.forEach((row) => {
-    if (row.style.display === "none") return;
-    const cells = Array.from(row.children).slice(0, 6).map(td => td.textContent.trim());
-    doc.text(cells.join(" | "), 10, y);
-    y += 6;
-    if (y > 280) {
-      doc.addPage();
-      y = 10;
-    }
-  });
-
-  doc.save("resultats_perimes.pdf");
-}
-
-
-
-</script>
-<script>
-  const suggestionList = document.getElementById('filter-zone-suggestions');
-
-  filterInput.addEventListener('input', function () {
-    const val = this.value.toLowerCase();
-    suggestionList.innerHTML = '';
-    if (val.length < 2) {
-      suggestionList.style.display = 'none';
-      return;
-    }
-
-    const matches = zones.filter(z => z.toLowerCase().includes(val));
-    if (matches.length === 0) {
-      suggestionList.style.display = 'none';
-      return;
-    }
-
-    matches.forEach((zone) => {
-      const li = document.createElement('li');
-      li.textContent = zone;
-      li.addEventListener('click', () => {
-        filterInput.value = zone;
-        suggestionList.innerHTML = '';
-        suggestionList.style.display = 'none';
-      });
-      suggestionList.appendChild(li);
-    });
-
-    const rect = filterInput.getBoundingClientRect();
-    suggestionList.style.top = rect.bottom + window.scrollY + 'px';
-    suggestionList.style.left = rect.left + window.scrollX + 'px';
-    suggestionList.style.width = filterInput.offsetWidth + 'px';
-    suggestionList.style.display = 'block';
-  });
-
-  document.addEventListener('click', function (e) {
-    if (!filterInput.contains(e.target) && !suggestionList.contains(e.target)) {
-      suggestionList.style.display = 'none';
-    }
-  });
-</script>
-<script>
-  async function deleteRow(rowIndex) {
-    try {
-      await gapi.client.sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        resource: {
-          requests: [{
-            deleteDimension: {
-              range: {
-                sheetId: 0,
-                dimension: "ROWS",
-                startIndex: rowIndex - 1,
-                endIndex: rowIndex
-              }
-            }
-          }]
-        }
-      });
-      setStatus("Ligne supprimée avec succès.");
-      loadSheet();
-    } catch (e) {
-      setStatus("Erreur suppression : " + e.message);
-    }
-  }
-</script>
-<script>
- /* if (filterMonthInput) {
-    filterMonthInput.addEventListener('input', function(e) {
-      let val = e.target.value.replace(/[^\d]/g, '');
-      if (val.length > 2) {
-        val = val.slice(0,2) + '/' + val.slice(2,6);
-      }
-      e.target.value = val;
-    });
-  }*/
-
-let currentFocus = -1;
-
-input.addEventListener('keydown', function (e) {
-  const items = list.querySelectorAll("li");
-  if (!items.length) return;
-
-  if (e.key === "ArrowDown") {
-    currentFocus++;
-    if (currentFocus >= items.length) currentFocus = 0;
-    updateActive(items);
-  } else if (e.key === "ArrowUp") {
-    currentFocus--;
-    if (currentFocus < 0) currentFocus = items.length - 1;
-    updateActive(items);
-  } else if (e.key === "Enter") {
-    e.preventDefault();
-    if (currentFocus > -1) {
-      items[currentFocus].click();
-    }
-  }
-});
-
-function updateActive(items) {
-  items.forEach(i => i.classList.remove("active"));
-  if (items[currentFocus]) {
-    items[currentFocus].classList.add("active");
-    items[currentFocus].scrollIntoView({ block: "nearest" });
-  }
-}
-
-</script>
-<script>
-document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
-  window.open("https://docs.google.com/document/d/1zzPXerqNLJfAJFOshI8lk1hOAcXGBd0o/edit?usp=sharing&ouid=101646951122744714292&rtpof=true&sd=true", "_blank");
-});
-</script>
-  <script>
- const dateInputField = document.getElementById('date');
-const dateErrorDiv = document.getElementById('date-error');
-
-dateInputField.addEventListener('blur', () => {
-  const val = dateInputField.value.trim();
-  const parts = val.split('/');
-  if (parts.length !== 2) {
-    dateErrorDiv.style.display = 'block';
-    return;
-  }
-
-  const [mm, yyyy] = parts;
-  const parsedMonth = parseInt(mm, 10);
-  const parsedYear = parseInt(yyyy, 10);
-
-  if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12) {
-    dateErrorDiv.style.display = 'block';
-    return;
-  }
-
-  const enteredDate = new Date(parsedYear, parsedMonth - 1, 1);
-  const now = new Date();
-  now.setHours(0, 0, 0, 0); // pour éviter les bugs d’heure
-
-  if (enteredDate < now) {
-    dateErrorDiv.style.display = 'block';
-  } else {
-    dateErrorDiv.style.display = 'none';
-  }
-});
-
-</script>
- <script>
-    // Collez la fonction showTab ici
-  function showTab(tabId) {
-  const tabs = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => tab.classList.remove('active'));
-
-  const buttons = document.querySelectorAll('#notif-tabs .tab-button');
-  buttons.forEach(button => button.classList.remove('active'));
-
-  document.getElementById(tabId).classList.add('active');
-  document.querySelector(`#notif-tabs .tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
-}
-
-async function loadNotifications() {
-  const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
-  const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    let parts = dateStr.split('-');
-    if (parts.length === 3) {
-      // Format AAAA-MM-JJ
-      return new Date(parts[0], parts[1] - 1, parts[2]);
-    }
-    parts = dateStr.split('/');
-    if (parts.length === 3) {
-      // Format JJ/MM/AAAA
-      return new Date(parts[2], parts[1] - 1, parts[0]);
-    }
-    return null;
   };
 
-  try {
-    // Appel pour la Feuille1 (Trimestre et 2ème mois)
-    const resFeuille1 = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE
+  window.loadGapi = () => {
+    gapi.client.load('sheets', 'v4').then(() => {
+      // Les API sont chargées, on peut maintenant utiliser gapi.client.sheets
+      if (document.getElementById('btn-login')) {
+        document.getElementById('btn-login').style.display = 'none';
+        document.getElementById('operator-form').style.display = 'inline-flex';
+        document.getElementById('entry-form').style.display = 'block';
+      }
+      hideUpdatePopup();
+      fetchData();
     });
-    const dataFeuille1 = (resFeuille1.result.values || []).slice(1);
+  };
 
-    // Appel pour la feuille 'Feuille2' (À enlever)
-    const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE_A_ENLEVER
+  function displayStatus(message, isError = false) {
+    const status = document.getElementById('status');
+    status.textContent = message;
+    status.style.color = isError ? 'red' : '#0a2f51';
+  }
+
+  function hideUpdatePopup() {
+    const overlay = document.getElementById('update-overlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+    }
+  }
+
+  async function fetchData() {
+      displayStatus('Chargement des données...');
+      try {
+          const response = await gapi.client.sheets.spreadsheets.values.get({
+              spreadsheetId: SPREADSHEET_ID,
+              range: 'A:G', // Adjust range if needed
+          });
+          dataFromSheet = response.result.values || [];
+          renderTable(dataFromSheet);
+          extractZonesAndPopulateAutocomplete(dataFromSheet);
+          processNotifications(dataFromSheet);
+          displayStatus(`Données chargées. ${dataFromSheet.length - 1} entrées trouvées.`);
+          // Met à jour le nom de l'opérateur dans la table
+          const operatorName = document.getElementById('operator').value;
+          document.getElementById('operator-form').style.display = 'none';
+      } catch (error) {
+          console.error('Erreur lors du chargement des données:', error);
+          displayStatus('Erreur lors du chargement des données. Vérifiez la console pour plus de détails.', true);
+      }
+  }
+
+  function renderTable(data, tableId = 'data-table') {
+      const tableBody = document.getElementById(tableId).querySelector('tbody');
+      tableBody.innerHTML = ''; // Clear existing data
+      if (data.length <= 1) return; // No data besides header
+
+      // Skip header row for rendering
+      data.slice(1).forEach((row, index) => {
+          const tr = document.createElement('tr');
+          const isSold = row[5] === '1'; // "Vendues" column
+          const isPromo = row[6] === '1'; // "Promo" column
+          if (isSold) {
+              tr.classList.add('ligne-vendue');
+          }
+          tr.dataset.rowIndex = index + 1; // Store original row index (0-based) in a data attribute
+
+          // Use the correct cell value for "Vendues" and "Promo"
+          const venduesValue = isSold ? '✅' : '';
+          const promoValue = isPromo ? '✅' : '';
+
+          tr.innerHTML = `
+            <td contenteditable="true" data-col="0">${row[0]}</td>
+            <td contenteditable="true" data-col="1">${row[1]}</td>
+            <td contenteditable="true" data-col="2">${row[2]}</td>
+            <td contenteditable="true" data-col="3">${row[3]}</td>
+            <td contenteditable="true" data-col="4">${row[4]}</td>
+            <td class="checkbox-cell" data-col="5">${venduesValue}</td>
+            <td class="checkbox-cell" data-col="6">${promoValue}</td>
+            <td><button class="delete-btn" data-row-index="${index + 1}">✖</button></td>
+          `;
+          tableBody.appendChild(tr);
+      });
+  }
+
+  function renderNotificationTables(entries, tabId) {
+      const tableContainer = document.getElementById(tabId);
+      tableContainer.innerHTML = ''; // Clear previous content
+
+      // Group entries by month
+      const groupedByMonth = entries.reduce((acc, entry) => {
+          const monthYear = entry[0]; // Assuming date is in format "MM/YYYY"
+          if (!acc[monthYear]) {
+              acc[monthYear] = [];
+          }
+          acc[monthYear].push(entry);
+          return acc;
+      }, {});
+
+      // Create a table for each month
+      for (const monthYear in groupedByMonth) {
+          const monthEntries = groupedByMonth[monthYear];
+          const [month, year] = monthYear.split('/');
+          const monthName = getMonthName(parseInt(month, 10));
+
+          const table = document.createElement('table');
+          table.setAttribute('aria-label', `Produits périmés en ${monthName} ${year}`);
+          table.classList.add('notif-table');
+          table.innerHTML = `
+              <thead>
+                  <tr>
+                      <th colspan="7" style="text-align: left;">
+                          <h3>Périme en ${monthName} ${year}</h3>
+                      </th>
+                  </tr>
+                  <tr>
+                      <th>Date</th>
+                      <th>Produit</th>
+                      <th>Code</th>
+                      <th>Qté</th>
+                      <th>Zone</th>
+                      <th>Vendues</th>
+                      <th>Promo</th>
+                  </tr>
+              </thead>
+              <tbody></tbody>
+          `;
+          const tbody = table.querySelector('tbody');
+
+          monthEntries.forEach(row => {
+              const tr = document.createElement('tr');
+              const isSold = row[5] === '1'; // "Vendues" column
+              const isPromo = row[6] === '1'; // "Promo" column
+              if (isSold) {
+                  tr.classList.add('ligne-vendue');
+              }
+              const venduesValue = isSold ? '✅' : '';
+              const promoValue = isPromo ? '✅' : '';
+
+              tr.innerHTML = `
+                <td>${row[0]}</td>
+                <td>${row[1]}</td>
+                <td>${row[2]}</td>
+                <td>${row[3]}</td>
+                <td>${row[4]}</td>
+                <td class="checkbox-cell">${venduesValue}</td>
+                <td class="checkbox-cell">${promoValue}</td>
+              `;
+              tbody.appendChild(tr);
+          });
+          tableContainer.appendChild(table);
+      }
+  }
+  
+  function filterTable() {
+    const filterZone = document.getElementById('filter-zone').value.toLowerCase();
+    const filterMonth = document.getElementById('filter-month').value.toLowerCase().replace('/', '');
+    const filterNameCode = document.getElementById('filter-name-code').value.toLowerCase();
+
+    const filteredData = dataFromSheet.filter((row, index) => {
+        // Always include the header row
+        if (index === 0) return true;
+        
+        const rowZone = row[4] ? row[4].toLowerCase() : '';
+        const rowMonthYear = row[0] ? row[0].toLowerCase().replace('/', '') : '';
+        const rowProduct = row[1] ? row[1].toLowerCase() : '';
+        const rowCode = row[2] ? row[2].toLowerCase() : '';
+
+        // Check for empty filters first
+        const zoneMatch = filterZone === '' || rowZone.includes(filterZone);
+        const monthMatch = filterMonth === '' || rowMonthYear.includes(filterMonth);
+        const nameCodeMatch = filterNameCode === '' || rowProduct.includes(filterNameCode) || rowCode.includes(filterNameCode);
+
+        return zoneMatch && monthMatch && nameCodeMatch;
     });
-    const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
+
+    renderTable(filteredData);
+}
+
+  function clearFilter() {
+    document.getElementById('filter-zone').value = '';
+    document.getElementById('filter-month').value = '';
+    document.getElementById('filter-name-code').value = '';
+    renderTable(dataFromSheet);
+  }
+
+  function addEntry(date, product, code, qty, zone) {
+      if (!gapiLoaded) {
+          displayStatus('Erreur: Veuillez vous connecter d\'abord.', true);
+          return;
+      }
+      if (!date || !product || !code || !qty || !zone) {
+          displayStatus('Erreur: Tous les champs sont requis.', true);
+          return;
+      }
+
+      const row = [date, product, code, qty, zone, '0', '0'];
+      const body = {
+          values: [row]
+      };
+      gapi.client.sheets.spreadsheets.values.append({
+          spreadsheetId: SPREADSHEET_ID,
+          range: 'A:G',
+          valueInputOption: 'USER_ENTERED',
+          resource: body,
+      }).then((response) => {
+          displayStatus(`Ligne ajoutée pour ${product}.`);
+          fetchData(); // Reload table after adding
+          document.getElementById('entry-form').reset();
+      }, (reason) => {
+          console.error('Erreur lors de l\'ajout de la ligne:', reason);
+          displayStatus('Erreur lors de l\'ajout de la ligne.', true);
+      });
+  }
+
+  function deleteEntry(rowIndex) {
+      if (!gapiLoaded) {
+          displayStatus('Erreur: Veuillez vous connecter d\'abord.', true);
+          return;
+      }
+      const rangeToDelete = `A${rowIndex + 1}:G${rowIndex + 1}`;
+      const request = {
+          spreadsheetId: SPREADSHEET_ID,
+          resource: {
+              requests: [{
+                  deleteDimension: {
+                      range: {
+                          sheetId: 0, // Assuming first sheet
+                          dimension: 'ROWS',
+                          startIndex: rowIndex,
+                          endIndex: rowIndex + 1,
+                      }
+                  }
+              }]
+          }
+      };
+
+      gapi.client.sheets.spreadsheets.batchUpdate(request).then((response) => {
+          displayStatus(`Ligne ${rowIndex} supprimée.`);
+          fetchData(); // Reload table after deleting
+      }, (reason) => {
+          console.error('Erreur lors de la suppression de la ligne:', reason);
+          displayStatus('Erreur lors de la suppression de la ligne.', true);
+      });
+  }
+
+  function updateEntry(rowIndex, colIndex, newValue) {
+    if (!gapiLoaded) return;
+    
+    // Validate date format
+    if (colIndex === 0) {
+        if (!/^\d{2}\/\d{4}$/.test(newValue)) {
+            displayStatus('Erreur: Format de date incorrect (MM/YYYY).', true);
+            return;
+        }
+    }
+    
+    // Validate code format
+    if (colIndex === 2) {
+        if (!/^\d{6}$/.test(newValue)) {
+            displayStatus('Erreur: Le code doit être composé de 6 chiffres.', true);
+            return;
+        }
+    }
+
+    const range = `R${rowIndex + 1}C${colIndex + 1}`;
+    gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: range,
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+            values: [
+                [newValue]
+            ]
+        },
+    }).then((response) => {
+        displayStatus(`Cellule mise à jour.`);
+        fetchData(); // Reload data after update
+    }, (reason) => {
+        console.error('Erreur lors de la mise à jour de la cellule:', reason);
+        displayStatus('Erreur lors de la mise à jour de la cellule.', true);
+    });
+}
+  
+  function extractZonesAndPopulateAutocomplete(data) {
+    const zonesSet = new Set();
+    data.slice(1).forEach(row => {
+        if (row[4]) {
+            zonesSet.add(row[4].trim().toLowerCase());
+        }
+    });
+    // Convert to array and sort
+    const sortedZones = Array.from(zonesSet).sort();
+
+    const zoneInput = document.getElementById('zone');
+    const zoneSuggestions = document.getElementById('zone-suggestions');
+    const filterZoneInput = document.getElementById('filter-zone');
+    const filterZoneSuggestions = document.getElementById('filter-zone-suggestions');
+
+    // Autocomplete for add form
+    setupAutocomplete(zoneInput, zoneSuggestions, sortedZones);
+
+    // Autocomplete for filter
+    setupAutocomplete(filterZoneInput, filterZoneSuggestions, sortedZones);
+  }
+
+  function setupAutocomplete(inputElement, suggestionsListElement, dataList) {
+    inputElement.addEventListener('input', () => {
+        const value = inputElement.value.toLowerCase().trim();
+        suggestionsListElement.innerHTML = '';
+        suggestionsListElement.style.display = value ? 'block' : 'none';
+
+        if (value) {
+            const filteredData = dataList.filter(item => item.startsWith(value));
+            filteredData.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.addEventListener('click', () => {
+                    inputElement.value = item;
+                    suggestionsListElement.style.display = 'none';
+                });
+                suggestionsListElement.appendChild(li);
+            });
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!inputElement.contains(e.target) && !suggestionsListElement.contains(e.target)) {
+            suggestionsListElement.style.display = 'none';
+        }
+    });
+  }
+  
+  function processNotifications(data) {
+    const trimestreContent = document.getElementById('trimestre');
+    const secondMonthContent = document.getElementById('2nd-month');
+    const currentMonthContent = document.getElementById('current-month');
+    const notifBadge = document.getElementById('notif-badge');
+
+    const trimestreEntries = [];
+    const secondMonthEntries = [];
+    const currentMonthEntries = [];
 
     const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+    const currentDay = now.getDate();
+    const currentMonthNumber = now.getMonth();
+    const currentYearNumber = now.getFullYear();
 
-    const grouped = {
-      'trimestre': {},
-      '2nd-month': [],
-      'current-month': []
-    };
+    data.slice(1).forEach(row => {
+        if (row[0] && row[5] !== '1') {
+            const [monthStr, yearStr] = row[0].split('/');
+            const month = parseInt(monthStr, 10) - 1; // 0-indexed month
+            const year = parseInt(yearStr, 10);
+            
+            if (isNaN(month) || isNaN(year)) return;
 
-    // Logique pour le mois précédent ("À enlever")
-    const prevMonth = (currentMonth - 1 + 12) % 12;
-    const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+            const productDate = new Date(year, month, 1);
+            
+            // Trimestre (3 prochains mois, du 15 au 14)
+            let trimestreStartDate = new Date(currentYearNumber, currentMonthNumber, 15);
+            let trimestreEndDate = new Date(trimestreStartDate);
+            trimestreEndDate.setMonth(trimestreEndDate.getMonth() + 3);
+            trimestreEndDate.setDate(14);
+            
+            // Logique pour le 15 du mois au 14 du mois suivant
+            if (currentDay > 14) {
+                trimestreStartDate = new Date(currentYearNumber, currentMonthNumber, 15);
+                trimestreEndDate = new Date(currentYearNumber, currentMonthNumber + 4, 14);
+            } else {
+                trimestreStartDate = new Date(currentYearNumber, currentMonthNumber - 1, 15);
+                trimestreEndDate = new Date(currentYearNumber, currentMonthNumber + 3, 14);
+            }
+            
+            if (productDate >= trimestreStartDate && productDate <= trimestreEndDate) {
+                trimestreEntries.push(row);
+            }
 
-    dataFeuille2.forEach(row => {
-      const dateStr = row[1];
-      const d = parseDate(dateStr);
-      if (!d) return;
+            // 2ème mois du trimestre (mois central du trimestre)
+            let secondMonthStartDate = new Date(currentYearNumber, currentMonthNumber + 1, 15);
+            let secondMonthEndDate = new Date(currentYearNumber, currentMonthNumber + 2, 14);
 
-      const rowMonth = d.getMonth();
-      const rowYear = d.getFullYear();
-
-      if (rowYear === prevMonthYear && rowMonth === prevMonth) {
-        grouped['current-month'].push(row);
-      }
-    });
-
-    // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
-    dataFeuille1.forEach(row => {
-      const dateStr = row[1];
-      const d = parseDate(dateStr);
-      if (!d) return;
-
-      const rowMonth = d.getMonth();
-      const rowYear = d.getFullYear();
-      const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
-
-      // Logique pour le trimestre (3 mois suivants à partir d'aujourd'hui)
-      const nextMonth1 = (currentMonth + 1) % 12;
-      const nextMonth2 = (currentMonth + 2) % 12;
-      const nextMonth3 = (currentMonth + 3) % 12;
-
-      const nextYear1 = (currentMonth === 11) ? currentYear + 1 : currentYear;
-      const nextYear2 = (currentMonth >= 11) ? currentYear + 1 : currentYear;
-      const nextYear3 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
-
-      if ((rowMonth === nextMonth1 && rowYear === nextYear1) ||
-          (rowMonth === nextMonth2 && rowYear === nextYear2) ||
-          (rowMonth === nextMonth3 && rowYear === nextYear3)) {
-        if (!grouped['trimestre'][ym]) {
-          grouped['trimestre'][ym] = [];
+            if (currentDay > 14) {
+                secondMonthStartDate = new Date(currentYearNumber, currentMonthNumber + 2, 15);
+                secondMonthEndDate = new Date(currentYearNumber, currentMonthNumber + 3, 14);
+            }
+            
+            if (productDate >= secondMonthStartDate && productDate <= secondMonthEndDate) {
+                secondMonthEntries.push(row);
+            }
+            
+            // À retirer (périmés le mois précédent)
+            let previousMonthDate = new Date();
+            previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
+            
+            if (productDate.getMonth() === previousMonthDate.getMonth() && productDate.getFullYear() === previousMonthDate.getFullYear()) {
+                currentMonthEntries.push(row);
+            }
         }
-        grouped['trimestre'][ym].push(row);
-      }
-
-      // Logique pour le "2ème mois" (mois + 2)
-      const monthPlus2 = (currentMonth + 2) % 12;
-      const yearPlus2 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
-      if (rowYear === yearPlus2 && rowMonth === monthPlus2) {
-        grouped['2nd-month'].push(row);
-      }
     });
 
-    const formatMonthYear = (d) => {
-      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-      return months[d.getMonth()] + ' ' + d.getFullYear();
-    };
+    renderNotificationTables(trimestreEntries, 'trimestre');
+    renderNotificationTables(secondMonthEntries, '2nd-month');
+    renderNotificationTables(currentMonthEntries, 'current-month');
 
-    const renderTable = (rows) => {
-      if (rows.length === 0) {
-        return '<p>Aucun produit périmé pour ce mois.</p>';
-      }
-      rows.sort((a, b) => (a[5] || '').localeCompare(b[5] || ''));
-
-      let tableHtml = `<table>
-          <thead>
-              <tr>
-                  <th>Date</th><th>Nom</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th>
-              </tr>
-          </thead>
-          <tbody>`;
-
-      rows.forEach(row => {
-        const qte = parseInt(row[4] || '0');
-        const vendu = parseInt(row[6] || '0');
-        const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
-        tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
-        [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
-          tableHtml += `<td>${row[ci] || ''}</td>`;
-        });
-        tableHtml += '</tr>';
-      });
-      tableHtml += '</tbody></table>';
-      return tableHtml;
-    };
-
-    // Rendu pour le trimestre
-    let trimestreHtml = '';
-    const sortedTrimestreMonths = Object.keys(grouped['trimestre']).sort();
-    if (sortedTrimestreMonths.length === 0) {
-      trimestreHtml = '<p>Aucun produit périmé pour le trimestre.</p>';
+    // Gère le badge de notification
+    if (trimestreEntries.length > 0) {
+        notifBadge.style.display = 'inline-block';
     } else {
-      sortedTrimestreMonths.forEach(ym => {
-        const [y, m] = ym.split('-');
-        const d = new Date(y, m - 1, 1);
-        trimestreHtml += `<h3>${formatMonthYear(d)}</h3>`;
-        trimestreHtml += renderTable(grouped['trimestre'][ym]);
+        notifBadge.style.display = 'none';
+    }
+  }
+
+  function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnAdd = document.getElementById('btn-add');
+    const form = document.getElementById('entry-form');
+    const tableBody = document.getElementById('data-table').querySelector('tbody');
+    const btnNotif = document.getElementById('btn-notif');
+    const notifPopup = document.getElementById('notification-popup');
+    const closeNotif = document.getElementById('close-notif');
+    const printNotif = document.getElementById('print-notif');
+    const btnPrintTable = document.getElementById('btn-print-table');
+
+    // Bouton de connexion et formulaire opérateur
+    const operatorInput = document.getElementById('operator');
+    const btnConfirmOperator = document.getElementById('btn-confirm-operator');
+    const btnLogin = document.getElementById('btn-login');
+    const btnLogout = document.getElementById('btn-logout');
+
+    if (btnLogin) {
+        btnLogin.addEventListener('click', () => {
+            google.accounts.oauth2.initTokenClient({
+                client_id: '109965306634-6i5c35g9s16p649q1032g58189680a6b.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.metadata.readonly',
+                callback: (response) => {
+                    if (response.access_token) {
+                        gapiLoaded = true;
+                        gapi.client.setToken(response);
+                        loadGapi();
+                        // Change UI
+                        btnLogin.style.display = 'none';
+                        document.getElementById('operator-form').style.display = 'inline-flex';
+                        btnLogout.style.display = 'inline-block';
+                        hideUpdatePopup();
+                    }
+                },
+            }).requestAccessToken();
+        });
+    }
+
+    if (btnConfirmOperator) {
+        btnConfirmOperator.addEventListener('click', () => {
+            const operatorName = operatorInput.value.trim();
+            if (operatorName) {
+                document.getElementById('entry-form').style.display = 'block';
+                document.getElementById('operator-form').style.display = 'none';
+                displayStatus(`Bienvenue, ${operatorName}.`);
+                fetchData();
+            } else {
+                alert('Veuillez entrer votre nom.');
+            }
+        });
+    }
+
+    if (operatorInput) {
+      operatorInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          btnConfirmOperator.click();
+        }
       });
     }
-    document.getElementById('trimestre').innerHTML = trimestreHtml;
 
-    // Rendu pour le 2ème mois (mois + 2)
-    const monthPlus2Date = new Date(now.getFullYear(), now.getMonth() + 2);
-    const monthPlus2Title = formatMonthYear(monthPlus2Date);
-    document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus2Title}</h3>` + renderTable(grouped['2nd-month']);
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
+                gapiLoaded = false;
+                location.reload();
+            });
+        });
+    }
 
-    // Rendu pour le mois précédent ("À enlever")
-    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
-    const prevMonthTitle = formatMonthYear(prevMonthDate);
-    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
+    // Gestion du bouton Ajouter
+    if (btnAdd) {
+        btnAdd.addEventListener('click', () => {
+            const date = document.getElementById('date').value.trim();
+            const product = document.getElementById('product').value.trim();
+            const code = document.getElementById('code').value.trim();
+            const qty = document.getElementById('qty').value.trim();
+            const zone = document.getElementById('zone').value.trim();
 
-  } catch (e) {
-    console.error("Erreur chargement notifications :", e);
-    const notifContent = document.getElementById('notification-popup').querySelector('.content');
-    notifContent.innerHTML = `<p>Erreur chargement notifications : ${e.message}</p>`;
-  }
+            if (!/^\d{2}\/\d{4}$/.test(date)) {
+                document.getElementById('date-error').style.display = 'block';
+                setTimeout(() => document.getElementById('date-error').style.display = 'none', 3000);
+                return;
+            }
+
+            addEntry(date, product, code, qty, zone);
+        });
+    }
+
+    // Gestion de la pop-up de notification
+    if (btnNotif) {
+        btnNotif.addEventListener('click', () => {
+            notifPopup.style.display = 'flex';
+        });
+    }
+    if (closeNotif) {
+        closeNotif.addEventListener('click', () => {
+            notifPopup.style.display = 'none';
+        });
+    }
+    window.showTab = showTab; // Expose la fonction pour qu'elle soit accessible via l'attribut onclick
+
+    // Gestion de l'édition et de la suppression dans le tableau
+    tableBody.addEventListener('input', (e) => {
+        const cell = e.target;
+        if (cell.tagName === 'TD' && cell.hasAttribute('contenteditable')) {
+            const rowIndex = parseInt(cell.parentElement.dataset.rowIndex, 10);
+            const colIndex = parseInt(cell.dataset.col, 10);
+            const newValue = cell.textContent;
+            updateEntry(rowIndex, colIndex, newValue);
+        }
+    });
+
+    tableBody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-btn')) {
+            const rowIndex = parseInt(e.target.dataset.rowIndex, 10);
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette ligne?')) {
+                deleteEntry(rowIndex);
+            }
+        }
+        // Gère les cases à cocher "vendues" et "promo"
+        const cell = e.target;
+        if (cell.tagName === 'TD' && cell.classList.contains('checkbox-cell')) {
+            const rowIndex = parseInt(cell.parentElement.dataset.rowIndex, 10);
+            const colIndex = parseInt(cell.dataset.col, 10);
+            const isChecked = cell.textContent.trim() === '✅';
+            const newValue = isChecked ? '' : '✅';
+            cell.textContent = newValue;
+            updateEntry(rowIndex, colIndex, isChecked ? '0' : '1');
+        }
+    });
+    
+    // Fonction d'impression de la table
+    function printTable() {
+    const tableToPrint = document.getElementById('data-table');
+    const tableToPrintClone = tableToPrint.cloneNode(true);
+    const originalTable = document.getElementById('data-table');
+    
+    // Récupérer les filtres actifs
+    const filterZone = document.getElementById('filter-zone').value;
+    const filterMonth = document.getElementById('filter-month').value;
+    const filterNameCode = document.getElementById('filter-name-code').value;
+
+    let filtersTitle = '';
+    if (filterZone || filterMonth || filterNameCode) {
+        let filters = [];
+        if (filterZone) filters.push(`Zone: ${filterZone}`);
+        if (filterMonth) filters.push(`Date: ${filterMonth}`);
+        if (filterNameCode) filters.push(`Nom/Code: ${filterNameCode}`);
+        filtersTitle = `Filtres actifs: ${filters.join(', ')}`;
+    }
+
+    const doc = new jspdf.jsPDF();
+
+    // Ajouter le titre et les filtres
+    doc.setFontSize(18);
+    doc.text('Rapport des Produits Périmés', 14, 20);
+    doc.setFontSize(12);
+    if (filtersTitle) {
+        doc.text(filtersTitle, 14, 28);
+    }
+
+    // Créer une table HTML à partir du clone
+    const tableHTML = tableToPrintClone.outerHTML;
+
+    doc.autoTable({
+        html: tableHTML,
+        startY: 35, // Position de départ de la table
+        theme: 'grid',
+        headStyles: { fillColor: [188, 215, 237] }, // Bleu clair
+        styles: { fontSize: 8, cellPadding: 3 },
+        columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 50 },
+            2: { cellWidth: 20 },
+            3: { cellWidth: 15 },
+            4: { cellWidth: 20 },
+            5: { cellWidth: 15 },
+            6: { cellWidth: 15 },
+            7: { cellWidth: 15 }
+        },
+        didDrawPage: function (data) {
+            // Footer
+            let str = "Page " + doc.internal.getNumberOfPages();
+            doc.setFontSize(10);
+            let pageSize = doc.internal.pageSize;
+            let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+            doc.text(str, data.settings.margin.left, pageHeight - 10);
+        }
+    });
+
+    doc.save('Rapport_Perimes.pdf');
 }
-</script>
-  <script>
-  document.getElementById('btn-login').addEventListener('click', () => {
-    const overlay = document.getElementById('update-overlay');
-    if (overlay) overlay.style.display = 'none';
+    
+    if (btnPrintTable) {
+        btnPrintTable.addEventListener('click', printTable);
+    }
+    
+    // Gestion de l'impression de la notification
+    if (printNotif) {
+      printNotif.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
   });
 </script>
 </body>
 </html>
-
