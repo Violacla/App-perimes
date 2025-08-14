@@ -853,7 +853,11 @@ filterTable();
   document.getElementById('btn-confirm-operator').onclick = () => {
   const op = document.getElementById('operator').value.trim();
   if (!op) return alert("Entrez votre code opérateur");
-
+    
+ if (!window.tokenClient) {
+    alert("Connexion Google pas encore prête, réessayez dans 1 seconde.");
+    return;
+  }
   operatorName = op;
   tokenClient.requestAccessToken(); // Connexion Google
 };
