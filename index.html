@@ -547,7 +547,7 @@ Déconnexion
 <body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 15/08/2025</h2>
+    <h2>Mise à jour - 14/08/2025</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
       <li>1. Le bouton "Suivi Périmés" remplace "Notification" avec 3 onglets : <br>
@@ -805,52 +805,35 @@ filterTable();
     maybeEnableButtons();
   }
 
- function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: (tokenResponse) => {
-        if (tokenResponse && tokenResponse.access_token) {
-          accessToken = tokenResponse.access_token;
-          gapi.client.setToken(tokenResponse);
-          document.getElementById('operator-form').style.display = 'none';
-          document.getElementById('entry-form').style.display = 'block';
-          document.getElementById('btn-logout').style.display = 'inline-block';
-          setStatus(`Bienvenue, ${operatorName} ! Chargement des données...`);
-          loadSheet();
-        } else {
-          setStatus('Erreur de connexion.');
-        }
-      },
-    });
-    gisInited = true;
-    maybeEnableButtons();
-  }
+  function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: (tokenResponse) => {
+  accessToken = tokenResponse.access_token;
+  document.getElementById('operator-form').style.display = 'inline-flex';
+  document.getElementById('btn-login').style.display = 'none';
+  setStatus('Connecté. Choisissez un opérateur.');
+  document.getElementById('operator').focus(); // 👈 focus clavier automatique
+},
 
-function maybeEnableButtons() {
-    if (gapiInited && gisInited) {
-      document.getElementById('btn-login').style.display = 'none';
-      document.getElementById('operator-form').style.display = 'inline-flex';
-    }
-  }
+    });
+    gisInited = true;
+    maybeEnableButtons();
+  }
+
+  function maybeEnableButtons() {
+    if (gapiInited && gisInited) {
+      document.getElementById('btn-login').style.display = 'inline-block';
+    }
+  }
 
   function setStatus(msg) {
     document.getElementById('status').textContent = msg;
   }
 
- // Le bouton de connexion initial est masqué, donc ce gestionnaire est inutile.
-  // document.getElementById('btn-login').onclick = () => {
-  //   tokenClient.requestAccessToken();
-  // };
-
-  document.getElementById('btn-confirm-operator').onclick = () => {
-    const op = document.getElementById('operator').value;
-    if (!op) return alert("Choisir un opérateur");
-    operatorName = op;
-    // C'est ici que l'on déclenche la connexion Google après avoir validé l'opérateur
+  document.getElementById('btn-login').onclick = () => {
     tokenClient.requestAccessToken();
-    // Efface tout message de statut précédent
-    clearStatus();
   };
 
   document.getElementById('btn-logout').onclick = () => {
@@ -863,7 +846,15 @@ function maybeEnableButtons() {
     setStatus('Déconnecté.');
   };
 
-  
+  document.getElementById('btn-confirm-operator').onclick = () => {
+    const op = document.getElementById('operator').value;
+    if (!op) return alert("Choisir un opérateur");
+    operatorName = op;
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    document.getElementById('entry-form').style.display = 'block';
+    loadSheet();
+  };
 
   document.getElementById('btn-add').onclick = async () => {
     if(!operatorName) {
@@ -1099,11 +1090,7 @@ function formatMonthYear(ym) {
   window.onload = () => {
     gapiLoaded();
     gisLoaded();
-  };
-  function clearStatus() {
-    document.getElementById('status').textContent = '';
-  }
-</script>
+  };</script>
 <script>
 if (document.getElementById('btn-history')) {
   document.getElementById('btn-history').addEventListener('click', async () => {
