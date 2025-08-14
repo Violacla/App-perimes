@@ -811,7 +811,54 @@ Déconnexion
       setStatus("Erreur de chargement : " + e.message);
     }
   }
+// Fonction pour ajouter un produit à la feuille de calcul
+async function addProduct() {
+    document.getElementById('status').textContent = 'Ajout en cours...';
+    
+    // Récupérer les valeurs des champs du formulaire
+    const code = document.getElementById("code").value;
+    const nom = document.getElementById("nom").value;
+    const zone = document.getElementById("zone").value;
+    const prix = document.getElementById("prix").value;
+    const quantite = document.getElementById("quantite").value;
+    const date = document.getElementById("date").value;
+    const promo = document.getElementById("promo").value;
+    const remarque = document.getElementById("remarque").value;
 
+    // Validation simple pour s'assurer que les champs obligatoires ne sont pas vides
+    if (!code || !nom || !prix) {
+        document.getElementById('status').textContent = 'Erreur : Le code, le nom et le prix sont obligatoires.';
+        return;
+    }
+
+    // Créer la ligne de données à envoyer
+    const newRow = ['', date, nom, code, quantite, zone, prix, promo, '', remarque];
+
+    try {
+        await gapi.client.sheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'Feuille4!A:J', // Range où ajouter les données
+            valueInputOption: 'RAW',
+            resource: { values: [newRow] }
+        });
+
+        // Vider les champs du formulaire après un ajout réussi
+        document.getElementById("code").value = "";
+        document.getElementById("nom").value = "";
+        document.getElementById("zone").value = "";
+        document.getElementById("prix").value = "";
+        document.getElementById("quantite").value = "";
+        document.getElementById("date").value = "";
+        document.getElementById("promo").value = "";
+        document.getElementById("remarque").value = "";
+
+        document.getElementById('status').textContent = 'Produit ajouté avec succès!';
+        await loadSheet(); // Recharger le tableau pour afficher le nouveau produit
+    } catch (err) {
+        console.error("Erreur lors de l'ajout du produit:", err);
+        document.getElementById('status').textContent = `Erreur lors de l'ajout: ${err.result.error.message}`;
+    }
+}
   // Vide le tableau principal
   function clearTable() {
     const tbody = document.querySelector('#data-table tbody');
