@@ -810,13 +810,13 @@ filterTable();
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
-        accessToken = tokenResponse.access_token;
-        document.getElementById('operator-form').style.display = 'none';
-        document.getElementById('btn-logout').style.display = 'inline-block';
-        document.getElementById('entry-form').style.display = 'block';
-        loadSheet();
-        setStatus('Connecté !');
-      },
+  accessToken = tokenResponse.access_token;
+  document.getElementById('operator-form').style.display = 'inline-flex';
+  document.getElementById('btn-login').style.display = 'none';
+  setStatus('Connecté. Choisissez un opérateur.');
+  document.getElementById('operator').focus(); // 👈 focus clavier automatique
+},
+
     });
     gisInited = true;
     maybeEnableButtons();
@@ -833,15 +833,11 @@ filterTable();
   }
 
   document.getElementById('btn-login').onclick = () => {
-    document.getElementById('btn-login').style.display = 'none';
-    document.getElementById('operator-form').style.display = 'inline-flex';
-    document.getElementById('operator').focus();
-    setStatus('Veuillez choisir un opérateur.');
+    tokenClient.requestAccessToken();
   };
 
   document.getElementById('btn-logout').onclick = () => {
-    accessToken = null;
-    operatorName = null;
+    accessToken = null; operatorName = null;
     document.getElementById('btn-login').style.display = 'inline-block';
     document.getElementById('btn-logout').style.display = 'none';
     document.getElementById('operator-form').style.display = 'none';
@@ -852,11 +848,19 @@ filterTable();
 
   document.getElementById('btn-confirm-operator').onclick = () => {
     const op = document.getElementById('operator').value;
-    if (!op) return alert("Veuillez choisir un opérateur");
+    if (!op) return alert("Choisir un opérateur");
     operatorName = op;
-    // C'est ici que l'on déclenche la connexion Google après avoir validé l'opérateur
-    tokenClient.requestAccessToken();
+    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    document.getElementById('entry-form').style.display = 'block';
+    loadSheet();
   };
+
+  document.getElementById('btn-add').onclick = async () => {
+    if(!operatorName) {
+      alert("Veuillez vous connecter et choisir un opérateur");
+      return;
+    }
 
     let rawDate = document.getElementById('date').value;
     let dateVal = "";
