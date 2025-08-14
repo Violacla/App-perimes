@@ -791,7 +791,7 @@ filterTable();
 </script></body>
 <!-- Notification Popup -->
 <script>
-  const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
   const RANGE = 'Feuille1';
   const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
@@ -810,13 +810,19 @@ filterTable();
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
-  accessToken = tokenResponse.access_token;
-  document.getElementById('operator-form').style.display = 'inline-flex';
-  document.getElementById('btn-login').style.display = 'none';
-  setStatus('Connecté. Choisissez un opérateur.');
-  document.getElementById('operator').focus(); // 👈 focus clavier automatique
-},
-
+        if (tokenResponse && tokenResponse.access_token) {
+          accessToken = tokenResponse.access_token;
+          gapi.client.setToken(tokenResponse);
+          // La connexion est réussie, on cache le formulaire et on charge les données
+          document.getElementById('operator-form').style.display = 'none';
+          document.getElementById('entry-form').style.display = 'block';
+          document.getElementById('btn-logout').style.display = 'inline-block';
+          document.getElementById('status').textContent = `Bienvenue, ${operatorName} ! Chargement des données...`;
+          loadSheet();
+        } else {
+          document.getElementById('status').textContent = 'Erreur de connexion.';
+        }
+      },
     });
     gisInited = true;
     maybeEnableButtons();
@@ -824,7 +830,9 @@ filterTable();
 
   function maybeEnableButtons() {
     if (gapiInited && gisInited) {
-      document.getElementById('btn-login').style.display = 'inline-block';
+      // Masquer le bouton de connexion initial et afficher le formulaire de l'opérateur
+      document.getElementById('btn-login').style.display = 'none';
+      document.getElementById('operator-form').style.display = 'inline-flex';
     }
   }
 
@@ -832,15 +840,15 @@ filterTable();
     document.getElementById('status').textContent = msg;
   }
 
-  document.getElementById('btn-login').onclick = () => {
-    tokenClient.requestAccessToken();
-  };
+  // Le bouton de connexion ne sera plus cliqué. Il est masqué.
+  // document.getElementById('btn-login').onclick = () => { ... };
 
   document.getElementById('btn-logout').onclick = () => {
-    accessToken = null; operatorName = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
+    accessToken = null;
+    operatorName = null;
+    document.getElementById('btn-login').style.display = 'none';
     document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('operator-form').style.display = 'none';
+    document.getElementById('operator-form').style.display = 'inline-flex';
     document.getElementById('entry-form').style.display = 'none';
     clearTable();
     setStatus('Déconnecté.');
@@ -850,17 +858,17 @@ filterTable();
     const op = document.getElementById('operator').value;
     if (!op) return alert("Choisir un opérateur");
     operatorName = op;
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('btn-logout').style.display = 'inline-block';
-    document.getElementById('entry-form').style.display = 'block';
-    loadSheet();
+    // C'est ici que l'on déclenche la connexion Google après avoir validé l'opérateur
+    tokenClient.requestAccessToken();
   };
 
   document.getElementById('btn-add').onclick = async () => {
-    if(!operatorName) {
+    if (!operatorName) {
       alert("Veuillez vous connecter et choisir un opérateur");
       return;
     }
+    // Reste du code pour ajouter une ligne
+  };
 
     let rawDate = document.getElementById('date').value;
     let dateVal = "";
