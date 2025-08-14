@@ -849,6 +849,8 @@ function maybeEnableButtons() {
     operatorName = op;
     // C'est ici que l'on déclenche la connexion Google après avoir validé l'opérateur
     tokenClient.requestAccessToken();
+    // Efface tout message de statut précédent
+    clearStatus();
   };
 
   document.getElementById('btn-logout').onclick = () => {
@@ -1097,7 +1099,11 @@ function formatMonthYear(ym) {
   window.onload = () => {
     gapiLoaded();
     gisLoaded();
-  };</script>
+  };
+  function clearStatus() {
+    document.getElementById('status').textContent = '';
+  }
+</script>
 <script>
 if (document.getElementById('btn-history')) {
   document.getElementById('btn-history').addEventListener('click', async () => {
