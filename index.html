@@ -791,13 +791,16 @@ filterTable();
 </script></body>
 <!-- Notification Popup -->
 <script>
+ // Constantes d'API Google Sheets
   const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
   const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-  const RANGE = 'Feuille1';
+  const RANGE = 'Feuille1'; // Plage par défaut pour les données principales
   const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
   let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
+  let pendingOperatorName = null; // Variable pour stocker le nom de l'opérateur temporairement
 
+  // Initialisation de l'API Google Sheets
   function gapiLoaded() { gapi.load('client', initializeGapiClient); }
   async function initializeGapiClient() {
     await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
@@ -805,56 +808,100 @@ filterTable();
     maybeEnableButtons();
   }
 
+  // Initialisation du client d'authentification Google Identity Services (GIS)
   function gisLoaded() {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (tokenResponse) => {
-  accessToken = tokenResponse.access_token;
-  document.getElementById('operator-form').style.display = 'inline-flex';
-  document.getElementById('btn-login').style.display = 'none';
-  setStatus('Connecté. Choisissez un opérateur.');
-  document.getElementById('operator').focus(); // 👈 focus clavier automatique
-},
-
+        // Cette fonction est appelée APRÈS que l'utilisateur se soit connecté via Google
+        accessToken = tokenResponse.access_token;
+        if (pendingOperatorName) { // Si un nom d'opérateur a été saisi avant la connexion Google
+            operatorName = pendingOperatorName; // On l'assigne comme opérateur final
+            
+            document.getElementById('operator-form').style.display = 'none'; // Cache le formulaire opérateur
+            document.getElementById('btn-logout').style.display = 'inline-block'; // Affiche le bouton déconnexion
+            document.getElementById('entry-form').style.display = 'block'; // Affiche le formulaire d'ajout
+            loadSheet(); // Charge les données principales
+            setStatus(`Connecté en tant que ${operatorName}.`);
+            
+            // Masquer l'overlay de mise à jour après connexion
+            const overlay = document.getElementById('update-overlay');
+            if (overlay) overlay.style.display = 'none';
+        } else {
+            // Cas d'erreur si pendingOperatorName n'est pas défini (ne devrait pas arriver avec le nouveau flux)
+            setStatus('Erreur : Nom d\'opérateur non trouvé après connexion Google.');
+            console.error('Pending operator name was null after successful Google login.');
+        }
+        pendingOperatorName = null; // Réinitialise la variable temporaire
+      },
     });
     gisInited = true;
-    maybeEnableButtons();
+    maybeEnableButtons(); // S'assure que tout est chargé et gère le focus initial
   }
 
+  // Active les fonctionnalités quand les APIs sont chargées
   function maybeEnableButtons() {
     if (gapiInited && gisInited) {
-      document.getElementById('btn-login').style.display = 'inline-block';
+      document.getElementById('operator').focus(); // Met le focus sur le champ opérateur
+      setStatus('Veuillez entrer votre nom d\'opérateur pour vous connecter.');
     }
   }
 
+  // Affiche un message de statut en bas de page
   function setStatus(msg) {
     document.getElementById('status').textContent = msg;
   }
 
-  document.getElementById('btn-login').onclick = () => {
-    tokenClient.requestAccessToken();
-  };
+  // --- Nouvelle fonction pour initier la connexion (opérateur + Google) ---
+  async function initiateGoogleAndOperatorLogin() {
+    const op = document.getElementById('operator').value.trim();
+    if (!op) {
+        alert("Veuillez entrer un nom d'opérateur.");
+        return;
+    }
+    pendingOperatorName = op; // Stocke le nom de l'opérateur temporairement
 
+    try {
+        // Déclenche la requête de jeton Google, ce qui ouvrira la popup de connexion Google si nécessaire
+        await tokenClient.requestAccessToken();
+        setStatus('Connexion Google en cours...'); // Message affiché pendant la connexion Google
+    } catch (error) {
+        console.error("Erreur lors de la requête du token Google:", error);
+        setStatus("Erreur de connexion Google. Veuillez réessayer.");
+        pendingOperatorName = null; // Nettoie le nom temporaire en cas d'erreur
+    }
+  }
+
+  // Gestion des clics sur les boutons de connexion/déconnexion et confirmation opérateur
+  // Le bouton 'btn-login' a été supprimé
   document.getElementById('btn-logout').onclick = () => {
-    accessToken = null; operatorName = null;
-    document.getElementById('btn-login').style.display = 'inline-block';
-    document.getElementById('btn-logout').style.display = 'none';
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('entry-form').style.display = 'none';
-    clearTable();
+    accessToken = null;
+    operatorName = null;
+    pendingOperatorName = null; // Réinitialise également la variable temporaire
+    
+    document.getElementById('operator-form').style.display = 'inline-flex'; // Réaffiche le formulaire opérateur
+    document.getElementById('operator').value = ''; // Efface le nom de l'opérateur
+    document.getElementById('btn-logout').style.display = 'none'; // Cache le bouton déconnexion
+    document.getElementById('entry-form').style.display = 'none'; // Cache le formulaire d'ajout
+    clearTable(); // Vide le tableau principal
     setStatus('Déconnecté.');
+    document.getElementById('operator').focus(); // Remet le focus sur le champ opérateur
   };
 
-  document.getElementById('btn-confirm-operator').onclick = () => {
-    const op = document.getElementById('operator').value;
-    if (!op) return alert("Choisir un opérateur");
-    operatorName = op;
-    document.getElementById('operator-form').style.display = 'none';
-    document.getElementById('btn-logout').style.display = 'inline-block';
-    document.getElementById('entry-form').style.display = 'block';
-    loadSheet();
-  };
+  // Lie le bouton "Valider" à la nouvelle fonction de connexion
+  document.getElementById('btn-confirm-operator').onclick = initiateGoogleAndOperatorLogin;
+
+  // Gère la touche "Entrée" dans le champ opérateur pour déclencher la connexion
+  const operatorInput = document.getElementById('operator');
+  if (operatorInput) {
+    operatorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        initiateGoogleAndOperatorLogin();
+      }
+    });
+  }
 
   document.getElementById('btn-add').onclick = async () => {
     if(!operatorName) {
