@@ -1545,14 +1545,12 @@ async function loadNotifications() {
   };
 
   try {
-    // Appel pour la Feuille1 (Trimestre et 2ème mois)
     const resFeuille1 = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE
     });
     const dataFeuille1 = (resFeuille1.result.values || []).slice(1);
 
-    // Appel pour la feuille 'Feuille2' (À enlever)
     const resFeuille2 = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE_A_ENLEVER
@@ -1560,8 +1558,9 @@ async function loadNotifications() {
     const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
 
     const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+    const currentDay = now.getDate();
+    const currentMonthNumber = now.getMonth();
+    const currentYearNumber = now.getFullYear();
 
     const grouped = {
       'trimestre': {},
@@ -1570,8 +1569,8 @@ async function loadNotifications() {
     };
 
     // Logique pour le mois précédent ("À enlever")
-    const prevMonth = (currentMonth - 1 + 12) % 12;
-    const prevMonthYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+    const prevMonth = (currentMonthNumber - 1 + 12) % 12;
+    const prevMonthYear = (currentMonthNumber === 0) ? currentYearNumber - 1 : currentYearNumber;
 
     dataFeuille2.forEach(row => {
       const dateStr = row[1];
@@ -1596,28 +1595,39 @@ async function loadNotifications() {
       const rowYear = d.getFullYear();
       const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
 
-      // Logique pour le trimestre (3 mois suivants à partir d'aujourd'hui)
-      const nextMonth1 = (currentMonth + 1) % 12;
-      const nextMonth2 = (currentMonth + 2) % 12;
-      const nextMonth3 = (currentMonth + 3) % 12;
-
-      const nextYear1 = (currentMonth === 11) ? currentYear + 1 : currentYear;
-      const nextYear2 = (currentMonth >= 11) ? currentYear + 1 : currentYear;
-      const nextYear3 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
-
-      if ((rowMonth === nextMonth1 && rowYear === nextYear1) ||
-          (rowMonth === nextMonth2 && rowYear === nextYear2) ||
-          (rowMonth === nextMonth3 && rowYear === nextYear3)) {
+      // Trimestre (3 prochains mois, du 15 au 14)
+      let trimestreStartDate = new Date(currentYearNumber, currentMonthNumber, 15);
+      let trimestreEndDate = new Date(trimestreStartDate);
+      trimestreEndDate.setMonth(trimestreEndDate.getMonth() + 3);
+      trimestreEndDate.setDate(14);
+      
+      if (currentDay > 14) {
+          trimestreStartDate = new Date(currentYearNumber, currentMonthNumber, 15);
+          trimestreEndDate = new Date(currentYearNumber, currentMonthNumber + 4, 14);
+      } else {
+          trimestreStartDate = new Date(currentYearNumber, currentMonthNumber - 1, 15);
+          trimestreEndDate = new Date(currentYearNumber, currentMonthNumber + 3, 14);
+      }
+      
+      if ((d > trimestreStartDate && d <= trimestreEndDate) || 
+          (d.getFullYear() === trimestreStartDate.getFullYear() && d.getMonth() === trimestreStartDate.getMonth() && d.getDate() >= trimestreStartDate.getDate())) {
         if (!grouped['trimestre'][ym]) {
           grouped['trimestre'][ym] = [];
         }
         grouped['trimestre'][ym].push(row);
       }
 
-      // Logique pour le "2ème mois" (mois + 2)
-      const monthPlus2 = (currentMonth + 2) % 12;
-      const yearPlus2 = (currentMonth >= 10) ? currentYear + 1 : currentYear;
-      if (rowYear === yearPlus2 && rowMonth === monthPlus2) {
+      // 2ème mois du trimestre (mois central du trimestre)
+      let secondMonthStartDate = new Date(currentYearNumber, currentMonthNumber + 1, 15);
+      let secondMonthEndDate = new Date(currentYearNumber, currentMonthNumber + 2, 14);
+
+      if (currentDay > 14) {
+          secondMonthStartDate = new Date(currentYearNumber, currentMonthNumber + 2, 15);
+          secondMonthEndDate = new Date(currentYearNumber, currentMonthNumber + 3, 14);
+      }
+
+      if ((d > secondMonthStartDate && d <= secondMonthEndDate) ||
+          (d.getFullYear() === secondMonthStartDate.getFullYear() && d.getMonth() === secondMonthStartDate.getMonth() && d.getDate() >= secondMonthStartDate.getDate())) {
         grouped['2nd-month'].push(row);
       }
     });
@@ -1671,9 +1681,8 @@ async function loadNotifications() {
     document.getElementById('trimestre').innerHTML = trimestreHtml;
 
     // Rendu pour le 2ème mois (mois + 2)
-    const monthPlus2Date = new Date(now.getFullYear(), now.getMonth() + 2);
-    const monthPlus2Title = formatMonthYear(monthPlus2Date);
-    document.getElementById('2nd-month').innerHTML = `<h3>${monthPlus2Title}</h3>` + renderTable(grouped['2nd-month']);
+    const secondMonthTitleDate = new Date(currentYearNumber, currentMonthNumber + (currentDay > 14 ? 2 : 1));
+    document.getElementById('2nd-month').innerHTML = `<h3>${formatMonthYear(secondMonthTitleDate)}</h3>` + renderTable(grouped['2nd-month']);
 
     // Rendu pour le mois précédent ("À enlever")
     const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
