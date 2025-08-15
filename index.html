@@ -1704,27 +1704,32 @@ async function loadNotifications() {
       const ym = `${rowYear}-${String(rowMonth + 1).padStart(2, '0')}`;
 
       // Trimestre (3 prochains mois, du 15 au 14)
-      let trimestreStartDate = new Date(currentYearNumber, currentMonthNumber, 15);
-      let trimestreEndDate = new Date(trimestreStartDate);
-      trimestreEndDate.setMonth(trimestreEndDate.getMonth() + 3);
-      trimestreEndDate.setDate(14);
-      
-      if (currentDay > 14) {
-          trimestreStartDate = new Date(currentYearNumber, currentMonthNumber, 15);
-          trimestreEndDate = new Date(currentYearNumber, currentMonthNumber + 4, 14);
-      } else {
-          trimestreStartDate = new Date(currentYearNumber, currentMonthNumber - 1, 15);
-          trimestreEndDate = new Date(currentYearNumber, currentMonthNumber + 3, 14);
-      }
-      
-      if ((d > trimestreStartDate && d <= trimestreEndDate) || 
-          (d.getFullYear() === trimestreStartDate.getFullYear() && d.getMonth() === trimestreStartDate.getMonth() && d.getDate() >= trimestreStartDate.getDate())) {
-        if (!grouped['trimestre'][ym]) {
-          grouped['trimestre'][ym] = [];
-        }
-        grouped['trimestre'][ym].push(row);
-      }
+     let startMonthOffset = (currentDay >= 15) ? 1 : 0;
+let startYear = currentYearNumber;
+let startMonth = currentMonthNumber + startMonthOffset;
 
+if (startMonth > 11) {
+    startMonth -= 12;
+    startYear++;
+}
+
+const firstMonth = new Date(startYear, startMonth, 1);
+const secondMonth = new Date(startYear, startMonth + 1, 1);
+const thirdMonth = new Date(startYear, startMonth + 2, 1);
+
+const monthsToInclude = [
+    firstMonth.getFullYear() + '-' + String(firstMonth.getMonth() + 1).padStart(2, '0'),
+    secondMonth.getFullYear() + '-' + String(secondMonth.getMonth() + 1).padStart(2, '0'),
+    thirdMonth.getFullYear() + '-' + String(thirdMonth.getMonth() + 1).padStart(2, '0')
+];
+
+// ... et dans la boucle dataFeuille1.forEach :
+if (monthsToInclude.includes(ym)) {
+  if (!grouped['trimestre'][ym]) {
+    grouped['trimestre'][ym] = [];
+  }
+  grouped['trimestre'][ym].push(row);
+}
       // 2ème mois du trimestre (mois central du trimestre)
       let secondMonthStartDate = new Date(currentYearNumber, currentMonthNumber + 1, 15);
       let secondMonthEndDate = new Date(currentYearNumber, currentMonthNumber + 2, 14);
