@@ -1041,13 +1041,15 @@ dateInput.focus();
   // Load sheet data, exclude operator from table display
   async function loadSheet() {
     try {
-      const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
-      const rows = res.result.values || [];
-      renderTable(rows);
+        const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
+        const rows = res.result.values || [];
+        renderTable(rows);
     } catch (e) {
-      setStatus("Erreur de chargement : " + e.message);
+        setStatus("Erreur de chargement : " + e.message);
     }
-  }
+    // Une fois la feuille chargée, on met à jour les mois de la notification
+    updateNotificationMonths();
+}
 
   function clearTable() {
     const tbody = document.querySelector('#data-table tbody');
