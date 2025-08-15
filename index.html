@@ -1039,7 +1039,7 @@ dateInput.focus();
   };
 
   // Load sheet data, exclude operator from table display
-  async function loadSheet() {
+ async function loadSheet() {
     try {
         const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
         const rows = res.result.values || [];
@@ -1047,8 +1047,45 @@ dateInput.focus();
     } catch (e) {
         setStatus("Erreur de chargement : " + e.message);
     }
-    // Une fois la feuille chargée, on met à jour les mois de la notification
+    // Appel de la fonction pour mettre à jour les mois après le chargement des données
     updateNotificationMonths();
+}
+
+// Fonction pour mettre à jour les mois dans les onglets de la notification
+function updateNotificationMonths() {
+    const today = new Date();
+    const dayOfMonth = today.getDate();
+    let startMonthIndex = today.getMonth();
+
+    // Logique du 15 du mois
+    if (dayOfMonth >= 15) {
+        startMonthIndex = (startMonthIndex + 1) % 12;
+    }
+
+    const monthNames = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+    const trimestreTab = document.getElementById('trimestre');
+    if (trimestreTab) {
+      const trimestreMonths = [
+        monthNames[startMonthIndex],
+        monthNames[(startMonthIndex + 1) % 12],
+        monthNames[(startMonthIndex + 2) % 12]
+      ];
+      trimestreTab.innerHTML = `<h3>Trimestre (${trimestreMonths.join(', ')})</h3>`;
+    }
+
+    const secondMonthTab = document.getElementById('2nd-month');
+    if (secondMonthTab) {
+      const secondMonth = monthNames[(startMonthIndex + 1) % 12];
+      secondMonthTab.innerHTML = `<h3>2ème mois (${secondMonth})</h3>`;
+    }
+
+    const currentMonthTab = document.getElementById('current-month');
+    if (currentMonthTab) {
+      const previousMonthIndex = (today.getMonth() - 1 + 12) % 12;
+      const previousMonth = monthNames[previousMonthIndex];
+      currentMonthTab.innerHTML = `<h3>À retirer (${previousMonth})</h3>`;
+    }
 }
 
   function clearTable() {
@@ -1767,48 +1804,7 @@ async function loadNotifications() {
     if (overlay) overlay.style.display = 'none';
   });
 </script>
-  <script>
-// Cette fonction met à jour les mois dans les onglets de la notification
-function updateNotificationMonths() {
-    const today = new Date();
-    const dayOfMonth = today.getDate();
-    let startMonthIndex = today.getMonth();
 
-    // Logique du 15 du mois
-    if (dayOfMonth >= 15) {
-        startMonthIndex = (startMonthIndex + 1) % 12; // On passe au mois suivant
-    }
-
-    const monthNames = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-
-    const trimestreTab = document.getElementById('trimestre');
-    if (trimestreTab) {
-      const trimestreMonths = [
-        monthNames[startMonthIndex],
-        monthNames[(startMonthIndex + 1) % 12],
-        monthNames[(startMonthIndex + 2) % 12]
-      ];
-      trimestreTab.innerHTML = `<h3>Trimestre (${trimestreMonths.join(', ')})</h3>`;
-    }
-    
-    const secondMonthTab = document.getElementById('2nd-month');
-    if (secondMonthTab) {
-      const secondMonth = monthNames[(startMonthIndex + 1) % 12];
-      secondMonthTab.innerHTML = `<h3>2ème mois (${secondMonth})</h3>`;
-    }
-    
-    const currentMonthTab = document.getElementById('current-month');
-    if (currentMonthTab) {
-      const previousMonthIndex = (today.getMonth() - 1 + 12) % 12;
-      const previousMonth = monthNames[previousMonthIndex];
-      currentMonthTab.innerHTML = `<h3>À retirer (${previousMonth})</h3>`;
-    }
-}
-
-// Assurez-vous d'appeler cette fonction après une connexion réussie
-// Vous devez ajouter `updateNotificationMonths();` à la fin de la fonction loadSheet()
-// pour que les onglets se mettent à jour une fois les données chargées.
-</script>
 </body>
 </html>
 
