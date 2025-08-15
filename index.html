@@ -1049,6 +1049,8 @@ dateInput.focus();
     }
     // Appel de la fonction pour mettre à jour les mois après le chargement des données
     updateNotificationMonths();
+   console.log("Le jour est : ", dayOfMonth);
+console.log("Le mois de départ est : ", startMonthIndex);
 }
 
 // Fonction pour mettre à jour les mois dans les onglets de la notification
@@ -1056,6 +1058,10 @@ function updateNotificationMonths() {
     const today = new Date();
     const dayOfMonth = today.getDate();
     let startMonthIndex = today.getMonth();
+
+    // AFFICHEZ LES VALEURS DANS LA CONSOLE ICI
+    console.log("Le jour est : ", dayOfMonth);
+    console.log("Le mois de départ est : ", startMonthIndex);
 
     // Logique du 15 du mois
     if (dayOfMonth >= 15) {
