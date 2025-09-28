@@ -1006,14 +1006,7 @@ document.getElementById('date').focus();
 const dateInput = document.getElementById('date');
 dateInput.value = '';
 dateInput.dataset.raw = '';
-dateInput.blur(); // enlève le focus
 
-// Sécurité : s'il se remplit tout seul, on le vide à nouveau après 100ms
-setTimeout(() => {
-  dateInput.value = '';
-  dateInput.removeAttribute('value'); // ⬅️ Ajout important ici
-  dateInput.dataset.raw = '';
-}, 200);
       // Clear form inputs
 //document.getElementById('product').value = '';
 //document.getElementById('code').value = '';
