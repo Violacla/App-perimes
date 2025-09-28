@@ -980,40 +980,40 @@ const values = [[
   ajoutVal // ✅ Date d'ajout (dans le Google Sheet uniquement)
 ]];
 
-
     try {
-      await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: RANGE,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values }
-      });
+        await gapi.client.sheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: RANGE,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values }
+        });
 
+        loadSheet();
+        setStatus('Ligne ajoutée avec succès !');
 
-      loadSheet();
-      setStatus('Ligne ajoutée avec succès !');
-      // Réinitialise tous les champs AVANT le rechargement
-document.getElementById('date').value = '';
-document.getElementById('product').value = '';
-document.getElementById('code').value = '';
-document.getElementById('qty').value = '';
-document.getElementById('zone').value = '';
-document.getElementById('sold').value = '';
-document.getElementById('promo').value = '';
-const dateInput = document.getElementById('date');
-dateInput.value = ''; // Réinitialisation garantie
-dateInput.dataset.raw = '';
-dateInput.focus(); 
+        // Réinitialisation des champs
+        document.getElementById('date').value = '';
+        document.getElementById('product').value = '';
+        document.getElementById('code').value = '';
+        document.getElementById('qty').value = '';
+        document.getElementById('zone').value = '';
+        // Correction: Supprimez les lignes suivantes qui causent une erreur car les champs n'existent pas dans le formulaire d'ajout
+        // document.getElementById('sold').value = ''; 
+        // document.getElementById('promo').value = ''; 
 
-// Traitement spécial pour le champ date
-//const dateInput = document.getElementById('date');
-//dateInput.value = '';
-//dateInput.dataset.raw = '';
+        // 💡 UTILISEZ setTimeout pour garantir le focus après le rafraîchissement (loadSheet)
+        setTimeout(() => {
+            const dateInput = document.getElementById('date');
+            dateInput.value = ''; // On s'assure qu'il est bien vide
+            dateInput.focus();
+            // Assurez-vous d'également masquer toute erreur de date affichée précédemment
+            document.getElementById('date-error').style.display = 'none';
+        }, 50); // Un délai de 50ms est suffisant
 
     } catch (e) {
-      setStatus('Erreur : ' + e.message);
+        setStatus('Erreur : ' + e.message);
     }
-  };
+};
 
   // Load sheet data, exclude operator from table display
  async function loadSheet() {
