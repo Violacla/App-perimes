@@ -1812,6 +1812,47 @@ if (monthsToInclude.includes(ym)) {
     });
   }
 </script>
+  <script>
+async function autofillProductFromCode() {
+  const codeVal = document.getElementById('code').value.trim();
+
+  // Vérifie que c'est bien un code à 6 chiffres
+  if (!/^\d{6}$/.test(codeVal)) return;
+
+  try {
+    // On va chercher dans Feuille1 et Feuille2
+    const sheets = ['Feuille1', 'Feuille2'];
+    for (let sheet of sheets) {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: sheet
+      });
+
+      const rows = res.result.values || [];
+      for (let i = 1; i < rows.length; i++) { // Ignore la 1ère ligne (en-têtes)
+        if (rows[i][3] === codeVal) { // Colonne Code (4ème col dans Sheets)
+          document.getElementById('product').value = rows[i][2] || ''; // Nom produit
+          document.getElementById('zone').value = rows[i][5] || '';    // Zone
+          return;
+        }
+      }
+    }
+    alert("Produit introuvable dans Feuille1/Feuille2.");
+  } catch (e) {
+    console.error("Erreur recherche produit :", e);
+  }
+}
+
+// Quand on scanne / quitte le champ code → auto-remplissage
+document.getElementById('code').addEventListener('blur', autofillProductFromCode);
+document.getElementById('code').addEventListener('keydown', (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    autofillProductFromCode();
+  }
+});
+</script>
+
 </body>
 </html>
 
