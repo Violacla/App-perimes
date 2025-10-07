@@ -1790,22 +1790,20 @@ if (monthsToInclude.includes(ym)) {
 <script>
   const codeInput = document.getElementById('code');
   if (codeInput) {
+    // NOUVELLE FONCTION formatCode
     function formatCode() {
       let val = codeInput.value.replace(/[^\d]/g, '');
-      if (val.length > 6) {
-        codeInput.value = val.slice(-6); // toujours les 6 derniers
-      } else {
-        codeInput.value = val;
-      }
+      
+      // La ligne suivante force la valeur à n'être que les 6 derniers chiffres numériques
+      val = val.slice(-6); 
+      
+      codeInput.value = val;
     }
+    // FIN NOUVELLE FONCTION formatCode
 
-    // Quand on tape
+    // Les écouteurs d'événements restent identiques
     codeInput.addEventListener('input', formatCode);
-
-    // Quand on sort du champ (ex: après scan + Enter/Tab)
     codeInput.addEventListener('blur', formatCode);
-
-    // Quand on presse Entrée
     codeInput.addEventListener('keydown', (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
