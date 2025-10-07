@@ -1832,7 +1832,10 @@ async function autofillProductFromCode() {
 
       const rows = res.result.values || [];
       for (let i = 1; i < rows.length; i++) { // Ignore la 1ère ligne (en-têtes)
-        if (rows[i][3] === codeVal) { // Colonne Code (4ème col dans Sheets)
+        // Convertit le nombre de la feuille (rows[i][3]) en une chaîne de 6 chiffres avec des zéros initiaux si besoin
+        const sheetCodeFormatted = String(rows[i][3]).padStart(6, '0');
+        
+        if (sheetCodeFormatted === codeVal) { // Colonne Code (4ème col dans Sheets)
           document.getElementById('product').value = rows[i][2] || ''; // Nom produit
           document.getElementById('zone').value = rows[i][5] || '';    // Zone
           return;
