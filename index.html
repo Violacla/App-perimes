@@ -1790,31 +1790,38 @@ if (monthsToInclude.includes(ym)) {
   });
 </script>
 <script>
-  const codeInput = document.getElementById('code');
-  if (codeInput) {
-    // NOUVELLE FONCTION formatCode
-    function formatCode() {
-      let val = codeInput.value.replace(/[^\d]/g, '');
-      
-      // La ligne suivante force la valeur à n'être que les 6 derniers chiffres numériques
-      val = val.slice(-6); 
-      
-      codeInput.value = val;
-    }
-    // FIN NOUVELLE FONCTION formatCode
-
-    // Les écouteurs d'événements restent identiques
-    codeInput.addEventListener('input', formatCode);
-    codeInput.addEventListener('blur', formatCode);
-    codeInput.addEventListener('keydown', (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        formatCode();
-        autofillProductFromCode(); // lance aussi la recherche
-      }
-    });
+const codeInput = document.getElementById('code');
+if (codeInput) {
+  function formatCodeKeepLast6() {
+    // Garde uniquement les chiffres
+    let val = codeInput.value.replace(/[^\d]/g, '');
+    // Prend les 6 derniers chiffres (si la chaîne est plus courte, on garde tout)
+    val = val.slice(-6);
+    codeInput.value = val;
   }
+
+  // Sur saisie / collage / perte de focus -> formate
+  codeInput.addEventListener('input', () => {
+    // setTimeout pour laisser le navigateur finir l'opération de collage si nécessaire
+    setTimeout(formatCodeKeepLast6, 0);
+  });
+  codeInput.addEventListener('blur', formatCodeKeepLast6);
+  codeInput.addEventListener('paste', () => {
+    // le paste peut être asynchrone -> delay
+    setTimeout(formatCodeKeepLast6, 0);
+  });
+
+  // Touche Entrée : formate puis lance autofill
+  codeInput.addEventListener('keydown', (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      formatCodeKeepLast6();
+      autofillProductFromCode();
+    }
+  });
+}
 </script>
+
 
   <script>
 async function autofillProductFromCode() {
