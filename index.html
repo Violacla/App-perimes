@@ -569,7 +569,7 @@ Déconnexion
       <li>Nouvelles fonctionnalités : </li>
       <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
 
- <li>2.Si le produit existe déjà, les champs Nom et Zone se remplissent automatiquement grâce à la base de données.</li>
+ <li>2.Si le produit existe déjà, les champs Nom et Zone se remplissent automatiquement grâce à la base de données. La reconnaissance ce fait par les 6 chiffres du code.</li>
       <li>N'hésitez pas à nous faire part de vos suggestions et remarques.<br>
     <em>Violaine</em> </li>
     </ul>
@@ -1140,8 +1140,6 @@ td.dataset.row = actualSheetRow;
     }
     return letter;
   }
-
-
   // Notification popup logic
   const notifPopup = document.getElementById('notification-popup');
   const notifContent = notifPopup.querySelector('.content');
@@ -1446,9 +1444,6 @@ tdDelete.addEventListener('click', async () => {
 
   doc.save("resultats_perimes.pdf");
 }
-
-
-
 </script>
 <script>
   const suggestionList = document.getElementById('filter-zone-suggestions');
@@ -1821,8 +1816,6 @@ if (codeInput) {
   });
 }
 </script>
-
-
   <script>
 async function autofillProductFromCode() {
   const codeVal = document.getElementById('code').value.trim();
@@ -1866,7 +1859,6 @@ document.getElementById('code').addEventListener('keydown', (e) => {
   }
 });
 </script>
-
 </body>
 </html>
 
