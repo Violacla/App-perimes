@@ -288,7 +288,7 @@
         const codeFilter = document.getElementById('filter-code').value.toLowerCase();
 
         const filteredData = data.filter(row => {
-            const rowDate = new Date(row[8]);
+            const rowDate = new Date(row[1]);
             
             if (startDate && new Date(startDate) > rowDate) return false;
             if (endDate && new Date(endDate) < rowDate) return false;
