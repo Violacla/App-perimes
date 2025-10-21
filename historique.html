@@ -287,11 +287,34 @@
         const productFilter = document.getElementById('filter-product').value.toLowerCase();
         const codeFilter = document.getElementById('filter-code').value.toLowerCase();
 
-        const filteredData = data.filter(row => {
-            const rowDate = new Date(row[1]);
+       const filteredData = data.filter(row => {
+            // Utilise l'index correct (row[1])
+            const datePeremptionStr = row[1];
             
+            if (!datePeremptionStr) return false; 
+
+            let rowDate;
+            
+            // Logique robuste : convertit JJ/MM/AAAA en AAAA-MM-JJ
+            if (datePeremptionStr.includes('/')) {
+                const parts = datePeremptionStr.split('/');
+                if (parts.length === 3) {
+                    // Convertit JJ/MM/AAAA en format YYYY-MM-DD
+                    rowDate = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                } else {
+                    rowDate = new Date(datePeremptionStr);
+                }
+            } else {
+                rowDate = new Date(datePeremptionStr); 
+            }
+
+            if (isNaN(rowDate)) return false; // Si la date est invalide, on la saute
+
+            // Application du filtre de date sur la date filtrée (rowDate)
             if (startDate && new Date(startDate) > rowDate) return false;
             if (endDate && new Date(endDate) < rowDate) return false;
+
+            // ... le reste du filtrage doit suivre ici (operatorFilter, productFilter, codeFilter)
 
             if (operatorFilter && row[0] !== operatorFilter) return false;
 
