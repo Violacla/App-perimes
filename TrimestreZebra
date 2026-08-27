@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Trimestre & Promos - Pharmacie du Libron</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background: #fffefc;
+            color: #163f5b;
+        }
+        h2 {
+            text-align: center;
+            font-size: 1.2em;
+            color: #0a2f51;
+            margin-bottom: 15px;
+        }
+        /* Le bandeau du haut -50% à -70% */
+        .promo-banner {
+            background-color: #f294a6;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        /* La carte pour chaque produit */
+        .product-card {
+            background: #f1f4f2;
+            border: 1px solid #dcdcdc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .product-info {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .product-info span {
+            font-weight: bold;
+            color: #163f5b;
+        }
+        /* Les deux boutons d'action côte à côte */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-action {
+            flex: 1;
+            padding: 10px 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-vendu {
+            background-color: #d8c0ca;
+            color: #163f5b;
+        }
+        .btn-vendu:hover {
+            background-color: #c4a9b5;
+        }
+        .btn-promo {
+            background-color: #86bf8e;
+            color: white;
+        }
+        .btn-promo:hover {
+            background-color: #6fa777;
+        }
+        .btn-retour {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📊 Suivi Trimestre & Promos</h2>
+
+        <!-- Bandeau haut -->
+        <div class="promo-banner">
+             En ce moment : -50 % à -70 % 
+        </div>
+
+        <!-- Produit fictif 1 -->
+        <div class="product-card">
+            <div class="product-info">
+                <div>Produit : <span>Doliprane 1000mg cp 8</span></div>
+                <div>Code : <span>340093</span> | Zone : <span>Rayon A2</span></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-action btn-vendu" onclick="actionProduit('Vendues totalement', 'Doliprane 1000mg')">Vendues totalement</button>
+                <button class="btn-action btn-promo" onclick="actionProduit('Mettre en promo', 'Doliprane 1000mg')">Mettre en promo</button>
+            </div>
+        </div>
+
+        <!-- Produit fictif 2 -->
+        <div class="product-card">
+            <div class="product-info">
+                <div>Produit : <span>Spasfon Lyoc 80mg</span></div>
+                <div>Code : <span>340094</span> | Zone : <span>Rayon B1</span></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-action btn-vendu" onclick="actionProduit('Vendues totalement', 'Spasfon Lyoc')">Vendues totalement</button>
+                <button class="btn-action btn-promo" onclick="actionProduit('Mettre en promo', 'Spasfon Lyoc')">Mettre en promo</button>
+            </div>
+        </div>
+
+        <!-- Produit fictif 3 -->
+        <div class="product-card">
+            <div class="product-info">
+                <div>Produit : <span>Imodiumduo gell 12</span></div>
+                <div>Code : <span>340095</span> | Zone : <span>Rayon C4</span></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-action btn-vendu" onclick="actionProduit('Vendues totalement', 'Imodiumduo')">Vendues totalement</button>
+                <button class="btn-action btn-promo" onclick="actionProduit('Mettre en promo', 'Imodiumduo')">Mettre en promo</button>
+            </div>
+        </div>
+
+        <!-- Lien de retour vers le Zebra -->
+        <a href="zebra.html" class="btn-retour">⬅️ Retour au mode Zebra</a>
+    </div>
+
+    <script>
+        function actionProduit(actionType, nomProduit) {
+            alert("Action : " + actionType + "\nPour le produit : " + nomProduit + "\n(Simulation réussie !)");
+        }
+    </script>
+
+</body>
+</html>
