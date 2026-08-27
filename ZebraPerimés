@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Zebra - Pharmacie du Libron</title>
+    <title>Menu Zebra - Pharmacie du Libron</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,71 +14,50 @@
         h2 {
             text-align: center;
             font-size: 1.2em;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
-        .zebra-container {
+        .menu-container {
             max-width: 400px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-        .input-group {
-            background: #f1f4f2;
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-        input {
+        /* Style des grands boutons du menu */
+        .btn-menu {
             width: 100%;
-            padding: 10px;
+            padding: 16px;
             font-size: 1.1em;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            background: #e1f4e4;
-        }
-        button.btn-valider {
-            width: 100%;
-            background-color: #bfdbc4;
-            color: black;
             font-weight: bold;
-            padding: 12px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 8px;
+            border: 2px solid #86bf8e;
+            border-radius: 10px;
             cursor: pointer;
+            text-align: center;
+            text-decoration: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: block;
+            box-sizing: border-box;
         }
-        button.btn-valider:hover {
-            background-color: #86bf8e;
+        .btn-saisie {
+            background-color: #e1f4e4;
+            color: #163f5b;
         }
-        /* Style du bouton Trimestre / Promo rajoué */
         .btn-trimestre {
-            width: 100%;
             background-color: #bcd7ed;
             color: #163f5b;
-            font-weight: bold;
-            padding: 12px;
-            font-size: 1.1em;
-            border: 2px solid #86bf8e;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .btn-trimestre:hover {
-            background-color: #a4c9e4;
+        .btn-perime {
+            background-color: #f294a6;
+            color: white;
+            border-color: #d8c0ca;
+        }
+        .btn-menu:hover {
+            opacity: 0.9;
         }
         .btn-retour {
             display: block;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
             color: #666;
             text-decoration: none;
             font-weight: bold;
@@ -87,56 +66,27 @@
 </head>
 <body>
 
-    <h2>📱 Mode Zebra - Saisie Terrain</h2>
+    <h2>🦓 Menu Principal - Zebra</h2>
 
-    <div class="zebra-container">
-        <!-- Piste 1 : Code -->
-        <div class="input-group">
-            <label for="z-code">1. Code (6 chiffres)</label>
-            <input type="text" id="z-code" inputmode="numeric" placeholder="Scannez ici...">
-        </div>
-
-        <!-- Piste 2 : Quantité -->
-        <div class="input-group">
-            <label for="z-qty">2. Quantité</label>
-            <input type="number" id="z-qty" placeholder="Nb boîtes">
-        </div>
-
-        <!-- Piste 3 : Date -->
-        <div class="input-group">
-            <label for="z-date">3. Date (MM/YYYY)</label>
-            <input type="text" id="z-date" placeholder="MM/YYYY">
-        </div>
-
-        <button class="btn-valider" onclick="enregistrerLigne()">Valider la saisie</button>
-        
-        <!-- Bouton de liaison vers la page Trimestre / Promos -->
-        <button class="btn-trimestre" onclick="location.href='promo.html'">
-            📊 Voir Trimestre / Promos
+    <div class="menu-container">
+        <!-- Choix 1 : Saisie du produit (les 3 cases) -->
+        <button class="btn-menu btn-saisie" onclick="location.href='saisieProduit.html'">
+            📝 Saisie du produit
         </button>
 
-        <a href="index.html" class="btn-retour">⬅️ Retour à l'accueil</a>
+        <!-- Choix 2 : Trimestre -->
+        <button class="btn-menu btn-trimestre" onclick="location.href='TrimestreZebra.html'">
+            📊 Trimestre
+        </button>
+
+        <!-- Choix 3 : Liste périmé -->
+        <button class="btn-menu btn-perime" onclick="location.href='listePerimeZebra.html'">
+            ⚠️ Liste périmé
+        </button>
+
+        <!-- Retour à l'accueil général -->
+        <a href="index.html" class="btn-retour">⬅️ Retour à l'accueil général</a>
     </div>
-
-    <script>
-        function enregistrerLigne() {
-            const code = document.getElementById('z-code').value;
-            const qty = document.getElementById('z-qty').value;
-            const date = document.getElementById('z-date').value;
-
-            if(!code || !qty || !date) {
-                alert("Veuillez remplir tous les champs !");
-                return;
-            }
-            
-            alert("Saisie enregistrée (simulation) !");
-            // Remise à zéro pour enchaîner le prochain scan
-            document.getElementById('z-code').value = '';
-            document.getElementById('z-qty').value = '';
-            document.getElementById('z-date').value = '';
-            document.getElementById('z-code').focus();
-        }
-    </script>
 
 </body>
 </html>
