@@ -1132,10 +1132,32 @@ td.dataset.row = actualSheetRow;
         resource: { values: [[newValue]] }
       });
       setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
+      // Update cell in Google Sheets on edit
+  async function onCellEdit(e) {
+    if(!operatorName) return;
+    const td = e.target;
+    const newValue = td.textContent.trim();
+    const row = td.dataset.row;
+    const col = td.dataset.col;
+
+    try {
+      await gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `Feuille1!${columnToLetter(col)}${row}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: [[newValue]] }
+      });
+      setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
+      
+      // 💡 C'est ici qu'on ajoute l'appel magique :
+      await moveSoldRowsToHistorique();
+
     } catch (err) {
       setStatus('Erreur mise à jour : ' + err.message);
     }
   }
+
+      
 
   // Convert number to letter for column (1->A, 2->B ...)
   function columnToLetter(column) {
@@ -1234,6 +1256,54 @@ if (document.getElementById('btn-history')) {
     });
     setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
   }
+  async function moveSoldRowsToHistorique() {
+  if (!operatorName) return;
+  try {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE
+    });
+    const allRows = res.result.values || [];
+    if (allRows.length <= 1) return;
+
+    const headers = allRows[0];
+    const dataRows = allRows.slice(1);
+    
+    const toMove = [];
+    const remaining = [headers];
+
+    dataRows.forEach(row => {
+      const qte = parseInt(row[4] || '0');
+      const vendu = parseInt(row[6] || '0');
+      if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+        toMove.push(row);
+      } else {
+        remaining.push(row);
+      }
+    });
+
+    if (toMove.length > 0) {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'historique',
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: toMove }
+      });
+
+      await gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: RANGE,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: remaining }
+      });
+
+      setStatus(`${toMove.length} ligne(s) entièrement vendue(s) transférée(s) vers l'historique.`);
+      loadSheet();
+    }
+  } catch (e) {
+    setStatus("Erreur transfert historique : " + e.message);
+  }
+}
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
