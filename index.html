@@ -284,6 +284,8 @@
   }
   .ligne-vendue td {
   text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-line: line-through;
   background-color: #d8c0ca !important; /* ou une autre couleur que tu préfères */
   color: #efe8eb; /* facultatif : texte un peu plus gris */
 }
@@ -574,9 +576,9 @@ Déconnexion
     <h2>Mise à jour - 28/08/2026</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
-      <li>1.La ligne quantité vendue = quantité enregistrée est directement transferer dans historique<br>
+      <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
 
- <li>2. Il y a un bouton test portatif, actuellement en developpement pour l'application sur le Zebra.</li>
+ <li>2.Si le produit existe déjà, les champs Nom et Zone se remplissent automatiquement grâce à la base de données. La reconnaissance ce fait par les 6 chiffres du code.</li>
       <li>N'hésitez pas à nous faire part de vos suggestions et remarques.<br>
     <em>Violaine</em> </li>
     </ul>
@@ -1092,8 +1094,8 @@ function updateNotificationMonths() {
     //rows.slice(1).forEach((row, i) => {
     rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
-      const qte = parseInt(row[3] || '0');
-      const vendu = parseInt(row[5] || '0');
+      const qte = parseInt(row[4] || '0');
+      const vendu = parseInt(row[6] || '0');
       if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
         tr.classList.add('ligne-vendue');
       }
@@ -1138,15 +1140,17 @@ td.dataset.row = actualSheetRow;
         resource: { values: [[newValue]] }
       });
 
-      // Vendues = colonne F (6). Check the complete row after saving.
-      if (col === 6) {
+      // Qté = colonne E (5) et Vendues = colonne G (7).
+      // On vérifie après TOUTE modification afin que le transfert soit automatique
+      // si Qté et Vendues deviennent égales (ou si Vendues dépasse Qté).
+      {
         const res = await gapi.client.sheets.spreadsheets.values.get({
           spreadsheetId: SPREADSHEET_ID,
           range: `Feuille1!A${rowNumber}:H${rowNumber}`
         });
         const rowData = (res.result.values || [])[0];
-        const qte = parseInt(rowData?.[3] || '0', 10);
-        const vendu = parseInt(rowData?.[5] || '0', 10);
+        const qte = parseInt(rowData?.[4] || '0', 10);
+        const vendu = parseInt(rowData?.[6] || '0', 10);
 
         if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
           await transferSingleRowToHistorique(rowNumber);
@@ -1173,8 +1177,8 @@ td.dataset.row = actualSheetRow;
     if (index <= 0 || index >= allRows.length) return;
 
     const row = allRows[index];
-    const qte = parseInt(row[3] || '0', 10);
-    const vendu = parseInt(row[5] || '0', 10);
+    const qte = parseInt(row[4] || '0', 10);
+    const vendu = parseInt(row[6] || '0', 10);
     if (isNaN(qte) || isNaN(vendu) || qte <= 0 || vendu < qte) return;
 
     await gapi.client.sheets.spreadsheets.values.append({
@@ -1254,7 +1258,7 @@ if (document.getElementById('btn-history')) {
   });
 }
 
-async function transferToHistorique() {
+async function transferToHistorique(updateStatus = true, silentIfNone = true) {
   const res = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
     range: 'Feuille1'
@@ -1266,8 +1270,8 @@ async function transferToHistorique() {
   const remaining = [allRows[0]];
 
   allRows.slice(1).forEach(row => {
-    const qte = parseInt(row[3] || '0', 10);
-    const vendu = parseInt(row[5] || '0', 10);
+    const qte = parseInt(row[4] || '0', 10);
+    const vendu = parseInt(row[6] || '0', 10);
     if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
       toMove.push(row);
     } else {
@@ -1295,7 +1299,9 @@ async function transferToHistorique() {
     });
   }
 
-  setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
+  if (updateStatus && (!silentIfNone || toMove.length > 0)) {
+    setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
+  }
 }
 </script>
 <script>
@@ -1399,8 +1405,8 @@ document.addEventListener('click', function (e) {
   //rows.slice(1).forEach((row, i) => {
     rows.slice(1).reverse().forEach((row, i) => {
     const tr = document.createElement('tr');
-      const qte = parseInt(row[3] || '0');
-      const vendu = parseInt(row[5] || '0');
+      const qte = parseInt(row[4] || '0');
+      const vendu = parseInt(row[6] || '0');
       if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
         tr.classList.add('ligne-vendue');
       }
@@ -1704,6 +1710,15 @@ async function loadNotifications() {
     });
     const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
 
+    // Les produits vendus entièrement sont déplacés vers "historique".
+    // On lit donc aussi cette feuille afin qu'ils restent visibles dans
+    // "À retirer" jusqu'au 14 du mois suivant.
+    const resHistorique = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'historique!A1:H1000'
+    });
+    const dataHistorique = (resHistorique.result.values || []).slice(1);
+
     const now = new Date();
     const currentDay = now.getDate();
     const currentMonthNumber = now.getMonth();
@@ -1728,15 +1743,31 @@ async function loadNotifications() {
       }
     }
 
-    dataFeuille2.forEach(row => {
+    // À retirer = période glissante du 15 au 14.
+    // Feuille2 contient les lignes normales et historique contient les lignes
+    // déjà vendues/transférées. On fusionne les deux sans doublon.
+    const currentMonthRows = [];
+    const currentMonthKeys = new Set();
+
+    const addToCurrentMonth = (row) => {
       const dateStr = row[1];
       const d = parseDate(dateStr);
       if (!d) return;
 
       if (d.getFullYear() === targetYear && d.getMonth() === targetMonth) {
-        grouped['current-month'].push(row);
+        // Clé stable : date + code + produit.
+        const key = [row[1] || '', row[3] || '', row[2] || ''].join('|');
+        if (!currentMonthKeys.has(key)) {
+          currentMonthKeys.add(key);
+          currentMonthRows.push(row);
+        }
       }
-    });
+    };
+
+    dataFeuille2.forEach(addToCurrentMonth);
+    dataHistorique.forEach(addToCurrentMonth);
+
+    grouped['current-month'] = currentMonthRows;
 
     // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
     dataFeuille1.forEach(row => {
@@ -1810,8 +1841,8 @@ if (monthsToInclude.includes(ym)) {
           <tbody>`;
 
       rows.forEach(row => {
-        const qte = parseInt(row[3] || '0');
-        const vendu = parseInt(row[5] || '0');
+        const qte = parseInt(row[4] || '0');
+        const vendu = parseInt(row[6] || '0');
         const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte;
         tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
         [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
