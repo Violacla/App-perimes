@@ -1,151 +1,132 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Trimestre & Promos - Pharmacie du Libron</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
-            background: #fffefc;
-            color: #163f5b;
-        }
-        h2 {
-            text-align: center;
-            font-size: 1.2em;
-            color: #0a2f51;
-            margin-bottom: 15px;
-        }
-        /* Le bandeau du haut -50% à -70% */
-        .promo-banner {
-            background-color: #f294a6;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        /* La carte pour chaque produit */
-        .product-card {
-            background: #f1f4f2;
-            border: 1px solid #dcdcdc;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .product-info {
-            font-size: 0.95em;
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-        .product-info span {
-            font-weight: bold;
-            color: #163f5b;
-        }
-        /* Les deux boutons d'action côte à côte */
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-action {
-            flex: 1;
-            padding: 10px 5px;
-            font-size: 0.85em;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .btn-vendu {
-            background-color: #d8c0ca;
-            color: #163f5b;
-        }
-        .btn-vendu:hover {
-            background-color: #c4a9b5;
-        }
-        .btn-promo {
-            background-color: #86bf8e;
-            color: white;
-        }
-        .btn-promo:hover {
-            background-color: #6fa777;
-        }
-        .btn-retour {
-            display: block;
-            text-align: center;
-            margin-top: 25px;
-            color: #666;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.95em;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4f7fb">
+<title>Trimestre Zebra - Promotions</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--pink-dark:#c77991;--green:#86bf8e;--orange:#e8b56b;--soft-blue:#e5eff9;--soft-pink:#f7e5eb;--border:#d5e0ec;--shadow:0 5px 18px rgba(62,91,122,.12)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+body{display:flex;justify-content:center}.app{width:100%;max-width:520px;min-height:100dvh;padding:14px 12px 24px}
+header{text-align:center;padding:5px 4px 12px}.logo{width:58px;height:58px;margin:0 auto 8px;border-radius:18px;background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--shadow)}
+h1{margin:0;font-size:21px}.subtitle{margin:5px 0 0;color:var(--muted);font-size:12px}.back{width:100%;border:1px solid var(--border);background:#fff;color:var(--text);border-radius:12px;min-height:42px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.month{border:1px solid var(--border);border-radius:16px;background:#fff;padding:12px 8px;text-align:center;box-shadow:0 2px 8px rgba(62,91,122,.06)}.month strong{display:block;font-size:13px}.month span{display:block;font-size:11px;color:var(--muted);margin-top:5px}.month.current{border-color:var(--pink);background:var(--soft-pink)}.month.next{border-color:var(--orange)}.month.plus2{border-color:var(--green)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:15px;box-shadow:var(--shadow);margin-bottom:12px}.panel h2{font-size:16px;margin:0 0 10px}
+.promo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.promo-card{border:1px solid var(--border);border-radius:16px;padding:13px;min-height:118px}.promo-card strong{display:block;font-size:14px}.promo-card .rate{font-size:24px;font-weight:800;margin:7px 0}.promo-card small{color:var(--muted);font-size:11px}.c1{background:var(--soft-pink)}.c2{background:#fff6e7}.c3{background:#eef8ef}.c4{background:var(--soft-blue)}
+.status{font-size:12px;color:var(--muted);min-height:18px}.list{display:grid;gap:9px}.product{background:#fff;border:1px solid var(--border);border-radius:16px;padding:12px}.top{display:flex;justify-content:space-between;gap:10px}.name{font-weight:700;font-size:14px}.meta{font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px}.actions{display:flex;gap:8px;margin-top:10px}.actions button{flex:1;border:0;border-radius:10px;min-height:38px;font-weight:700;cursor:pointer}.sold{background:#d8c0ca;color:#26384d}.promo{background:var(--green);color:#fff}.details{background:var(--blue);color:#fff}
+.empty{text-align:center;color:var(--muted);padding:20px;font-size:13px}.loading{text-align:center;padding:15px;color:var(--muted)}
+</style>
 </head>
 <body>
+<main class="app">
+<header><div class="logo">🏷️</div><h1>Trimestre Zebra</h1><p class="subtitle">Gestion des promotions</p></header>
+<button class="back" onclick="location.href='ZebraPerimés.html'">⬅ Retour au menu Zebra</button>
 
-    <div class="container">
-        <h2>📊 Suivi Trimestre & Promos</h2>
+<section class="months">
+  <div class="month current"><strong id="m0">Mois actuel</strong><span>-50 à -70 %</span></div>
+  <div class="month next"><strong id="m1">Mois +1</strong><span>-10 à -30 %</span></div>
+  <div class="month plus2"><strong id="m2">Mois +2</strong><span>Mise en avant</span></div>
+</section>
 
-        <!-- Bandeau haut -->
-        <div class="promo-banner">
-             En ce moment : -50 % à -70 % 
-        </div>
+<section class="panel">
+<h2>Règles du trimestre</h2>
+<div class="promo-grid">
+  <div class="promo-card c1"><strong>Mois actuel</strong><div class="rate">50–70 %</div><small>Priorité forte : écouler les produits concernés.</small></div>
+  <div class="promo-card c2"><strong>Mois +1</strong><div class="rate">10–30 %</div><small>Promotion anticipée selon le besoin.</small></div>
+  <div class="promo-card c3"><strong>Mois +2</strong><div class="rate">★</div><small>Mise en avant et préparation de l'offre.</small></div>
+  <div class="promo-card c4"><strong>Détail</strong><div class="rate">☰</div><small>Voir les produits et leurs promotions enregistrées.</small></div>
+</div>
+</section>
 
-        <!-- Produit fictif 1 -->
-        <div class="product-card">
-            <div class="product-info">
-                <div>Produit : <span>Doliprane 1000mg cp 8</span></div>
-                <div>Code : <span>340093</span> | Zone : <span>Rayon A2</span></div>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-action btn-vendu" onclick="actionProduit('Vendues totalement', 'Doliprane 1000mg')">Vendues totalement</button>
-                <button class="btn-action btn-promo" onclick="actionProduit('Mettre en promo', 'Doliprane 1000mg')">Mettre en promo</button>
-            </div>
-        </div>
+<section class="panel">
+<h2>Produits du trimestre</h2>
+<div id="status" class="status">Connexion Google Sheets…</div>
+<div id="products" class="loading">Chargement…</div>
+</section>
+</main>
 
-        <!-- Produit fictif 2 -->
-        <div class="product-card">
-            <div class="product-info">
-                <div>Produit : <span>Spasfon Lyoc 80mg</span></div>
-                <div>Code : <span>340094</span> | Zone : <span>Rayon B1</span></div>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-action btn-vendu" onclick="actionProduit('Vendues totalement', 'Spasfon Lyoc')">Vendues totalement</button>
-                <button class="btn-action btn-promo" onclick="actionProduit('Mettre en promo', 'Spasfon Lyoc')">Mettre en promo</button>
-            </div>
-        </div>
+<script src="https://accounts.google.com/gsi/client"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script>
+const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+const RANGE='Feuille1';
+const SCOPES='https://www.googleapis.com/auth/spreadsheets';
+let tokenClient,gapiReady=false,tokenReady=false,accessToken=null;
 
-        <!-- Produit fictif 3 -->
-        <div class="product-card">
-            <div class="product-info">
-                <div>Produit : <span>Imodiumduo gell 12</span></div>
-                <div>Code : <span>340095</span> | Zone : <span>Rayon C4</span></div>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-action btn-vendu" onclick="actionProduit('Vendues totalement', 'Imodiumduo')">Vendues totalement</button>
-                <button class="btn-action btn-promo" onclick="actionProduit('Mettre en promo', 'Imodiumduo')">Mettre en promo</button>
-            </div>
-        </div>
+function monthStart(){
+  const d=new Date(); let y=d.getFullYear(),m=d.getMonth();
+  if(d.getDate()>=15){m++;if(m===12){m=0;y++;}}
+  return {y,m};
+}
+function ym(y,m){return `${y}-${String(m+1).padStart(2,'0')}`;}
+function addMonths(y,m,n){let d=new Date(y,m+n,1);return {y:d.getFullYear(),m:d.getMonth()};}
+function label(y,m){return new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});}
+function updateLabels(){
+  const s=monthStart();
+  for(let i=0;i<3;i++){const x=addMonths(s.y,s.m,i);document.getElementById('m'+i).textContent=i===0?'Mois actuel : '+label(x.y,x.m):'Mois +'+i+' : '+label(x.y,x.m);}
+}
+function classify(date){
+  const d=new Date(date); if(isNaN(d))return null;
+  const s=monthStart(); const diff=(d.getFullYear()-s.y)*12+d.getMonth()-s.m;
+  return diff>=0&&diff<=2?diff:null;
+}
+function status(t){document.getElementById('status').textContent=t;}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-        <!-- Lien de retour vers le Zebra -->
-        <a href="zebra.html" class="btn-retour">⬅️ Retour au mode Zebra</a>
-    </div>
-
-    <script>
-        function actionProduit(actionType, nomProduit) {
-            alert("Action : " + actionType + "\nPour le produit : " + nomProduit + "\n(Simulation réussie !)");
-        }
-    </script>
-
+async function loadProducts(){
+  try{
+    const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:RANGE});
+    const rows=(res.result.values||[]).slice(1);
+    const grouped=[[],[],[]];
+    rows.forEach((r,idx)=>{const c=classify(r[1]);if(c!==null)grouped[c].push({r,row:idx+2});});
+    const labels=['Mois actuel — -50 à -70 %','Mois +1 — -10 à -30 %','Mois +2 — mise en avant'];
+    let html='';
+    grouped.forEach((items,i)=>{
+      html+=`<h3 style="font-size:14px;margin:14px 0 8px">${labels[i]} (${items.length})</h3>`;
+      if(!items.length){html+='<div class="empty">Aucun produit pour cette période.</div>';return;}
+      html+='<div class="list">';
+      items.forEach(x=>{
+        const r=x.r, promo=r[7]||'0';
+        html+=`<div class="product"><div class="top"><div class="name">${esc(r[2])}</div><strong>${esc(promo)}%</strong></div>
+        <div class="meta">Date : ${esc(r[1])} • Code : ${esc(r[3])}<br>Qté : ${esc(r[4])} • Zone : ${esc(r[5])}</div>
+        <div class="actions"><button class="sold" onclick="markSold(${x.row})">Vendues totalement</button><button class="promo" onclick="setPromo(${x.row},${i})">Gérer promo</button><button class="details" onclick="showDetails(${x.row})">Détail</button></div></div>`;
+      });
+      html+='</div>';
+    });
+    document.getElementById('products').innerHTML=html;
+    status('Google Sheets connecté. Les produits sont classés selon la logique trimestrielle du fichier PC.');
+  }catch(e){document.getElementById('products').innerHTML='<div class="empty">Impossible de charger les données.</div>';status('Erreur Google Sheets : '+e.message);}
+}
+async function updateCell(row,col,value){
+  await gapi.client.sheets.spreadsheets.values.update({spreadsheetId:SPREADSHEET_ID,range:`Feuille1!${col}${row}`,valueInputOption:'USER_ENTERED',resource:{values:[[value]]}});
+}
+async function setPromo(row,type){
+  const defaults=['50','20','0']; const v=prompt('Pourcentage de promotion :',defaults[type]); if(v===null)return;
+  if(!/^\d{1,2}$/.test(v)||Number(v)>100){alert('Entrez un pourcentage de 0 à 100.');return;}
+  try{await updateCell(row,'H',v);await loadProducts();}catch(e){alert('Erreur : '+e.message);}
+}
+async function markSold(row){
+  if(!confirm('Marquer ce produit comme vendu totalement ?'))return;
+  try{
+    const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`Feuille1!E${row}:E${row}`});
+    const q=(res.result.values?.[0]?.[0]||'0'); await updateCell(row,'G',q); await loadProducts();
+  }catch(e){alert('Erreur : '+e.message);}
+}
+async function showDetails(row){
+  try{
+    const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`Feuille1!A${row}:I${row}`});
+    const r=res.result.values?.[0]||[]; alert(`Produit : ${r[2]||''}\nCode : ${r[3]||''}\nDate : ${r[1]||''}\nQté : ${r[4]||''}\nZone : ${r[5]||''}\nVendues : ${r[6]||0}\nPromo : ${r[7]||0}%`);
+  }catch(e){alert('Erreur : '+e.message);}
+}
+async function init(){
+  updateLabels();
+  gapi.load('client',async()=>{await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});gapiReady=true;startAuth();});
+  tokenClient=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:async r=>{if(r.error){status('Connexion Google refusée.');return;}accessToken=r.access_token;await loadProducts();}});
+}
+function startAuth(){if(gapiReady&&tokenClient){status('Connexion à Google Sheets…');tokenClient.requestAccessToken({prompt:''});}}
+window.onload=init;
+</script>
 </body>
 </html>
