@@ -62,7 +62,7 @@ document.querySelectorAll('.operator').forEach(b=>b.classList.remove('selected')
 continueBtn.addEventListener('click',()=>{if(!selectedOperator)return;currentOperator.textContent=selectedOperator;login.style.display='none';home.style.display='block';localStorage.setItem('zebraOperator',selectedOperator);});
 document.getElementById('changeOperator').addEventListener('click',()=>{home.style.display='none';login.style.display='block';});
 document.getElementById('addProduct').addEventListener('click',()=>goTo('zebra-ajouter.html'));
-document.getElementById('promotions').addEventListener('click',()=>goTo('TrimestreZebra_connecte.html'));
+document.getElementById('promotions').addEventListener('click',()=>goTo('TrimestreZebra.html'));
 document.getElementById('removeProducts').addEventListener('click',()=>goTo('zebra-retrait.html'));
 
 function goTo(page){
