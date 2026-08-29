@@ -455,9 +455,6 @@
 #btn-confirm-operator:hover {
   background-color: #1a4d78; /* Un bleu plus foncé au survol */
 }
-  .sold-total-cell { text-align: center; vertical-align: middle; min-width: 130px; }
-  .vendues-totalement-checkbox { width: 20px; height: 20px; cursor: pointer; }
-  .vendues-totalement-checkbox:disabled { cursor: wait; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -575,7 +572,7 @@ Déconnexion
 <body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 08/à_/2026</h2>
+    <h2>Mise à jour - 07/10/2025</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
       <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
@@ -996,7 +993,7 @@ const values = [[
             resource: { values }
         });
 
-        await loadSheet();
+        loadSheet();
         setStatus('Ligne ajoutée avec succès !');
 
         // Réinitialisation des champs
@@ -1034,6 +1031,8 @@ const values = [[
     }
     // Appel de la fonction pour mettre à jour les mois après le chargement des données
     updateNotificationMonths();
+   console.log("Le jour est : ", dayOfMonth);
+console.log("Le mois de départ est : ", startMonthIndex);
 }
 
 // Fonction pour mettre à jour les mois dans les onglets de la notification
@@ -1133,7 +1132,6 @@ td.dataset.row = actualSheetRow;
         valueInputOption: 'USER_ENTERED',
         resource: { values: [[newValue]] }
       });
-      await loadSheet();
       setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
     } catch (err) {
       setStatus('Erreur mise à jour : ' + err.message);
@@ -1182,75 +1180,6 @@ function formatMonthYear(ym) {
     gisLoaded();
   };</script>
 <script>
-async function transferSpecificRowToHistorique(sheetRowNumber) {
-  if (!operatorName) throw new Error('Veuillez vous connecter et choisir un opérateur.');
-  if (!gapiInited || !accessToken) throw new Error('Connexion Google non disponible.');
-
-  // 1) Récupère la ligne exacte dans Feuille1 avant toute suppression.
-  const res = await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `Feuille1!A${sheetRowNumber}:I${sheetRowNumber}`
-  });
-  const row = (res.result.values || [])[0];
-  if (!row || !row.length) throw new Error(`Ligne ${sheetRowNumber} introuvable dans Feuille1.`);
-
-  // 2) Recherche le nom exact de la feuille Historique.
-  //    Cela évite les erreurs si la feuille s'appelle "Historique", "historique", etc.
-  const meta = await gapi.client.sheets.spreadsheets.get({
-    spreadsheetId: SPREADSHEET_ID,
-    fields: 'sheets.properties(sheetId,title)'
-  });
-  const sheets = meta.result.sheets || [];
-  const historiqueSheet = sheets.find(s =>
-    String(s.properties.title || '').trim().toLowerCase() === 'historique'
-  );
-
-  if (!historiqueSheet) {
-    throw new Error('La feuille « Historique » est introuvable dans le fichier Google Sheets.');
-  }
-
-  const historiqueTitle = historiqueSheet.properties.title;
-  // Nom de feuille protégé par des apostrophes pour gérer espaces/caractères spéciaux.
-  const historiqueRange = `'${historiqueTitle.replace(/'/g, "''")}'!A1`;
-
-  // 3) Ajoute la ligne dans Historique.
-  const appendResponse = await gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: SPREADSHEET_ID,
-    range: historiqueRange,
-    valueInputOption: 'USER_ENTERED',
-    insertDataOption: 'INSERT_ROWS',
-    includeValuesInResponse: true,
-    resource: { values: [row] }
-  });
-
-  if (!appendResponse || !appendResponse.result || !appendResponse.result.updates) {
-    throw new Error('Google Sheets n’a pas confirmé l’ajout dans Historique.');
-  }
-
-  // 4) Seulement après confirmation de l'ajout, supprime la ligne de Feuille1.
-  await gapi.client.sheets.spreadsheets.batchUpdate({
-    spreadsheetId: SPREADSHEET_ID,
-    resource: {
-      requests: [{
-        deleteDimension: {
-          range: {
-            sheetId: sheets.find(s => s.properties.title === 'Feuille1')?.properties.sheetId,
-            dimension: 'ROWS',
-            startIndex: sheetRowNumber - 1,
-            endIndex: sheetRowNumber
-          }
-        }
-      }]
-    }
-  });
-
-  setStatus('✓ Ligne transférée dans « Historique ».');
-  return true;
-}
-
-// Ancienne fonction conservée pour compatibilité.
-async function transferToHistorique() { return 0; }
-
 if (document.getElementById('btn-history')) {
   document.getElementById('btn-history').addEventListener('click', async () => {
     if (!operatorName) {
@@ -1258,11 +1187,53 @@ if (document.getElementById('btn-history')) {
       return;
     }
     try {
+      await transferToHistorique();
       window.location.href = '/historique.html';
     } catch (e) {
       alert("Erreur lors du transfert vers historique : " + e.message);
     }
   });
+
+  async function transferToHistorique() {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Feuille1'
+    });
+    const allRows = res.result.values || [];
+    if (allRows.length <= 1) return;
+
+    const now = new Date();
+    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const toMove = [];
+    const remaining = [allRows[0]];
+
+    allRows.slice(1).forEach(row => {
+      const dateStr = row[1];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (ym < currentYM) toMove.push(row);
+      else remaining.push(row);
+    });
+
+    if (toMove.length > 0) {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Feuille2',
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: toMove }
+      });
+    }
+
+    await gapi.client.sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Feuille1',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: remaining }
+    });
+    setStatus(`Transféré ${toMove.length} lignes vers "Feuille2".`);
+  }
 }
 </script>
 <script>
@@ -1359,16 +1330,130 @@ document.addEventListener('click', function (e) {
     list.style.display = 'none';
   }
 });
+  async function transferRowToFeuille2(sheetRowNumber) {
+    if (!operatorName) throw new Error("Connectez-vous et choisissez un opérateur.");
+
+    const meta = await gapi.client.sheets.spreadsheets.get({
+      spreadsheetId: SPREADSHEET_ID,
+      fields: 'sheets.properties(sheetId,title)'
+    });
+
+    const sheets = meta.result.sheets || [];
+    const feuille1 = sheets.find(s => s.properties.title === 'Feuille1');
+    const feuille2 = sheets.find(s => s.properties.title === 'Feuille2');
+
+    if (!feuille1) throw new Error('Feuille1 introuvable.');
+    if (!feuille2) throw new Error('Feuille2 introuvable.');
+
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Feuille1!A${sheetRowNumber}:Z${sheetRowNumber}`
+    });
+
+    const row = (res.result.values || [])[0];
+    if (!row || !row.length) throw new Error(`Ligne ${sheetRowNumber} introuvable dans Feuille1.`);
+
+    // On copie la ligne complète dans Feuille2 avant de supprimer l'originale.
+    const append = await gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Feuille2!A1',
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      includeValuesInResponse: true,
+      resource: { values: [row] }
+    });
+
+    if (!append.result || !append.result.updates || !append.result.updates.updatedRows) {
+      throw new Error('Google Sheets n’a pas confirmé le transfert vers Feuille2.');
+    }
+
+    // Suppression uniquement après confirmation de l'ajout dans Feuille2.
+    await gapi.client.sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      resource: {
+        requests: [{
+          deleteDimension: {
+            range: {
+              sheetId: feuille1.properties.sheetId,
+              dimension: 'ROWS',
+              startIndex: Number(sheetRowNumber) - 1,
+              endIndex: Number(sheetRowNumber)
+            }
+          }
+        }]
+      }
+    });
+  }
+
   function renderTable(rows) {
     const tbody = document.querySelector('#data-table tbody');
     tbody.innerHTML = '';
+
     rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
-      const qte = parseInt(row[4] || '0', 10);
-      const vendu = parseInt(row[6] || '0', 10);
-      if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) tr.classList.add('ligne-vendue');
+      const qte = parseInt(row[4] || '0');
+      const vendu = parseInt(row[6] || '0');
+      if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+        tr.classList.add('ligne-vendue');
+      }
+
+      // Colonnes affichées : Produit, Date, Qté, Zone, Vendues totalement, Vendues, Promo
+      const cols = [1, 2, 3, 4, 5];
+      cols.forEach(colIndex => {
+        const td = document.createElement('td');
+        td.textContent = row[colIndex] || '';
+        td.contentEditable = true;
+        const actualSheetRow = rows.length - i;
+        td.dataset.row = actualSheetRow;
+        td.dataset.col = colIndex + 1;
+        td.addEventListener('blur', onCellEdit);
+        tr.appendChild(td);
+      });
+
+      // ☑ Vendues totalement : transfert immédiat Feuille1 -> Feuille2
+      const tdSoldTotal = document.createElement('td');
+      tdSoldTotal.style.textAlign = 'center';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.title = 'Transférer cette ligne dans Feuille2';
+      checkbox.style.transform = 'scale(1.25)';
+
       const actualSheetRow = rows.length - i;
-      [1, 2, 3, 4, 5].forEach(colIndex => {
+      checkbox.addEventListener('click', e => e.stopPropagation());
+      checkbox.addEventListener('change', async () => {
+        if (!checkbox.checked) return;
+
+        const confirmed = confirm(
+          'Cette ligne est-elle totalement vendue ?\n\n' +
+          'Elle sera transférée directement dans Feuille2.'
+        );
+
+        if (!confirmed) {
+          checkbox.checked = false;
+          return;
+        }
+
+        checkbox.disabled = true;
+        try {
+          await transferRowToFeuille2(actualSheetRow);
+          setStatus('✓ Ligne transférée dans Feuille2.');
+          await loadSheet();
+        } catch (err) {
+          checkbox.disabled = false;
+          checkbox.checked = false;
+          const msg = err?.message || 'Erreur inconnue lors du transfert.';
+          console.error('Transfert Feuille2 :', err);
+          setStatus('Erreur lors du transfert vers Feuille2 : ' + msg);
+          alert('Erreur lors du transfert vers Feuille2 : ' + msg);
+        }
+      });
+
+      tdSoldTotal.appendChild(checkbox);
+      tr.appendChild(tdSoldTotal);
+
+      // Vendues + Promo
+      [6, 7].forEach(colIndex => {
         const td = document.createElement('td');
         td.textContent = row[colIndex] || '';
         td.contentEditable = true;
@@ -1377,58 +1462,23 @@ document.addEventListener('click', function (e) {
         td.addEventListener('blur', onCellEdit);
         tr.appendChild(td);
       });
-      const tdSoldTotal = document.createElement('td');
-      tdSoldTotal.className = 'sold-total-cell';
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.className = 'vendues-totalement-checkbox';
-      checkbox.title = 'Transférer cette ligne vers Historique';
-      checkbox.setAttribute('aria-label', 'Vendues totalement');
-      checkbox.addEventListener('click', e => e.stopPropagation());
-      checkbox.addEventListener('change', async e => {
-        e.stopPropagation();
-        if (!checkbox.checked) return;
-        if (!confirm('Cette ligne est-elle totalement vendue ?\n\nElle sera transférée dans la feuille « historique ».')) {
-          checkbox.checked = false;
-          return;
-        }
-        checkbox.disabled = true;
-        try {
-          await transferSpecificRowToHistorique(actualSheetRow);
-          await loadSheet();
-        } catch (err) {
-          checkbox.disabled = false;
-          checkbox.checked = false;
-          const detail = err && (err.message || err.result?.error?.message || err.body?.error?.message);
-          console.error('Erreur transfert Historique :', err);
-          setStatus(detail ? 'Le transfert n’a pas pu être effectué : ' + detail : 'Le transfert n’a pas pu être effectué.');
-        }
-      });
-      tdSoldTotal.appendChild(checkbox);
-      tr.appendChild(tdSoldTotal);
-      [[6,7],[7,8]].forEach(([rowIndex, sheetCol]) => {
-        const td = document.createElement('td');
-        td.textContent = row[rowIndex] || '';
-        td.contentEditable = true;
-        td.dataset.row = actualSheetRow;
-        td.dataset.col = sheetCol;
-        td.addEventListener('blur', onCellEdit);
-        tr.appendChild(td);
-      });
+
       const tdDelete = document.createElement('td');
       tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:15%; height:5%; object-fit:cover;"/>';
       tdDelete.style.cursor = 'pointer';
-      tdDelete.style.color = '#bbb';
       tdDelete.title = 'Supprimer cette ligne';
       tdDelete.addEventListener('click', async e => {
         e.stopPropagation();
-        if (confirm('Supprimer cette ligne ?')) await deleteRow(actualSheetRow);
+        const confirmed = confirm('Supprimer cette ligne ?');
+        if (confirmed) await deleteRow(actualSheetRow);
       });
       tr.appendChild(tdDelete);
+
       tr.addEventListener('click', () => {
         document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
         tr.classList.add('selected');
       });
+
       tbody.appendChild(tr);
     });
   }
@@ -1913,3 +1963,4 @@ document.getElementById('code').addEventListener('keydown', (e) => {
 </script>
 </body>
 </html>
+
