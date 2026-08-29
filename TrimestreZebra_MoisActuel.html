@@ -25,8 +25,8 @@ h1{font-size:20px;margin:0;color:#163f5b}
 .session strong{color:var(--text)}
 .topbar{display:flex;gap:7px;margin-bottom:10px}
 .topbar button,.back{flex:1;min-height:40px;border:1px solid var(--border);background:#fff;border-radius:11px;font-weight:700;color:var(--text)}
-.login{background:#fff;border:1px solid var(--border);border-radius:14px;padding:9px;margin-bottom:10px;text-align:center;box-shadow:var(--shadow)}
-.login button{margin-top:7px;border:0;background:var(--blue2);color:#fff;border-radius:10px;padding:9px 14px;font-weight:700}
+.login{background:#f8fbff;border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:9px;text-align:center}
+.login button{margin-top:7px;border:0;background:var(--blue2);color:#fff;border-radius:10px;padding:10px 16px;font-weight:700;min-height:40px}
 .status{font-size:11px;color:var(--muted);text-align:center;min-height:17px;margin:5px 0 9px}
 .months{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:10px}
 .month-card{display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:16px;background:#fff;padding:14px;box-shadow:var(--shadow);cursor:pointer;min-height:92px}
@@ -76,8 +76,14 @@ h1{font-size:20px;margin:0;color:#163f5b}
   <button class="back" onclick="location.href='TrimestreZebra.html'">⬅ Trimestre</button>
 </div>
 <div class="panel">
-  <div class="panel-head"><h2 id="monthTitle">Mois actuel</h2><span class="count" id="count">0 produit</span></div>
-  <div id="status">Connexion Google Sheets nécessaire.</div>
+  <div class="panel-head">
+    <h2 id="monthTitle">Mois actuel</h2>
+    <span class="count" id="count">0 produit</span>
+  </div>
+  <div id="googleLogin" class="login">
+    <div id="status">Connexion à Google Sheets nécessaire pour afficher les produits.</div>
+    <button id="googleLoginBtn" onclick="connectGoogle()" disabled>Se connecter à Google</button>
+  </div>
 </div>
 <section id="products"></section>
 
@@ -333,10 +339,76 @@ window.addEventListener('load',()=>{
 
 
 const PAGE_TYPE=0;
+
 function updatePageLabels(){
   const s=monthStart(), x=addMonths(s.y,s.m,PAGE_TYPE);
-  document.getElementById('monthTitle').textContent=monthLabel(x.y,x.m)+' — 50 à 70 %';
+  document.getElementById('monthTitle').textContent =
+    monthLabel(x.y,x.m)+' — 50 à 70 %';
 }
+
+function showLogin(){
+  const box=document.getElementById('googleLogin');
+  const btn=document.getElementById('googleLoginBtn');
+  if(box) box.style.display='block';
+  if(btn) btn.disabled=!(gapiInited && gisInited);
+}
+
+function hideLogin(){
+  const box=document.getElementById('googleLogin');
+  if(box) box.style.display='none';
+}
+
+function maybeReady(){
+  if(gapiInited && gisInited){
+    const btn=document.getElementById('googleLoginBtn');
+    if(btn) btn.disabled=false;
+    setStatus('Connexion Google prête.');
+    // On tente d'abord une reconnexion silencieuse.
+    connectGoogleSilent();
+  }
+}
+
+function connectGoogleSilent(){
+  if(!tokenClient || !gapiInited || !gisInited) return;
+  setStatus('Connexion à Google Sheets…');
+  tokenClient.requestAccessToken({prompt:''});
+}
+
+function connectGoogle(){
+  if(!tokenClient || !gapiInited || !gisInited){
+    setStatus('Google est encore en cours de chargement…');
+    return;
+  }
+  setStatus('Ouverture de la connexion Google…');
+  tokenClient.requestAccessToken({prompt:'consent'});
+}
+
+async function loadSheet(){
+  try{
+    const res=await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId:SPREADSHEET_ID,
+      range:RANGE
+    });
+    sheetRows=res.result.values||[];
+    hideLogin();
+    renderPage();
+    setStatus('Google Sheets connecté.');
+  }catch(e){
+    showLogin();
+    setStatus('Erreur Google Sheets : '+e.message);
+  }
+}
+
+function renderPage(){
+  renderProducts(PAGE_TYPE);
+}
+
+window.addEventListener('load',()=>{
+  updatePageLabels();
+  showLogin();
+  gapiLoaded();
+  gisLoaded();
+});
 
 </script>
 </body>
