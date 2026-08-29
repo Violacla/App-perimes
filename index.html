@@ -572,7 +572,7 @@ Déconnexion
 <body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 07/10/2025</h2>
+    <h2>Mise à jour - 29/08/2026</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
       <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
@@ -1026,6 +1026,9 @@ const values = [[
         const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
         const rows = res.result.values || [];
         renderTable(rows);
+        // Conserve automatiquement les filtres déjà saisis après chaque rechargement.
+        // Ainsi, après une modification ou un transfert, l'affichage reste filtré.
+        filterTable();
     } catch (e) {
         setStatus("Erreur de chargement : " + e.message);
     }
@@ -1424,16 +1427,7 @@ document.addEventListener('click', function (e) {
       checkbox.addEventListener('change', async () => {
         if (!checkbox.checked) return;
 
-        const confirmed = confirm(
-          'Cette ligne est-elle totalement vendue ?\n\n' +
-          'Elle sera transférée directement dans Feuille2.'
-        );
-
-        if (!confirmed) {
-          checkbox.checked = false;
-          return;
-        }
-
+        // Pas de popup de confirmation : cocher la case lance directement le transfert.
         checkbox.disabled = true;
         try {
           await transferRowToFeuille2(actualSheetRow);
@@ -1445,7 +1439,7 @@ document.addEventListener('click', function (e) {
           const msg = err?.message || 'Erreur inconnue lors du transfert.';
           console.error('Transfert Feuille2 :', err);
           setStatus('Erreur lors du transfert vers Feuille2 : ' + msg);
-          alert('Erreur lors du transfert vers Feuille2 : ' + msg);
+          // Pas de popup : l'erreur reste affichée dans le message de statut.
         }
       });
 
