@@ -571,7 +571,7 @@ Déconnexion
 <body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 07/10/2025</h2>
+    <h2>Mise à jour - 08/à_/2026</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
       <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
@@ -992,7 +992,8 @@ const values = [[
             resource: { values }
         });
 
-        loadSheet();
+        await transferToHistorique();
+        await loadSheet();
         setStatus('Ligne ajoutée avec succès !');
 
         // Réinitialisation des champs
@@ -1030,8 +1031,6 @@ const values = [[
     }
     // Appel de la fonction pour mettre à jour les mois après le chargement des données
     updateNotificationMonths();
-   console.log("Le jour est : ", dayOfMonth);
-console.log("Le mois de départ est : ", startMonthIndex);
 }
 
 // Fonction pour mettre à jour les mois dans les onglets de la notification
@@ -1131,6 +1130,12 @@ td.dataset.row = actualSheetRow;
         valueInputOption: 'USER_ENTERED',
         resource: { values: [[newValue]] }
       });
+      // Si la colonne G (Vendues) vient d'être modifiée, vérifie immédiatement
+      // si Qté = Vendues et transfère la ligne vers Historique.
+      if (Number(col) === 7) {
+        await transferToHistorique();
+      }
+      await loadSheet();
       setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
     } catch (err) {
       setStatus('Erreur mise à jour : ' + err.message);
@@ -1179,9 +1184,81 @@ function formatMonthYear(ym) {
     gisLoaded();
   };</script>
 <script>
+// Transfert automatique des lignes entièrement vendues vers "historique".
+// Règle : Qté (colonne E) > 0 ET Vendues (colonne G) >= Qté.
+async function transferToHistorique() {
+  const res = await gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: SPREADSHEET_ID,
+    range: 'Feuille1'
+  });
+
+  const allRows = res.result.values || [];
+  if (allRows.length <= 1) return 0;
+
+  const header = allRows[0];
+  const toMove = [];
+  const rowsToKeep = [header];
+
+  allRows.slice(1).forEach((row) => {
+    const qte = Number.parseInt(String(row[4] ?? '').trim(), 10);
+    const vendues = Number.parseInt(String(row[6] ?? '').trim(), 10);
+
+    if (Number.isFinite(qte) && qte > 0 && Number.isFinite(vendues) && vendues >= qte) {
+      toMove.push(row);
+    } else {
+      rowsToKeep.push(row);
+    }
+  });
+
+  if (!toMove.length) return 0;
+
+  // Ajoute d'abord les lignes dans Historique.
+  await gapi.client.sheets.spreadsheets.values.append({
+    spreadsheetId: SPREADSHEET_ID,
+    range: 'historique',
+    valueInputOption: 'USER_ENTERED',
+    resource: { values: toMove }
+  });
+
+  // Puis supprime les lignes correspondantes de Feuille1, de bas en haut.
+  const meta = await gapi.client.sheets.spreadsheets.get({
+    spreadsheetId: SPREADSHEET_ID
+  });
+  const sheet = (meta.result.sheets || []).find(s => s.properties.title === 'Feuille1');
+  if (!sheet) throw new Error('Feuille1 introuvable');
+
+  const deleteRequests = [];
+  for (let i = allRows.length - 1; i >= 1; i--) {
+    const row = allRows[i];
+    const qte = Number.parseInt(String(row[4] ?? '').trim(), 10);
+    const vendues = Number.parseInt(String(row[6] ?? '').trim(), 10);
+    if (Number.isFinite(qte) && qte > 0 && Number.isFinite(vendues) && vendues >= qte) {
+      deleteRequests.push({
+        deleteDimension: {
+          range: {
+            sheetId: sheet.properties.sheetId,
+            dimension: 'ROWS',
+            startIndex: i,
+            endIndex: i + 1
+          }
+        }
+      });
+    }
+  }
+
+  if (deleteRequests.length) {
+    await gapi.client.sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      resource: { requests: deleteRequests }
+    });
+  }
+
+  setStatus(`${toMove.length} ligne(s) transférée(s) vers "historique".`);
+  return toMove.length;
+}
+
 if (document.getElementById('btn-history')) {
   document.getElementById('btn-history').addEventListener('click', async () => {
-}
     if (!operatorName) {
       alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
       return;
@@ -1193,47 +1270,7 @@ if (document.getElementById('btn-history')) {
       alert("Erreur lors du transfert vers historique : " + e.message);
     }
   });
-
-  async function transferToHistorique() {
-    const res = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1'
-    });
-    const allRows = res.result.values || [];
-    if (allRows.length <= 1) return;
-
-    const now = new Date();
-    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const toMove = [];
-    const remaining = [allRows[0]];
-
-    allRows.slice(1).forEach(row => {
-      const dateStr = row[1];
-      if (!dateStr) return;
-      const d = new Date(dateStr);
-      if (isNaN(d)) return;
-      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (ym < currentYM) toMove.push(row);
-      else remaining.push(row);
-    });
-
-    if (toMove.length > 0) {
-      await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'historique',
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: toMove }
-      });
-    }
-
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: remaining }
-    });
-    setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
-  }
+}
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -1868,4 +1905,3 @@ document.getElementById('code').addEventListener('keydown', (e) => {
 </script>
 </body>
 </html>
-
