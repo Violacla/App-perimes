@@ -455,6 +455,9 @@
 #btn-confirm-operator:hover {
   background-color: #1a4d78; /* Un bleu plus foncé au survol */
 }
+  .sold-total-cell { text-align: center; vertical-align: middle; min-width: 130px; }
+  .vendues-totalement-checkbox { width: 20px; height: 20px; cursor: pointer; }
+  .vendues-totalement-checkbox:disabled { cursor: wait; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <header>
@@ -546,6 +549,7 @@ Déconnexion
 <th>Code</th>
 <th>Qté</th>
 <th>Zone</th>
+<th>Vendues totalement</th>
 <th>Vendues</th>
 <th>Promo</th>
 <th>Suppr</th>
@@ -992,7 +996,6 @@ const values = [[
             resource: { values }
         });
 
-        await transferToHistorique();
         await loadSheet();
         setStatus('Ligne ajoutée avec succès !');
 
@@ -1130,11 +1133,6 @@ td.dataset.row = actualSheetRow;
         valueInputOption: 'USER_ENTERED',
         resource: { values: [[newValue]] }
       });
-      // Si la colonne G (Vendues) vient d'être modifiée, vérifie immédiatement
-      // si Qté = Vendues et transfère la ligne vers Historique.
-      if (Number(col) === 7) {
-        await transferToHistorique();
-      }
       await loadSheet();
       setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
     } catch (err) {
@@ -1184,78 +1182,35 @@ function formatMonthYear(ym) {
     gisLoaded();
   };</script>
 <script>
-// Transfert automatique des lignes entièrement vendues vers "historique".
-// Règle : Qté (colonne E) > 0 ET Vendues (colonne G) >= Qté.
-async function transferToHistorique() {
+async function transferSpecificRowToHistorique(sheetRowNumber) {
+  if (!operatorName) throw new Error('Veuillez vous connecter et choisir un opérateur.');
   const res = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
-    range: 'Feuille1'
+    range: `Feuille1!A${sheetRowNumber}:I${sheetRowNumber}`
   });
-
-  const allRows = res.result.values || [];
-  if (allRows.length <= 1) return 0;
-
-  const header = allRows[0];
-  const toMove = [];
-  const rowsToKeep = [header];
-
-  allRows.slice(1).forEach((row) => {
-    const qte = Number.parseInt(String(row[4] ?? '').trim(), 10);
-    const vendues = Number.parseInt(String(row[6] ?? '').trim(), 10);
-
-    if (Number.isFinite(qte) && qte > 0 && Number.isFinite(vendues) && vendues >= qte) {
-      toMove.push(row);
-    } else {
-      rowsToKeep.push(row);
-    }
-  });
-
-  if (!toMove.length) return 0;
-
-  // Ajoute d'abord les lignes dans Historique.
+  const row = (res.result.values || [])[0];
+  if (!row) throw new Error('Ligne introuvable dans Feuille1.');
   await gapi.client.sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
     range: 'historique',
     valueInputOption: 'USER_ENTERED',
-    resource: { values: toMove }
+    resource: { values: [row] }
   });
-
-  // Puis supprime les lignes correspondantes de Feuille1, de bas en haut.
-  const meta = await gapi.client.sheets.spreadsheets.get({
-    spreadsheetId: SPREADSHEET_ID
-  });
+  const meta = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
   const sheet = (meta.result.sheets || []).find(s => s.properties.title === 'Feuille1');
-  if (!sheet) throw new Error('Feuille1 introuvable');
-
-  const deleteRequests = [];
-  for (let i = allRows.length - 1; i >= 1; i--) {
-    const row = allRows[i];
-    const qte = Number.parseInt(String(row[4] ?? '').trim(), 10);
-    const vendues = Number.parseInt(String(row[6] ?? '').trim(), 10);
-    if (Number.isFinite(qte) && qte > 0 && Number.isFinite(vendues) && vendues >= qte) {
-      deleteRequests.push({
-        deleteDimension: {
-          range: {
-            sheetId: sheet.properties.sheetId,
-            dimension: 'ROWS',
-            startIndex: i,
-            endIndex: i + 1
-          }
-        }
-      });
-    }
-  }
-
-  if (deleteRequests.length) {
-    await gapi.client.sheets.spreadsheets.batchUpdate({
-      spreadsheetId: SPREADSHEET_ID,
-      resource: { requests: deleteRequests }
-    });
-  }
-
-  setStatus(`${toMove.length} ligne(s) transférée(s) vers "historique".`);
-  return toMove.length;
+  if (!sheet) throw new Error('Feuille1 introuvable.');
+  await gapi.client.sheets.spreadsheets.batchUpdate({
+    spreadsheetId: SPREADSHEET_ID,
+    resource: { requests: [{ deleteDimension: { range: {
+      sheetId: sheet.properties.sheetId, dimension: 'ROWS',
+      startIndex: sheetRowNumber - 1, endIndex: sheetRowNumber
+    }}}] }
+  });
+  setStatus('Ligne transférée vers « historique ».');
 }
+
+// Ancienne fonction conservée pour compatibilité.
+async function transferToHistorique() { return 0; }
 
 if (document.getElementById('btn-history')) {
   document.getElementById('btn-history').addEventListener('click', async () => {
@@ -1264,7 +1219,6 @@ if (document.getElementById('btn-history')) {
       return;
     }
     try {
-      await transferToHistorique();
       window.location.href = '/historique.html';
     } catch (e) {
       alert("Erreur lors du transfert vers historique : " + e.message);
@@ -1367,64 +1321,78 @@ document.addEventListener('click', function (e) {
   }
 });
   function renderTable(rows) {
-  const tbody = document.querySelector('#data-table tbody');
-  tbody.innerHTML = '';
-
-  //rows.slice(1).forEach((row, i) => {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
     rows.slice(1).reverse().forEach((row, i) => {
-    const tr = document.createElement('tr');
-      const qte = parseInt(row[4] || '0');
-const vendu = parseInt(row[6] || '0');
-if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
-  tr.classList.add('ligne-vendue');
-}
-    const cols = [1, 2, 3, 4, 5, 6, 7];
-
-    cols.forEach(colIndex => {
-      const td = document.createElement('td');
-     td.textContent = row[colIndex] || '';
-      td.contentEditable = true;
-      //td.dataset.row = i + 2;
+      const tr = document.createElement('tr');
+      const qte = parseInt(row[4] || '0', 10);
+      const vendu = parseInt(row[6] || '0', 10);
+      if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) tr.classList.add('ligne-vendue');
       const actualSheetRow = rows.length - i;
-td.dataset.row = actualSheetRow;
-      td.dataset.col = colIndex + 1;
-      td.addEventListener('blur', onCellEdit);
-      tr.appendChild(td);
+      [1, 2, 3, 4, 5].forEach(colIndex => {
+        const td = document.createElement('td');
+        td.textContent = row[colIndex] || '';
+        td.contentEditable = true;
+        td.dataset.row = actualSheetRow;
+        td.dataset.col = colIndex + 1;
+        td.addEventListener('blur', onCellEdit);
+        tr.appendChild(td);
+      });
+      const tdSoldTotal = document.createElement('td');
+      tdSoldTotal.className = 'sold-total-cell';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'vendues-totalement-checkbox';
+      checkbox.title = 'Transférer cette ligne vers Historique';
+      checkbox.setAttribute('aria-label', 'Vendues totalement');
+      checkbox.addEventListener('click', e => e.stopPropagation());
+      checkbox.addEventListener('change', async e => {
+        e.stopPropagation();
+        if (!checkbox.checked) return;
+        if (!confirm('Cette ligne est-elle totalement vendue ?\n\nElle sera transférée dans la feuille « historique ».')) {
+          checkbox.checked = false;
+          return;
+        }
+        checkbox.disabled = true;
+        try {
+          await transferSpecificRowToHistorique(actualSheetRow);
+          await loadSheet();
+        } catch (err) {
+          checkbox.disabled = false;
+          checkbox.checked = false;
+          setStatus('Erreur lors du transfert : ' + err.message);
+          alert('Erreur lors du transfert vers historique : ' + err.message);
+        }
+      });
+      tdSoldTotal.appendChild(checkbox);
+      tr.appendChild(tdSoldTotal);
+      [[6,7],[7,8]].forEach(([rowIndex, sheetCol]) => {
+        const td = document.createElement('td');
+        td.textContent = row[rowIndex] || '';
+        td.contentEditable = true;
+        td.dataset.row = actualSheetRow;
+        td.dataset.col = sheetCol;
+        td.addEventListener('blur', onCellEdit);
+        tr.appendChild(td);
+      });
+      const tdDelete = document.createElement('td');
+      tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:15%; height:5%; object-fit:cover;"/>';
+      tdDelete.style.cursor = 'pointer';
+      tdDelete.style.color = '#bbb';
+      tdDelete.title = 'Supprimer cette ligne';
+      tdDelete.addEventListener('click', async e => {
+        e.stopPropagation();
+        if (confirm('Supprimer cette ligne ?')) await deleteRow(actualSheetRow);
+      });
+      tr.appendChild(tdDelete);
+      tr.addEventListener('click', () => {
+        document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
+        tr.classList.add('selected');
+      });
+      tbody.appendChild(tr);
     });
-
-    // ✅ Ajout de la colonne "✖️"
-    const tdDelete = document.createElement('td');
-    tdDelete.innerHTML = '<img src="https://i.imgur.com/oStNoqu.png" style="width:15%; height:5%; object-fit:cover;"/>';
-    tdDelete.style.cursor = 'pointer';
-    tdDelete.style.color = '#bbb';
-    tdDelete.style.fontSize = '1.1em';
-    tdDelete.title = 'Supprimer cette ligne';
-    tdDelete.addEventListener('mouseenter', () => tdDelete.style.color = '#888');
-    tdDelete.addEventListener('mouseleave', () => tdDelete.style.color = '#bbb');
- //   tdDelete.addEventListener('click', async () => {
- //     const confirmed = confirm("Supprimer cette ligne ?");
- //     if (confirmed) {
- //       await deleteRow(i + 2);
- //     }
- //   });
-      const actualSheetRow = rows.length - i;
-
-tdDelete.addEventListener('click', async () => {
-  const confirmed = confirm("Supprimer cette ligne ?");
-  if (confirmed) {
-    await deleteRow(actualSheetRow);
   }
-});
-    tr.appendChild(tdDelete);
 
-    tr.addEventListener('click', () => {
-      document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('selected'));
-      tr.classList.add('selected');
-    });
-
-    tbody.appendChild(tr);
-  });
-}
 </script>
 <script>
   // Filtrer en appuyant sur Entrée dans les champs
