@@ -284,8 +284,6 @@
   }
   .ligne-vendue td {
   text-decoration: line-through;
-  text-decoration-thickness: 2px;
-  text-decoration-line: line-through;
   background-color: #d8c0ca !important; /* ou une autre couleur que tu préfères */
   color: #efe8eb; /* facultatif : texte un peu plus gris */
 }
@@ -573,7 +571,7 @@ Déconnexion
 <body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 29/08/2026</h2>
+    <h2>Mise à jour - 07/10/2025</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
       <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
@@ -1024,18 +1022,16 @@ const values = [[
   // Load sheet data, exclude operator from table display
  async function loadSheet() {
     try {
-        // Transfert automatique des lignes entièrement vendues (Qté E / Vendues G).
-        await transferToHistorique(true, true);
-        const res = await gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: SPREADSHEET_ID,
-          range: RANGE
-        });
+        const res = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: RANGE });
         const rows = res.result.values || [];
         renderTable(rows);
     } catch (e) {
         setStatus("Erreur de chargement : " + e.message);
     }
+    // Appel de la fonction pour mettre à jour les mois après le chargement des données
     updateNotificationMonths();
+   console.log("Le jour est : ", dayOfMonth);
+console.log("Le mois de départ est : ", startMonthIndex);
 }
 
 // Fonction pour mettre à jour les mois dans les onglets de la notification
@@ -1073,16 +1069,9 @@ function updateNotificationMonths() {
 
     const currentMonthTab = document.getElementById('current-month');
     if (currentMonthTab) {
-      let targetMonthIndex = today.getMonth();
-      let targetYear = today.getFullYear();
-      if (dayOfMonth < 15) {
-        targetMonthIndex--;
-        if (targetMonthIndex < 0) {
-          targetMonthIndex = 11;
-          targetYear--;
-        }
-      }
-      currentMonthTab.innerHTML = `<h3>À retirer (${monthNames[targetMonthIndex]} ${targetYear})</h3>`;
+      const previousMonthIndex = (today.getMonth() - 1 + 12) % 12;
+      const previousMonth = monthNames[previousMonthIndex];
+      currentMonthTab.innerHTML = `<h3>À retirer (${previousMonth})</h3>`;
     }
 }
 
@@ -1099,10 +1088,10 @@ function updateNotificationMonths() {
     rows.slice(1).reverse().forEach((row, i) => {
       const tr = document.createElement('tr');
       const qte = parseInt(row[4] || '0');
-      const vendu = parseInt(row[6] || '0');
-      if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
-        tr.classList.add('ligne-vendue');
-      }
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
 
       // Columns: opérateur (0), produit (1), date(2), qty(3), zone(4), vendues(5), promo(6)
       // We skip opérateur (col 0)
@@ -1128,81 +1117,24 @@ td.dataset.row = actualSheetRow;
   }
 
   // Update cell in Google Sheets on edit
-  // If Vendues (column F) reaches Qté (column D), move the row to Historique.
   async function onCellEdit(e) {
     if(!operatorName) return;
     const td = e.target;
     const newValue = td.textContent.trim();
-    const rowNumber = parseInt(td.dataset.row, 10);
-    const col = parseInt(td.dataset.col, 10);
+    const row = td.dataset.row;
+    const col = td.dataset.col;
 
     try {
       await gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId: SPREADSHEET_ID,
-        range: `Feuille1!${columnToLetter(col)}${rowNumber}`,
+        range: `Feuille1!${columnToLetter(col)}${row}`,
         valueInputOption: 'USER_ENTERED',
         resource: { values: [[newValue]] }
       });
-
-      // Qté = colonne E (5) et Vendues = colonne G (7).
-      // On vérifie après TOUTE modification afin que le transfert soit automatique
-      // si Qté et Vendues deviennent égales (ou si Vendues dépasse Qté).
-      {
-        const res = await gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: SPREADSHEET_ID,
-          range: `Feuille1!A${rowNumber}:H${rowNumber}`
-        });
-        const rowData = (res.result.values || [])[0];
-        const qte = parseInt(rowData?.[4] || '0', 10);
-        const vendu = parseInt(rowData?.[6] || '0', 10);
-
-        if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
-          await transferSingleRowToHistorique(rowNumber);
-          setStatus(`Produit vendu entièrement : transféré dans "historique".`);
-          await loadSheet();
-          return;
-        }
-      }
-
-      setStatus(`Cellule mise à jour (ligne ${rowNumber}, colonne ${col})`);
+      setStatus(`Cellule mise à jour (ligne ${row}, colonne ${col})`);
     } catch (err) {
       setStatus('Erreur mise à jour : ' + err.message);
     }
-  }
-
-  // Move one complete row from Feuille1 to Historique.
-  async function transferSingleRowToHistorique(sheetRow) {
-    const res = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1'
-    });
-    const allRows = res.result.values || [];
-    const index = sheetRow - 1; // sheet row 1 = array index 0
-    if (index <= 0 || index >= allRows.length) return;
-
-    const row = allRows[index];
-    const qte = parseInt(row[4] || '0', 10);
-    const vendu = parseInt(row[6] || '0', 10);
-    if (isNaN(qte) || isNaN(vendu) || qte <= 0 || vendu < qte) return;
-
-    await gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'historique',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [row] }
-    });
-
-    const remaining = allRows.filter((_, i) => i !== index);
-    await gapi.client.sheets.spreadsheets.values.clear({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1'
-    });
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1!A1',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: remaining }
-    });
   }
 
   // Convert number to letter for column (1->A, 2->B ...)
@@ -1249,6 +1181,7 @@ function formatMonthYear(ym) {
 <script>
 if (document.getElementById('btn-history')) {
   document.getElementById('btn-history').addEventListener('click', async () => {
+}
     if (!operatorName) {
       alert("Connectez-vous et choisissez un opérateur pour accéder à l'historique.");
       return;
@@ -1260,53 +1193,47 @@ if (document.getElementById('btn-history')) {
       alert("Erreur lors du transfert vers historique : " + e.message);
     }
   });
-}
 
-async function transferToHistorique(updateStatus = true, silentIfNone = true) {
-  const res = await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: SPREADSHEET_ID,
-    range: 'Feuille1'
-  });
-  const allRows = res.result.values || [];
-  if (allRows.length <= 1) return;
-
-  const toMove = [];
-  const remaining = [allRows[0]];
-
-  allRows.slice(1).forEach(row => {
-    const qte = parseInt(row[4] || '0', 10);
-    const vendu = parseInt(row[6] || '0', 10);
-    if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
-      toMove.push(row);
-    } else {
-      remaining.push(row);
-    }
-  });
-
-  if (toMove.length > 0) {
-    await gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'historique',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: toMove }
-    });
-
-    await gapi.client.sheets.spreadsheets.values.clear({
+  async function transferToHistorique() {
+    const res = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'Feuille1'
     });
+    const allRows = res.result.values || [];
+    if (allRows.length <= 1) return;
+
+    const now = new Date();
+    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const toMove = [];
+    const remaining = [allRows[0]];
+
+    allRows.slice(1).forEach(row => {
+      const dateStr = row[1];
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d)) return;
+      const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (ym < currentYM) toMove.push(row);
+      else remaining.push(row);
+    });
+
+    if (toMove.length > 0) {
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'historique',
+        valueInputOption: 'USER_ENTERED',
+        resource: { values: toMove }
+      });
+    }
+
     await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Feuille1!A1',
+      range: 'Feuille1',
       valueInputOption: 'USER_ENTERED',
       resource: { values: remaining }
     });
-  }
-
-  if (updateStatus && (!silentIfNone || toMove.length > 0)) {
     setStatus(`Transféré ${toMove.length} lignes vers "historique".`);
   }
-}
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -1410,10 +1337,10 @@ document.addEventListener('click', function (e) {
     rows.slice(1).reverse().forEach((row, i) => {
     const tr = document.createElement('tr');
       const qte = parseInt(row[4] || '0');
-      const vendu = parseInt(row[6] || '0');
-      if (!isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte) {
-        tr.classList.add('ligne-vendue');
-      }
+const vendu = parseInt(row[6] || '0');
+if (!isNaN(qte) && !isNaN(vendu) && qte === vendu) {
+  tr.classList.add('ligne-vendue');
+}
     const cols = [1, 2, 3, 4, 5, 6, 7];
 
     cols.forEach(colIndex => {
@@ -1686,17 +1613,18 @@ dateInputField.addEventListener('blur', () => {
 
 async function loadNotifications() {
   const RANGE_A_ENLEVER = "Feuille2!A1:H1000";
-  // La date/période de la colonne B est normalement MM/YYYY.
-  // On accepte aussi les anciens formats YYYY-MM-DD et JJ/MM/AAAA.
   const parseDate = (dateStr) => {
     if (!dateStr) return null;
-    const value = String(dateStr).trim();
-    let m = value.match(/^(\d{1,2})\/(\d{4})$/);
-    if (m) return new Date(Number(m[2]), Number(m[1]) - 1, 1);
-    m = value.match(/^(\d{4})-(\d{1,2})(?:-\d{1,2})?$/);
-    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, 1);
-    m = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if (m) return new Date(Number(m[3]), Number(m[2]) - 1, 1);
+    let parts = dateStr.split('-');
+    if (parts.length === 3) {
+      // Format AAAA-MM-JJ
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    parts = dateStr.split('/');
+    if (parts.length === 3) {
+      // Format JJ/MM/AAAA
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
     return null;
   };
 
@@ -1713,15 +1641,6 @@ async function loadNotifications() {
     });
     const dataFeuille2 = (resFeuille2.result.values || []).slice(1);
 
-    // Les produits vendus entièrement sont déplacés vers "historique".
-    // On lit donc aussi cette feuille afin qu'ils restent visibles dans
-    // "À retirer" jusqu'au 14 du mois suivant.
-    const resHistorique = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'historique!A1:H1000'
-    });
-    const dataHistorique = (resHistorique.result.values || []).slice(1);
-
     const now = new Date();
     const currentDay = now.getDate();
     const currentMonthNumber = now.getMonth();
@@ -1733,40 +1652,22 @@ async function loadNotifications() {
       'current-month': []
     };
 
-    // Période "À retirer" : du 15 au 14.
-    // À partir du 15, la période de retrait correspond au mois actuel.
-    // Du 1er au 14, elle correspond au mois précédent.
-    let targetMonth = currentMonthNumber;
-    let targetYear = currentYearNumber;
-    if (currentDay < 15) {
-      targetMonth--;
-      if (targetMonth < 0) {
-        targetMonth = 11;
-        targetYear--;
-      }
-    }
+    // Logique pour le mois précédent ("À enlever")
+    const prevMonth = (currentMonthNumber - 1 + 12) % 12;
+    const prevMonthYear = (currentMonthNumber === 0) ? currentYearNumber - 1 : currentYearNumber;
 
-    // À retirer = période du 15 au 14. On lit Feuille2 + historique +
-    // Feuille1 pour qu'une ligne soit visible avant et après son transfert.
-    const currentMonthRows = [];
-    const currentMonthKeys = new Set();
-
-    const addToCurrentMonth = (row) => {
-      const d = parseDate(row[1]);
+    dataFeuille2.forEach(row => {
+      const dateStr = row[1];
+      const d = parseDate(dateStr);
       if (!d) return;
-      if (d.getFullYear() === targetYear && d.getMonth() === targetMonth) {
-        const key = [row[1] || '', row[3] || '', row[2] || ''].join('|');
-        if (!currentMonthKeys.has(key)) {
-          currentMonthKeys.add(key);
-          currentMonthRows.push(row);
-        }
-      }
-    };
 
-    dataFeuille2.forEach(addToCurrentMonth);
-    dataHistorique.forEach(addToCurrentMonth);
-    dataFeuille1.forEach(addToCurrentMonth);
-    grouped['current-month'] = currentMonthRows;
+      const rowMonth = d.getMonth();
+      const rowYear = d.getFullYear();
+
+      if (rowYear === prevMonthYear && rowMonth === prevMonth) {
+        grouped['current-month'].push(row);
+      }
+    });
 
     // Traitement des données de la Feuille1 pour le trimestre et le 2ème mois
     dataFeuille1.forEach(row => {
@@ -1842,7 +1743,7 @@ if (monthsToInclude.includes(ym)) {
       rows.forEach(row => {
         const qte = parseInt(row[4] || '0');
         const vendu = parseInt(row[6] || '0');
-        const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte > 0 && vendu >= qte;
+        const isSoldOut = !isNaN(qte) && !isNaN(vendu) && qte === vendu;
         tableHtml += `<tr class="${isSoldOut ? 'ligne-vendue' : ''}">`;
         [1, 2, 3, 4, 5, 6, 7].forEach(ci => {
           tableHtml += `<td>${row[ci] || ''}</td>`;
@@ -1872,10 +1773,10 @@ if (monthsToInclude.includes(ym)) {
     const secondMonthTitleDate = new Date(currentYearNumber, currentMonthNumber + (currentDay > 14 ? 2 : 1));
     document.getElementById('2nd-month').innerHTML = `<h3>${formatMonthYear(secondMonthTitleDate)}</h3>` + renderTable(grouped['2nd-month']);
 
-    // Rendu pour la période "À retirer" (du 15 au 14).
-    const targetMonthDate = new Date(targetYear, targetMonth, 1);
-    const targetMonthTitle = formatMonthYear(targetMonthDate);
-    document.getElementById('current-month').innerHTML = `<h3>${targetMonthTitle}</h3>` + renderTable(grouped['current-month']);
+    // Rendu pour le mois précédent ("À enlever")
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
+    const prevMonthTitle = formatMonthYear(prevMonthDate);
+    document.getElementById('current-month').innerHTML = `<h3>${prevMonthTitle}</h3>` + renderTable(grouped['current-month']);
 
   } catch (e) {
     console.error("Erreur chargement notifications :", e);
@@ -1967,3 +1868,4 @@ document.getElementById('code').addEventListener('keydown', (e) => {
 </script>
 </body>
 </html>
+
