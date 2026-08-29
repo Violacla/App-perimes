@@ -43,19 +43,21 @@ h1{font-size:20px;margin:0;color:#163f5b}
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .panel h2{font-size:15px;margin:0}
 .count{font-size:11px;color:var(--muted)}
-.product{background:#fff;border:1px solid var(--border);border-radius:15px;padding:11px;margin-bottom:8px;box-shadow:0 2px 8px rgba(62,91,122,.05)}
+.product{background:#fff;border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:8px;box-shadow:var(--shadow);min-height:320px}
 .product.sold-out{opacity:.58}
-.product-title{font-weight:800;font-size:14px;line-height:1.25}
-.code{font-size:12px;color:var(--blue2);font-weight:700;margin-top:3px}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:5px 9px;margin-top:9px}
-.facts div{background:#f7f9fc;border-radius:8px;padding:6px}
-.facts span{display:block;font-size:9px;color:var(--muted)}
-.facts strong{font-size:11px}
-.actions{display:flex;gap:7px;margin-top:9px}
-.btn{flex:1;min-height:39px;border:0;border-radius:10px;font-weight:700;font-size:11px;cursor:pointer}
+.product-title{font-weight:800;font-size:19px;line-height:1.25}
+.code{font-size:15px;color:var(--blue2);font-weight:800;margin-top:5px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
+.facts div{background:#f7f9fc;border-radius:10px;padding:10px}
+.facts span{display:block;font-size:10px;color:var(--muted)}
+.facts strong{font-size:14px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.btn{min-height:48px;border:0;border-radius:11px;font-weight:800;font-size:12px;cursor:pointer}
 .btn-sold{background:#d8c0ca;color:#26384d}
 .btn-promo{background:var(--green);color:#fff}
 .btn-highlight{background:var(--blue);color:#fff}
+.navigation{display:flex;gap:8px;margin-top:10px}
+.navigation button{flex:1;min-height:48px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);font-weight:800}
 .empty{padding:25px 8px;text-align:center;color:var(--muted);font-size:12px}
 .detail-row{padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
 .detail-row:last-child{border-bottom:0}
@@ -294,38 +296,60 @@ function productRowsFor(type){
   }
   return result;
 }
+let currentProducts=[];
+let currentProductIndex=0;
+
 function renderProducts(type){
+  currentProducts=productRowsFor(type);
   const box=document.getElementById('products');
-  const rows=productRowsFor(type);
   const count=document.getElementById('count');
-  if(count) count.textContent=rows.length+' produit'+(rows.length>1?'s':'');
-  if(!rows.length){
+  if(count) count.textContent=currentProducts.length+' produit'+(currentProducts.length>1?'s':'');
+  currentProductIndex=Math.min(currentProductIndex,Math.max(0,currentProducts.length-1));
+
+  if(!currentProducts.length){
     box.innerHTML='<div class="empty">Aucun produit pour cette période.</div>';
     return;
   }
-  box.innerHTML=rows.map(({r,row})=>{
-    const sold=Number(r[6]||0), qty=Number(r[4]||0);
-    const soldOut=Number.isFinite(qty)&&Number.isFinite(sold)&&qty===sold;
-    const promo=r[7]||0;
-    const actions=type===2
-      ? `<button class="btn btn-highlight" onclick="setPromo(${row},2,this)">Mise en avant</button>`
-      : `<button class="btn btn-promo" onclick="setPromo(${row},${type},this)">Promotion</button>`;
-    return `<article class="product ${soldOut?'sold-out':''}">
-      <div class="product-title">${esc(r[2]||'Produit sans nom')}</div>
-      <div class="code">${formatCode(r[3])}</div>
-      <div class="facts">
-        <div><span>Zone</span><strong>${esc(r[5]||'—')}</strong></div>
-        <div><span>Stock</span><strong>${esc(r[4]||'0')}</strong></div>
-        <div><span>Vendues</span><strong>${esc(r[6]||'0')}</strong></div>
-        <div><span>Promo</span><strong>${esc(promo)} %</strong></div>
-      </div>
-      <div class="actions">
-        <button class="btn btn-sold" onclick="markSold(${row},this)">Vendues totalement</button>
-        ${actions}
-      </div>
-    </article>`;
-  }).join('');
+
+  const item=currentProducts[currentProductIndex];
+  const r=item.r, row=item.row;
+  const sold=Number(r[6]||0), qty=Number(r[4]||0);
+  const soldOut=Number.isFinite(qty)&&Number.isFinite(sold)&&qty===sold;
+  const promo=r[7]||0;
+
+  box.innerHTML=`<article class="product ${soldOut?'sold-out':''}">
+    <div class="product-title">${esc(r[2]||'Produit sans nom')}</div>
+    <div class="code">${formatCode(r[3])}</div>
+    <div class="facts">
+      <div><span>Zone</span><strong>${esc(r[5]||'—')}</strong></div>
+      <div><span>Stock</span><strong>${esc(r[4]||'0')}</strong></div>
+      <div><span>Vendues</span><strong>${esc(r[6]||'0')}</strong></div>
+      <div><span>Promo</span><strong>${esc(promo)} %</strong></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-sold" onclick="markSold(${row},this)">Vendues totalement</button>
+      <button class="btn btn-promo" onclick="setPromo(${row},0,this)">Promotion</button>
+    </div>
+    <div class="navigation">
+      <button onclick="previousProduct()" ${currentProductIndex===0?'disabled':''}>← Précédent</button>
+      <button onclick="nextProduct()" ${currentProductIndex===currentProducts.length-1?'disabled':''}>Produit suivant →</button>
+    </div>
+  </article>`;
 }
+
+function nextProduct(){
+  if(currentProductIndex<currentProducts.length-1){
+    currentProductIndex++;
+    renderProducts(PAGE_TYPE);
+  }
+}
+function previousProduct(){
+  if(currentProductIndex>0){
+    currentProductIndex--;
+    renderProducts(PAGE_TYPE);
+  }
+}
+
 function renderPage(){
   if(typeof PAGE_TYPE!=='undefined') renderProducts(PAGE_TYPE);
   if(typeof renderHome==='function') renderHome();
@@ -400,6 +424,7 @@ async function loadSheet(){
 }
 
 function renderPage(){
+  currentProductIndex=0;
   renderProducts(PAGE_TYPE);
 }
 
