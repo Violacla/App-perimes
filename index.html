@@ -575,7 +575,7 @@ Déconnexion
 <body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 08/08/2026</h2>
+    <h2>Mise à jour - 08/à/2026</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
       <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
@@ -1360,8 +1360,7 @@ document.addEventListener('click', function (e) {
         } catch (err) {
           checkbox.disabled = false;
           checkbox.checked = false;
-          setStatus('Erreur lors du transfert : ' + err.message);
-          alert('Erreur lors du transfert vers historique : ' + err.message);
+          setStatus('Le transfert n’a pas pu être effectué.');
         }
       });
       tdSoldTotal.appendChild(checkbox);
