@@ -575,7 +575,7 @@ Déconnexion
 <body>
   <div id="update-overlay">
   <div id="update-popup">
-    <h2>Mise à jour - 08/à/2026</h2>
+    <h2>Mise à jour - 08/à_/2026</h2>
     <ul>
       <li>Nouvelles fonctionnalités : </li>
       <li>1.Le formulaire commence désormais par le champ Code : scannez ou entrez le code-barres pour démarrer.<br>
@@ -1184,29 +1184,68 @@ function formatMonthYear(ym) {
 <script>
 async function transferSpecificRowToHistorique(sheetRowNumber) {
   if (!operatorName) throw new Error('Veuillez vous connecter et choisir un opérateur.');
+  if (!gapiInited || !accessToken) throw new Error('Connexion Google non disponible.');
+
+  // 1) Récupère la ligne exacte dans Feuille1 avant toute suppression.
   const res = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
     range: `Feuille1!A${sheetRowNumber}:I${sheetRowNumber}`
   });
   const row = (res.result.values || [])[0];
-  if (!row) throw new Error('Ligne introuvable dans Feuille1.');
-  await gapi.client.sheets.spreadsheets.values.append({
+  if (!row || !row.length) throw new Error(`Ligne ${sheetRowNumber} introuvable dans Feuille1.`);
+
+  // 2) Recherche le nom exact de la feuille Historique.
+  //    Cela évite les erreurs si la feuille s'appelle "Historique", "historique", etc.
+  const meta = await gapi.client.sheets.spreadsheets.get({
     spreadsheetId: SPREADSHEET_ID,
-    range: 'historique',
+    fields: 'sheets.properties(sheetId,title)'
+  });
+  const sheets = meta.result.sheets || [];
+  const historiqueSheet = sheets.find(s =>
+    String(s.properties.title || '').trim().toLowerCase() === 'historique'
+  );
+
+  if (!historiqueSheet) {
+    throw new Error('La feuille « Historique » est introuvable dans le fichier Google Sheets.');
+  }
+
+  const historiqueTitle = historiqueSheet.properties.title;
+  // Nom de feuille protégé par des apostrophes pour gérer espaces/caractères spéciaux.
+  const historiqueRange = `'${historiqueTitle.replace(/'/g, "''")}'!A1`;
+
+  // 3) Ajoute la ligne dans Historique.
+  const appendResponse = await gapi.client.sheets.spreadsheets.values.append({
+    spreadsheetId: SPREADSHEET_ID,
+    range: historiqueRange,
     valueInputOption: 'USER_ENTERED',
+    insertDataOption: 'INSERT_ROWS',
+    includeValuesInResponse: true,
     resource: { values: [row] }
   });
-  const meta = await gapi.client.sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
-  const sheet = (meta.result.sheets || []).find(s => s.properties.title === 'Feuille1');
-  if (!sheet) throw new Error('Feuille1 introuvable.');
+
+  if (!appendResponse || !appendResponse.result || !appendResponse.result.updates) {
+    throw new Error('Google Sheets n’a pas confirmé l’ajout dans Historique.');
+  }
+
+  // 4) Seulement après confirmation de l'ajout, supprime la ligne de Feuille1.
   await gapi.client.sheets.spreadsheets.batchUpdate({
     spreadsheetId: SPREADSHEET_ID,
-    resource: { requests: [{ deleteDimension: { range: {
-      sheetId: sheet.properties.sheetId, dimension: 'ROWS',
-      startIndex: sheetRowNumber - 1, endIndex: sheetRowNumber
-    }}}] }
+    resource: {
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: sheets.find(s => s.properties.title === 'Feuille1')?.properties.sheetId,
+            dimension: 'ROWS',
+            startIndex: sheetRowNumber - 1,
+            endIndex: sheetRowNumber
+          }
+        }
+      }]
+    }
   });
-  setStatus('Ligne transférée vers « historique ».');
+
+  setStatus('✓ Ligne transférée dans « Historique ».');
+  return true;
 }
 
 // Ancienne fonction conservée pour compatibilité.
@@ -1360,7 +1399,9 @@ document.addEventListener('click', function (e) {
         } catch (err) {
           checkbox.disabled = false;
           checkbox.checked = false;
-          setStatus('Le transfert n’a pas pu être effectué.');
+          const detail = err && (err.message || err.result?.error?.message || err.body?.error?.message);
+          console.error('Erreur transfert Historique :', err);
+          setStatus(detail ? 'Le transfert n’a pas pu être effectué : ' + detail : 'Le transfert n’a pas pu être effectué.');
         }
       });
       tdSoldTotal.appendChild(checkbox);
