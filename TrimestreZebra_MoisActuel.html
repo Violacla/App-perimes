@@ -2,695 +2,334 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=227, height=416, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#f4f7fb">
-<title>Mois actuel</title>
+<title>Trimestre Zebra — Mois actuel</title>
 <style>
 :root{
  --bg:#f4f7fb;--card:#fff;--text:#26384d;--muted:#718096;
- --blue:#5b8fc9;--blue2:#3972ad;--pink:#d99aae;--green:#86bf8e;
- --orange:#e8b56b;--soft-blue:#e5eff9;--soft-pink:#f7e5eb;
- --soft-green:#eef8ef;--soft-orange:#fff6e7;--border:#d5e0ec;
- --shadow:0 4px 14px rgba(62,91,122,.12)
+ --blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--green:#86bf8e;
+ --soft-blue:#e5eff9;--soft-pink:#f7e5eb;--soft-green:#eef8ef;
+ --border:#d5e0ec;--disabled:#d9e0e8;
 }
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-body{display:flex;justify-content:center}
-.app{width:100%;max-width:500px;min-height:100dvh;padding:12px 10px 22px}
-header{text-align:center;padding:4px 2px 10px}
-.logo{width:50px;height:50px;margin:0 auto 7px;border-radius:15px;background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));display:flex;align-items:center;justify-content:center;font-size:25px;box-shadow:var(--shadow)}
-h1{font-size:20px;margin:0;color:#163f5b}
-.subtitle{font-size:11px;color:var(--muted);margin:4px 0}
-.session{font-size:11px;color:var(--muted);text-align:center;margin-bottom:9px}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+body{display:flex;justify-content:center;align-items:flex-start}
+.app{width:6cm;height:11cm;min-width:6cm;max-width:6cm;min-height:11cm;max-height:11cm;padding:4px;overflow:hidden}
+header{text-align:center;padding:1px 0 3px}
+.logo{width:25px;height:25px;margin:0 auto 2px;border-radius:7px;background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));display:flex;align-items:center;justify-content:center;font-size:13px}
+h1{margin:0;font-size:13px;line-height:1.1;color:#163f5b}
+.subtitle{margin:2px 0 1px;font-size:7px;color:var(--muted)}
+.session{font-size:7px;color:var(--muted);text-align:center;margin-bottom:3px}
 .session strong{color:var(--text)}
-.topbar{display:flex;gap:7px;margin-bottom:10px}
-.topbar button,.back{flex:1;min-height:40px;border:1px solid var(--border);background:#fff;border-radius:11px;font-weight:700;color:var(--text)}
-.login{background:#f8fbff;border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:9px;text-align:center}
-.login button{margin-top:7px;border:0;background:var(--blue2);color:#fff;border-radius:10px;padding:10px 16px;font-weight:700;min-height:40px}
-.status{font-size:11px;color:var(--muted);text-align:center;min-height:17px;margin:5px 0 9px}
-.months{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:10px}
-.month-card{display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:16px;background:#fff;padding:14px;box-shadow:var(--shadow);cursor:pointer;min-height:92px}
-.month-card:active{transform:scale(.99)}
-.month-card .small{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:.3px}
-.month-card strong{display:block;font-size:18px;margin:3px 0}
-.month-card .rule{font-size:12px;font-weight:700}
-.month-card .nb{font-size:11px;color:var(--muted);margin-top:5px}
-.c1{border-left:7px solid var(--pink);background:var(--soft-pink)}
-.c2{border-left:7px solid var(--orange);background:var(--soft-orange)}
-.c3{border-left:7px solid var(--green);background:var(--soft-green)}
-.c4{border-left:7px solid var(--blue);background:var(--soft-blue)}
-.panel{background:#fff;border:1px solid var(--border);border-radius:18px;padding:12px;box-shadow:var(--shadow);margin-bottom:10px}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.panel h2{font-size:15px;margin:0}
-.count{font-size:11px;color:var(--muted)}
-.product{background:#fff;border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:8px;box-shadow:var(--shadow);min-height:320px}
-.product.sold-out{opacity:.58}
-.product-title{font-weight:800;font-size:19px;line-height:1.25}
-.code{font-size:15px;color:var(--blue2);font-weight:800;margin-top:5px}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
-.facts div{background:#f7f9fc;border-radius:10px;padding:10px}
-.facts span{display:block;font-size:10px;color:var(--muted)}
-.facts strong{font-size:14px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-.btn{min-height:48px;border:0;border-radius:11px;font-weight:800;font-size:12px;cursor:pointer}
-.btn-sold{background:#d8c0ca;color:#26384d}
-.btn-promo{background:var(--green);color:#fff}
-.btn-highlight{background:var(--blue);color:#fff}
-.navigation{display:flex;gap:8px;margin-top:10px}
-.navigation button{flex:1;min-height:48px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);font-weight:800}
-.empty{padding:25px 8px;text-align:center;color:var(--muted);font-size:12px}
-.detail-row{padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
-.detail-row:last-child{border-bottom:0}
-.detail-row strong{display:block;font-size:13px;margin-bottom:2px}
-@media(min-width:480px){.months{grid-template-columns:1fr 1fr}}
-</style>
-
-<style>
-.workflow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
-.choice{min-height:68px;border:2px solid #d5e0ec;border-radius:13px;background:#fff;font-weight:800;font-size:12px;padding:10px;cursor:pointer}
-.choice.active{border-color:#86bf8e;background:#eef8ef}
-.stepper{display:flex;gap:8px;align-items:center;margin:8px 0}
-.stepper button{width:48px;height:48px;border:0;border-radius:11px;background:#86bf8e;color:#fff;font-size:26px;font-weight:800}
-.stepper button:disabled{background:#d7dee6;color:#9aa6b3}
-.stepper input{flex:1;height:48px;border:1px solid #d5e0ec;border-radius:11px;text-align:center;font-size:20px;font-weight:800}
-.next-main{width:100%;height:52px;border:0;border-radius:12px;background:#5b8fc9;color:#fff;font-weight:900}
-.next-main:disabled{background:#d7dee6;color:#9aa6b3}
-</style>
-
-<style>
-html,body{width:100%;height:100%;margin:0;padding:0;background:#f4f7fb;overflow:hidden}
-body{font-family:Arial,Helvetica,sans-serif}
-.app{width:6cm;max-width:6cm;height:11cm;min-height:11cm;margin:0 auto;padding:4px;overflow:hidden}
-header{padding:2px 2px 4px}
-.logo{width:28px;height:28px;margin:0 auto 2px;border-radius:8px;font-size:15px}
-h1{font-size:13px;margin:0}.subtitle{font-size:8px;margin:2px 0}
-.back{min-height:25px;border-radius:7px;margin-bottom:4px;font-size:8px}
-.months{display:none}
-.panel{border-radius:9px;padding:6px;margin-bottom:4px;box-shadow:none}
-.panel h2{font-size:10px;margin:0 0 3px}
+.topbar{margin-bottom:3px}
+.back{width:100%;height:24px;border:1px solid var(--border);background:#fff;border-radius:7px;color:var(--text);font-size:8px;font-weight:800}
+.panel{background:#fff;border:1px solid var(--border);border-radius:9px;padding:5px;box-shadow:0 2px 7px rgba(62,91,122,.08)}
 .panel-head{display:flex;justify-content:space-between;align-items:center}
-#monthTitle{font-size:11px}
-.count{font-size:8px}
-.status{font-size:7px;min-height:10px}
-.login{padding:4px;margin:3px 0}.login button{margin-top:3px;padding:5px 8px;min-height:23px;font-size:8px}
-.product{padding:7px;margin:0;min-height:0;border-radius:9px;box-shadow:0 2px 5px rgba(62,91,122,.08)}
-.product-title{font-size:12px}.code{font-size:9px;margin-top:2px}
-.facts{grid-template-columns:1fr 1fr;gap:3px;margin-top:5px}
-.facts div{padding:4px;border-radius:6px}.facts span{font-size:7px}.facts strong{font-size:9px}
-.workflow{display:flex;flex-direction:column;gap:4px;margin:5px 0}
-.choice{width:100%;min-height:27px;border:1.5px solid #d5e0ec;border-radius:7px;padding:4px;font-size:8px;text-align:left}
-.choice small{font-size:6px}.stepper-wrap{padding:4px;margin-top:4px}
-.stepper-title{font-size:7px}.stepper{gap:4px;margin-top:3px}
-.stepper button{width:29px;height:29px;border-radius:6px;font-size:17px}
-.stepper input{height:29px;font-size:13px}
-.next-main{height:31px;min-height:31px;margin-top:4px;border-radius:7px;font-size:8px}
-#products{max-height:5.9cm;overflow:hidden}
+.panel h2{margin:0;font-size:9px}
+.count{font-size:7px;color:var(--muted)}
+.login{text-align:center;border:1px solid var(--border);border-radius:7px;padding:8px 4px;margin-top:4px;background:#f8fbff}
+#status{font-size:8px;line-height:1.2;color:var(--muted)}
+.login button{margin-top:5px;height:25px;padding:0 10px;border:0;border-radius:8px;background:var(--blue-dark);color:#fff;font-size:8px;font-weight:800}
+#productArea{display:none;margin-top:4px}
+.product{background:#fff;border:1px solid var(--border);border-radius:8px;padding:5px}
+.product-title{font-size:11px;font-weight:900;line-height:1.15}
+.code{font-size:8px;color:var(--blue-dark);font-weight:800;margin-top:2px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:4px}
+.fact{background:#f7f9fc;border-radius:5px;padding:3px}
+.fact span{display:block;font-size:6px;color:var(--muted)}
+.fact strong{display:block;font-size:9px;line-height:1.1}
+.choices{display:flex;flex-direction:column;gap:3px;margin-top:5px}
+.choice{width:100%;height:28px;border:1.5px solid var(--border);border-radius:7px;background:#fff;color:var(--text);text-align:left;padding:3px 6px;font-size:8px;font-weight:900;cursor:pointer;display:block}
+.choice small{display:block;font-size:6px;font-weight:600;color:var(--muted)}
+.choice.active{border-color:var(--green);background:var(--soft-green)}
+.stepper-title{font-size:7px;text-transform:uppercase;color:var(--muted);font-weight:900;margin-top:4px;text-align:center}
+.stepper{display:flex;align-items:center;gap:4px;margin-top:2px;width:100%}
+.stepper button{width:32px;height:29px;min-width:32px;border:0;border-radius:7px;background:var(--green);color:#fff;font-size:19px;line-height:1;font-weight:900}
+.stepper button:disabled{background:#cfd7e1;color:#9aa6b3;opacity:1}
+.stepper input{flex:1;width:100%;height:29px;border:1px solid var(--border);border-radius:7px;background:#fff;text-align:center;font-size:13px;font-weight:900;color:var(--text)}
+.next{width:100%;height:29px;margin-top:5px;border:0;border-radius:7px;background:var(--blue-dark);color:#fff;font-size:8px;font-weight:900}
+.next:disabled{background:var(--disabled);color:#9aa6b3}
+.message{font-size:7px;color:var(--muted);text-align:center;margin-top:3px;min-height:9px}
 </style>
+<script src="https://accounts.google.com/gsi/client"></script>
+<script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
 <main class="app">
 <header>
   <div class="logo">🏷️</div>
-  <h1>Mois actuel</h1>
+  <h1 id="pageTitle">Mois actuel</h1>
   <p class="subtitle">Produits à promouvoir fortement</p>
 </header>
 <div class="session">Opérateur : <strong id="operator">—</strong></div>
+<div class="topbar"><button class="back" onclick="location.href='TrimestreZebra.html'">← Trimestre</button></div>
 
-<div class="topbar">
-  <button class="back" onclick="location.href='TrimestreZebra.html'">⬅ Trimestre</button>
-</div>
-<div class="panel">
+<section class="panel">
   <div class="panel-head">
-    <h2 id="monthTitle">Mois actuel</h2>
-    <span class="count" id="count">0 produit</span>
+    <h2 id="monthTitle">Connexion Google</h2>
+    <span class="count" id="count"></span>
   </div>
+
   <div id="googleLogin" class="login">
-    <div id="status">Connexion à Google Sheets nécessaire pour afficher les produits.</div>
+    <div id="status">Connexion à Google Sheets nécessaire.</div>
     <button id="googleLoginBtn" onclick="connectGoogle()" disabled>Se connecter à Google</button>
   </div>
-</div>
-<section id="products"></section>
 
+  <div id="productArea">
+    <article id="product" class="product"></article>
+  </div>
+</section>
 </main>
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client"></script>
-<script>
 
+<script>
 const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
 const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const RANGE='Feuille1';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
-
-let tokenClient=null, gapiInited=false, gisInited=false, accessToken=null, sheetRows=[];
-
-const operatorName=localStorage.getItem('zebraOperator') || '—';
-document.addEventListener('DOMContentLoaded',()=>{
-  const op=document.getElementById('operator');
-  if(op) op.textContent=operatorName;
-});
-
-function gapiLoaded(){ gapi.load('client', initializeGapiClient); }
-async function initializeGapiClient(){
-  try{
-    await gapi.client.init({
-      discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']
-    });
-    gapiInited=true;
-    maybeReady();
-  }catch(e){ setStatus('Erreur Google API : '+e.message); }
-}
-function gisLoaded(){
-  tokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:CLIENT_ID,
-    scope:SCOPES,
-    callback:async (tokenResponse)=>{
-      if(tokenResponse.error){
-        setStatus('Connexion Google refusée.');
-        return;
-      }
-      accessToken=tokenResponse.access_token;
-      setStatus('Google Sheets connecté. Chargement…');
-      const login=document.getElementById('googleLogin');
-      if(login) login.style.display='none';
-      await loadSheet();
-    }
-  });
-  gisInited=true;
-  maybeReady();
-}
-function maybeReady(){
-  if(gapiInited && gisInited){
-    const btn=document.getElementById('googleLoginBtn');
-    if(btn) btn.disabled=false;
-  }
-}
-function connectGoogle(){
-  if(!tokenClient || !gapiInited){
-    setStatus('Google est encore en cours de chargement…');
-    return;
-  }
-  tokenClient.requestAccessToken({prompt:''});
-}
-function setStatus(msg){
-  const el=document.getElementById('status');
-  if(el) el.textContent=msg;
-}
-function monthStart(){
-  const d=new Date();
-  let y=d.getFullYear(), m=d.getMonth();
-  if(d.getDate()>=15){
-    m++;
-    if(m===12){m=0;y++;}
-  }
-  return {y,m};
-}
-function addMonths(y,m,n){
-  const d=new Date(y,m+n,1);
-  return {y:d.getFullYear(),m:d.getMonth()};
-}
-function monthKey(y,m){return `${y}-${String(m+1).padStart(2,'0')}`;}
-function monthLabel(y,m){
-  return new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-}
-function classifyDate(value){
-  if(!value) return null;
-  const s=String(value).trim();
-  let y,m;
-  let match=s.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/);
-  if(match){y=+match[1];m=+match[2]-1;}
-  else{
-    const d=new Date(s);
-    if(isNaN(d)) return null;
-    y=d.getFullYear();m=d.getMonth();
-  }
-  const start=monthStart();
-  return (y-start.y)*12+(m-start.m);
-}
-function formatCode(v){
-  const s=String(v??'').replace(/\D/g,'');
-  return s ? s.padStart(6,'0') : '';
-}
-function esc(v){
-  return String(v??'').replace(/[&<>"']/g,c=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
-}
-async function loadSheet(){
-  try{
-    const res=await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId:SPREADSHEET_ID, range:RANGE
-    });
-    sheetRows=res.result.values||[];
-    renderPage();
-  }catch(e){
-    setStatus('Erreur de chargement Google Sheets : '+e.message);
-  }
-}
-async function updateCell(row,col,value){
-  await gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId:SPREADSHEET_ID,
-    range:`Feuille1!${col}${row}`,
-    valueInputOption:'USER_ENTERED',
-    resource:{values:[[value]]}
-  });
-}
-async function getSheetIds(){
-  const meta=await gapi.client.sheets.spreadsheets.get({
-    spreadsheetId:SPREADSHEET_ID,
-    fields:'sheets.properties(sheetId,title)'
-  });
-  return meta.result.sheets||[];
-}
-async function transferToFeuille2(sheetRowNumber){
-  const sheets=await getSheetIds();
-  const f1=sheets.find(s=>s.properties.title==='Feuille1');
-  const f2=sheets.find(s=>s.properties.title==='Feuille2');
-  if(!f1 || !f2) throw new Error('Feuille1 ou Feuille2 introuvable.');
-
-  const res=await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId:SPREADSHEET_ID,
-    range:`Feuille1!A${sheetRowNumber}:Z${sheetRowNumber}`
-  });
-  const row=(res.result.values||[])[0];
-  if(!row) throw new Error('Ligne introuvable.');
-
-  const append=await gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId:SPREADSHEET_ID,
-    range:'Feuille2!A1',
-    valueInputOption:'USER_ENTERED',
-    insertDataOption:'INSERT_ROWS',
-    includeValuesInResponse:true,
-    resource:{values:[row]}
-  });
-  if(!append.result?.updates?.updatedRows) throw new Error('Transfert non confirmé.');
-
-  await gapi.client.sheets.spreadsheets.batchUpdate({
-    spreadsheetId:SPREADSHEET_ID,
-    resource:{requests:[{deleteDimension:{
-      range:{
-        sheetId:f1.properties.sheetId,
-        dimension:'ROWS',
-        startIndex:sheetRowNumber-1,
-        endIndex:sheetRowNumber
-      }
-    }}]}
-  });
-}
-async function markSold(sheetRowNumber,button){
-  button.disabled=true;
-  try{
-    await transferToFeuille2(sheetRowNumber);
-    setStatus('✓ Produit transféré dans Feuille2.');
-    await loadSheet();
-  }catch(e){
-    button.disabled=false;
-    setStatus('Erreur : '+e.message);
-  }
-}
-async function setPromo(sheetRowNumber,type,button){
-  const defaults=['50','20','0'];
-  const v=prompt('Pourcentage de promotion (0 à 100) :',defaults[type]||'0');
-  if(v===null)return;
-  const n=Number(v);
-  if(!Number.isInteger(n)||n<0||n>100){
-    alert('Entrez un nombre entier entre 0 et 100.');
-    return;
-  }
-  button.disabled=true;
-  try{
-    await updateCell(sheetRowNumber,'H',n);
-    setStatus('✓ Promotion enregistrée dans Google Sheets.');
-    await loadSheet();
-  }catch(e){
-    button.disabled=false;
-    setStatus('Erreur : '+e.message);
-  }
-}
-function productRowsFor(type){
-  const result=[];
-  for(let i=1;i<sheetRows.length;i++){
-    const r=sheetRows[i];
-    const c=classifyDate(r[1]);
-    let ok=false;
-    if(type==='all') ok=c!==null && c>=0 && c<=2;
-    else ok=c===type;
-    if(ok) result.push({r,row:i+1});
-  }
-  return result;
-}
-let currentProducts=[];
-let currentProductIndex=0;
-
-
-let promoEditorOpen=false;
-let promoQty=0;
-let promoRate=50;
-
-function togglePromoEditor(){
-  promoEditorOpen=!promoEditorOpen;
-  if(promoEditorOpen && currentProducts.length){
-    const r=currentProducts[currentProductIndex].r;
-    promoQty=Math.max(0,Number(r[4]||0)-Number(r[6]||0));
-    promoRate=Number(r[7]||50);
-  }
-  renderProducts(PAGE_TYPE);
-}
-function changePromoQty(delta){
-  if(!currentProducts.length)return;
-  const r=currentProducts[currentProductIndex].r;
-  const remaining=Math.max(0,Number(r[4]||0)-Number(r[6]||0));
-  promoQty=Math.max(0,Math.min(remaining,promoQty+delta));
-  renderProducts(PAGE_TYPE);
-}
-function setPromoQty(value){
-  if(!currentProducts.length)return;
-  const r=currentProducts[currentProductIndex].r;
-  const remaining=Math.max(0,Number(r[4]||0)-Number(r[6]||0));
-  promoQty=Math.max(0,Math.min(remaining,Number(value)||0));
-}
-function changePromoRate(delta){
-  promoRate=Math.max(0,Math.min(100,promoRate+delta));
-  renderProducts(PAGE_TYPE);
-}
-async function savePromotion(row,button){
-  if(promoQty<=0){
-    alert('Indique combien de boîtes restent à mettre en promotion.');
-    return;
-  }
-  button.disabled=true;
-  try{
-    await updateCell(row,'H',promoRate);
-    const remainingAfter=Math.max(0,promoQty);
-    setStatus(`✓ Promotion enregistrée : ${promoQty} boîte(s) à -${promoRate} %.`);
-    promoEditorOpen=false;
-    await loadSheet();
-  }catch(e){
-    button.disabled=false;
-    setStatus('Erreur promotion : '+e.message);
-  }
-}
-
-function renderProducts(type){
-  currentProducts=productRowsFor(type);
-  const box=document.getElementById('products');
-  const count=document.getElementById('count');
-  if(count) count.textContent=currentProducts.length+' produit'+(currentProducts.length>1?'s':'');
-  currentProductIndex=Math.min(currentProductIndex,Math.max(0,currentProducts.length-1));
-
-  if(!currentProducts.length){
-    box.innerHTML='<div class="empty">Aucun produit pour cette période.</div>';
-    return;
-  }
-
-  const item=currentProducts[currentProductIndex];
-  const r=item.r, row=item.row;
-  const stock=Number(r[4]||0), sold=Number(r[6]||0);
-  const remaining=Math.max(0,stock-sold);
-  const promo=r[7]||0;
-
-  box.innerHTML=`<article class="product ${remaining===0?'sold-out':''}">
-    <div class="product-title">${esc(r[2]||'Produit sans nom')}</div>
-    <div class="code">${formatCode(r[3])}</div>
-    <div class="facts">
-      <div><span>Zone</span><strong>${esc(r[5]||'—')}</strong></div>
-      <div><span>Stock initial</span><strong>${esc(r[4]||'0')}</strong></div>
-      <div><span>Vendues</span><strong>${esc(r[6]||'0')}</strong></div>
-      <div><span>Il reste</span><strong>${remaining}</strong></div>
-      <div><span>Promo enregistrée</span><strong>${esc(promo)} %</strong></div>
-      <div><span>Produit</span><strong>${currentProductIndex+1} / ${currentProducts.length}</strong></div>
-    </div>
-
-    <div class="actions">
-      <button class="btn btn-sold" onclick="markSold(${row},this)">Vendues totalement</button>
-      <button class="btn btn-promo" onclick="togglePromoEditor()">Mettre en promo</button>
-    </div>
-
-    <div class="promo-editor ${promoEditorOpen?'open':''}">
-      <div class="promo-label">Quantité à mettre en promotion</div>
-      <div class="stepper">
-        <button onclick="changePromoQty(-1)">−</button>
-        <input type="number" min="0" max="${remaining}" value="${promoQty}" oninput="setPromoQty(this.value)">
-        <button onclick="changePromoQty(1)">+</button>
-      </div>
-
-      <div class="promo-label" style="margin-top:10px">Pourcentage</div>
-      <div class="promo-rate">
-        <button onclick="changePromoRate(-5)">−</button>
-        <input type="number" min="0" max="100" value="${promoRate}" onchange="promoRate=Math.max(0,Math.min(100,Number(this.value)||0))">
-        <span style="font-weight:800">%</span>
-        <button onclick="changePromoRate(5)">+</button>
-      </div>
-
-      <button class="save-promo" onclick="savePromotion(${row},this)">
-        Enregistrer ${promoQty} boîte(s) à -${promoRate} %
-      </button>
-    </div>
-
-    <div class="navigation">
-      <button onclick="previousProduct()" ${currentProductIndex===0?'disabled':''}>← Précédent</button>
-      <button onclick="nextProduct()" ${currentProductIndex===currentProducts.length-1?'disabled':''}>Produit suivant →</button>
-    </div>
-  </article>`;
-}
-
-
-function nextProduct(){
-  if(currentProductIndex<currentProducts.length-1){
-    currentProductIndex++;
-    renderProducts(PAGE_TYPE);
-  }
-}
-function previousProduct(){
-  if(currentProductIndex>0){
-    currentProductIndex--;
-    renderProducts(PAGE_TYPE);
-  }
-}
-
-function renderPage(){
-  if(typeof PAGE_TYPE!=='undefined') renderProducts(PAGE_TYPE);
-  if(typeof renderHome==='function') renderHome();
-  setStatus('Google Sheets connecté.');
-}
-window.addEventListener('load',()=>{
-  updatePageLabels();
-  gapiLoaded();
-  gisLoaded();
-});
-
-
 const PAGE_TYPE=0;
 
-function updatePageLabels(){
-  const s=monthStart(), x=addMonths(s.y,s.m,PAGE_TYPE);
-  document.getElementById('monthTitle').textContent =
-    monthLabel(x.y,x.m)+' — 50 à 70 %';
+let tokenClient=null,gapiInited=false,gisInited=false,sheetRows=[];
+let currentProducts=[],currentIndex=0,decision=null,remainingQty=0;
+
+document.getElementById('operator').textContent=localStorage.getItem('zebraOperator')||'—';
+
+function status(t){document.getElementById('status').textContent=t}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function formatCode(v){const s=String(v??'').replace(/\D/g,'');return s?s.padStart(6,'0'):''}
+
+function monthStart(){
+ const d=new Date();let y=d.getFullYear(),m=d.getMonth();
+ if(d.getDate()>=15){m++;if(m===12){m=0;y++}}
+ return {y,m}
+}
+function addMonths(y,m,n){const d=new Date(y,m+n,1);return {y:d.getFullYear(),m:d.getMonth()}}
+function monthLabel(y,m){return new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}
+function classifyDate(v){
+ if(!v)return null;let y,m,mat=String(v).trim().match(/^(\d{4})-(\d{2})/);
+ if(mat){y=+mat[1];m=+mat[2]-1}else{const d=new Date(v);if(isNaN(d))return null;y=d.getFullYear();m=d.getMonth()}
+ const s=monthStart();return (y-s.y)*12+(m-s.m)
+}
+function updateLabels(){
+ const s=monthStart(),x=addMonths(s.y,s.m,0);
+ document.getElementById('monthTitle').textContent=monthLabel(x.y,x.m)+' — 50 à 70 %';
+ document.getElementById('pageTitle').textContent='Mois actuel';
 }
 
-function showLogin(){
-  const box=document.getElementById('googleLogin');
-  const btn=document.getElementById('googleLoginBtn');
-  if(box) box.style.display='block';
-  if(btn) btn.disabled=!(gapiInited && gisInited);
-}
-
-function hideLogin(){
-  const box=document.getElementById('googleLogin');
-  if(box) box.style.display='none';
-}
-
-function maybeReady(){
-  if(gapiInited && gisInited){
-    const btn=document.getElementById('googleLoginBtn');
-    if(btn) btn.disabled=false;
-    setStatus('Connexion Google prête.');
-    // On tente d'abord une reconnexion silencieuse.
-    connectGoogleSilent();
+function gapiLoaded(){gapi.load('client',async()=>{try{
+ await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
+ gapiInited=true;ready();
+}catch(e){status('Erreur Google API : '+e.message)}})}
+function gisLoaded(){
+ tokenClient=google.accounts.oauth2.initTokenClient({
+  client_id:CLIENT_ID,scope:SCOPES,
+  callback:async r=>{
+   if(r.error){status('Connexion Google refusée.');return}
+   status('Google Sheets connecté. Chargement…');
+   document.getElementById('googleLogin').style.display='none';
+   await loadSheet();
   }
+ });
+ gisInited=true;ready();
 }
-
-function connectGoogleSilent(){
-  if(!tokenClient || !gapiInited || !gisInited) return;
-  setStatus('Connexion à Google Sheets…');
-  tokenClient.requestAccessToken({prompt:''});
+function ready(){
+ const b=document.getElementById('googleLoginBtn');
+ if(gapiInited&&gisInited)b.disabled=false;
 }
-
 function connectGoogle(){
-  if(!tokenClient || !gapiInited || !gisInited){
-    setStatus('Google est encore en cours de chargement…');
-    return;
-  }
-  setStatus('Ouverture de la connexion Google…');
-  tokenClient.requestAccessToken({prompt:'consent'});
+ if(!tokenClient||!gapiInited){status('Google est encore en cours de chargement…');return}
+ tokenClient.requestAccessToken({prompt:'consent'});
 }
 
 async function loadSheet(){
-  try{
-    const res=await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId:SPREADSHEET_ID,
-      range:RANGE
-    });
-    sheetRows=res.result.values||[];
-    hideLogin();
-    renderPage();
-    setStatus('Google Sheets connecté.');
-  }catch(e){
-    showLogin();
-    setStatus('Erreur Google Sheets : '+e.message);
-  }
+ try{
+  const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:RANGE});
+  sheetRows=res.result.values||[];
+  document.getElementById('productArea').style.display='block';
+  renderProducts();
+  resumeIfPossible();
+ }catch(e){
+  document.getElementById('googleLogin').style.display='block';
+  status('Erreur Google Sheets : '+e.message);
+ }
 }
-
-function renderPage(){
-  currentProductIndex=0;
-  renderProducts(PAGE_TYPE);
+function productRows(){
+ const a=[];
+ for(let i=1;i<sheetRows.length;i++){
+  const r=sheetRows[i],c=classifyDate(r[1]);
+  if(c===PAGE_TYPE)a.push({r,row:i+1});
+ }
+ return a;
 }
-
-window.addEventListener('load',()=>{
-  updatePageLabels();
-  showLogin();
-  gapiLoaded();
-  gisLoaded();
-});
-
-</script>
-
-<div id="workflowBox">
-  <div class="workflow">
-    <button class="choice" id="soldChoice" onclick="chooseDecision('sold')">✓ TOTALEMENT VENDU<br><small>Transfert dans l'historique au passage suivant</small></button>
-    <button class="choice" id="remainingChoice" onclick="chooseDecision('remaining')">📦 PRODUITS RESTANTS<br><small>Choisir la quantité restante</small></button>
+function renderProducts(){
+ currentProducts=productRows();
+ const count=document.getElementById('count');
+ count.textContent=currentProducts.length+' produit'+(currentProducts.length>1?'s':'');
+ if(!currentProducts.length){
+  document.getElementById('product').innerHTML='<div class="message">Aucun produit à traiter.</div>';
+  return;
+ }
+ if(currentIndex>=currentProducts.length)currentIndex=0;
+ const item=currentProducts[currentIndex],r=item.r;
+ const stock=Number(r[4]||0),oldSold=Number(r[6]||0),oldRemaining=Math.max(0,stock-oldSold);
+ const promo=r[7]||0;
+ document.getElementById('product').innerHTML=`
+  <div class="product-title">${esc(r[2]||'Produit sans nom')}</div>
+  <div class="code">${formatCode(r[3])}</div>
+  <div class="facts">
+   <div class="fact"><span>ZONE</span><strong>${esc(r[5]||'—')}</strong></div>
+   <div class="fact"><span>STOCK</span><strong id="stockValue">${stock}</strong></div>
+   <div class="fact"><span>VENDUES</span><strong id="soldValue">${oldSold}</strong></div>
+   <div class="fact"><span>PRODUITS RESTANTS</span><strong id="remainingValue">${oldRemaining}</strong></div>
+   <div class="fact"><span>PROMO</span><strong>${esc(promo)} %</strong></div>
+   <div class="fact"><span>PRODUIT</span><strong>${currentIndex+1}/${currentProducts.length}</strong></div>
   </div>
+  <div class="choices">
+   <button class="choice ${decision==='sold'?'active':''}" onclick="chooseDecision('sold')">
+    ✓ TOTALEMENT VENDU
+    <small>Restant = 0 · Vendues = Stock</small>
+   </button>
+   <button class="choice ${decision==='remaining'?'active':''}" onclick="chooseDecision('remaining')">
+    📦 PRODUITS RESTANTS
+    <small>Le nombre restant sera choisi avec − / +</small>
+   </button>
+  </div>
+  <div class="stepper-title">Produits restants — choisir avec − / +</div>
   <div class="stepper">
-    <button id="minusBtn" onclick="changeRemaining(-1)" disabled>−</button>
-    <input id="remainingInput" type="number" min="1" value="0" disabled>
-    <button id="plusBtn" onclick="changeRemaining(1)" disabled>+</button>
+   <button id="minusBtn" onclick="changeRemaining(-1)" disabled>−</button>
+   <input id="remainingInput" type="number" min="1" max="${oldRemaining}" value="${decision==='remaining'?remainingQty:0}" disabled>
+   <button id="plusBtn" onclick="changeRemaining(1)" disabled>+</button>
   </div>
-  <button class="next-main" id="nextMain" onclick="goNextProduct()" disabled>PRODUIT SUIVANT →</button>
-</div>
-
-<script>
-let decision=null, remainingQty=0;
-
-function currentRemaining(){
-  const el=document.querySelector('.product');
-  if(!el) return 0;
-  const facts=[...el.querySelectorAll('.facts strong')].map(x=>Number(x.textContent)||0);
-  return Math.max(0, facts[1]-facts[2]); // Stock initial - Vendues
-}
-function chooseDecision(kind){
-  decision=kind;
-  const max=currentRemaining();
-  remainingQty=kind==='remaining' ? Math.max(1,max) : 0;
-  updateWorkflow();
-}
-function changeRemaining(delta){
-  if(decision!=='remaining') return;
-  const max=currentRemaining();
-  remainingQty=Math.max(1,Math.min(max,remainingQty+delta));
-  updateWorkflow();
-}
-function updateWorkflow(){
-  document.getElementById('soldChoice')?.classList.toggle('active',decision==='sold');
-  document.getElementById('remainingChoice')?.classList.toggle('active',decision==='remaining');
-  const enabled=decision==='remaining';
-  const m=document.getElementById('minusBtn'),p=document.getElementById('plusBtn'),i=document.getElementById('remainingInput'),n=document.getElementById('nextMain');
-  if(m)m.disabled=!enabled;
-  if(p)p.disabled=!enabled;
-  if(i){i.disabled=!enabled;i.value=remainingQty||0;}
-  if(n)n.disabled=!(decision==='sold'||(decision==='remaining'&&remainingQty>0));
-}
-document.getElementById('remainingInput')?.addEventListener('input',e=>{
-  const max=currentRemaining();
-  remainingQty=Math.max(1,Math.min(max,Number(e.target.value)||1));
-  updateWorkflow();
-});
-</script>
-
-<script>
-let decision=null, remainingQty=0;
-
-function getProductData(){
-  const card=document.querySelector('.product');
-  if(!card)return {stock:0,sold:0,remaining:0};
-  const vals=[...card.querySelectorAll('.facts strong')].map(e=>Number(e.textContent)||0);
-  const stock=vals[1]||0, sold=vals[2]||0;
-  return {stock,sold,remaining:Math.max(0,stock-sold)};
-}
-function chooseDecision(kind){
-  decision=kind;
-  const d=getProductData();
-  remainingQty=kind==='sold'?0:d.remaining;
-  updateWorkflow();
-}
-function changeRemaining(delta){
+  <button id="nextBtn" class="next" onclick="goNextProduct()" disabled>PRODUIT SUIVANT →</button>
+  <div id="message" class="message"></div>
+ `;
+ document.getElementById('remainingInput').addEventListener('input',e=>{
   if(decision!=='remaining')return;
-  const d=getProductData();
-  remainingQty=Math.max(1,Math.min(d.remaining,remainingQty+delta));
-  updateWorkflow();
+  remainingQty=Math.max(1,Math.min(oldRemaining,Number(e.target.value)||1));
+  updateCalculated();
+ });
+ updateCalculated();
 }
-function updateWorkflow(){
-  const d=getProductData();
-  const sold=decision==='sold'?d.stock:Math.max(0,d.stock-remainingQty);
-  const rem=decision==='sold'?0:remainingQty;
-  const facts=document.querySelectorAll('.facts strong');
-  if(facts.length>=5){
-    facts[2].textContent=sold;
-    facts[3].textContent=rem;
+function updateCalculated(){
+ if(!currentProducts.length)return;
+ const r=currentProducts[currentIndex].r;
+ const stock=Number(r[4]||0);
+ const oldSold=Number(r[6]||0);
+ const maxRemaining=Math.max(0,stock-oldSold);
+
+ let rem=oldSold>stock?0:(decision==='sold'?0:(decision==='remaining'?remainingQty:maxRemaining));
+ if(decision==='remaining') rem=Math.max(1,Math.min(maxRemaining||1,remainingQty||1));
+ const sold=Math.max(0,stock-rem);
+
+ const sv=document.getElementById('soldValue'),rv=document.getElementById('remainingValue');
+ if(sv)sv.textContent=sold;
+ if(rv)rv.textContent=rem;
+
+ const active=decision==='remaining' && maxRemaining>0;
+ const m=document.getElementById('minusBtn'),p=document.getElementById('plusBtn');
+ const i=document.getElementById('remainingInput'),n=document.getElementById('nextBtn');
+
+ if(m)m.disabled=!active;
+ if(p)p.disabled=!active;
+ if(i){
+   i.disabled=!active;
+   i.min='1';
+   i.max=String(Math.max(1,maxRemaining));
+   i.value=decision==='remaining'?rem:0;
+ }
+ if(n)n.disabled=!(decision==='sold'||active);
+
+ const soldChoice=document.querySelector('.choice:first-of-type');
+ const remainingChoice=document.querySelector('.choice:nth-of-type(2)');
+ if(soldChoice)soldChoice.classList.toggle('active',decision==='sold');
+ if(remainingChoice)remainingChoice.classList.toggle('active',decision==='remaining');
+}
+function chooseDecision(kind){
+ decision=kind;
+ const r=currentProducts[currentIndex].r;
+ const stock=Number(r[4]||0);
+ const oldSold=Number(r[6]||0);
+ const maxRemaining=Math.max(0,stock-oldSold);
+
+ if(kind==='remaining'){
+   if(maxRemaining<=0){
+     decision=null;
+     const msg=document.getElementById('message');
+     if(msg)msg.textContent='Aucun produit restant pour cet article.';
+     updateCalculated();
+     return;
+   }
+   remainingQty=Math.max(1,Math.min(maxRemaining,maxRemaining));
+ }else{
+   remainingQty=0;
+ }
+ updateCalculated();
+ saveResume();
+}
+function changeRemaining(delta){
+ if(decision!=='remaining')return;
+ const r=currentProducts[currentIndex].r;
+ const stock=Number(r[4]||0);
+ const oldSold=Number(r[6]||0);
+ const max=Math.max(0,stock-oldSold);
+ if(max<=0)return;
+ remainingQty=Math.max(1,Math.min(max,remainingQty+delta));
+ updateCalculated();
+ saveResume();
+}
+function saveResume(){
+ try{
+  const r=currentProducts[currentIndex]?.r||[];
+  localStorage.setItem('zebraTrimestreResume',JSON.stringify({barcode:String(r[3]||''),row:currentProducts[currentIndex]?.row,type:PAGE_TYPE,decision,remainingQty}));
+ }catch(e){}
+}
+function resumeIfPossible(){
+ try{
+  const x=JSON.parse(localStorage.getItem('zebraTrimestreResume')||'null');
+  if(!x||x.type!==PAGE_TYPE)return;
+  const idx=currentProducts.findIndex(p=>String(p.r[3]||'')===x.barcode);
+  if(idx>=0){
+   currentIndex=idx;decision=x.decision||null;remainingQty=Number(x.remainingQty)||0;renderProducts();
+   const msg=document.getElementById('message');if(msg)msg.textContent='Reprise sur le produit en cours.';
   }
-  document.getElementById('soldChoice')?.classList.toggle('active',decision==='sold');
-  document.getElementById('remainingChoice')?.classList.toggle('active',decision==='remaining');
-  const active=decision==='remaining';
-  document.getElementById('minusBtn').disabled=!active;
-  document.getElementById('plusBtn').disabled=!active;
-  document.getElementById('remainingInput').disabled=!active;
-  document.getElementById('remainingInput').value=rem;
-  document.getElementById('nextMain').disabled=!(decision==='sold'||(active&&remainingQty>0));
+ }catch(e){}
 }
-document.getElementById('remainingInput')?.addEventListener('input',e=>{
-  if(decision!=='remaining')return;
-  const d=getProductData();
-  remainingQty=Math.max(1,Math.min(d.remaining,Number(e.target.value)||1));
-  updateWorkflow();
-});
-
+async function updateCell(row,col,value){
+ await gapi.client.sheets.spreadsheets.values.update({
+  spreadsheetId:SPREADSHEET_ID,range:`Feuille1!${col}${row}`,
+  valueInputOption:'USER_ENTERED',resource:{values:[[value]]}
+ });
+}
 async function archiveCurrentRow(row){
-  const res=await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId:SPREADSHEET_ID,range:`Feuille1!A${row}:I${row}`
-  });
-  const values=res.result.values?.[0]||[];
-  await gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId:SPREADSHEET_ID,range:'Feuille2!A:I',
-    valueInputOption:'USER_ENTERED',insertDataOption:'INSERT_ROWS',
-    resource:{values:[values]}
-  });
-  await gapi.client.sheets.spreadsheets.batchUpdate({
-    spreadsheetId:SPREADSHEET_ID,
-    resource:{requests:[{deleteDimension:{range:{sheetId:0,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}
-  });
+ const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'});
+ const sheets=meta.result.sheets||[],f1=sheets.find(x=>x.properties.title==='Feuille1'),f2=sheets.find(x=>x.properties.title==='Feuille2');
+ if(!f1||!f2)throw new Error('Feuille1 ou Feuille2 introuvable.');
+ const got=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`Feuille1!A${row}:Z${row}`});
+ const values=got.result.values?.[0];if(!values)throw new Error('Ligne introuvable.');
+ await gapi.client.sheets.spreadsheets.values.append({spreadsheetId:SPREADSHEET_ID,range:'Feuille2!A1',valueInputOption:'USER_ENTERED',insertDataOption:'INSERT_ROWS',resource:{values:[values]}});
+ await gapi.client.sheets.spreadsheets.batchUpdate({spreadsheetId:SPREADSHEET_ID,resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}}); 
 }
-
 async function goNextProduct(){
-  if(!decision||!currentProducts?.[currentProductIndex])return;
-  const item=currentProducts[currentProductIndex], r=item.r, row=item.row;
-  const btn=document.getElementById('nextMain'); btn.disabled=true;
-  try{
-    const stock=Number(r[4]||0);
-    if(decision==='sold'){
-      await archiveCurrentRow(row);
-    }else{
-      const rem=remainingQty;
-      const newSold=Math.max(0,stock-rem);
-      await updateCell(row,'G',newSold);
-    }
-    try{localStorage.setItem('zebra_trimestre_last_row',String(row));}catch(e){}
-    decision=null;remainingQty=0;
-    await loadSheet();
-    currentProductIndex=0;
-    renderProducts(PAGE_TYPE);
-  }catch(e){
-    btn.disabled=false;
-    setStatus('Erreur : '+e.message);
+ if(!decision||!currentProducts[currentIndex])return;
+ const item=currentProducts[currentIndex],r=item.r,row=item.row;
+ const next=document.getElementById('nextBtn');next.disabled=true;
+ try{
+  if(decision==='sold'){
+   await archiveCurrentRow(row);
+  }else{
+   const stock=Number(r[4]||0);
+   const sold=stock-remainingQty;
+   await updateCell(row,'G',Math.max(0,sold));
   }
+  localStorage.removeItem('zebraTrimestreResume');
+  await loadSheet();
+  currentIndex=Math.min(currentIndex,currentProducts.length-1);
+  decision=null;remainingQty=0;
+  renderProducts();
+ }catch(e){next.disabled=false;const msg=document.getElementById('message');if(msg)msg.textContent='Erreur : '+e.message}
 }
+updateLabels();
+window.addEventListener('load',()=>{gapiLoaded();gisLoaded()});
 </script>
 </body>
 </html>
