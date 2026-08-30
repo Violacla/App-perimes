@@ -50,7 +50,8 @@ h1{margin:0;font-size:13px;line-height:1.1;color:#163f5b}
 .stepper input{flex:1;width:100%;height:29px;border:1px solid var(--border);border-radius:7px;background:#fff;text-align:center;font-size:13px;font-weight:900;color:var(--text)}
 .next{width:100%;height:29px;margin-top:5px;border:0;border-radius:7px;background:var(--blue-dark);color:#fff;font-size:8px;font-weight:900}
 .next:disabled{background:var(--disabled);color:#9aa6b3}
-.message{font-size:7px;color:var(--muted);text-align:center;margin-top:3px;min-height:9px}
+.fixed-ref{font-size:6.5px;color:var(--muted);font-weight:800;text-align:right;margin-top:2px;padding-right:2px}
+.message{font-size:7px;color:var(--muted);text-align:center;margin-top:1px;min-height:7px}
 </style>
 <script src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
@@ -182,7 +183,7 @@ function renderProducts(){
    <div class="fact"><span>VENDUES</span><strong id="soldValue">${oldSold}</strong></div>
    <div class="fact"><span>PRODUITS RESTANTS</span><strong id="remainingValue">${oldRemaining}</strong></div>
    <div class="fact"><span>PROMO</span><strong>${esc(promo)} %</strong></div>
-   <div class="fact"><span>PRODUIT</span><strong>${currentIndex+1}/${currentProducts.length}</strong></div>
+   <div class="fact"><span>RÉFÉRENCE</span><strong>${formatCode(r[3])||'—'}</strong></div>
   </div>
   <div class="choices">
    <button class="choice ${decision==='sold'?'active':''}" onclick="chooseDecision('sold')">
@@ -201,8 +202,11 @@ function renderProducts(){
    <button id="plusBtn" onclick="changeRemaining(1)" disabled>+</button>
   </div>
   <button id="nextBtn" class="next" onclick="goNextProduct()" disabled>PRODUIT SUIVANT →</button>
+  <div class="fixed-ref" id="fixedRef">Référence 1/${currentProducts.length}</div>
   <div id="message" class="message"></div>
  `;
+ const fixedRef=document.getElementById('fixedRef');
+ if(fixedRef) fixedRef.textContent=`Référence ${currentIndex+1}/${currentProducts.length}`;
  document.getElementById('remainingInput').addEventListener('input',e=>{
   if(decision!=='remaining')return;
   remainingQty=Math.max(1,Math.min(oldRemaining,Number(e.target.value)||1));
@@ -301,32 +305,74 @@ async function updateCell(row,col,value){
  });
 }
 async function archiveCurrentRow(row){
- const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'});
- const sheets=meta.result.sheets||[],f1=sheets.find(x=>x.properties.title==='Feuille1'),f2=sheets.find(x=>x.properties.title==='Feuille2');
+ const meta=await gapi.client.sheets.spreadsheets.get({
+   spreadsheetId:SPREADSHEET_ID,
+   fields:'sheets.properties(sheetId,title)'
+ });
+ const sheets=meta.result.sheets||[];
+ const f1=sheets.find(x=>x.properties.title==='Feuille1');
+ const f2=sheets.find(x=>x.properties.title==='Feuille2');
  if(!f1||!f2)throw new Error('Feuille1 ou Feuille2 introuvable.');
- const got=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`Feuille1!A${row}:Z${row}`});
- const values=got.result.values?.[0];if(!values)throw new Error('Ligne introuvable.');
- await gapi.client.sheets.spreadsheets.values.append({spreadsheetId:SPREADSHEET_ID,range:'Feuille2!A1',valueInputOption:'USER_ENTERED',insertDataOption:'INSERT_ROWS',resource:{values:[values]}});
- await gapi.client.sheets.spreadsheets.batchUpdate({spreadsheetId:SPREADSHEET_ID,resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}}); 
+
+ const got=await gapi.client.sheets.spreadsheets.values.get({
+   spreadsheetId:SPREADSHEET_ID,
+   range:`Feuille1!A${row}:Z${row}`
+ });
+ const values=got.result.values?.[0];
+ if(!values)throw new Error('Ligne introuvable.');
+
+ await gapi.client.sheets.spreadsheets.values.append({
+   spreadsheetId:SPREADSHEET_ID,
+   range:'Feuille2!A1',
+   valueInputOption:'USER_ENTERED',
+   insertDataOption:'INSERT_ROWS',
+   resource:{values:[values]}
+ });
+
+ await gapi.client.sheets.spreadsheets.batchUpdate({
+   spreadsheetId:SPREADSHEET_ID,
+   resource:{requests:[{deleteDimension:{
+     range:{sheetId:f1.properties.sheetId,dimension:'ROWS',
+            startIndex:row-1,endIndex:row}
+   }}]}
+ });
 }
+
 async function goNextProduct(){
  if(!decision||!currentProducts[currentIndex])return;
+
  const item=currentProducts[currentIndex],r=item.r,row=item.row;
- const next=document.getElementById('nextBtn');next.disabled=true;
+ const next=document.getElementById('nextBtn');
+ const message=document.getElementById('message');
+ next.disabled=true;
+
  try{
-  if(decision==='sold'){
-   await archiveCurrentRow(row);
-  }else{
    const stock=Number(r[4]||0);
-   const sold=stock-remainingQty;
-   await updateCell(row,'G',Math.max(0,sold));
-  }
-  localStorage.removeItem('zebraTrimestreResume');
-  await loadSheet();
-  currentIndex=Math.min(currentIndex,currentProducts.length-1);
-  decision=null;remainingQty=0;
-  renderProducts();
- }catch(e){next.disabled=false;const msg=document.getElementById('message');if(msg)msg.textContent='Erreur : '+e.message}
+
+   if(decision==='sold'){
+     // Totalement vendu : Feuille1 -> Feuille2 Historique, puis suppression.
+     await archiveCurrentRow(row);
+   }else{
+     // Produits restants : la ligne reste dans Feuille1.
+     // Vendues = Stock - Restant.
+     const sold=Math.max(0,stock-remainingQty);
+     await updateCell(row,'G',sold);
+   }
+
+   localStorage.removeItem('zebraTrimestreResume');
+
+   // Relecture Google Sheets pour afficher l'état réel.
+   await loadSheet();
+
+   currentIndex=0;
+   decision=null;
+   remainingQty=0;
+   renderProducts();
+
+ }catch(e){
+   next.disabled=false;
+   if(message)message.textContent='Erreur : '+e.message;
+ }
 }
 updateLabels();
 window.addEventListener('load',()=>{gapiLoaded();gisLoaded()});
