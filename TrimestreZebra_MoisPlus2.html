@@ -1,343 +1,207 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f4f7fb">
-<title>Mois +2</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#bcd7ed">
+<title>3ème mois — Pharmacie du Libron</title>
+<script async src="https://accounts.google.com/gsi/client"></script>
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
 :root{
- --bg:#f4f7fb;--card:#fff;--text:#26384d;--muted:#718096;
- --blue:#5b8fc9;--blue2:#3972ad;--pink:#d99aae;--green:#86bf8e;
- --orange:#e8b56b;--soft-blue:#e5eff9;--soft-pink:#f7e5eb;
- --soft-green:#eef8ef;--soft-orange:#fff6e7;--border:#d5e0ec;
- --shadow:0 4px 14px rgba(62,91,122,.12)
+  --blue-glacial:#bcd7ed;--libron-green:#16834f;--libron-green2:#42b77a;--libron-light:#edf9f3;
+  --libron-dark:#153d31;--text:#253746;--muted:#657484;
+  --pink:#e45b7a;--pink-light:#fff0f4;--pink-border:#f2b5c4;
+  --line:#e1e7eb;--bg:#fff;
+  --amber-light:#fff9e6;--amber-border:#ffe0b2;--amber-dark:#b26a00;
 }
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
 body{display:flex;justify-content:center}
-.app{width:100%;max-width:500px;min-height:100dvh;padding:12px 10px 22px}
-header{text-align:center;padding:4px 2px 10px}
-.logo{width:50px;height:50px;margin:0 auto 7px;border-radius:15px;background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));display:flex;align-items:center;justify-content:center;font-size:25px;box-shadow:var(--shadow)}
-h1{font-size:20px;margin:0;color:#163f5b}
-.subtitle{font-size:11px;color:var(--muted);margin:4px 0}
-.session{font-size:11px;color:var(--muted);text-align:center;margin-bottom:9px}
-.session strong{color:var(--text)}
-.topbar{display:flex;gap:7px;margin-bottom:10px}
-.topbar button,.back{flex:1;min-height:40px;border:1px solid var(--border);background:#fff;border-radius:11px;font-weight:700;color:var(--text)}
-.login{background:#fff;border:1px solid var(--border);border-radius:14px;padding:9px;margin-bottom:10px;text-align:center;box-shadow:var(--shadow)}
-.login button{margin-top:7px;border:0;background:var(--blue2);color:#fff;border-radius:10px;padding:9px 14px;font-weight:700}
-.status{font-size:11px;color:var(--muted);text-align:center;min-height:17px;margin:5px 0 9px}
-.months{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:10px}
-.month-card{display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:16px;background:#fff;padding:14px;box-shadow:var(--shadow);cursor:pointer;min-height:92px}
-.month-card:active{transform:scale(.99)}
-.month-card .small{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:.3px}
-.month-card strong{display:block;font-size:18px;margin:3px 0}
-.month-card .rule{font-size:12px;font-weight:700}
-.month-card .nb{font-size:11px;color:var(--muted);margin-top:5px}
-.c1{border-left:7px solid var(--pink);background:var(--soft-pink)}
-.c2{border-left:7px solid var(--orange);background:var(--soft-orange)}
-.c3{border-left:7px solid var(--green);background:var(--soft-green)}
-.c4{border-left:7px solid var(--blue);background:var(--soft-blue)}
-.panel{background:#fff;border:1px solid var(--border);border-radius:18px;padding:12px;box-shadow:var(--shadow);margin-bottom:10px}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.panel h2{font-size:15px;margin:0}
-.count{font-size:11px;color:var(--muted)}
-.product{background:#fff;border:1px solid var(--border);border-radius:15px;padding:11px;margin-bottom:8px;box-shadow:0 2px 8px rgba(62,91,122,.05)}
-.product.sold-out{opacity:.58}
-.product-title{font-weight:800;font-size:14px;line-height:1.25}
-.code{font-size:12px;color:var(--blue2);font-weight:700;margin-top:3px}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:5px 9px;margin-top:9px}
-.facts div{background:#f7f9fc;border-radius:8px;padding:6px}
-.facts span{display:block;font-size:9px;color:var(--muted)}
-.facts strong{font-size:11px}
-.actions{display:flex;gap:7px;margin-top:9px}
-.btn{flex:1;min-height:39px;border:0;border-radius:10px;font-weight:700;font-size:11px;cursor:pointer}
-.btn-sold{background:#d8c0ca;color:#26384d}
-.btn-promo{background:var(--green);color:#fff}
-.btn-highlight{background:var(--blue);color:#fff}
-.empty{padding:25px 8px;text-align:center;color:var(--muted);font-size:12px}
-.detail-row{padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
-.detail-row:last-child{border-bottom:0}
-.detail-row strong{display:block;font-size:13px;margin-bottom:2px}
-@media(min-width:480px){.months{grid-template-columns:1fr 1fr}}
+.app{width:100%;max-width:560px;height:100%;padding:14px 18px 10px;display:flex;flex-direction:column}
+header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content:space-between;background:var(--blue-glacial);border-radius:16px;padding:0 16px;margin-bottom:2px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{width:58px;height:58px;flex:0 0 58px;border-radius:12px;overflow:hidden;background:transparent;border:0}
+.logo img{width:100%;height:100%;object-fit:contain}
+.title{min-width:0}
+h1{font-size:25px;letter-spacing:1.2px;line-height:1;margin:0;font-weight:900;color:var(--libron-dark)}
+.sub{font-size:10px;color:var(--muted);margin-top:8px;white-space:nowrap}
+.operator{text-align:right;font-size:10px;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.7px}
+.operator strong{display:block;font-size:32px;color:var(--text);line-height:1;margin-top:6px}
+.period{height:76px;flex:0 0 76px;margin-top:15px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.month{font-size:24px;font-weight:900;color:var(--text);text-transform:uppercase}
+.period small{font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.5px}
+.rate{font-size:22px;font-weight:900;color:var(--amber-dark);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:13px;padding:8px 14px}
+.status{text-align:center;font-size:9px;color:var(--muted);min-height:13px;margin:4px 0}
+.login{flex:1;display:flex;align-items:center;justify-content:center}
+.login-card{width:100%;background:#fff;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
+.login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}
+.google{border:0;background:var(--blue-glacial);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900}
+#productZone{display:none;flex:1;min-height:0;flex-direction:column}
+.card{flex:1;min-height:0;background:#fff;border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 5px 18px rgba(21,61,49,.07);display:flex;flex-direction:column}
+.name{font-size:23px;font-weight:900;line-height:1.18;color:var(--text);text-transform:uppercase}
+.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}
+.line{border-top:2px solid #edf0f2;margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.stat{background:#f7f9fa;border-radius:12px;padding:9px;text-align:center}
+.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}
+.stat b{display:block;font-size:24px;margin-top:3px}
+.stat:nth-child(2) b{color:var(--amber-dark)}.stat:nth-child(3) b{color:var(--libron-green)}
+.choices{display:grid;gap:10px;margin-top:13px}
+.choice{border:2px solid var(--line);border-radius:17px;background:#fff;min-height:60px;padding:9px 14px;display:flex;align-items:center;gap:13px;text-align:left;cursor:pointer;color:var(--text)}
+.choice .box{width:27px;height:27px;flex:0 0 27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;border:3px solid currentColor}
+.choice .txt{font-size:12px;font-weight:900;line-height:1.15}
+.choice small{display:block;font-size:9px;margin-top:2px;color:var(--muted);font-weight:500}
+.sold{background:var(--pink-light);border-color:var(--pink-border);color:var(--pink)}
+.sold .box{background:#fff}
+.sold.active{background:#ffe0e8;border-color:var(--pink)}
+.advice{background:var(--amber-light);border-color:var(--amber-border);color:var(--amber-dark)}
+.advice .box{background:#fff}
+.advice.active{background:#fff2cc;border-color:var(--amber-dark)}
+.step{margin-top:10px}
+.step-title{text-align:center;font-size:9px;font-weight:800;color:var(--muted);margin-bottom:4px}
+.stepper{display:flex;gap:8px}
+.stepper button{width:44px;height:40px;border:0;border-radius:13px;background:var(--libron-green2);color:#fff;font-size:25px;font-weight:900}
+.stepper button:disabled{background:#e0e5e8;color:#9da8b0}
+.stepper input{flex:1;height:40px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:20px;font-weight:900;color:var(--text)}
+.calc{margin-top:8px;background:#f7f9fa;border-radius:12px;padding:6px;text-align:center;font-size:10px;font-weight:800}.calc b{font-size:13px}
+.next{height:54px;flex:0 0 54px;border:0;border-radius:17px;margin-top:10px;background:var(--libron-green2);color:#fff;font-size:15px;font-weight:900;letter-spacing:.2px}
+.next:disabled{background:#dfe5e8;color:#98a5ad}
+.bottom{height:20px;flex:0 0 20px;display:flex;justify-content:space-between;align-items:end}
+.ref{font-size:10px;font-weight:900;color:var(--muted)}
+.report-status{font-size:10px;font-weight:900;color:var(--amber-dark)}
+.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
 </style>
 </head>
 <body>
 <main class="app">
 <header>
-  <div class="logo">🏷️</div>
-  <h1>Mois +2</h1>
-  <p class="subtitle">Produits à mettre en avant</p>
+<div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>3ème mois</h1><div class="sub">Sans promo · Signalement & Conseil · Libron</div></div></div>
+<div class="operator">Opérateur<strong id="op">—</strong></div>
 </header>
-<div class="session">Opérateur : <strong id="operator">—</strong></div>
-
-<div class="topbar">
-  <button class="back" onclick="location.href='TrimestreZebra.html'">⬅ Trimestre</button>
-</div>
-<div class="panel">
-  <div class="panel-head"><h2 id="monthTitle">Mois +2</h2><span class="count" id="count">0 produit</span></div>
-  <div id="status">Connexion Google Sheets nécessaire.</div>
-</div>
-<section id="products"></section>
-
+<section class="period"><div><div class="month" id="month">—</div><small>3ÈME MOIS (M+2)</small></div><div class="rate">SANS PROMO</div></section>
+<div id="status" class="status">Connexion à Google Sheets nécessaire.</div>
+<section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>La connexion est nécessaire pour charger et modifier les produits.</p><button class="google" onclick="connectGoogle()">Se connecter à Google</button></div></section>
+<section id="productZone">
+<div id="card" class="card"></div>
+<button id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button>
+<div class="bottom"><div id="ref" class="ref">Référence 0/0</div><div id="reportStatus" class="report-status"></div></div>
+<div id="message" class="message"></div>
+</section>
 </main>
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client"></script>
 <script>
-
 const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
 const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-const RANGE='Feuille1';
-const SCOPES='https://www.googleapis.com/auth/spreadsheets';
+const S1='Feuille1',S2='Feuille2',SCOPES='https://www.googleapis.com/auth/spreadsheets';
+let tokenClient,products=[],idx=0,choice=null,reported=false,remaining=0,operator=localStorage.getItem('zebraOperator')||'—';
+document.getElementById('op').textContent=operator;
+const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function startMonth(){let d=new Date();let m=d.getMonth()+(d.getDate()>=15?1:0)+2;let y=d.getFullYear();while(m>11){m-=12;y++;}return new Date(y,m,1)}
+function dateOf(v){
+  if(v instanceof Date && !isNaN(v)) return new Date(v.getFullYear(),v.getMonth(),1);
+  if(typeof v==='number' && isFinite(v)){
+    const d=new Date(Date.UTC(1899,11,30)+v*86400000);
+    return isNaN(d)?null:new Date(d.getUTCFullYear(),d.getUTCMonth(),1);
+  }
+  let s=String(v??'').trim().toLowerCase().replace(/\s+/g,' ');
+  if(!s)return null;
+  let m=s.match(/^(\d{4})[-/.](\d{1,2})(?:[-/.]\d{1,2})?/);
+  if(m)return new Date(+m[1],+m[2]-1,1);
+  m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);
+  if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,1);}
+  m=s.match(/^(\d{1,2})[-/.](\d{2,4})$/);
+  if(m){let y=+m[2];if(y<100)y+=2000;return new Date(y,+m[1]-1,1);}
+  const monthsFR={janvier:0,fevrier:1,'février':1,mars:2,avril:3,mai:4,juin:5,juillet:6,aout:7,'août':7,septembre:8,octobre:9,novembre:10,decembre:11,'décembre':11};
+  m=s.match(/^(janvier|fevrier|février|mars|avril|mai|juin|juillet|aout|août|septembre|octobre|novembre|decembre|décembre)\s+(\d{2,4})$/);
+  if(m){let y=+m[2];if(y<100)y+=2000;return new Date(y,monthsFR[m[1]],1);}
+  let d=new Date(s);
+  return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),1);
+}
+function isCurrent(v){let d=dateOf(v),s=startMonth();return d&&d.getFullYear()==s.getFullYear()&&d.getMonth()==s.getMonth()}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function status(t){document.getElementById('status').textContent=t}
+function message(t){document.getElementById('message').textContent=t}
+document.getElementById('month').textContent=months[startMonth().getMonth()]+' '+startMonth().getFullYear();
 
-let tokenClient=null, gapiInited=false, gisInited=false, accessToken=null, sheetRows=[];
-
-const operatorName=localStorage.getItem('zebraOperator') || '—';
-document.addEventListener('DOMContentLoaded',()=>{
-  const op=document.getElementById('operator');
-  if(op) op.textContent=operatorName;
-});
-
-function gapiLoaded(){ gapi.load('client', initializeGapiClient); }
-async function initializeGapiClient(){
-  try{
-    await gapi.client.init({
-      discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']
-    });
-    gapiInited=true;
-    maybeReady();
-  }catch(e){ setStatus('Erreur Google API : '+e.message); }
-}
-function gisLoaded(){
-  tokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:CLIENT_ID,
-    scope:SCOPES,
-    callback:async (tokenResponse)=>{
-      if(tokenResponse.error){
-        setStatus('Connexion Google refusée.');
-        return;
-      }
-      accessToken=tokenResponse.access_token;
-      setStatus('Google Sheets connecté. Chargement…');
-      const login=document.getElementById('googleLogin');
-      if(login) login.style.display='none';
-      await loadSheet();
-    }
-  });
-  gisInited=true;
-  maybeReady();
-}
-function maybeReady(){
-  if(gapiInited && gisInited){
-    const btn=document.getElementById('googleLoginBtn');
-    if(btn) btn.disabled=false;
-  }
-}
-function connectGoogle(){
-  if(!tokenClient || !gapiInited){
-    setStatus('Google est encore en cours de chargement…');
-    return;
-  }
-  tokenClient.requestAccessToken({prompt:''});
-}
-function setStatus(msg){
-  const el=document.getElementById('status');
-  if(el) el.textContent=msg;
-}
-function monthStart(){
-  const d=new Date();
-  let y=d.getFullYear(), m=d.getMonth();
-  if(d.getDate()>=15){
-    m++;
-    if(m===12){m=0;y++;}
-  }
-  return {y,m};
-}
-function addMonths(y,m,n){
-  const d=new Date(y,m+n,1);
-  return {y:d.getFullYear(),m:d.getMonth()};
-}
-function monthKey(y,m){return `${y}-${String(m+1).padStart(2,'0')}`;}
-function monthLabel(y,m){
-  return new Date(y,m,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-}
-function classifyDate(value){
-  if(!value) return null;
-  const s=String(value).trim();
-  let y,m;
-  let match=s.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/);
-  if(match){y=+match[1];m=+match[2]-1;}
-  else{
-    const d=new Date(s);
-    if(isNaN(d)) return null;
-    y=d.getFullYear();m=d.getMonth();
-  }
-  const start=monthStart();
-  return (y-start.y)*12+(m-start.m);
-}
-function formatCode(v){
-  const s=String(v??'').replace(/\D/g,'');
-  return s ? s.padStart(6,'0') : '';
-}
-function esc(v){
-  return String(v??'').replace(/[&<>"']/g,c=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
-}
-async function loadSheet(){
-  try{
-    const res=await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId:SPREADSHEET_ID, range:RANGE
-    });
-    sheetRows=res.result.values||[];
-    renderPage();
-  }catch(e){
-    setStatus('Erreur de chargement Google Sheets : '+e.message);
-  }
-}
-async function updateCell(row,col,value){
-  await gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId:SPREADSHEET_ID,
-    range:`Feuille1!${col}${row}`,
-    valueInputOption:'USER_ENTERED',
-    resource:{values:[[value]]}
+async function init(){
+  gapi.load('client',async()=>{await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
+    tokenClient=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:async r=>{
+      if(r.error){status('Connexion Google refusée.');return}
+      status('Google connecté. Chargement…');await load();
+    }});
   });
 }
-async function getSheetIds(){
-  const meta=await gapi.client.sheets.spreadsheets.get({
-    spreadsheetId:SPREADSHEET_ID,
-    fields:'sheets.properties(sheetId,title)'
+function connectGoogle(){if(tokenClient)tokenClient.requestAccessToken({prompt:''});else status('Google est encore en cours de traitement…')}
+
+async function load(){
+ try{
+  const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:S1});
+  const all=res.result.values||[];products=[];
+  all.slice(1).forEach((r,i)=>{
+    let q=+r[4]||0,s=+r[6]||0;
+    if(isCurrent(r[1])&&q>s)products.push({r,row:i+2});
   });
-  return meta.result.sheets||[];
+  products.sort((a,b)=>(dateOf(a.r[1])||0)-(dateOf(b.r[3])||0)||a.row-b.row);
+  document.getElementById('login').style.display='none';document.getElementById('productZone').style.display='flex';
+  if(!products.length){document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px;line-height:1.5">Aucun produit trouvé pour <b>'+esc(months[startMonth().getMonth()]+' '+startMonth().getFullYear())+'</b>.<br><small>Structure utilisée : B = Date · C = Produit · D = Code · E = Qté · F = Zone · G = Vendues.</small></div>';document.getElementById('next').disabled=true;document.getElementById('ref').textContent='Référence 0/0';status('Google Sheets connecté.');return}
+  const saved=JSON.parse(localStorage.getItem('zebraM2Resume')||'null');
+  idx=0;if(saved&&saved.operator===operator&&saved.code){let n=products.findIndex(x=>String(x.r[4])===String(saved.code));if(n>=0){idx=n;reported=saved.reported||false;}}
+  choice=null;remaining=0;render();status('Google Sheets connecté.');
+ }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
-async function transferToFeuille2(sheetRowNumber){
-  const sheets=await getSheetIds();
-  const f1=sheets.find(s=>s.properties.title==='Feuille1');
-  const f2=sheets.find(s=>s.properties.title==='Feuille2');
-  if(!f1 || !f2) throw new Error('Feuille1 ou Feuille2 introuvable.');
 
-  const res=await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId:SPREADSHEET_ID,
-    range:`Feuille1!A${sheetRowNumber}:Z${sheetRowNumber}`
+function saveResume(){if(products[idx])localStorage.setItem('zebraM2Resume',JSON.stringify({operator,code:String(products[idx].r[4]||''),reported,updatedAt:Date.now()}))}
+function render(){
+ let r=products[idx].r,q=+r[4]||0,soldOld=+r[6]||0,max=Math.max(0,q-soldOld);
+ if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
+ let sold=choice==='sold'?q:(choice==='remaining'?q-remaining:soldOld);
+ let rem=choice==='sold'?0:(choice==='remaining'?remaining:max);
+ document.getElementById('card').innerHTML=`
+ <div class="name">${esc(r[2]||'Produit sans nom')}</div>
+ <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div>
+ <div class="line"></div>
+ <div class="stats"><div class="stat"><span>STOCK</span><b>${q}</b></div><div class="stat"><span>VENDUES</span><b id="sv">${sold}</b></div><div class="stat"><span>RESTANT</span><b id="rv">${rem}</b></div></div>
+ <div class="choices">
+ <button class="choice sold ${choice==='sold'?'active':''}" onclick="choose('sold')"><span class="box">${choice==='sold'?'✓':''}</span><span class="txt">TOTALEMENT VENDU<small>Transfert dans l'historique au passage suivant</small></span></button>
+ <button class="choice remaining ${choice==='remaining'?'active':''}" onclick="choose('remaining')"><span class="box">${choice==='remaining'?'✓':''}</span><span class="txt">PRODUITS RESTANTS<small>Choisir la quantité restante</small></span></button></div>
+ <div class="step"><div class="step-title">PRODUITS RESTANTS — − / +</div><div class="stepper"><button onclick="change(-1)" ${choice==='remaining'?'':'disabled'}>−</button><input id="qtyRemain" type="number" min="1" max="${Math.max(1,max)}" value="${choice==='remaining'?remaining:0}" ${choice==='remaining'?'':'disabled'} onchange="inputRemain(this.value)"><button onclick="change(1)" ${choice==='remaining'?'':'disabled'}>+</button></div></div>
+ <button class="choice advice ${reported?'active':''}" style="margin-top:8px;min-height:50px" onclick="toggleReport()"><span class="box">${reported?'✓':''}</span><span class="txt">SIGNALEMENT / CONSEIL<small>${reported?'Signalé aux collègues / Conseil comptoir active':'Signaler à l’équipe pour écoulement rapide ou conseil'}</small></span></button>
+ <div class="calc">Vendues = Stock − Restant : <b>${sold}</b></div>`;
+ document.getElementById('next').disabled=!(choice==='sold'||choice==='remaining');
+ document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;
+ document.getElementById('reportStatus').textContent=reported?'⭐ Signalé équipe':'';
+ saveResume();
+}
+function choose(c){let r=products[idx].r,q=+r[4]||0,s=+r[6]||0;choice=c;remaining=c==='remaining'?Math.max(1,q-s):0;render()}
+function toggleReport(){reported=!reported;render()}
+function change(d){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[4]||0)-(+r[6]||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
+function inputRemain(v){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[4]||0)-(+r[6]||0));remaining=Math.max(1,Math.min(max,+v||1));render()}
+async function updateCell(row,col,value){return gapi.client.sheets.spreadsheets.values.update({spreadsheetId:SPREADSHEET_ID,range:`${S1}!${col}${row}`,valueInputOption:'USER_ENTERED',resource:{values:[[value]]}})}
+async function transfer(row){
+ const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'});
+ const sh=meta.result.sheets||[],f1=sh.find(x=>x.properties.title===S1),f2=sh.find(x=>x.properties.title===S2);if(!f1||!f2)throw Error('Feuille1 ou Feuille2 introuvable.');
+ const get=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`${S1}!A${row}:Z${row}`}),vals=get.result.values?.[0];if(!vals)throw Error('Ligne introuvable.');
+ const ap=await gapi.client.sheets.spreadsheets.values.append({spreadsheetId:SPREADSHEET_ID,range:`${S2}!A1`,valueInputOption:'USER_ENTERED',insertDataOption:'INSERT_ROWS',includeValuesInResponse:true,resource:{values:[vals]}});
+ if(!ap.result?.updates?.updatedRows)throw Error('Transfert vers Feuille2 non confirmé.');
+ await gapi.client.sheets.spreadsheets.batchUpdate({spreadsheetId:SPREADSHEET_ID,resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}})
+}
+async function goNext(){
+ if(!choice)return;let item=products[idx],r=item.r,row=item.row,code=String(r[4]||'');document.getElementById('next').disabled=true;message('Enregistrement…');
+ try{
+  if(choice==='sold')await transfer(row);else await updateCell(row,'G',Math.max(0,(+r[4]||0)-remaining));
+  localStorage.removeItem('zebraM2Resume');
+  reported=false;
+  const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:S1}),all=res.result.values||[];products=[];
+  all.slice(1).forEach((rr,i)=>{
+    let q=+rr[4]||0,s=+rr[6]||0;
+    if(isCurrent(rr[1])&&q>s)products.push({r:rr,row:i+2});
   });
-  const row=(res.result.values||[])[0];
-  if(!row) throw new Error('Ligne introuvable.');
-
-  const append=await gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId:SPREADSHEET_ID,
-    range:'Feuille2!A1',
-    valueInputOption:'USER_ENTERED',
-    insertDataOption:'INSERT_ROWS',
-    includeValuesInResponse:true,
-    resource:{values:[row]}
-  });
-  if(!append.result?.updates?.updatedRows) throw new Error('Transfert non confirmé.');
-
-  await gapi.client.sheets.spreadsheets.batchUpdate({
-    spreadsheetId:SPREADSHEET_ID,
-    resource:{requests:[{deleteDimension:{
-      range:{
-        sheetId:f1.properties.sheetId,
-        dimension:'ROWS',
-        startIndex:sheetRowNumber-1,
-        endIndex:sheetRowNumber
-      }
-    }}]}
-  });
+  products.sort((a,b)=>(dateOf(a.r[1])||0)-(dateOf(b.r[3])||0)||a.row-b.row);
+  let ni=products.findIndex(x=>String(x.r[4]||'')===code);idx=ni>=0?ni:Math.min(idx,Math.max(0,products.length-1));choice=null;remaining=0;
+  if(products.length){render();message('');status('Produit enregistré. Prêt pour le suivant.')}else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#718096;font-size:10px">Tous les produits du mois sont traités. ✓</div>';document.getElementById('ref').textContent='Référence 0/0';message('');status('Tous les produits du mois sont traités.')}
+ }catch(e){document.getElementById('next').disabled=false;message('Erreur : '+(e.result?.error?.message||e.message))}
 }
-async function markSold(sheetRowNumber,button){
-  button.disabled=true;
-  try{
-    await transferToFeuille2(sheetRowNumber);
-    setStatus('✓ Produit transféré dans Feuille2.');
-    await loadSheet();
-  }catch(e){
-    button.disabled=false;
-    setStatus('Erreur : '+e.message);
-  }
-}
-async function setPromo(sheetRowNumber,type,button){
-  const defaults=['50','20','0'];
-  const v=prompt('Pourcentage de promotion (0 à 100) :',defaults[type]||'0');
-  if(v===null)return;
-  const n=Number(v);
-  if(!Number.isInteger(n)||n<0||n>100){
-    alert('Entrez un nombre entier entre 0 et 100.');
-    return;
-  }
-  button.disabled=true;
-  try{
-    await updateCell(sheetRowNumber,'H',n);
-    setStatus('✓ Promotion enregistrée dans Google Sheets.');
-    await loadSheet();
-  }catch(e){
-    button.disabled=false;
-    setStatus('Erreur : '+e.message);
-  }
-}
-function productRowsFor(type){
-  const result=[];
-  for(let i=1;i<sheetRows.length;i++){
-    const r=sheetRows[i];
-    const c=classifyDate(r[1]);
-    let ok=false;
-    if(type==='all') ok=c!==null && c>=0 && c<=2;
-    else ok=c===type;
-    if(ok) result.push({r,row:i+1});
-  }
-  return result;
-}
-function renderProducts(type){
-  const box=document.getElementById('products');
-  const rows=productRowsFor(type);
-  const count=document.getElementById('count');
-  if(count) count.textContent=rows.length+' produit'+(rows.length>1?'s':'');
-  if(!rows.length){
-    box.innerHTML='<div class="empty">Aucun produit pour cette période.</div>';
-    return;
-  }
-  box.innerHTML=rows.map(({r,row})=>{
-    const sold=Number(r[6]||0), qty=Number(r[4]||0);
-    const soldOut=Number.isFinite(qty)&&Number.isFinite(sold)&&qty===sold;
-    const promo=r[7]||0;
-    const actions=type===2
-      ? `<button class="btn btn-highlight" onclick="setPromo(${row},2,this)">Mise en avant</button>`
-      : `<button class="btn btn-promo" onclick="setPromo(${row},${type},this)">Promotion</button>`;
-    return `<article class="product ${soldOut?'sold-out':''}">
-      <div class="product-title">${esc(r[2]||'Produit sans nom')}</div>
-      <div class="code">${formatCode(r[3])}</div>
-      <div class="facts">
-        <div><span>Zone</span><strong>${esc(r[5]||'—')}</strong></div>
-        <div><span>Stock</span><strong>${esc(r[4]||'0')}</strong></div>
-        <div><span>Vendues</span><strong>${esc(r[6]||'0')}</strong></div>
-        <div><span>Promo</span><strong>${esc(promo)} %</strong></div>
-      </div>
-      <div class="actions">
-        <button class="btn btn-sold" onclick="markSold(${row},this)">Vendues totalement</button>
-        ${actions}
-      </div>
-    </article>`;
-  }).join('');
-}
-function renderPage(){
-  if(typeof PAGE_TYPE!=='undefined') renderProducts(PAGE_TYPE);
-  if(typeof renderHome==='function') renderHome();
-  setStatus('Google Sheets connecté.');
-}
-window.addEventListener('load',()=>{
-  updatePageLabels();
-  gapiLoaded();
-  gisLoaded();
-});
-
-
-const PAGE_TYPE=2;
-function updatePageLabels(){
-  const s=monthStart(), x=addMonths(s.y,s.m,PAGE_TYPE);
-  document.getElementById('monthTitle').textContent=monthLabel(x.y,x.m)+' — Mise en avant';
-}
-
+window.addEventListener('load',()=>{let n=0,t=setInterval(()=>{n++;if(window.google?.accounts?.oauth2&&window.gapi){clearInterval(t);init()}if(n>100){clearInterval(t);status('Impossible de charger Google.')}},100)})
 </script>
 </body>
 </html>
