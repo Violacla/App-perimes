@@ -1,10 +1,15 @@
-<!doctype html><html lang="fr"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#bcd7ed"><title>Mois prochain — Pharmacie du Libron</title>
-<script async src="https://accounts.google.com/gsi/client"></script><script src="https://apis.google.com/js/api.js"></script>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#bcd7ed">
+<title>Mois actuel — Pharmacie du Libron</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
 :root{--blue:#bcd7ed;--green:#16834f;--green2:#42b77a;--greenLight:#edf9f3;--dark:#153d31;--text:#253746;--muted:#657484;--pink:#e45b7a;--pinkLight:#fff0f4;--pinkBorder:#f2b5c4;--line:#e1e7eb}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-family:Arial,sans-serif;color:var(--text)}body{display:flex;justify-content:center}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-family:Arial,Helvetica,sans-serif;color:var(--text)}body{display:flex;justify-content:center}
 .app{width:100%;max-width:560px;height:100%;padding:12px 18px 9px;display:flex;flex-direction:column}
 header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content:space-between;background:var(--blue);border-radius:16px;padding:0 16px;margin-bottom:8px}
 .brand{display:flex;align-items:center;gap:14px;min-width:0}.logo{width:58px;height:58px;flex:0 0 58px}.logo img{width:100%;height:100%;object-fit:contain}
@@ -14,7 +19,7 @@ header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content
 .period{height:70px;flex:0 0 70px;padding:5px 14px;display:flex;align-items:center;justify-content:space-between}.month{font-size:24px;font-weight:900;text-transform:uppercase}.period small{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-top:5px}
 .rate{font-size:25px;font-weight:900;border-radius:13px;padding:8px 16px}.pink{color:var(--pink);background:var(--pinkLight);border:1px solid var(--pinkBorder)}.green{color:var(--green);background:var(--greenLight);border:1px solid #bde4d0}.blue{color:#4e7598;background:#eef5fa;border:1px solid #c9ddea;font-size:17px}
 .status{text-align:center;font-size:9px;color:var(--muted);min-height:13px;margin:2px 0 5px}.login{flex:1;display:flex;align-items:center;justify-content:center}.login-card{width:100%;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
-.login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900}
+.login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900;cursor:pointer}
 #productZone{display:none;flex:1;min-height:0;flex-direction:column}.card{flex:1;min-height:0;border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 5px 18px rgba(21,61,49,.07);display:flex;flex-direction:column}
 .name{font-size:23px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.line{border-top:2px solid #edf0f2;margin-top:12px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.stat{background:#f7f9fa;border-radius:12px;padding:9px;text-align:center}.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:24px;margin-top:3px}.stat:nth-child(2) b,.stat:nth-child(3) b{color:var(--green)}
@@ -22,33 +27,183 @@ header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content
 .sold{background:var(--pinkLight);border-color:var(--pinkBorder);color:var(--pink)}.sold.active{background:#ffe0e8;border-color:var(--pink)}.remaining{background:var(--greenLight);border-color:#bde4d0;color:var(--green)}.remaining.active{background:#dff4e9;border-color:var(--green)}
 .step{margin-top:12px}.step-title{text-align:center;font-size:9px;font-weight:800;color:var(--muted);margin-bottom:4px}.stepper{display:flex;gap:8px}.stepper button{width:48px;height:45px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:29px;font-weight:900}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:45px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:22px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
 .calc{margin-top:9px;background:#f7f9fa;border-radius:12px;padding:8px;text-align:center;font-size:10px;font-weight:800}.calc b{font-size:14px;color:var(--green)}
-.next{height:58px;flex:0 0 58px;border:0;border-radius:17px;margin-top:12px;background:var(--green2);color:#fff;font-size:15px;font-weight:900}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:24px;flex:0 0 24px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
-</style></head><body><main class="app">
-<header><div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>Mois prochain</h1><div class="sub">SUBMois prochain · Pharmacie du Libron</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
+.next{height:58px;flex:0 0 58px;border:0;border-radius:17px;margin-top:12px;background:var(--green2);color:#fff;font-size:15px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:24px;flex:0 0 24px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
+</style>
+</head>
+<body>
+<main class="app">
+<header><div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>Mois actuel</h1><div class="sub">Produits à promouvoir fortement · Pharmacie du Libron</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
 <button class="back" onclick="location.href='TrimestreZebra.html'">← Trimestre</button>
-<section class="period"><div><div class="month" id="month">—</div><small>MOIS PROCHAIN (M+1)</small></div><div class="rate green">-10 à -30 %</div></section>
-<div id="status" class="status">Connexion à Google Sheets nécessaire.</div>
-<section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>La connexion est nécessaire pour charger et modifier les produits.</p><button class="google" onclick="connectGoogle()">Se connecter à Google</button></div></section>
+<section class="period"><div><div class="month" id="month">—</div><small>MOIS ACTUEL</small></div><div class="rate pink">50 à 70 %</div></section>
+<div id="status" class="status">Préparation de Google Sheets…</div>
+<section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
 <section id="productZone"><div id="card" class="card"></div><button id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
-</main><script>
-const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com',SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE',S1='Feuille1',S2='Feuille2',SCOPES='https://www.googleapis.com/auth/spreadsheets',1=1,RESUME_KEY='zebraM1Resume';
-let tokenClient=null,products=[],idx=0,choice=null,remaining=0,operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
+</main>
+<script>
+const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+const SHEET='Feuille1',HISTORY='Feuille2';
+const SCOPES='https://www.googleapis.com/auth/spreadsheets';
+const OFFSET=0,zebraMoisActuelResume='zebraMoisActuelResume';
+let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
+const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
+
+function startMonth(){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+(d.getDate()>=15?1:0)+OFFSET,1)}
+function dateOf(v){
+  if(typeof v==='number'&&isFinite(v)){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return new Date(d.getUTCFullYear(),d.getUTCMonth(),1)}
+  const s=String(v??'').trim().toLowerCase();if(!s)return null;
+  let m=s.match(/^(\\d{4})[-/.](\\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);
+  m=s.match(/^(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,1)}
+  m=s.match(/^(\\d{1,2})[-/.](\\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);
+  const d=new Date(s);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),1)
+}
+function target(v){const d=dateOf(v),s=startMonth();return d&&d.getFullYear()===s.getFullYear()&&d.getMonth()===s.getMonth()}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function status(t){document.getElementById('status').textContent=t}
+function message(t){document.getElementById('message').textContent=t}
+function setReady(){const b=document.getElementById('googleBtn');b.disabled=false;b.textContent='Se connecter à Google';status('Google Sheets prêt.');}
+function fail(t){status(t);const b=document.getElementById('googleBtn');b.disabled=true;b.textContent='Google indisponible';}
+
+function connectGoogle(){
+  if(!gisReady||!tokenClient){status('Google n’est pas encore prêt…');return}
+  status('Ouverture de la connexion Google…');
+  tokenClient.requestAccessToken({prompt:''});
+}
+
+async function bootGapi(){
+  try{
+    await new Promise((resolve,reject)=>gapi.load('client',{callback:resolve,onerror:reject}));
+    await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
+    gapiReady=true;
+    maybeReady();
+  }catch(e){fail('Impossible de charger Google Sheets : '+e.message)}
+}
+function bootGIS(){
+  try{
+    if(!window.google||!google.accounts||!google.accounts.oauth2)throw new Error('Google Identity Services non chargé');
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:CLIENT_ID,
+      scope:SCOPES,
+      callback:async response=>{
+        if(response.error){status('Connexion Google refusée : '+response.error);return}
+        if(!response.access_token){status('Google n’a pas fourni de jeton d’accès.');return}
+        gapi.client.setToken({access_token:response.access_token});
+        status('Connexion Google réussie. Chargement des produits…');
+        await load();
+      }
+    });
+    gisReady=true;maybeReady();
+  }catch(e){fail('Impossible de préparer la connexion Google : '+e.message)}
+}
+function maybeReady(){if(gapiReady&&gisReady)setReady()}
+
+async function load(){
+  try{
+    const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET});
+    const rows=res.result.values||[];products=[];
+    rows.slice(1).forEach((r,i)=>{
+      const stock=Number(r[4])||0,oldSold=Number(r[6])||0;
+      if(target(r[1])&&stock>oldSold)products.push({r,row:i+2});
+    });
+    products.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);
+    document.getElementById('login').style.display='none';
+    document.getElementById('productZone').style.display='flex';
+    idx=0;
+    const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
+    if(saved&&saved.operator===operator&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
+    if(products.length)render();
+    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
+    status('Google Sheets connecté.');
+  }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
+}
+function saveResume(){if(products[idx])localStorage.setItem(zebraMoisActuelResume,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+function render(){
+  const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
+  if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
+  const sold=choice==='sold'?stock:(choice==='remaining'?stock-remaining:oldSold);
+  const rem=choice==='sold'?0:(choice==='remaining'?remaining:max);
+  document.getElementById('card').innerHTML=
+  `<div class="name">${esc(r[2]||'Produit sans nom')}</div>
+   <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div>
+   <div class="line"></div>
+   <div class="stats">
+     <div class="stat"><span>STOCK INITIAL</span><b>${stock}</b></div>
+     <div class="stat"><span>VENDUES</span><b>${sold}</b></div>
+     <div class="stat"><span>RESTANT</span><b>${rem}</b></div>
+   </div>
+   <div class="choices">
+     <button class="choice sold ${choice==='sold'?'active':''}" onclick="choose('sold')"><span class="box">${choice==='sold'?'✓':''}</span><span class="txt">TOTALEMENT VENDU<small>Transfert vers l’historique au passage suivant</small></span></button>
+     <button class="choice remaining ${choice==='remaining'?'active':''}" onclick="choose('remaining')"><span class="box">${choice==='remaining'?'✓':''}</span><span class="txt">PRODUITS RESTANTS<small>Choisir la quantité restante</small></span></button>
+   </div>
+   <div class="step"><div class="step-title">PRODUITS RESTANTS — − / +</div>
+     <div class="stepper">
+       <button onclick="change(-1)" ${choice==='remaining'?'':'disabled'}>−</button>
+       <input type="number" min="1" max="${Math.max(1,max)}" value="${choice==='remaining'?remaining:0}" ${choice==='remaining'?'':'disabled'} onchange="inputRemain(this.value)">
+       <button onclick="change(1)" ${choice==='remaining'?'':'disabled'}>+</button>
+     </div>
+   </div>
+   <div class="calc">Vendues = Stock − Restant : <b>${sold} = ${stock} − ${rem}</b></div>`;
+  document.getElementById('next').disabled=!(choice==='sold'||choice==='remaining');
+  document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;
+  saveResume();
+}
+function choose(c){const r=products[idx].r,stock=Number(r[4])||0,sold=Number(r[6])||0;choice=c;remaining=c==='remaining'?Math.max(1,stock-sold):0;render()}
+function change(d){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
+function inputRemain(v){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,Number(v)||1));render()}
+async function updateSold(row,value){
+  return gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId:SPREADSHEET_ID,range:`${SHEET}!G${row}`,
+    valueInputOption:'USER_ENTERED',resource:{values:[[value]]}
+  })
+}
+async function transfer(row){
+  const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'});
+  const sheets=meta.result.sheets||[],f1=sheets.find(x=>x.properties.title===SHEET),f2=sheets.find(x=>x.properties.title===HISTORY);
+  if(!f1||!f2)throw Error('Feuille1 ou Feuille2 introuvable.');
+  const get=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`${SHEET}!A${row}:Z${row}`});
+  const vals=get.result.values?.[0];if(!vals)throw Error('Ligne introuvable.');
+  const ap=await gapi.client.sheets.spreadsheets.values.append({
+    spreadsheetId:SPREADSHEET_ID,range:`${HISTORY}!A1`,valueInputOption:'USER_ENTERED',
+    insertDataOption:'INSERT_ROWS',includeValuesInResponse:true,resource:{values:[vals]}
+  });
+  if(!ap.result?.updates?.updatedRows)throw Error('Transfert historique non confirmé.');
+  await gapi.client.spreadsheets.batchUpdate({
+    spreadsheetId:SPREADSHEET_ID,
+    resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}
+  });
+}
+async function goNext(){
+  if(!choice||!products[idx])return;
+  const r=products[idx].r,row=products[idx].row,code=String(r[3]||'');
+  document.getElementById('next').disabled=true;message('Enregistrement…');
+  try{
+    if(choice==='sold')await transfer(row);
+    else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
+    localStorage.removeItem(zebraMoisActuelResume);
+    choice=null;remaining=0;
+    await load();
+    const n=products.findIndex(x=>String(x.r[3]||'')===code);
+    idx=n>=0?n:Math.min(idx,Math.max(0,products.length-1));
+    if(products.length){render();message('')}
+    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';document.getElementById('ref').textContent='Référence 0/0';message('');}
+  }catch(e){document.getElementById('next').disabled=false;message('Erreur : '+(e.result?.error?.message||e.message))}
+}
+
 const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-function startMonth(){let d=new Date(),m=d.getMonth()+(d.getDate()>=15?1:0)+1,y=d.getFullYear();while(m>11){m-=12;y++}return new Date(y,m,1)}
-function dateOf(v){if(typeof v==='number'&&isFinite(v)){let d=new Date(Date.UTC(1899,11,30)+v*86400000);return new Date(d.getUTCFullYear(),d.getUTCMonth(),1)}let s=String(v??'').trim().toLowerCase();if(!s)return null;let m=s.match(/^(\d{4})[-/.](\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,1)}m=s.match(/^(\d{1,2})[-/.](\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);let d=new Date(s);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),1)}
-function target(v){let d=dateOf(v),s=startMonth();return d&&d.getFullYear()===s.getFullYear()&&d.getMonth()===s.getMonth()}function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function status(t){document.getElementById('status').textContent=t}function message(t){document.getElementById('message').textContent=t}
-function connectGoogle(){if(tokenClient)tokenClient.requestAccessToken({prompt:''});else status('Google est encore en cours de chargement…')}
-async function init(){try{await new Promise((res,rej)=>gapi.load('client',{callback:res,onerror:rej}));await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});tokenClient=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:async r=>{if(r.error){status('Connexion Google refusée.');return}gapi.client.setToken({access_token:r.access_token});await load()}})}catch(e){status('Impossible de charger Google : '+e.message)}}
-async function load(){try{let res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:S1}),all=res.result.values||[];products=[];all.slice(1).forEach((r,i)=>{let q=+r[4]||0,s=+r[6]||0;if(target(r[1])&&q>s)products.push({r,row:i+2})});products.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);document.getElementById('login').style.display='none';document.getElementById('productZone').style.display='flex';let saved=JSON.parse(localStorage.getItem(RESUME_KEY)||'null');idx=0;if(saved&&saved.operator===operator&&saved.code){let n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}if(products.length)render();else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}status('Google Sheets connecté.')}catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}}
-function saveResume(){if(products[idx])localStorage.setItem(RESUME_KEY,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
-function render(){let r=products[idx].r,q=+r[4]||0,old=+r[6]||0,max=Math.max(0,q-old);if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));let sold=choice==='sold'?q:(choice==='remaining'?q-remaining:old),rem=choice==='sold'?0:(choice==='remaining'?remaining:max);document.getElementById('card').innerHTML=`<div class="name">${esc(r[2]||'Produit sans nom')}</div><div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div><div class="line"></div><div class="stats"><div class="stat"><span>STOCK INITIAL</span><b>${q}</b></div><div class="stat"><span>VENDUES</span><b>${sold}</b></div><div class="stat"><span>RESTANT</span><b>${rem}</b></div></div><div class="choices"><button class="choice sold ${choice==='sold'?'active':''}" onclick="choose('sold')"><span class="box">${choice==='sold'?'✓':''}</span><span class="txt">TOTALEMENT VENDU<small>Transfert dans l'historique au passage suivant</small></span></button><button class="choice remaining ${choice==='remaining'?'active':''}" onclick="choose('remaining')"><span class="box">${choice==='remaining'?'✓':''}</span><span class="txt">PRODUITS RESTANTS<small>Choisir la quantité restante</small></span></button></div><div class="step"><div class="step-title">PRODUITS RESTANTS — − / +</div><div class="stepper"><button onclick="change(-1)" ${choice==='remaining'?'':'disabled'}>−</button><input type="number" min="1" max="${Math.max(1,max)}" value="${choice==='remaining'?remaining:0}" ${choice==='remaining'?'':'disabled'} onchange="inputRemain(this.value)"><button onclick="change(1)" ${choice==='remaining'?'':'disabled'}>+</button></div></div><div class="calc">Vendues = Stock − Restant : <b>${sold} = ${q} − ${rem}</b></div>`;document.getElementById('next').disabled=!(choice==='sold'||choice==='remaining');document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;saveResume()}
-function choose(c){let r=products[idx].r,q=+r[4]||0,s=+r[6]||0;choice=c;remaining=c==='remaining'?Math.max(1,q-s):0;render()}
-function change(d){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[4]||0)-(+r[6]||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
-function inputRemain(v){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[4]||0)-(+r[6]||0));remaining=Math.max(1,Math.min(max,+v||1));render()}
-async function updateCell(row,value){return gapi.client.sheets.spreadsheets.values.update({spreadsheetId:SPREADSHEET_ID,range:`${S1}!G${row}`,valueInputOption:'USER_ENTERED',resource:{values:[[value]]}})}
-async function transfer(row){let meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'}),sh=meta.result.sheets||[],f1=sh.find(x=>x.properties.title===S1),f2=sh.find(x=>x.properties.title===S2);if(!f1||!f2)throw Error('Feuille1 ou Feuille2 introuvable.');let get=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`${S1}!A${row}:Z${row}`}),vals=get.result.values?.[0];if(!vals)throw Error('Ligne introuvable.');let ap=await gapi.client.sheets.spreadsheets.values.append({spreadsheetId:SPREADSHEET_ID,range:`${S2}!A1`,valueInputOption:'USER_ENTERED',insertDataOption:'INSERT_ROWS',includeValuesInResponse:true,resource:{values:[vals]}});if(!ap.result?.updates?.updatedRows)throw Error('Transfert vers Feuille2 non confirmé.');await gapi.client.spreadsheets.batchUpdate({spreadsheetId:SPREADSHEET_ID,resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}})}
-async function goNext(){if(!choice||!products[idx])return;let r=products[idx].r,row=products[idx].row,code=String(r[3]||'');document.getElementById('next').disabled=true;message('Enregistrement…');try{if(choice==='sold')await transfer(row);else await updateCell(row,Math.max(0,(+r[4]||0)-remaining));localStorage.removeItem(RESUME_KEY);await load();let n=products.findIndex(x=>String(x.r[3]||'')===code);idx=n>=0?n:Math.min(idx,Math.max(0,products.length-1));choice=null;remaining=0;if(products.length){render();message('');status('Produit enregistré. Prêt pour le suivant.')}else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#718096;font-size:11px">Tous les produits du mois sont traités. ✓</div>';document.getElementById('ref').textContent='Référence 0/0';message('');status('Tous les produits du mois sont traités.')}}catch(e){document.getElementById('next').disabled=false;message('Erreur : '+(e.result?.error?.message||e.message))}}
-document.getElementById('month').textContent=months[startMonth().getMonth()]+' '+startMonth().getFullYear();
-window.addEventListener('load',()=>{let n=0,t=setInterval(()=>{if(window.google?.accounts?.oauth2&&window.gapi){clearInterval(t);init()}if(++n>120){status('Impossible de charger Google.');clearInterval(t)}},100)});
-</script></body></html>
+const sm=startMonth();document.getElementById('month').textContent=months[sm.getMonth()]+' '+sm.getFullYear();
+
+let gapiStarted=false,gisStarted=false;
+function waitForGoogle(){
+  let tries=0;
+  const timer=setInterval(()=>{
+    if(!gapiStarted&&window.gapi){gapiStarted=true;bootGapi()}
+    if(!gisStarted&&window.google?.accounts?.oauth2){gisStarted=true;bootGIS()}
+    tries++;
+    if(gapiReady&&gisReady){clearInterval(timer);return}
+    if(tries>120){clearInterval(timer);if(!gapiReady||!gisReady)fail('Google n’a pas pu être chargé. Vérifiez Internet puis rechargez la page.')}
+  },100);
+}
+window.addEventListener('load',waitForGoogle);
+</script>
+</body>
+</html>
