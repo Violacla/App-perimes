@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#bcd7ed">
-<title>Mois actuel — Pharmacie du Libron</title>
+<title>Mois +1 — Pharmacie du Libron</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
@@ -32,9 +32,9 @@ header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content
 </head>
 <body>
 <main class="app">
-<header><div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>Mois actuel</h1><div class="sub">Produits à promouvoir fortement · Pharmacie du Libron</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
+<header><div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>Mois +1</h1><div class="sub">Produits à promouvoir en anticipation · Pharmacie du Libron</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
 <button class="back" onclick="location.href='TrimestreZebra.html'">← Trimestre</button>
-<section class="period"><div><div class="month" id="month">—</div><small>MOIS ACTUEL</small></div><div class="rate pink">50 à 70 %</div></section>
+<section class="period"><div><div class="month" id="month">—</div><small>MOIS +1</small></div><div class="rate green">10 à 30 %</div></section>
 <div id="status" class="status">Préparation de Google Sheets…</div>
 <section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
 <section id="productZone"><div id="card" class="card"></div><button id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
@@ -44,7 +44,7 @@ const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleuserco
 const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const SHEET='Feuille1',HISTORY='Feuille2';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
-const OFFSET=0,zebraMoisActuelResume='zebraMoisActuelResume';
+const OFFSET=1,zebraMoisPlus1Resume='zebraMoisPlus1Resume';
 let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
 const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
 
@@ -109,14 +109,14 @@ async function load(){
     document.getElementById('login').style.display='none';
     document.getElementById('productZone').style.display='flex';
     idx=0;
-    const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
+    const saved=JSON.parse(localStorage.getItem(zebraMoisPlus1Resume)||'null');
     if(saved&&saved.operator===operator&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
     if(products.length)render();
     else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
     status('Google Sheets connecté.');
   }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
-function saveResume(){if(products[idx])localStorage.setItem(zebraMoisActuelResume,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+function saveResume(){if(products[idx])localStorage.setItem(zebraMoisPlus1Resume,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
 function render(){
   const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
   if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
@@ -179,7 +179,7 @@ async function goNext(){
   try{
     if(choice==='sold')await transfer(row);
     else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
-    localStorage.removeItem(zebraMoisActuelResume);
+    localStorage.removeItem(zebraMoisPlus1Resume);
     choice=null;remaining=0;
     await load();
     const n=products.findIndex(x=>String(x.r[3]||'')===code);
