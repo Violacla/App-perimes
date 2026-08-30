@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#bcd7ed">
-<title>Mois +1 — Pharmacie du Libron</title>
+<title>Mois +1 — 10 à 30 % — Pharmacie du Libron</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
@@ -44,11 +44,18 @@ const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleuserco
 const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const SHEET='Feuille1',HISTORY='Feuille2';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
-const OFFSET=1,zebraMoisPlus1Resume='zebraMoisPlus1Resume';
+const zebraMoisPlus1Resume='zebraMoisPlus1Resume';
 let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
 const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
 
-function startMonth(){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+(d.getDate()>=15?1:0)+OFFSET,1)}
+function referenceMonth(){
+  const d=new Date();
+  return new Date(d.getFullYear(),d.getMonth()+(d.getDate()>=15?1:0),1);
+}
+function startMonth(){
+  const ref=referenceMonth();
+  return new Date(ref.getFullYear(),ref.getMonth()+1,1);
+}
 function dateOf(v){
   if(typeof v==='number'&&isFinite(v)){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return new Date(d.getUTCFullYear(),d.getUTCMonth(),1)}
   const s=String(v??'').trim().toLowerCase();if(!s)return null;
