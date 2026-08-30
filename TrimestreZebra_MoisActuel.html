@@ -140,27 +140,27 @@ async function load(){
   const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:S1});
   const all=res.result.values||[];products=[];
   all.slice(1).forEach((r,i)=>{
-    let q=+r[3]||0,s=+r[5]||0;
-    if(isCurrent(r[0])&&q>s)products.push({r,row:i+2});
+    let q=+r[4]||0,s=+r[6]||0; // Colonne E (Qté) et G (Vendues) décalées de +1
+    if(isCurrent(r[1])&&q>s)products.push({r,row:i+2}); // Colonne B (Date) décalée de +1
   });
-  products.sort((a,b)=>(dateOf(a.r[0])||0)-(dateOf(b.r[2])||0)||a.row-b.row);
+  products.sort((a,b)=>(dateOf(a.r[1])||0)-(dateOf(b.r[3])||0)||a.row-b.row);
   document.getElementById('login').style.display='none';document.getElementById('productZone').style.display='flex';
-  if(!products.length){document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px;line-height:1.5">Aucun produit trouvé pour <b>'+esc(months[startMonth().getMonth()]+' '+startMonth().getFullYear())+'</b>.<br><small>Structure utilisée : A = Date · B = Produit · C = Code · D = Qté · E = Zone · F = Vendues.</small></div>';document.getElementById('next').disabled=true;document.getElementById('ref').textContent='Référence 0/0';status('Google Sheets connecté.');return}
+  if(!products.length){document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px;line-height:1.5">Aucun produit trouvé pour <b>'+esc(months[startMonth().getMonth()]+' '+startMonth().getFullYear())+'</b>.<br><small>Structure utilisée : B = Date · C = Produit · D = Code · E = Qté · F = Zone · G = Vendues.</small></div>';document.getElementById('next').disabled=true;document.getElementById('ref').textContent='Référence 0/0';status('Google Sheets connecté.');return}
   const saved=JSON.parse(localStorage.getItem('zebraTrimestreResume')||'null');
-  idx=0;if(saved&&saved.operator===operator&&saved.code){let n=products.findIndex(x=>String(x.r[3])===String(saved.code));if(n>=0)idx=n}
+  idx=0;if(saved&&saved.operator===operator&&saved.code){let n=products.findIndex(x=>String(x.r[4])===String(saved.code));if(n>=0)idx=n}
   choice=null;remaining=0;render();status('Google Sheets connecté.');
  }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
 
-function saveResume(){if(products[idx])localStorage.setItem('zebraTrimestreResume',JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+function saveResume(){if(products[idx])localStorage.setItem('zebraTrimestreResume',JSON.stringify({operator,code:String(products[idx].r[4]||''),updatedAt:Date.now()}))}
 function render(){
- let r=products[idx].r,q=+r[3]||0,soldOld=+r[5]||0,max=Math.max(0,q-soldOld);
+ let r=products[idx].r,q=+r[4]||0,soldOld=+r[6]||0,max=Math.max(0,q-soldOld);
  if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
  let sold=choice==='sold'?q:(choice==='remaining'?q-remaining:soldOld);
  let rem=choice==='sold'?0:(choice==='remaining'?remaining:max);
  document.getElementById('card').innerHTML=`
- <div class="name">${esc(r[1]||'Produit sans nom')}</div>
- <div class="meta">Date : ${esc(r[0]||'—')} · Code : ${esc(r[2]||'—')} · Zone : ${esc(r[4]||'—')}</div>
+ <div class="name">${esc(r[2]||'Produit sans nom')}</div>
+ <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div>
  <div class="line"></div>
  <div class="stats"><div class="stat"><span>STOCK</span><b>${q}</b></div><div class="stat"><span>VENDUES</span><b id="sv">${sold}</b></div><div class="stat"><span>RESTANT</span><b id="rv">${rem}</b></div></div>
  <div class="choices">
@@ -171,9 +171,9 @@ function render(){
  document.getElementById('next').disabled=!(choice==='sold'||choice==='remaining');
  document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;saveResume();
 }
-function choose(c){let r=products[idx].r,q=+r[3]||0,s=+r[5]||0;choice=c;remaining=c==='remaining'?Math.max(1,q-s):0;render()}
-function change(d){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[3]||0)-(+r[5]||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
-function inputRemain(v){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[3]||0)-(+r[5]||0));remaining=Math.max(1,Math.min(max,+v||1));render()}
+function choose(c){let r=products[idx].r,q=+r[4]||0,s=+r[6]||0;choice=c;remaining=c==='remaining'?Math.max(1,q-s):0;render()}
+function change(d){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[4]||0)-(+r[6]||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
+function inputRemain(v){if(choice!=='remaining')return;let r=products[idx].r,max=Math.max(1,(+r[4]||0)-(+r[6]||0));remaining=Math.max(1,Math.min(max,+v||1));render()}
 async function updateCell(row,col,value){return gapi.client.sheets.spreadsheets.values.update({spreadsheetId:SPREADSHEET_ID,range:`${S1}!${col}${row}`,valueInputOption:'USER_ENTERED',resource:{values:[[value]]}})}
 async function transfer(row){
  const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'});
@@ -184,17 +184,17 @@ async function transfer(row){
  await gapi.client.sheets.spreadsheets.batchUpdate({spreadsheetId:SPREADSHEET_ID,resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}})
 }
 async function goNext(){
- if(!choice)return;let item=products[idx],r=item.r,row=item.row,code=String(r[2]||'');document.getElementById('next').disabled=true;message('Enregistrement…');
+ if(!choice)return;let item=products[idx],r=item.r,row=item.row,code=String(r[4]||'');document.getElementById('next').disabled=true;message('Enregistrement…');
  try{
-  if(choice==='sold')await transfer(row);else await updateCell(row,'F',Math.max(0,(+r[3]||0)-remaining));
+  if(choice==='sold')await transfer(row);else await updateCell(row,'G',Math.max(0,(+r[4]||0)-remaining)); // Colonne G pour les vendues
   localStorage.removeItem('zebraTrimestreResume');
   const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:S1}),all=res.result.values||[];products=[];
   all.slice(1).forEach((rr,i)=>{
-    let q=+rr[3]||0,s=+rr[5]||0;
-    if(isCurrent(rr[0])&&q>s)products.push({r:rr,row:i+2});
+    let q=+rr[4]||0,s=+rr[6]||0;
+    if(isCurrent(rr[1])&&q>s)products.push({r:rr,row:i+2});
   });
-  products.sort((a,b)=>(dateOf(a.r[0])||0)-(dateOf(b.r[2])||0)||a.row-b.row);
-  let ni=products.findIndex(x=>String(x.r[2]||'')===code);idx=ni>=0?ni:Math.min(idx,Math.max(0,products.length-1));choice=null;remaining=0;
+  products.sort((a,b)=>(dateOf(a.r[1])||0)-(dateOf(b.r[3])||0)||a.row-b.row);
+  let ni=products.findIndex(x=>String(x.r[4]||'')===code);idx=ni>=0?ni:Math.min(idx,Math.max(0,products.length-1));choice=null;remaining=0;
   if(products.length){render();message('');status('Produit enregistré. Prêt pour le suivant.')}else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#718096;font-size:10px">Tous les produits du mois sont traités. ✓</div>';document.getElementById('ref').textContent='Référence 0/0';message('');status('Tous les produits du mois sont traités.')}
  }catch(e){document.getElementById('next').disabled=false;message('Erreur : '+(e.result?.error?.message||e.message))}
 }
