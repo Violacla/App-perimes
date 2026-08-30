@@ -8,24 +8,71 @@
 <script async src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
-:root{--blue:#bcd7ed;--navy:#0a2f51;--text:#163f5b;--pinkP:#d8c0ca;--pink:#f2b4bb;--greenP:#bfdbc4;--green:#86bf8e;--bg:#fffefc;--border:#d8e2ec;--muted:#718096}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
-body{display:flex;justify-content:center}.app{width:100%;max-width:520px;height:100%;padding:6px 8px;display:flex;flex-direction:column}
-header{height:60px;flex:0 0 60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e4e9ef}
-.brand{display:flex;align-items:center;gap:8px;min-width:0}.logo{width:42px;height:42px;flex:0 0 42px;border-radius:12px;overflow:hidden;background:#fff;border:1px solid #e5e9ee}.logo img{width:100%;height:100%;object-fit:cover}
-.title{min-width:0}h1{font-size:18px;line-height:1;margin:0;font-weight:800}.sub{font-size:8px;color:#6f8298;margin-top:4px}
-.operator{text-align:right;font-size:8px;color:var(--muted);white-space:nowrap}.operator strong{display:block;font-size:20px;color:var(--navy);line-height:1}
-.period{height:51px;flex:0 0 51px;margin-top:5px;background:#fff;border:1px solid var(--border);border-radius:13px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 7px #163f5b12}.month{font-size:16px;font-weight:900}.period small{font-size:7px;color:var(--muted);font-weight:700}.rate{font-size:18px;font-weight:900;color:var(--text)}
-.status{text-align:center;font-size:8px;color:var(--muted);min-height:12px;margin:4px 0}
-.login{flex:1;display:flex;align-items:center;justify-content:center}.login-card{width:100%;background:#fff;border:1px solid var(--border);border-radius:15px;padding:18px 12px;text-align:center;box-shadow:0 3px 12px #163f5b14}.login-card b{font-size:13px}.login-card p{font-size:9px;color:var(--muted);margin:6px 0 12px}.google{border:0;background:var(--navy);color:#fff;border-radius:10px;height:36px;padding:0 16px;font-size:10px;font-weight:900}
-#productZone{display:none;flex:1;min-height:0;flex-direction:column}.card{flex:1;min-height:0;background:#fff;border:1px solid var(--border);border-radius:15px;padding:9px;box-shadow:0 3px 12px #163f5b14;display:flex;flex-direction:column}
-.name{font-size:15px;font-weight:900;line-height:1.12}.meta{font-size:8px;color:var(--muted);line-height:1.45;margin-top:3px}.line{border-top:1px solid #edf0f3;margin-top:6px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}.stat{background:#f7f9fb;border-radius:9px;padding:5px;text-align:center}.stat span{display:block;font-size:7px;color:var(--muted)}.stat b{display:block;font-size:15px;margin-top:2px}.stat:nth-child(2) b{color:var(--pink)}.stat:nth-child(3) b{color:var(--green)}
-.choices{display:grid;gap:6px;margin-top:7px}.choice{border:1.5px solid var(--border);border-radius:11px;background:#fff;min-height:47px;padding:6px 8px;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;color:var(--text)}.choice .box{width:24px;height:24px;flex:0 0 24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900}.choice .txt{font-size:9px;font-weight:900;line-height:1.1}.choice small{display:block;font-size:7px;margin-top:2px;color:#53677b}.sold{background:#fbf2f5;border-color:var(--pinkP)}.sold .box{background:var(--pinkP)}.sold.active{background:var(--pink);border-color:var(--pink)}.remaining{background:#f1f8f2;border-color:var(--greenP)}.remaining .box{background:var(--greenP)}.remaining.active{background:var(--green);border-color:var(--green);color:#fff}.remaining.active small{color:#f6fff7}
-.step{margin-top:6px}.step-title{text-align:center;font-size:7px;font-weight:800;color:var(--muted);margin-bottom:2px}.stepper{display:flex;gap:5px}.stepper button{width:35px;height:30px;border:0;border-radius:8px;background:var(--green);color:#fff;font-size:20px;font-weight:900}.stepper button:disabled{background:#d3dae2;color:#9da8b4}.stepper input{flex:1;height:30px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:14px;font-weight:900;color:var(--text)}
-.calc{margin-top:5px;background:#f7f9fb;border-radius:8px;padding:5px;text-align:center;font-size:8px;font-weight:800}.calc b{font-size:11px}
-.next{height:39px;flex:0 0 39px;border:0;border-radius:10px;margin-top:7px;background:var(--green);color:#fff;font-size:10px;font-weight:900}.next:disabled{background:#d5dce4;color:#98a5b3}
-.bottom{height:17px;flex:0 0 17px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:7px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:7px;color:#c05d6f;height:9px}
+:root{
+  --blue-glacial:#bcd7ed;--libron-green:#16834f;--libron-green2:#42b77a;--libron-light:#edf9f3;
+  --libron-dark:#153d31;--text:#253746;--muted:#657484;
+  --pink:#e45b7a;--pink-light:#fff0f4;--pink-border:#f2b5c4;
+  --line:#e1e7eb;--bg:#fff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:560px;height:100%;padding:14px 18px 10px;display:flex;flex-direction:column}
+header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content:space-between;background:var(--blue-glacial);border-radius:16px;padding:0 16px;margin-bottom:2px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{width:58px;height:58px;flex:0 0 58px;border-radius:12px;overflow:hidden;background:#fff;border:0}
+.logo img{width:100%;height:100%;object-fit:contain}
+.title{min-width:0}
+h1{font-size:25px;letter-spacing:1.2px;line-height:1;margin:0;font-weight:900;color:var(--libron-dark)}
+.sub{font-size:10px;color:var(--muted);margin-top:8px;white-space:nowrap}
+.operator{text-align:right;font-size:10px;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.7px}
+.operator strong{display:block;font-size:32px;color:var(--text);line-height:1;margin-top:6px}
+.period{height:76px;flex:0 0 76px;margin-top:15px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.month{font-size:24px;font-weight:900;color:var(--text);text-transform:uppercase}
+.period small{font-size:9px;color:var(--muted);font-weight:800;letter-spacing:.5px}
+.rate{font-size:27px;font-weight:900;color:var(--pink);background:var(--pink-light);border:1px solid var(--pink-border);border-radius:13px;padding:8px 17px}
+.status{text-align:center;font-size:9px;color:var(--muted);min-height:13px;margin:4px 0}
+.login{flex:1;display:flex;align-items:center;justify-content:center}
+.login-card{width:100%;background:#fff;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
+.login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}
+.google{border:0;background:var(--blue-glacial);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900}
+#productZone{display:none;flex:1;min-height:0;flex-direction:column}
+.card{flex:1;min-height:0;background:#fff;border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 5px 18px rgba(21,61,49,.07);display:flex;flex-direction:column}
+.name{font-size:23px;font-weight:900;line-height:1.18;color:var(--text);text-transform:uppercase}
+.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}
+.line{border-top:2px solid #edf0f2;margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.stat{background:#f7f9fa;border-radius:12px;padding:9px;text-align:center}
+.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}
+.stat b{display:block;font-size:24px;margin-top:3px}
+.stat:nth-child(2) b{color:var(--pink)}.stat:nth-child(3) b{color:var(--libron-green)}
+.choices{display:grid;gap:10px;margin-top:13px}
+.choice{border:2px solid var(--line);border-radius:17px;background:#fff;min-height:72px;padding:11px 14px;display:flex;align-items:center;gap:13px;text-align:left;cursor:pointer;color:var(--text)}
+.choice .box{width:31px;height:31px;flex:0 0 31px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;border:3px solid currentColor}
+.choice .txt{font-size:13px;font-weight:900;line-height:1.15}
+.choice small{display:block;font-size:10px;margin-top:4px;color:var(--muted);font-weight:500}
+.sold{background:var(--pink-light);border-color:var(--pink-border);color:var(--pink)}
+.sold .box{background:#fff}
+.sold.active{background:#ffe0e8;border-color:var(--pink)}
+.remaining{background:var(--libron-light);border-color:#bde4d0;color:var(--libron-green)}
+.remaining .box{background:#fff}
+.remaining.active{background:#dff4e9;border-color:var(--libron-green)}
+.remaining.active small{color:#3f7058}
+.step{margin-top:12px}
+.step-title{text-align:center;font-size:9px;font-weight:800;color:var(--muted);margin-bottom:4px}
+.stepper{display:flex;gap:8px}
+.stepper button{width:48px;height:45px;border:0;border-radius:13px;background:var(--libron-green2);color:#fff;font-size:29px;font-weight:900}
+.stepper button:disabled{background:#e0e5e8;color:#9da8b0}
+.stepper input{flex:1;height:45px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:22px;font-weight:900;color:var(--text)}
+.calc{margin-top:9px;background:#f7f9fa;border-radius:12px;padding:8px;text-align:center;font-size:10px;font-weight:800}.calc b{font-size:14px}
+.next{height:58px;flex:0 0 58px;border:0;border-radius:17px;margin-top:12px;background:var(--libron-green2);color:#fff;font-size:15px;font-weight:900;letter-spacing:.2px}
+.next:disabled{background:#dfe5e8;color:#98a5ad}
+.bottom{height:24px;flex:0 0 24px;display:flex;justify-content:flex-end;align-items:end}
+.ref{font-size:10px;font-weight:900;color:var(--muted)}
+.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
+@media(max-height:700px){
+  .app{padding-top:7px}.card{padding:12px}.name{font-size:19px}.choice{min-height:58px}.period{height:60px;flex-basis:60px}.rate{font-size:22px;padding:6px 13px}
+}
 </style>
 </head>
 <body>
@@ -52,7 +99,22 @@ let tokenClient,products=[],idx=0,choice=null,remaining=0,operator=localStorage.
 document.getElementById('op').textContent=operator;
 const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 function startMonth(){let d=new Date();return new Date(d.getFullYear(),d.getMonth()+(d.getDate()>=15?1:0),1)}
-function dateOf(v){let s=String(v||'').trim(),m=s.match(/^(\d{4})-(\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);m=s.match(/^(\d{1,2})[\/-](\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);let d=new Date(s);return isNaN(d)?null:d}
+function dateOf(v){
+  if(v instanceof Date && !isNaN(v)) return new Date(v.getFullYear(),v.getMonth(),1);
+  let s=String(v??'').trim().toLowerCase().replace(/\\s+/g,' ');
+  if(!s)return null;
+  let m=s.match(/^(\\d{4})[-/.](\\d{1,2})(?:[-/.]\\d{1,2})?/);
+  if(m)return new Date(+m[1],+m[2]-1,1);
+  m=s.match(/^(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{4})$/);
+  if(m)return new Date(+m[3],+m[2]-1,1);
+  m=s.match(/^(\\d{1,2})[-/.](\\d{4})$/);
+  if(m)return new Date(+m[2],+m[1]-1,1);
+  const monthsFR={janvier:0,fevrier:1,'février':1,mars:2,avril:3,mai:4,juin:5,juillet:6,aout:7,'août':7,septembre:8,octobre:9,novembre:10,decembre:11,'décembre':11};
+  m=s.match(/^(janvier|fevrier|février|mars|avril|mai|juin|juillet|aout|août|septembre|octobre|novembre|decembre|décembre)\\s+(\\d{4})$/);
+  if(m)return new Date(+m[2],monthsFR[m[1]],1);
+  let d=new Date(s);
+  return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),1);
+}
 function isCurrent(v){let d=dateOf(v),s=startMonth();return d&&d.getFullYear()==s.getFullYear()&&d.getMonth()==s.getMonth()}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function status(t){document.getElementById('status').textContent=t}
@@ -76,7 +138,7 @@ async function load(){
   all.slice(1).forEach((r,i)=>{let q=+r[4]||0,s=+r[6]||0;if(isCurrent(r[2])&&q>s)products.push({r,row:i+2})});
   products.sort((a,b)=>(dateOf(a.r[2])||0)-(dateOf(b.r[2])||0)||a.row-b.row);
   document.getElementById('login').style.display='none';document.getElementById('productZone').style.display='flex';
-  if(!products.length){document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#718096;font-size:10px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('next').disabled=true;document.getElementById('ref').textContent='Référence 0/0';status('Google Sheets connecté.');return}
+  if(!products.length){document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px;line-height:1.5">Aucun produit trouvé pour <b>'+esc(months[startMonth().getMonth()]+' '+startMonth().getFullYear())+'</b>.<br><small>Vérifie la colonne Date et son format dans Google Sheets.</small></div>';document.getElementById('next').disabled=true;document.getElementById('ref').textContent='Référence 0/0';status('Google Sheets connecté.');return}
   const saved=JSON.parse(localStorage.getItem('zebraTrimestreResume')||'null');
   idx=0;if(saved&&saved.operator===operator&&saved.code){let n=products.findIndex(x=>String(x.r[3])===String(saved.code));if(n>=0)idx=n}
   choice=null;remaining=0;render();status('Google Sheets connecté.');
