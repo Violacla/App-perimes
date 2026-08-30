@@ -64,6 +64,48 @@ h1{font-size:20px;margin:0;color:#163f5b}
 .detail-row strong{display:block;font-size:13px;margin-bottom:2px}
 @media(min-width:480px){.months{grid-template-columns:1fr 1fr}}
 </style>
+
+<style>
+.workflow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.choice{min-height:68px;border:2px solid #d5e0ec;border-radius:13px;background:#fff;font-weight:800;font-size:12px;padding:10px;cursor:pointer}
+.choice.active{border-color:#86bf8e;background:#eef8ef}
+.stepper{display:flex;gap:8px;align-items:center;margin:8px 0}
+.stepper button{width:48px;height:48px;border:0;border-radius:11px;background:#86bf8e;color:#fff;font-size:26px;font-weight:800}
+.stepper button:disabled{background:#d7dee6;color:#9aa6b3}
+.stepper input{flex:1;height:48px;border:1px solid #d5e0ec;border-radius:11px;text-align:center;font-size:20px;font-weight:800}
+.next-main{width:100%;height:52px;border:0;border-radius:12px;background:#5b8fc9;color:#fff;font-weight:900}
+.next-main:disabled{background:#d7dee6;color:#9aa6b3}
+</style>
+
+<style>
+html,body{width:100%;height:100%;margin:0;padding:0;background:#f4f7fb;overflow:hidden}
+body{font-family:Arial,Helvetica,sans-serif}
+.app{width:6cm;max-width:6cm;height:11cm;min-height:11cm;margin:0 auto;padding:4px;overflow:hidden}
+header{padding:2px 2px 4px}
+.logo{width:28px;height:28px;margin:0 auto 2px;border-radius:8px;font-size:15px}
+h1{font-size:13px;margin:0}.subtitle{font-size:8px;margin:2px 0}
+.back{min-height:25px;border-radius:7px;margin-bottom:4px;font-size:8px}
+.months{display:none}
+.panel{border-radius:9px;padding:6px;margin-bottom:4px;box-shadow:none}
+.panel h2{font-size:10px;margin:0 0 3px}
+.panel-head{display:flex;justify-content:space-between;align-items:center}
+#monthTitle{font-size:11px}
+.count{font-size:8px}
+.status{font-size:7px;min-height:10px}
+.login{padding:4px;margin:3px 0}.login button{margin-top:3px;padding:5px 8px;min-height:23px;font-size:8px}
+.product{padding:7px;margin:0;min-height:0;border-radius:9px;box-shadow:0 2px 5px rgba(62,91,122,.08)}
+.product-title{font-size:12px}.code{font-size:9px;margin-top:2px}
+.facts{grid-template-columns:1fr 1fr;gap:3px;margin-top:5px}
+.facts div{padding:4px;border-radius:6px}.facts span{font-size:7px}.facts strong{font-size:9px}
+.workflow{display:flex;flex-direction:column;gap:4px;margin:5px 0}
+.choice{width:100%;min-height:27px;border:1.5px solid #d5e0ec;border-radius:7px;padding:4px;font-size:8px;text-align:left}
+.choice small{font-size:6px}.stepper-wrap{padding:4px;margin-top:4px}
+.stepper-title{font-size:7px}.stepper{gap:4px;margin-top:3px}
+.stepper button{width:29px;height:29px;border-radius:6px;font-size:17px}
+.stepper input{height:29px;font-size:13px}
+.next-main{height:31px;min-height:31px;margin-top:4px;border-radius:7px;font-size:8px}
+#products{max-height:5.9cm;overflow:hidden}
+</style>
 </head>
 <body>
 <main class="app">
@@ -299,6 +341,55 @@ function productRowsFor(type){
 let currentProducts=[];
 let currentProductIndex=0;
 
+
+let promoEditorOpen=false;
+let promoQty=0;
+let promoRate=50;
+
+function togglePromoEditor(){
+  promoEditorOpen=!promoEditorOpen;
+  if(promoEditorOpen && currentProducts.length){
+    const r=currentProducts[currentProductIndex].r;
+    promoQty=Math.max(0,Number(r[4]||0)-Number(r[6]||0));
+    promoRate=Number(r[7]||50);
+  }
+  renderProducts(PAGE_TYPE);
+}
+function changePromoQty(delta){
+  if(!currentProducts.length)return;
+  const r=currentProducts[currentProductIndex].r;
+  const remaining=Math.max(0,Number(r[4]||0)-Number(r[6]||0));
+  promoQty=Math.max(0,Math.min(remaining,promoQty+delta));
+  renderProducts(PAGE_TYPE);
+}
+function setPromoQty(value){
+  if(!currentProducts.length)return;
+  const r=currentProducts[currentProductIndex].r;
+  const remaining=Math.max(0,Number(r[4]||0)-Number(r[6]||0));
+  promoQty=Math.max(0,Math.min(remaining,Number(value)||0));
+}
+function changePromoRate(delta){
+  promoRate=Math.max(0,Math.min(100,promoRate+delta));
+  renderProducts(PAGE_TYPE);
+}
+async function savePromotion(row,button){
+  if(promoQty<=0){
+    alert('Indique combien de boîtes restent à mettre en promotion.');
+    return;
+  }
+  button.disabled=true;
+  try{
+    await updateCell(row,'H',promoRate);
+    const remainingAfter=Math.max(0,promoQty);
+    setStatus(`✓ Promotion enregistrée : ${promoQty} boîte(s) à -${promoRate} %.`);
+    promoEditorOpen=false;
+    await loadSheet();
+  }catch(e){
+    button.disabled=false;
+    setStatus('Erreur promotion : '+e.message);
+  }
+}
+
 function renderProducts(type){
   currentProducts=productRowsFor(type);
   const box=document.getElementById('products');
@@ -313,29 +404,55 @@ function renderProducts(type){
 
   const item=currentProducts[currentProductIndex];
   const r=item.r, row=item.row;
-  const sold=Number(r[6]||0), qty=Number(r[4]||0);
-  const soldOut=Number.isFinite(qty)&&Number.isFinite(sold)&&qty===sold;
+  const stock=Number(r[4]||0), sold=Number(r[6]||0);
+  const remaining=Math.max(0,stock-sold);
   const promo=r[7]||0;
 
-  box.innerHTML=`<article class="product ${soldOut?'sold-out':''}">
+  box.innerHTML=`<article class="product ${remaining===0?'sold-out':''}">
     <div class="product-title">${esc(r[2]||'Produit sans nom')}</div>
     <div class="code">${formatCode(r[3])}</div>
     <div class="facts">
       <div><span>Zone</span><strong>${esc(r[5]||'—')}</strong></div>
-      <div><span>Stock</span><strong>${esc(r[4]||'0')}</strong></div>
+      <div><span>Stock initial</span><strong>${esc(r[4]||'0')}</strong></div>
       <div><span>Vendues</span><strong>${esc(r[6]||'0')}</strong></div>
-      <div><span>Promo</span><strong>${esc(promo)} %</strong></div>
+      <div><span>Il reste</span><strong>${remaining}</strong></div>
+      <div><span>Promo enregistrée</span><strong>${esc(promo)} %</strong></div>
+      <div><span>Produit</span><strong>${currentProductIndex+1} / ${currentProducts.length}</strong></div>
     </div>
+
     <div class="actions">
       <button class="btn btn-sold" onclick="markSold(${row},this)">Vendues totalement</button>
-      <button class="btn btn-promo" onclick="setPromo(${row},0,this)">Promotion</button>
+      <button class="btn btn-promo" onclick="togglePromoEditor()">Mettre en promo</button>
     </div>
+
+    <div class="promo-editor ${promoEditorOpen?'open':''}">
+      <div class="promo-label">Quantité à mettre en promotion</div>
+      <div class="stepper">
+        <button onclick="changePromoQty(-1)">−</button>
+        <input type="number" min="0" max="${remaining}" value="${promoQty}" oninput="setPromoQty(this.value)">
+        <button onclick="changePromoQty(1)">+</button>
+      </div>
+
+      <div class="promo-label" style="margin-top:10px">Pourcentage</div>
+      <div class="promo-rate">
+        <button onclick="changePromoRate(-5)">−</button>
+        <input type="number" min="0" max="100" value="${promoRate}" onchange="promoRate=Math.max(0,Math.min(100,Number(this.value)||0))">
+        <span style="font-weight:800">%</span>
+        <button onclick="changePromoRate(5)">+</button>
+      </div>
+
+      <button class="save-promo" onclick="savePromotion(${row},this)">
+        Enregistrer ${promoQty} boîte(s) à -${promoRate} %
+      </button>
+    </div>
+
     <div class="navigation">
       <button onclick="previousProduct()" ${currentProductIndex===0?'disabled':''}>← Précédent</button>
       <button onclick="nextProduct()" ${currentProductIndex===currentProducts.length-1?'disabled':''}>Produit suivant →</button>
     </div>
   </article>`;
 }
+
 
 function nextProduct(){
   if(currentProductIndex<currentProducts.length-1){
@@ -435,6 +552,145 @@ window.addEventListener('load',()=>{
   gisLoaded();
 });
 
+</script>
+
+<div id="workflowBox">
+  <div class="workflow">
+    <button class="choice" id="soldChoice" onclick="chooseDecision('sold')">✓ TOTALEMENT VENDU<br><small>Transfert dans l'historique au passage suivant</small></button>
+    <button class="choice" id="remainingChoice" onclick="chooseDecision('remaining')">📦 PRODUITS RESTANTS<br><small>Choisir la quantité restante</small></button>
+  </div>
+  <div class="stepper">
+    <button id="minusBtn" onclick="changeRemaining(-1)" disabled>−</button>
+    <input id="remainingInput" type="number" min="1" value="0" disabled>
+    <button id="plusBtn" onclick="changeRemaining(1)" disabled>+</button>
+  </div>
+  <button class="next-main" id="nextMain" onclick="goNextProduct()" disabled>PRODUIT SUIVANT →</button>
+</div>
+
+<script>
+let decision=null, remainingQty=0;
+
+function currentRemaining(){
+  const el=document.querySelector('.product');
+  if(!el) return 0;
+  const facts=[...el.querySelectorAll('.facts strong')].map(x=>Number(x.textContent)||0);
+  return Math.max(0, facts[1]-facts[2]); // Stock initial - Vendues
+}
+function chooseDecision(kind){
+  decision=kind;
+  const max=currentRemaining();
+  remainingQty=kind==='remaining' ? Math.max(1,max) : 0;
+  updateWorkflow();
+}
+function changeRemaining(delta){
+  if(decision!=='remaining') return;
+  const max=currentRemaining();
+  remainingQty=Math.max(1,Math.min(max,remainingQty+delta));
+  updateWorkflow();
+}
+function updateWorkflow(){
+  document.getElementById('soldChoice')?.classList.toggle('active',decision==='sold');
+  document.getElementById('remainingChoice')?.classList.toggle('active',decision==='remaining');
+  const enabled=decision==='remaining';
+  const m=document.getElementById('minusBtn'),p=document.getElementById('plusBtn'),i=document.getElementById('remainingInput'),n=document.getElementById('nextMain');
+  if(m)m.disabled=!enabled;
+  if(p)p.disabled=!enabled;
+  if(i){i.disabled=!enabled;i.value=remainingQty||0;}
+  if(n)n.disabled=!(decision==='sold'||(decision==='remaining'&&remainingQty>0));
+}
+document.getElementById('remainingInput')?.addEventListener('input',e=>{
+  const max=currentRemaining();
+  remainingQty=Math.max(1,Math.min(max,Number(e.target.value)||1));
+  updateWorkflow();
+});
+</script>
+
+<script>
+let decision=null, remainingQty=0;
+
+function getProductData(){
+  const card=document.querySelector('.product');
+  if(!card)return {stock:0,sold:0,remaining:0};
+  const vals=[...card.querySelectorAll('.facts strong')].map(e=>Number(e.textContent)||0);
+  const stock=vals[1]||0, sold=vals[2]||0;
+  return {stock,sold,remaining:Math.max(0,stock-sold)};
+}
+function chooseDecision(kind){
+  decision=kind;
+  const d=getProductData();
+  remainingQty=kind==='sold'?0:d.remaining;
+  updateWorkflow();
+}
+function changeRemaining(delta){
+  if(decision!=='remaining')return;
+  const d=getProductData();
+  remainingQty=Math.max(1,Math.min(d.remaining,remainingQty+delta));
+  updateWorkflow();
+}
+function updateWorkflow(){
+  const d=getProductData();
+  const sold=decision==='sold'?d.stock:Math.max(0,d.stock-remainingQty);
+  const rem=decision==='sold'?0:remainingQty;
+  const facts=document.querySelectorAll('.facts strong');
+  if(facts.length>=5){
+    facts[2].textContent=sold;
+    facts[3].textContent=rem;
+  }
+  document.getElementById('soldChoice')?.classList.toggle('active',decision==='sold');
+  document.getElementById('remainingChoice')?.classList.toggle('active',decision==='remaining');
+  const active=decision==='remaining';
+  document.getElementById('minusBtn').disabled=!active;
+  document.getElementById('plusBtn').disabled=!active;
+  document.getElementById('remainingInput').disabled=!active;
+  document.getElementById('remainingInput').value=rem;
+  document.getElementById('nextMain').disabled=!(decision==='sold'||(active&&remainingQty>0));
+}
+document.getElementById('remainingInput')?.addEventListener('input',e=>{
+  if(decision!=='remaining')return;
+  const d=getProductData();
+  remainingQty=Math.max(1,Math.min(d.remaining,Number(e.target.value)||1));
+  updateWorkflow();
+});
+
+async function archiveCurrentRow(row){
+  const res=await gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId:SPREADSHEET_ID,range:`Feuille1!A${row}:I${row}`
+  });
+  const values=res.result.values?.[0]||[];
+  await gapi.client.sheets.spreadsheets.values.append({
+    spreadsheetId:SPREADSHEET_ID,range:'Feuille2!A:I',
+    valueInputOption:'USER_ENTERED',insertDataOption:'INSERT_ROWS',
+    resource:{values:[values]}
+  });
+  await gapi.client.sheets.spreadsheets.batchUpdate({
+    spreadsheetId:SPREADSHEET_ID,
+    resource:{requests:[{deleteDimension:{range:{sheetId:0,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}
+  });
+}
+
+async function goNextProduct(){
+  if(!decision||!currentProducts?.[currentProductIndex])return;
+  const item=currentProducts[currentProductIndex], r=item.r, row=item.row;
+  const btn=document.getElementById('nextMain'); btn.disabled=true;
+  try{
+    const stock=Number(r[4]||0);
+    if(decision==='sold'){
+      await archiveCurrentRow(row);
+    }else{
+      const rem=remainingQty;
+      const newSold=Math.max(0,stock-rem);
+      await updateCell(row,'G',newSold);
+    }
+    try{localStorage.setItem('zebra_trimestre_last_row',String(row));}catch(e){}
+    decision=null;remainingQty=0;
+    await loadSheet();
+    currentProductIndex=0;
+    renderProducts(PAGE_TYPE);
+  }catch(e){
+    btn.disabled=false;
+    setStatus('Erreur : '+e.message);
+  }
+}
 </script>
 </body>
 </html>
