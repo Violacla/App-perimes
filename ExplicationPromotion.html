@@ -1,1 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#bcd7ed">
+<title>Explication Promotion — Pharmacie du Libron</title>
+<style>
+:root{--blue:#bcd7ed;--dark:#153d31;--text:#253746;--muted:#657484;--pink:#e45b7a;--pinkL:#fff0f4;--pinkB:#f2b5c4;--green:#16834f;--greenL:#edf9f3;--greenB:#bde4d0;--orange:#b26a00;--orangeL:#fff8e9;--orangeB:#efd6a4;--line:#e1e7eb;--shadow:0 5px 18px rgba(21,61,49,.08)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#fff;font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+body{display:flex;justify-content:center}.app{width:100%;max-width:560px;min-height:100dvh;padding:12px 18px 16px;display:flex;flex-direction:column}
+header{height:82px;display:flex;align-items:center;justify-content:space-between;background:var(--blue);border-radius:16px;padding:0 16px;margin-bottom:9px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}.logo{width:58px;height:58px;flex:0 0 58px}.logo img{width:100%;height:100%;object-fit:contain}
+.title{min-width:0}h1{font-size:23px;letter-spacing:1px;line-height:1;margin:0;font-weight:900;color:var(--dark)}.sub{font-size:10px;color:var(--muted);margin-top:8px;white-space:nowrap}
+.operator{text-align:right;font-size:10px;color:var(--muted);text-transform:uppercase}.operator strong{display:block;font-size:30px;color:var(--text);line-height:1;margin-top:6px}
+.back{width:100%;height:36px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);font-size:11px;font-weight:900;margin-bottom:10px;cursor:pointer}
+.intro{font-size:11px;color:var(--muted);margin:0 2px 11px;line-height:1.4}.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info{min-height:125px;border:2px solid var(--line);border-radius:18px;padding:13px;background:#fff;text-align:left;cursor:pointer;box-shadow:var(--shadow)}
+.icon{font-size:26px;margin-bottom:5px}.info h2{font-size:14px;line-height:1.15;margin:0 0 5px}.info p{font-size:10px;line-height:1.35;color:var(--muted);margin:0}.open{font-size:9px;font-weight:900;margin-top:8px;color:var(--muted)}
+.ad{background:#f5f8fc;border-color:#c9d9e8}.ad h2{color:#3972ad}.food{background:var(--orangeL);border-color:var(--orangeB)}.food h2{color:var(--orange)}.current{background:var(--pinkL);border-color:var(--pinkB)}.current h2{color:var(--pink)}.next{background:#f5fbf7;border-color:var(--greenB)}.next h2{color:var(--green)}.plus2{background:#f3f8fc;border-color:#c9d9e8}.plus2 h2{color:#3972ad}.robot{background:#f5f5f5;border-color:#d7dadd}.robot h2{color:#4f5961}
+.overlay{position:fixed;inset:0;background:rgba(21,61,49,.38);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.overlay.show{display:flex}
+.modal{width:100%;max-width:470px;max-height:88dvh;overflow:auto;background:#fff;border-radius:23px;box-shadow:0 16px 45px rgba(0,0,0,.22);padding:20px;position:relative}
+.close{position:absolute;right:13px;top:11px;width:36px;height:36px;border:0;border-radius:50%;background:#f0f3f5;color:#4b5862;font-size:22px;font-weight:700;cursor:pointer}
+.bigicon{font-size:38px}.modal h3{font-size:20px;margin:3px 40px 7px 0}.lead{font-size:11px;color:var(--muted);line-height:1.5;margin:0 0 13px}
+.detail{border-radius:15px;padding:12px;margin-top:9px;font-size:11px;line-height:1.5}.detail strong{display:block;font-size:12px;margin-bottom:3px}
+.dAd{background:#f5f8fc;border:1px solid #c9d9e8}.dFood{background:var(--orangeL);border:1px solid var(--orangeB)}.dCurrent{background:var(--pinkL);border:1px solid var(--pinkB)}.dNext{background:var(--greenL);border:1px solid var(--greenB)}.dPlus2{background:#f3f8fc;border:1px solid #c9d9e8}.dRobot{background:#f5f5f5;border:1px solid #d7dadd}
+.mock{margin-top:11px;border:2px dashed #9db7cc;border-radius:13px;padding:12px;text-align:center}.mock b{display:block;font-size:17px;margin:4px}.mock span{font-size:9px;color:var(--muted)}
+.footer{text-align:center;color:var(--muted);font-size:9px;margin-top:auto;padding-top:12px}
+@media(max-width:400px){.app{padding-left:12px;padding-right:12px}.cards{grid-template-columns:1fr}.info{min-height:94px}}
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+<div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div>
+<div class="title"><h1>Explication Promotion</h1><div class="sub">Trimestre Zebra · Pharmacie du Libron</div></div></div>
+<div class="operator">Opérateur<strong id="op">—</strong></div>
+</header>
 
+<button class="back" onclick="location.href='TrimestreZebra.html'">← Trimestre</button>
+<p class="intro">Cliquez sur une rubrique pour afficher son explication. Chaque information s'ouvre dans une fenêtre avec une croix.</p>
+
+<section class="cards">
+<button class="info ad" onclick="openM('ad')"><div class="icon">📢</div><h2>Zone conseil</h2><p>Mini publicité à placer devant le produit pendant le trimestre.</p><div class="open">OUVRIR →</div></button>
+<button class="info food" onclick="openM('food')"><div class="icon">🥛</div><h2>Alimentaire</h2><p>Aucune promotion sur les produits alimentaires.</p><div class="open">OUVRIR →</div></button>
+<button class="info current" onclick="openM('current')"><div class="icon">🏷️</div><h2>Mois actuel</h2><p>50 à 60 %, ou 70 % selon les possibilités de retour laboratoire.</p><div class="open">OUVRIR →</div></button>
+<button class="info next" onclick="openM('next')"><div class="icon">📅</div><h2>Mois +1</h2><p>10 à 30 % en fonction des ventes sur l'année.</p><div class="open">OUVRIR →</div></button>
+<button class="info plus2" onclick="openM('plus2')"><div class="icon">⭐</div><h2>Mois +2</h2><p>Mise en avant du produit, sans promotion.</p><div class="open">OUVRIR →</div></button>
+<button class="info robot" onclick="openM('robot')"><div class="icon">🤖</div><h2>Robot</h2><p>Organisation des boîtes selon la durée du traitement.</p><div class="open">OUVRIR →</div></button>
+</section>
+<div class="footer">Pharmacie du Libron · Trimestre Zebra</div>
+</main>
+
+<div id="overlay" class="overlay" onclick="outside(event)">
+<div class="modal"><button class="close" onclick="closeM()" aria-label="Fermer">×</button><div id="content"></div></div>
+</div>
+
+<script>
+document.getElementById('op').textContent=localStorage.getItem('zebraOperator')||'—';
+const data={
+ad:{i:'📢',t:'Zone conseil',l:"Une fausse mini-publicité peut être préparée et collée devant le produit pour le trimestre.",b:'<div class="detail dAd"><strong>📢 Mini pub à placer devant le produit</strong>Préparer une petite affiche visible devant le produit afin d’identifier clairement la mise en avant pendant le trimestre.</div><div class="mock"><b>PRODUIT DU TRIMESTRE</b><span>Mini publicité à imprimer / découper / placer devant le produit.</span></div>'},
+food:{i:'🥛',t:'Alimentaire',l:"Les produits alimentaires ne sont pas concernés par les promotions Zebra.",b:'<div class="detail dFood"><strong>🥛 Aucun produit alimentaire</strong>Aucune promotion sur de l’alimentaire de type lait, nourriture ou biscuit.</div>'},
+current:{i:'🏷️',t:'Mois actuel · 50 à 70 %',l:"Le niveau de promotion dépend de la possibilité de remboursement ou de retour auprès du laboratoire.",b:'<div class="detail dCurrent"><strong>50 à 60 %</strong>Pour les produits remboursés par le laboratoire, en fonction des ventes réalisées sur l’année.</div><div class="detail dCurrent"><strong>70 % · Noreva</strong>Si le produit ne peut pas être retourné par le laboratoire (Noreva).</div>'},
+next:{i:'📅',t:'Mois +1 · 10 à 30 %',l:"Le mois suivant sert à anticiper progressivement la promotion.",b:'<div class="detail dNext"><strong>10 à 30 %</strong>Le pourcentage est choisi en fonction des ventes réalisées sur l’année.</div>'},
+plus2:{i:'⭐',t:'Mois +2 · Mise en avant',l:"Le troisième mois est consacré à la mise en avant du produit.",b:'<div class="detail dPlus2"><strong>⭐ Mise en avant</strong>Mettre le produit en avant. Pas de promotion.</div>'},
+robot:{i:'🤖',t:'Robot',l:"La gestion du robot se fait progressivement en fonction de la durée du traitement.",b:'<div class="detail dRobot"><strong>🤖 Début du mois</strong>Sortir les boîtes qui correspondent à un traitement d’un mois.</div><div class="detail dRobot"><strong>⏳ Progressivement</strong>Sortir progressivement les boîtes en fonction du temps du traitement.</div><div class="detail dRobot"><strong>🚫 Pas de promotion</strong>Les produits du robot ne bénéficient pas de promotion.</div>'}
+};
+function openM(k){const x=data[k];document.getElementById('content').innerHTML='<div class="bigicon">'+x.i+'</div><h3>'+x.t+'</h3><p class="lead">'+x.l+'</p>'+x.b;document.getElementById('overlay').classList.add('show')}
+function closeM(){document.getElementById('overlay').classList.remove('show')}
+function outside(e){if(e.target.id==='overlay')closeM()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+</script>
+</body>
+</html>
