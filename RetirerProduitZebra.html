@@ -22,12 +22,9 @@ header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content
 .login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900;cursor:pointer}
 #productZone{display:none;flex:1;min-height:0;flex-direction:column}.card{flex:1;min-height:0;border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 5px 18px rgba(21,61,49,.07);display:flex;flex-direction:column}
 .name{font-size:23px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.line{border-top:2px solid #edf0f2;margin-top:12px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.stat{background:#f7f9fa;border-radius:12px;padding:9px;text-align:center}.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:24px;margin-top:3px}.stat:nth-child(2) b,.stat:nth-child(3) b{color:var(--pink)}
-.choices{display:grid;gap:10px;margin-top:13px}.choice{border:2px solid var(--line);border-radius:17px;min-height:72px;padding:11px 14px;display:flex;align-items:center;gap:13px;text-align:left;cursor:pointer;background:#fff}.choice .box{width:31px;height:31px;flex:0 0 31px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;border:3px solid currentColor}.choice .txt{font-size:13px;font-weight:900;line-height:1.15}.choice small{display:block;font-size:10px;margin-top:4px;color:var(--muted);font-weight:500}
-.sold{background:var(--pinkLight);border-color:var(--pinkBorder);color:var(--pink)}.sold.active{background:#ffe0e8;border-color:var(--pink)}.remaining{background:var(--greenLight);border-color:#bde4d0;color:var(--green)}.remaining.active{background:#dff4e9;border-color:var(--green)}
-.step{margin-top:12px}.step-title{text-align:center;font-size:9px;font-weight:800;color:var(--muted);margin-bottom:4px}.stepper{display:flex;gap:8px}.stepper button{width:48px;height:45px;border:0;border-radius:13px;background:var(--pink);color:#fff;font-size:29px;font-weight:900}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:45px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:22px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
-.calc{margin-top:9px;background:#f7f9fa;border-radius:12px;padding:8px;text-align:center;font-size:10px;font-weight:800}.calc b{font-size:14px;color:var(--pink)}
-.next{height:58px;flex:0 0 58px;border:0;border-radius:17px;margin-top:12px;background:var(--pink);color:#fff;font-size:15px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:24px;flex:0 0 24px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}.stat{background:#f7f9fa;border-radius:12px;padding:12px;text-align:center}.stat span{display:block;font-size:10px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:28px;margin-top:4px}.stat:nth-child(2) b{color:var(--pink)}
+.choices{display:grid;gap:10px;margin-top:16px}.choice{border:2px solid var(--pinkBorder);border-radius:17px;min-height:76px;padding:12px 16px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;background:var(--pinkLight)}.choice .box{width:33px;height:33px;flex:0 0 33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;border:3px solid var(--pink);color:var(--pink);background:#fff}.choice .txt{font-size:14px;font-weight:900;line-height:1.2;color:var(--pink)}.choice small{display:block;font-size:10px;margin-top:4px;color:var(--muted);font-weight:500}
+.next{height:58px;flex:0 0 58px;border:0;border-radius:17px;margin-top:14px;background:var(--pink);color:#fff;font-size:15px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:24px;flex:0 0 24px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
 </style>
 </head>
 <body>
@@ -37,7 +34,7 @@ header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content
 <section class="period"><div><div class="month" id="month">—</div><small>MOIS PRÉCÉDENT</small></div><div class="rate">À RETIRER</div></section>
 <div id="status" class="status">Préparation de Google Sheets…</div>
 <section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
-<section id="productZone"><div id="card" class="card"></div><button id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
+<section id="productZone"><div id="card" class="card"></div><button id="next" class="next" disabled onclick="goNext()">VALIDER ET PASSER AU SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
 </main>
 <script>
 const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -45,7 +42,7 @@ const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const SHEET='Feuille2';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 const zebraARetirerResume='zebraARetirerResume';
-let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
+let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,checked=false;
 const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
 
 function targetMonth(){
@@ -121,38 +118,29 @@ async function load(){
 }
 function saveResume(){if(products[idx])localStorage.setItem(zebraARetirerResume,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
 function render(){
-  const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
-  if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
-  const sold=choice==='sold'?stock:(choice==='remaining'?stock-remaining:oldSold);
-  const rem=choice==='sold'?0:(choice==='remaining'?remaining:max);
+  const r=products[idx].r,stock=Number(r[4])||0;
   document.getElementById('card').innerHTML=
   `<div class="name">${esc(r[2]||'Produit sans nom')}</div>
    <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div>
    <div class="line"></div>
    <div class="stats">
      <div class="stat"><span>STOCK INITIAL</span><b>${stock}</b></div>
-     <div class="stat"><span>RETIRÉES</span><b>${sold}</b></div>
-     <div class="stat"><span>RESTANT</span><b>${rem}</b></div>
+     <div class="stat"><span>À RETIRER</span><b>${stock}</b></div>
    </div>
    <div class="choices">
-     <button class="choice sold ${choice==='sold'?'active':''}" onclick="choose('sold')"><span class="box">${choice==='sold'?'✓':''}</span><span class="txt">TOTALEMENT RETIRÉ<small>Met à jour le stock retiré au passage suivant</small></span></button>
-     <button class="choice remaining ${choice==='remaining'?'active':''}" onclick="choose('remaining')"><span class="box">${choice==='remaining'?'✓':''}</span><span class="txt">PRODUITS RESTANTS<small>Choisir la quantité restante à retirer</small></span></button>
-   </div>
-   <div class="step"><div class="step-title">PRODUITS RESTANTS — − / +</div>
-     <div class="stepper">
-       <button onclick="change(-1)" ${choice==='remaining'?'':'disabled'}>−</button>
-       <input type="number" min="1" max="${Math.max(1,max)}" value="${choice==='remaining'?remaining:0}" ${choice==='remaining'?'':'disabled'} onchange="inputRemain(this.value)">
-       <button onclick="change(1)" ${choice==='remaining'?'':'disabled'}>+</button>
+     <div class="choice" onclick="toggleCheck()">
+       <span class="box">${checked?'✓':''}</span>
+       <div class="txt">PRODUIT TOTALEMENT RETIRÉ<small>Cocher pour valider et passer au suivant</small></div>
      </div>
-   </div>
-   <div class="calc">Retirées = Stock − Restant : <b>${sold} = ${stock} − ${rem}</b></div>`;
-  document.getElementById('next').disabled=!(choice==='sold'||choice==='remaining');
+   </div>`;
+  document.getElementById('next').disabled=!checked;
   document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;
   saveResume();
 }
-function choose(c){const r=products[idx].r,stock=Number(r[4])||0,sold=Number(r[6])||0;choice=c;remaining=c==='remaining'?Math.max(1,stock-sold):0;render()}
-function change(d){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
-function inputRemain(v){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,Number(v)||1));render()}
+function toggleCheck(){
+  checked=!checked;
+  render();
+}
 async function updateSold(row,value){
   return gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId:SPREADSHEET_ID,range:`${SHEET}!G${row}`,
@@ -160,14 +148,14 @@ async function updateSold(row,value){
   })
 }
 async function goNext(){
-  if(!choice||!products[idx])return;
+  if(!checked||!products[idx])return;
   const r=products[idx].r,row=products[idx].row,code=String(r[3]||'');
   document.getElementById('next').disabled=true;message('Enregistrement…');
   try{
-    const valToSet = choice==='sold' ? (Number(r[4])||0) : Math.max(0,(Number(r[4])||0)-remaining);
-    await updateSold(row, valToSet);
+    const stock=Number(r[4])||0;
+    await updateSold(row, stock);
     localStorage.removeItem(zebraARetirerResume);
-    choice=null;remaining=0;
+    checked=false;
     await load();
     const n=products.findIndex(x=>String(x.r[3]||'')===code);
     idx=n>=0?n:Math.min(idx,Math.max(0,products.length-1));
