@@ -4,181 +4,1810 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#bcd7ed">
+
 <title>À retirer — Pharmacie du Libron</title>
+
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
+
 <style>
-:root{--blue:#bcd7ed;--green:#16834f;--green2:#42b77a;--greenLight:#edf9f3;--dark:#153d31;--text:#253746;--muted:#657484;--pink:#e45b7a;--pinkLight:#fff0f4;--pinkBorder:#f2b5c4;--line:#e1e7eb}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-family:Arial,Helvetica,sans-serif;color:var(--text)}body{display:flex;justify-content:center}
-.app{width:100%;max-width:560px;height:100%;padding:12px 18px 9px;display:flex;flex-direction:column}
-header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content:space-between;background:var(--blue);border-radius:16px;padding:0 16px;margin-bottom:8px}
-.brand{display:flex;align-items:center;gap:14px;min-width:0}.logo{width:58px;height:58px;flex:0 0 58px}.logo img{width:100%;height:100%;object-fit:contain}
-.title{min-width:0}h1{font-size:23px;letter-spacing:1.2px;line-height:1;margin:0;font-weight:900;color:var(--dark)}.sub{font-size:10px;color:var(--muted);margin-top:8px;white-space:nowrap}
-.operator{text-align:right;font-size:10px;color:var(--muted);text-transform:uppercase}.operator strong{display:block;font-size:32px;color:var(--text);line-height:1;margin-top:6px}
-.back{height:34px;flex:0 0 34px;border:1px solid #d5e0e8;border-radius:12px;background:#fff;color:var(--text);font-size:11px;font-weight:900;margin-bottom:7px}
-.period{height:70px;flex:0 0 70px;padding:5px 14px;display:flex;align-items:center;justify-content:space-between}.month{font-size:24px;font-weight:900;text-transform:uppercase}.period small{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-top:5px}
-.rate{font-size:21px;font-weight:900;border-radius:13px;padding:8px 16px;color:var(--pink);background:var(--pinkLight);border:1px solid var(--pinkBorder)}
-.status{text-align:center;font-size:9px;color:var(--muted);min-height:13px;margin:2px 0 5px}.login{flex:1;display:flex;align-items:center;justify-content:center}.login-card{width:100%;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
-.login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900;cursor:pointer}
-#productZone{display:none;flex:1;min-height:0;flex-direction:column}.card{flex:1;min-height:0;border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 5px 18px rgba(21,61,49,.07);display:flex;flex-direction:column}
-.name{font-size:23px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.line{border-top:2px solid #edf0f2;margin-top:12px}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}.stat{background:#f7f9fa;border-radius:12px;padding:12px;text-align:center}.stat span{display:block;font-size:10px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:28px;margin-top:4px}.stat:nth-child(2) b{color:var(--pink)}
-.choices{display:grid;gap:10px;margin-top:16px}.choice{border:2px solid var(--pinkBorder);border-radius:17px;min-height:76px;padding:12px 16px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;background:var(--pinkLight)}.choice .box{width:33px;height:33px;flex:0 0 33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;border:3px solid var(--pink);color:var(--pink);background:#fff}.choice .txt{font-size:14px;font-weight:900;line-height:1.2;color:var(--pink)}.choice small{display:block;font-size:10px;margin-top:4px;color:var(--muted);font-weight:500}
-.next{height:58px;flex:0 0 58px;border:0;border-radius:17px;margin-top:14px;background:var(--pink);color:#fff;font-size:15px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:24px;flex:0 0 24px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
+:root{
+  --blue:#bcd7ed;
+  --green:#16834f;
+  --green2:#42b77a;
+  --greenLight:#edf9f3;
+  --dark:#153d31;
+  --text:#253746;
+  --muted:#657484;
+  --pink:#e45b7a;
+  --pinkLight:#fff0f4;
+  --pinkBorder:#f2b5c4;
+  --line:#e1e7eb;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--text);
+}
+
+body{
+  display:flex;
+  justify-content:center;
+}
+
+.app{
+  width:100%;
+  max-width:560px;
+  height:100%;
+  padding:12px 18px 9px;
+  display:flex;
+  flex-direction:column;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header{
+  height:82px;
+  flex:0 0 82px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  background:var(--blue);
+  border-radius:16px;
+
+  padding:0 16px;
+  margin-bottom:8px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+
+.logo{
+  width:58px;
+  height:58px;
+  flex:0 0 58px;
+}
+
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+.title{
+  min-width:0;
+}
+
+h1{
+  font-size:23px;
+  letter-spacing:1.2px;
+  line-height:1;
+  margin:0;
+  font-weight:900;
+  color:var(--dark);
+}
+
+.sub{
+  font-size:10px;
+  color:var(--muted);
+  margin-top:8px;
+  white-space:nowrap;
+}
+
+.operator{
+  text-align:right;
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+.operator strong{
+  display:block;
+  font-size:32px;
+  color:var(--text);
+  line-height:1;
+  margin-top:6px;
+}
+
+/* =========================
+   RETOUR
+========================= */
+
+.back{
+  height:34px;
+  flex:0 0 34px;
+
+  border:1px solid #d5e0e8;
+  border-radius:12px;
+  background:#fff;
+
+  color:var(--text);
+  font-size:11px;
+  font-weight:900;
+
+  margin-bottom:7px;
+}
+
+/* =========================
+   PERIODE
+========================= */
+
+.period{
+  height:70px;
+  flex:0 0 70px;
+
+  padding:5px 14px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.month{
+  font-size:24px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.period small{
+  display:block;
+  font-size:9px;
+  color:var(--muted);
+  font-weight:800;
+  margin-top:5px;
+}
+
+.rate{
+  font-size:21px;
+  font-weight:900;
+
+  border-radius:13px;
+  padding:8px 16px;
+
+  color:var(--pink);
+  background:var(--pinkLight);
+  border:1px solid var(--pinkBorder);
+}
+
+/* =========================
+   STATUT GOOGLE
+========================= */
+
+.status{
+  text-align:center;
+  font-size:9px;
+  color:var(--muted);
+
+  min-height:13px;
+  margin:2px 0 5px;
+}
+
+/* =========================
+   CONNEXION
+========================= */
+
+.login{
+  flex:1;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.login-card{
+  width:100%;
+
+  border:1px solid var(--line);
+  border-radius:18px;
+
+  padding:25px 16px;
+
+  text-align:center;
+
+  box-shadow:0 5px 18px rgba(21,61,49,.08);
+}
+
+.login-card b{
+  font-size:15px;
+}
+
+.login-card p{
+  font-size:10px;
+  color:var(--muted);
+  margin:7px 0 15px;
+}
+
+.google{
+  border:0;
+
+  background:var(--blue);
+  color:var(--text);
+
+  border-radius:12px;
+
+  height:43px;
+  padding:0 20px;
+
+  font-size:11px;
+  font-weight:900;
+
+  cursor:pointer;
+}
+
+/* =========================
+   PRODUIT
+========================= */
+
+#productZone{
+  display:none;
+
+  flex:1;
+  min-height:0;
+
+  flex-direction:column;
+}
+
+.card{
+  flex:1;
+  min-height:0;
+
+  border:2px solid var(--line);
+  border-radius:24px;
+
+  padding:18px;
+
+  box-shadow:0 5px 18px rgba(21,61,49,.07);
+
+  display:flex;
+  flex-direction:column;
+}
+
+.name{
+  font-size:23px;
+  font-weight:900;
+  line-height:1.18;
+  text-transform:uppercase;
+}
+
+.meta{
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.5;
+  margin-top:8px;
+}
+
+.line{
+  border-top:2px solid #edf0f2;
+  margin-top:12px;
+}
+
+/* =========================
+   STOCK
+========================= */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+
+  margin-top:14px;
+}
+
+.stat{
+  background:#f7f9fa;
+  border-radius:12px;
+
+  padding:12px;
+
+  text-align:center;
+}
+
+.stat span{
+  display:block;
+  font-size:10px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.stat b{
+  display:block;
+  font-size:28px;
+  margin-top:4px;
+}
+
+.stat:nth-child(2) b{
+  color:var(--pink);
+}
+
+/* =========================
+   CHOIX
+========================= */
+
+.choices{
+  display:grid;
+  gap:10px;
+  margin-top:16px;
+}
+
+.choice{
+  border:2px solid var(--pinkBorder);
+  border-radius:17px;
+
+  min-height:76px;
+
+  padding:12px 16px;
+
+  display:flex;
+  align-items:center;
+  gap:14px;
+
+  text-align:left;
+
+  cursor:pointer;
+
+  background:var(--pinkLight);
+}
+
+.choice .box{
+  width:33px;
+  height:33px;
+  flex:0 0 33px;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-weight:900;
+  font-size:20px;
+
+  border:3px solid var(--pink);
+
+  color:var(--pink);
+
+  background:#fff;
+}
+
+.choice .txt{
+  font-size:14px;
+  font-weight:900;
+  line-height:1.2;
+  color:var(--pink);
+}
+
+.choice small{
+  display:block;
+
+  font-size:10px;
+
+  margin-top:4px;
+
+  color:var(--muted);
+
+  font-weight:500;
+}
+
+/* =========================
+   BOUTON SUIVANT
+========================= */
+
+.next{
+  height:58px;
+  flex:0 0 58px;
+
+  border:0;
+  border-radius:17px;
+
+  margin-top:14px;
+
+  background:var(--pink);
+  color:#fff;
+
+  font-size:15px;
+  font-weight:900;
+
+  cursor:pointer;
+}
+
+.next:disabled{
+  background:#dfe5e8;
+  color:#98a5ad;
+
+  cursor:not-allowed;
+}
+
+/* =========================
+   BAS
+========================= */
+
+.bottom{
+  height:24px;
+  flex:0 0 24px;
+
+  display:flex;
+  justify-content:flex-end;
+  align-items:end;
+}
+
+.ref{
+  font-size:10px;
+  font-weight:900;
+  color:var(--muted);
+}
+
+.message{
+  text-align:center;
+  font-size:9px;
+  color:#c05d6f;
+  height:12px;
+}
 </style>
 </head>
+
 <body>
+
 <main class="app">
-<header><div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>À retirer</h1><div class="sub">Produits du mois précédent · Pharmacie du Libron</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
-<button class="back" onclick="location.href='index.html'">← Accueil</button>
-<section class="period"><div><div class="month" id="month">—</div><small>MOIS PRÉCÉDENT</small></div><div class="rate">À RETIRER</div></section>
-<div id="status" class="status">Préparation de Google Sheets…</div>
-<section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
-<section id="productZone"><div id="card" class="card"></div><button id="next" class="next" disabled onclick="goNext()">VALIDER ET PASSER AU SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header>
+
+    <div class="brand">
+
+      <div class="logo">
+        <img
+          src="https://i.imgur.com/AExTPc7.png"
+          alt="Pharmacie du Libron"
+        >
+      </div>
+
+      <div class="title">
+
+        <h1>À retirer</h1>
+
+        <div class="sub">
+          Produits du mois précédent · Pharmacie du Libron
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="operator">
+
+      Opérateur
+
+      <strong id="op">—</strong>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+       ACCUEIL
+  ========================== -->
+
+  <button
+    class="back"
+    onclick="location.href='index.html'"
+  >
+    ← Accueil
+  </button>
+
+
+  <!-- =========================
+       MOIS
+  ========================== -->
+
+  <section class="period">
+
+    <div>
+
+      <div
+        class="month"
+        id="month"
+      >
+        —
+      </div>
+
+      <small>
+        MOIS PRÉCÉDENT
+      </small>
+
+    </div>
+
+    <div class="rate">
+      À RETIRER
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       STATUT
+  ========================== -->
+
+  <div
+    id="status"
+    class="status"
+  >
+    Préparation de Google Sheets…
+  </div>
+
+
+  <!-- =========================
+       CONNEXION GOOGLE
+  ========================== -->
+
+  <section
+    id="login"
+    class="login"
+  >
+
+    <div class="login-card">
+
+      <b>
+        Connexion Google Sheets
+      </b>
+
+      <p>
+        Appuyez sur le bouton pour autoriser
+        l'accès aux produits.
+      </p>
+
+      <button
+        id="googleBtn"
+        class="google"
+        onclick="connectGoogle()"
+        disabled
+      >
+        Préparation…
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       PRODUITS
+  ========================== -->
+
+  <section
+    id="productZone"
+  >
+
+    <div
+      id="card"
+      class="card"
+    >
+    </div>
+
+
+    <button
+      id="next"
+      class="next"
+      disabled
+      onclick="goNext()"
+    >
+      VALIDER ET PASSER AU SUIVANT →
+    </button>
+
+
+    <div class="bottom">
+
+      <div
+        id="ref"
+        class="ref"
+      >
+        Référence 0/0
+      </div>
+
+    </div>
+
+
+    <div
+      id="message"
+      class="message"
+    >
+    </div>
+
+  </section>
+
 </main>
+
+
 <script>
-const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-const SHEET='Feuille2';
-const SCOPES='https://www.googleapis.com/auth/spreadsheets';
-const zebraARetirerResume='zebraARetirerResume';
-let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,checked=false;
-const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
+
+/* ============================================================
+   CONFIGURATION GOOGLE
+============================================================ */
+
+const CLIENT_ID =
+'777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+
+const SPREADSHEET_ID =
+'1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+
+const SHEET =
+'Feuille2';
+
+const SCOPES =
+'https://www.googleapis.com/auth/spreadsheets';
+
+
+/*
+  Cette clé sert uniquement à mémoriser la position
+  de reprise sur le terminal.
+
+  Elle ne modifie PAS Google Sheets.
+*/
+const zebraARetirerResume =
+'zebraARetirerResume';
+
+
+/* ============================================================
+   VARIABLES
+============================================================ */
+
+let tokenClient = null;
+
+let gapiReady = false;
+let gisReady = false;
+
+let products = [];
+
+let idx = 0;
+
+let checked = false;
+
+
+/* ============================================================
+   OPERATEUR
+============================================================ */
+
+const operator =
+localStorage.getItem('zebraOperator') || '—';
+
+document.getElementById('op').textContent =
+operator;
+
+
+/* ============================================================
+   CALCUL DU MOIS PRECEDENT
+============================================================ */
 
 function targetMonth(){
-  const d=new Date();
-  return new Date(d.getFullYear(), d.getMonth()-1, 1);
+
+  const d = new Date();
+
+  return new Date(
+    d.getFullYear(),
+    d.getMonth() - 1,
+    1
+  );
+
 }
+
+
+/* ============================================================
+   CONVERSION DATE
+============================================================ */
+
 function dateOf(v){
-  if(typeof v==='number'&&isFinite(v)){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return new Date(d.getUTCFullYear(),d.getUTCMonth(),1)}
-  const s=String(v??'').trim().toLowerCase();if(!s)return null;
-  let m=s.match(/^(\d{4})[-/.](\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);
-  m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,1)}
-  m=s.match(/^(\d{1,2})[-/.](\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);
-  const d=new Date(s);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),1)
+
+  if(
+    typeof v === 'number' &&
+    isFinite(v)
+  ){
+
+    const d =
+      new Date(
+        Date.UTC(1899,11,30)
+        + v * 86400000
+      );
+
+    return new Date(
+      d.getUTCFullYear(),
+      d.getUTCMonth(),
+      1
+    );
+
+  }
+
+
+  const s =
+    String(v ?? '')
+    .trim()
+    .toLowerCase();
+
+
+  if(!s){
+    return null;
+  }
+
+
+  let m =
+    s.match(
+      /^(\d{4})[-/.](\d{1,2})/
+    );
+
+
+  if(m){
+
+    return new Date(
+      +m[1],
+      +m[2] - 1,
+      1
+    );
+
+  }
+
+
+  m =
+    s.match(
+      /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/
+    );
+
+
+  if(m){
+
+    let y = +m[3];
+
+    if(y < 100){
+      y += 2000;
+    }
+
+    return new Date(
+      y,
+      +m[2] - 1,
+      1
+    );
+
+  }
+
+
+  m =
+    s.match(
+      /^(\d{1,2})[-/.](\d{4})$/
+    );
+
+
+  if(m){
+
+    return new Date(
+      +m[2],
+      +m[1] - 1,
+      1
+    );
+
+  }
+
+
+  const d =
+    new Date(s);
+
+
+  return isNaN(d)
+    ? null
+    : new Date(
+        d.getFullYear(),
+        d.getMonth(),
+        1
+      );
+
 }
-function target(v){const d=dateOf(v),s=targetMonth();return d&&d.getFullYear()===s.getFullYear()&&d.getMonth()===s.getMonth()}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function status(t){document.getElementById('status').textContent=t}
-function message(t){document.getElementById('message').textContent=t}
-function setReady(){const b=document.getElementById('googleBtn');b.disabled=false;b.textContent='Se connecter à Google';status('Google Sheets prêt.');}
-function fail(t){status(t);const b=document.getElementById('googleBtn');b.disabled=true;b.textContent='Google indisponible';}
+
+
+/* ============================================================
+   VERIFICATION DU MOIS
+============================================================ */
+
+function target(v){
+
+  const d = dateOf(v);
+
+  const s = targetMonth();
+
+  return (
+    d &&
+    d.getFullYear() === s.getFullYear() &&
+    d.getMonth() === s.getMonth()
+  );
+
+}
+
+
+/* ============================================================
+   SECURITE HTML
+============================================================ */
+
+function esc(v){
+
+  return String(v ?? '')
+    .replace(
+      /[&<>"']/g,
+      c => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+      }[c])
+    );
+
+}
+
+
+/* ============================================================
+   MESSAGES
+============================================================ */
+
+function status(t){
+
+  document.getElementById('status').textContent =
+    t;
+
+}
+
+
+function message(t){
+
+  document.getElementById('message').textContent =
+    t;
+
+}
+
+
+/* ============================================================
+   GOOGLE PRET
+============================================================ */
+
+function setReady(){
+
+  const b =
+    document.getElementById('googleBtn');
+
+  b.disabled = false;
+
+  b.textContent =
+    'Se connecter à Google';
+
+  status(
+    'Google Sheets prêt.'
+  );
+
+}
+
+
+/* ============================================================
+   ERREUR GOOGLE
+============================================================ */
+
+function fail(t){
+
+  status(t);
+
+  const b =
+    document.getElementById('googleBtn');
+
+  b.disabled = true;
+
+  b.textContent =
+    'Google indisponible';
+
+}
+
+
+/* ============================================================
+   CONNEXION GOOGLE
+============================================================ */
 
 function connectGoogle(){
-  if(!gisReady||!tokenClient){status('Google n’est pas encore prêt…');return}
-  status('Ouverture de la connexion Google…');
-  tokenClient.requestAccessToken({prompt:''});
+
+  if(
+    !gisReady ||
+    !tokenClient
+  ){
+
+    status(
+      'Google n’est pas encore prêt…'
+    );
+
+    return;
+  }
+
+
+  status(
+    'Ouverture de la connexion Google…'
+  );
+
+
+  tokenClient.requestAccessToken({
+    prompt:''
+  });
+
 }
+
+
+/* ============================================================
+   INITIALISATION GAPI
+============================================================ */
 
 async function bootGapi(){
+
   try{
-    await new Promise((resolve,reject)=>gapi.load('client',{callback:resolve,onerror:reject}));
-    await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
-    gapiReady=true;
-    maybeReady();
-  }catch(e){fail('Impossible de charger Google Sheets : '+e.message)}
-}
-function bootGIS(){
-  try{
-    if(!window.google||!google.accounts||!google.accounts.oauth2)throw new Error('Google Identity Services non chargé');
-    tokenClient=google.accounts.oauth2.initTokenClient({
-      client_id:CLIENT_ID,
-      scope:SCOPES,
-      callback:async response=>{
-        if(response.error){status('Connexion Google refusée : '+response.error);return}
-        if(!response.access_token){status('Google n’a pas fourni de jeton d’accès.');return}
-        gapi.client.setToken({access_token:response.access_token});
-        status('Connexion Google réussie. Chargement des produits…');
-        await load();
+
+    await new Promise(
+      (resolve,reject) => {
+
+        gapi.load(
+          'client',
+          {
+            callback:resolve,
+            onerror:reject
+          }
+        );
+
       }
+    );
+
+
+    await gapi.client.init({
+
+      discoveryDocs:[
+        'https://sheets.googleapis.com/$discovery/rest?version=v4'
+      ]
+
     });
-    gisReady=true;maybeReady();
-  }catch(e){fail('Impossible de préparer la connexion Google : '+e.message)}
+
+
+    gapiReady = true;
+
+    maybeReady();
+
+  }
+  catch(e){
+
+    fail(
+      'Impossible de charger Google Sheets : '
+      + e.message
+    );
+
+  }
+
 }
-function maybeReady(){if(gapiReady&&gisReady)setReady()}
+
+
+/* ============================================================
+   INITIALISATION GOOGLE IDENTITY
+============================================================ */
+
+function bootGIS(){
+
+  try{
+
+    if(
+      !window.google ||
+      !google.accounts ||
+      !google.accounts.oauth2
+    ){
+
+      throw new Error(
+        'Google Identity Services non chargé'
+      );
+
+    }
+
+
+    tokenClient =
+      google.accounts.oauth2.initTokenClient({
+
+        client_id:CLIENT_ID,
+
+        scope:SCOPES,
+
+        callback:async response => {
+
+          if(response.error){
+
+            status(
+              'Connexion Google refusée : '
+              + response.error
+            );
+
+            return;
+          }
+
+
+          if(!response.access_token){
+
+            status(
+              'Google n’a pas fourni de jeton d’accès.'
+            );
+
+            return;
+          }
+
+
+          gapi.client.setToken({
+            access_token:
+              response.access_token
+          });
+
+
+          status(
+            'Connexion Google réussie. Chargement des produits…'
+          );
+
+
+          await load();
+
+        }
+
+      });
+
+
+    gisReady = true;
+
+    maybeReady();
+
+  }
+  catch(e){
+
+    fail(
+      'Impossible de préparer la connexion Google : '
+      + e.message
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   VERIFICATION GOOGLE PRET
+============================================================ */
+
+function maybeReady(){
+
+  if(
+    gapiReady &&
+    gisReady
+  ){
+
+    setReady();
+
+  }
+
+}
+
+
+/* ============================================================
+   CHARGEMENT DES PRODUITS
+============================================================ */
 
 async function load(){
+
   try{
-    const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET});
-    const rows=res.result.values||[];products=[];
-    rows.slice(1).forEach((r,i)=>{
-      const stock=Number(r[4])||0,oldSold=Number(r[6])||0;
-      if(target(r[1])&&stock>oldSold)products.push({r,row:i+2});
-    });
-    products.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);
-    document.getElementById('login').style.display='none';
-    document.getElementById('productZone').style.display='flex';
-    idx=0;
-    const saved=JSON.parse(localStorage.getItem(zebraARetirerResume)||'null');
-    if(saved&&saved.operator===operator&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
-    if(products.length)render();
-    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à retirer pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
-    status('Google Sheets connecté.');
-  }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
+
+    /*
+      IMPORTANT :
+
+      Cette fonction lit Feuille2.
+
+      Elle ne fait AUCUNE écriture.
+
+      Donc :
+      - cliquer sur "À retirer"
+      - se connecter
+      - charger les produits
+
+      ne modifie pas l'historique.
+    */
+
+    const res =
+      await gapi.client.sheets.spreadsheets.values.get({
+
+        spreadsheetId:
+          SPREADSHEET_ID,
+
+        range:
+          SHEET
+
+      });
+
+
+    const rows =
+      res.result.values || [];
+
+
+    products = [];
+
+
+    rows
+      .slice(1)
+      .forEach((r,i) => {
+
+        const stock =
+          Number(r[4]) || 0;
+
+        const oldSold =
+          Number(r[6]) || 0;
+
+
+        /*
+          On affiche uniquement les produits
+          du mois précédent pour lesquels
+          il reste quelque chose à retirer.
+        */
+
+        if(
+          target(r[1]) &&
+          stock > oldSold
+        ){
+
+          products.push({
+
+            r,
+
+            row:i + 2
+
+          });
+
+        }
+
+      });
+
+
+    /*
+      Tri par date
+    */
+
+    products.sort(
+
+      (a,b) =>
+
+        (
+          dateOf(a.r[1])?.getTime() || 0
+        )
+        -
+        (
+          dateOf(b.r[1])?.getTime() || 0
+        )
+
+        ||
+
+        a.row - b.row
+
+    );
+
+
+    /*
+      On masque la connexion
+    */
+
+    document.getElementById('login')
+      .style.display = 'none';
+
+
+    document.getElementById('productZone')
+      .style.display = 'flex';
+
+
+    idx = 0;
+
+
+    /*
+      Reprise automatique
+    */
+
+    const saved =
+      JSON.parse(
+        localStorage.getItem(
+          zebraARetirerResume
+        ) || 'null'
+      );
+
+
+    if(
+      saved &&
+      saved.operator === operator &&
+      saved.code
+    ){
+
+      const n =
+        products.findIndex(
+          x =>
+            String(x.r[3] || '') ===
+            String(saved.code)
+        );
+
+
+      if(n >= 0){
+
+        idx = n;
+
+      }
+
+    }
+
+
+    if(products.length){
+
+      render();
+
+    }
+    else{
+
+      document.getElementById('card')
+        .innerHTML =
+        '<div style="margin:auto;text-align:center;color:#657484;font-size:12px">' +
+        'Aucun produit à retirer pour ce mois. ✓' +
+        '</div>';
+
+
+      document.getElementById('ref')
+        .textContent =
+        'Référence 0/0';
+
+    }
+
+
+    status(
+      'Google Sheets connecté.'
+    );
+
+  }
+  catch(e){
+
+    status(
+      'Erreur Google Sheets : '
+      +
+      (
+        e.result?.error?.message ||
+        e.message
+      )
+    );
+
+  }
+
 }
-function saveResume(){if(products[idx])localStorage.setItem(zebraARetirerResume,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+
+
+/* ============================================================
+   SAUVEGARDE POSITION
+============================================================ */
+
+function saveResume(){
+
+  if(products[idx]){
+
+    /*
+      Ceci est uniquement enregistré
+      dans le stockage local du terminal.
+
+      Aucune modification Google Sheets.
+    */
+
+    localStorage.setItem(
+
+      zebraARetirerResume,
+
+      JSON.stringify({
+
+        operator,
+
+        code:
+          String(
+            products[idx].r[3] || ''
+          ),
+
+        updatedAt:
+          Date.now()
+
+      })
+
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   AFFICHAGE PRODUIT
+============================================================ */
+
 function render(){
-  const r=products[idx].r,stock=Number(r[4])||0;
-  document.getElementById('card').innerHTML=
-  `<div class="name">${esc(r[2]||'Produit sans nom')}</div>
-   <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div>
-   <div class="line"></div>
-   <div class="stats">
-     <div class="stat"><span>STOCK INITIAL</span><b>${stock}</b></div>
-     <div class="stat"><span>À RETIRER</span><b>${stock}</b></div>
-   </div>
-   <div class="choices">
-     <div class="choice" onclick="toggleCheck()">
-       <span class="box">${checked?'✓':''}</span>
-       <div class="txt">PRODUIT TOTALEMENT RETIRÉ<small>Cocher pour valider et passer au suivant</small></div>
-     </div>
-   </div>`;
-  document.getElementById('next').disabled=!checked;
-  document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;
+
+  const r =
+    products[idx].r;
+
+
+  const stock =
+    Number(r[4]) || 0;
+
+
+  document.getElementById('card')
+    .innerHTML =
+
+    `
+      <div class="name">
+        ${esc(
+          r[2] ||
+          'Produit sans nom'
+        )}
+      </div>
+
+      <div class="meta">
+        Date : ${esc(r[1] || '—')}
+        · Code : ${esc(r[3] || '—')}
+        · Zone : ${esc(r[5] || '—')}
+      </div>
+
+      <div class="line"></div>
+
+      <div class="stats">
+
+        <div class="stat">
+
+          <span>
+            STOCK INITIAL
+          </span>
+
+          <b>
+            ${stock}
+          </b>
+
+        </div>
+
+
+        <div class="stat">
+
+          <span>
+            À RETIRER
+          </span>
+
+          <b>
+            ${stock}
+          </b>
+
+        </div>
+
+      </div>
+
+
+      <div class="choices">
+
+        <div
+          class="choice"
+          onclick="toggleCheck()"
+        >
+
+          <span class="box">
+            ${checked ? '✓' : ''}
+          </span>
+
+          <div class="txt">
+
+            PRODUIT TOTALEMENT RETIRÉ
+
+            <small>
+              Cocher pour valider et passer au suivant
+            </small>
+
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+
+  /*
+    Le bouton suivant est activé
+    uniquement si le produit est coché.
+  */
+
+  document.getElementById('next')
+    .disabled =
+    !checked;
+
+
+  document.getElementById('ref')
+    .textContent =
+    `Référence ${idx + 1}/${products.length}`;
+
+
   saveResume();
+
 }
+
+
+/* ============================================================
+   COCHER / DECOCHER
+============================================================ */
+
 function toggleCheck(){
-  checked=!checked;
+
+  /*
+    IMPORTANT :
+
+    Cette action ne touche PAS Google Sheets.
+
+    Elle change uniquement l'état visuel
+    de la page.
+  */
+
+  checked = !checked;
+
   render();
+
 }
-async function updateSold(row,value){
-  return gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId:SPREADSHEET_ID,range:`${SHEET}!G${row}`,
-    valueInputOption:'USER_ENTERED',resource:{values:[[value]]}
-  })
+
+
+/* ============================================================
+   ECRITURE GOOGLE SHEETS
+============================================================ */
+
+async function updateSold(
+  row,
+  value
+){
+
+  /*
+    C'est LA SEULE fonction de ce fichier
+    qui écrit dans Google Sheets.
+
+    Elle écrit uniquement dans :
+
+    Feuille2 colonne G
+
+    Elle n'écrit PAS dans une feuille
+    "Historique".
+  */
+
+  return gapi.client
+    .sheets
+    .spreadsheets
+    .values
+    .update({
+
+      spreadsheetId:
+        SPREADSHEET_ID,
+
+      range:
+        `${SHEET}!G${row}`,
+
+      valueInputOption:
+        'USER_ENTERED',
+
+      resource:{
+        values:[
+          [value]
+        ]
+      }
+
+    });
+
 }
+
+
+/* ============================================================
+   PASSAGE AU PRODUIT SUIVANT
+============================================================ */
+
 async function goNext(){
-  if(!checked||!products[idx])return;
-  const r=products[idx].r,row=products[idx].row,code=String(r[3]||'');
-  document.getElementById('next').disabled=true;message('Enregistrement…');
+
+  if(
+    !checked ||
+    !products[idx]
+  ){
+
+    return;
+
+  }
+
+
+  const r =
+    products[idx].r;
+
+  const row =
+    products[idx].row;
+
+  const code =
+    String(
+      r[3] || ''
+    );
+
+
+  document.getElementById('next')
+    .disabled = true;
+
+
+  message(
+    'Enregistrement…'
+  );
+
+
   try{
-    const stock=Number(r[4])||0;
-    await updateSold(row, stock);
-    localStorage.removeItem(zebraARetirerResume);
-    checked=false;
+
+    const stock =
+      Number(r[4]) || 0;
+
+
+    /*
+      ICI seulement :
+
+      le stock retiré est enregistré
+      dans Feuille2 colonne G.
+    */
+
+    await updateSold(
+      row,
+      stock
+    );
+
+
+    /*
+      La position de reprise est supprimée
+      uniquement après l'enregistrement réussi.
+    */
+
+    localStorage.removeItem(
+      zebraARetirerResume
+    );
+
+
+    checked = false;
+
+
+    /*
+      Recharge les données depuis Google Sheets.
+
+      Cela permet de faire disparaître
+      le produit qui vient d'être traité.
+    */
+
     await load();
-    const n=products.findIndex(x=>String(x.r[3]||'')===code);
-    idx=n>=0?n:Math.min(idx,Math.max(0,products.length-1));
-    if(products.length){render();message('')}
-    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits à retirer du mois sont traités. ✓</div>';document.getElementById('ref').textContent='Référence 0/0';message('');}
-  }catch(e){document.getElementById('next').disabled=false;message('Erreur : '+(e.result?.error?.message||e.message))}
+
+
+    /*
+      On recherche le produit traité
+      pour conserver une position correcte.
+    */
+
+    const n =
+      products.findIndex(
+        x =>
+          String(x.r[3] || '') ===
+          code
+      );
+
+
+    idx =
+      n >= 0
+        ? n
+        : Math.min(
+            idx,
+            Math.max(
+              0,
+              products.length - 1
+            )
+          );
+
+
+    if(products.length){
+
+      render();
+
+      message('');
+
+    }
+    else{
+
+      document.getElementById('card')
+        .innerHTML =
+        '<div style="margin:auto;text-align:center;color:#657484;font-size:12px">' +
+        'Tous les produits à retirer du mois sont traités. ✓' +
+        '</div>';
+
+
+      document.getElementById('ref')
+        .textContent =
+        'Référence 0/0';
+
+
+      message('');
+
+    }
+
+  }
+  catch(e){
+
+    /*
+      En cas d'erreur Google :
+
+      le bouton redevient actif
+      et aucune autre action n'est effectuée.
+    */
+
+    document.getElementById('next')
+      .disabled = false;
+
+
+    message(
+      'Erreur : '
+      +
+      (
+        e.result?.error?.message ||
+        e.message
+      )
+    );
+
+  }
+
 }
 
-const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-const tm=targetMonth();document.getElementById('month').textContent=months[tm.getMonth()]+' '+tm.getFullYear();
 
-let gapiStarted=false,gisStarted=false;
+/* ============================================================
+   MOIS
+============================================================ */
+
+const months = [
+
+  'janvier',
+  'février',
+  'mars',
+  'avril',
+  'mai',
+  'juin',
+  'juillet',
+  'août',
+  'septembre',
+  'octobre',
+  'novembre',
+  'décembre'
+
+];
+
+
+const tm =
+  targetMonth();
+
+
+document.getElementById('month')
+  .textContent =
+  months[tm.getMonth()]
+  +
+  ' '
+  +
+  tm.getFullYear();
+
+
+/* ============================================================
+   DEMARRAGE GOOGLE
+============================================================ */
+
+let gapiStarted = false;
+let gisStarted = false;
+
+
 function waitForGoogle(){
-  let tries=0;
-  const timer=setInterval(()=>{
-    if(!gapiStarted&&window.gapi){gapiStarted=true;bootGapi()}
-    if(!gisStarted&&window.google?.accounts?.oauth2){gisStarted=true;bootGIS()}
-    tries++;
-    if(gapiReady&&gisReady){clearInterval(timer);return}
-    if(tries>120){clearInterval(timer);if(!gapiReady||!gisReady)fail('Google n’a pas pu être chargé. Vérifiez Internet puis rechargez la page.')}
-  },100);
+
+  let tries = 0;
+
+
+  const timer =
+    setInterval(() => {
+
+      /*
+        GAPI
+      */
+
+      if(
+        !gapiStarted &&
+        window.gapi
+      ){
+
+        gapiStarted = true;
+
+        bootGapi();
+
+      }
+
+
+      /*
+        Google Identity
+      */
+
+      if(
+        !gisStarted &&
+        window.google?.accounts?.oauth2
+      ){
+
+        gisStarted = true;
+
+        bootGIS();
+
+      }
+
+
+      tries++;
+
+
+      if(
+        gapiReady &&
+        gisReady
+      ){
+
+        clearInterval(timer);
+
+        return;
+
+      }
+
+
+      /*
+        Après environ 12 secondes
+      */
+
+      if(tries > 120){
+
+        clearInterval(timer);
+
+
+        if(
+          !gapiReady ||
+          !gisReady
+        ){
+
+          fail(
+            'Google n’a pas pu être chargé. ' +
+            'Vérifiez Internet puis rechargez la page.'
+          );
+
+        }
+
+      }
+
+    },100);
+
 }
-window.addEventListener('load',waitForGoogle);
+
+
+/* ============================================================
+   DEMARRAGE
+============================================================ */
+
+window.addEventListener(
+  'load',
+  waitForGoogle
+);
+
 </script>
+
 </body>
 </html>
