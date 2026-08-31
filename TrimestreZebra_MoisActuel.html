@@ -116,9 +116,11 @@ async function load(restoreResume=true){
       const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
       if(saved && (saved.operator!==operator || saved.period!==resumePeriod())){
         localStorage.removeItem(zebraMoisActuelResume);
-      }else if(saved&&saved.operator===operator&&saved.period===resumePeriod()&&saved.code){
-        const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));
+      }else if(saved&&saved.operator===operator&&saved.period===resumePeriod()){
+        // Reprise prioritaire par code ; sinon par index mémorisé.
+        const n=saved.code?products.findIndex(x=>String(x.r[3]||'')===String(saved.code)):-1;
         if(n>=0)idx=n;
+        else if(Number.isInteger(saved.index))idx=Math.max(0,Math.min(saved.index,products.length-1));
       }
     }
     if(products.length)render();
@@ -127,7 +129,7 @@ async function load(restoreResume=true){
   }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
 function resumePeriod(){const d=startMonth();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
-function saveResume(){if(products[idx])localStorage.setItem(zebraMoisActuelResume,JSON.stringify({operator,period:resumePeriod(),code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+function saveResume(){if(products[idx])localStorage.setItem(zebraMoisActuelResume,JSON.stringify({operator,period:resumePeriod(),index:idx,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
 function render(){
   const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
   if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
