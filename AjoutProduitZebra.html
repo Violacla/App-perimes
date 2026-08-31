@@ -8,89 +8,106 @@
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--text:#26384d;--muted:#718096;--blue:#bcd7ed;--blue-dark:#3972ad;--green:#16834f;--green-light:#edf9f3;--border:#d5e0ec;--shadow:0 5px 18px rgba(62,91,122,.12)}
-*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-body{display:flex;justify-content:center}.app{width:100%;max-width:520px;min-height:100dvh;padding:12px}
-header{background:var(--blue);border-radius:16px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.brand{display:flex;align-items:center;gap:12px}
-h1{margin:0;font-size:18px;color:#163f5b}
-.google, .save {width:100%;min-height:44px;border:0;border-radius:13px;font-weight:800;cursor:pointer;margin-bottom:9px}
-.google{background:#0a2f51;color:#bcd7ed}
-.google:disabled{opacity:.45;cursor:not-allowed}
-.panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:15px;box-shadow:var(--shadow);position:relative}
-label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px;color:#0a2f51}
-input, select{width:100%;height:44px;border:1px solid var(--border);border-radius:11px;padding:0 11px;font-size:14px;background:#e1f4e4;color:var(--text)}
-input:focus, select:focus{outline:2px solid #86bf8e}
-.save{background:#bfdbc4;color:black;margin-top:15px;margin-bottom:0}
-.save:hover{background:#86bf8e;color:white}
-.status{font-size:12px;font-weight:bold;color:#0a2f51;text-align:center;min-height:17px;margin:7px 0}
-.back-link{display:block;text-align:center;margin-top:15px;color:#16416d;text-decoration:none;font-weight:bold;font-size:12px}
-.back-link:hover{text-decoration:underline}
-
-/* Style des suggestions de zones (identique à Index) */
-.autocomplete-list {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 150px;
-  overflow-y: auto;
-  width: calc(100% - 30px);
-  z-index: 999;
-}
-.autocomplete-list li {
-  padding: 8px 10px;
-  cursor: pointer;
-  color: black;
-}
-.autocomplete-list li:hover,
-.autocomplete-list li.active {
-  background-color: #86bf8e;
-  color: white;
+:root{--bg:#eaf4fa;--card:rgba(255,255,255,.94);--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--pink-dark:#c77991;--soft-blue:#e5eff9;--soft-pink:#f7e5eb;--green:#bfdbc4;--green2:#86bf8e;--border:#cbddea;--shadow:0 7px 20px rgba(62,91,122,.12)}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f5fafd 100%);color:var(--text)}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:480px;padding:7px;min-height:100dvh}
+header{background:rgba(255,255,255,.78);border:1px solid rgba(203,221,234,.9);border-radius:16px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:8px}
+.logo{width:36px;height:36px;border-radius:50%;object-fit:cover}
+h1{font-size:17px;margin:0;color:var(--blue-dark)}
+.operator-badge{font-size:11px;font-weight:bold;color:var(--dark)}
+.login,.panel{background:var(--soft);border-radius:10px;padding:9px;margin-top:8px}
+label{display:block;font-size:11px;font-weight:bold;margin:7px 0 4px;color:var(--dark)}
+input{width:100%;height:42px;border:1px solid var(--border);border-radius:9px;padding:0 9px;font-size:15px;background:white;color:var(--text)} input:focus{outline:2px solid rgba(217,154,174,.45)}
+.google,.save{width:100%;height:44px;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
+.google{margin-top:7px;background:var(--blue-dark);color:#fff}
+.save{margin-top:8px;background:var(--pink);color:#fff;font-size:16px}
+.save:disabled{opacity:.45}
+.scan-box{background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));border:1px solid var(--border);border-radius:16px;padding:10px}
+.scan-title{font-size:11px;font-weight:bold;color:var(--dark);margin-bottom:4px;text-align:center}
+#code{height:50px;border:2px solid var(--blue-dark);font-size:22px;font-weight:bold;text-align:center;letter-spacing:1px}
+.product-card{background:white;border:1px solid var(--border);border-radius:10px;padding:8px;margin-top:7px}
+.product-name{font-size:18px;font-weight:bold;color:var(--dark);min-height:22px}
+.product-zone{font-size:12px;font-weight:bold;margin-top:3px}
+.product-zone span{color:var(--pink-dark)}
+.row{display:flex;gap:7px;margin-top:7px}
+.field{flex:1;background:var(--soft);border-radius:9px;padding:7px}
+.field-label{font-size:10px;font-weight:bold;color:var(--dark);margin-bottom:3px}
+.qty-control{display:flex;align-items:center;gap:4px}
+.qty-btn{width:38px;height:38px;border:0;border-radius:7px;background:var(--soft-blue);color:var(--blue-dark);font-size:22px;font-weight:bold}
+#qty{text-align:center;height:38px;font-weight:bold}
+.zone-wrap{position:relative}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:20;background:white;border:1px solid #ccc;border-radius:7px;list-style:none;margin:3px 0 0;padding:0;max-height:140px;overflow-y:auto}
+.autocomplete-list li{padding:8px 9px;color:#000;font-size:13px}
+.autocomplete-list li:hover,.autocomplete-list li.active{background:var(--green2);color:white}
+.status{min-height:17px;text-align:center;font-size:11px;font-weight:bold;color:var(--dark);margin:5px 0}
+.back-link{display:block;text-align:center;margin-top:5px;color:#16416d;text-decoration:none;font-size:11px;font-weight:bold}
+@media(max-height:650px){
+ .app{padding:4px}.logo{width:31px;height:31px}h1{font-size:15px}
+ #code{height:44px}.product-card{padding:6px}.row{margin-top:5px}
+ .save{height:44px}
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="brand">
-      <h1>Mode Zebra - Ajout</h1>
-    </div>
-  </header>
-
-  <div class="panel" id="login-panel" style="margin-bottom:10px;">
-    <label for="operator">Nom de l'opérateur</label>
-    <input type="text" id="operator" placeholder="Entrez votre nom..." autocomplete="off">
-    <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()" style="margin-top:10px;">Se connecter à Google Sheets</button>
+<header>
+  <div class="brand">
+    <a href="index.html">
+      <img class="logo" src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron">
+    </a>
+    <h1>Mode Zebra</h1>
   </div>
+  <div id="operator-badge" class="operator-badge"></div>
+</header>
 
-  <div class="panel" id="entry-panel" style="display:none;">
-    <label for="code">Code (6 chiffres)</label>
-    <input type="text" id="code" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Scannez ou tapez le code...">
-
-    <label for="product">Nom Produit</label>
-    <input type="text" id="product" placeholder="Nom du produit" autocomplete="off">
-
-    <label for="date">Date (MM/YYYY)</label>
-    <input type="text" id="date" placeholder="MM/YYYY" autocomplete="off">
-
-    <label for="qty">Nb boîtes</label>
-    <input type="number" id="qty" min="0" placeholder="Quantité" autocomplete="off">
-
-    <label for="zone">Zone</label>
-    <input type="text" id="zone" placeholder="Zone" autocomplete="off">
-    <ul class="autocomplete-list" id="zone-suggestions" style="display: none;"></ul>
-
-    <button class="save" id="btn-add" onclick="addRowToSheet()">Ajouter la ligne</button>
-  </div>
-
-  <pre id="status" class="status"></pre>
-  <a href="index.html" class="back-link">← Retour à l'accueil</a>
+<div class="login" id="login-panel">
+  <div style="font-size:13px;font-weight:bold;color:#0a2f51;text-align:center;">Connexion à Google Sheets</div>
+  <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()">Se connecter à Google</button>
 </div>
 
+<div class="panel" id="entry-panel" style="display:none;">
+  <div class="scan-box">
+    <div class="scan-title">SCAN PRODUIT</div>
+    <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Scannez le CIP">
+  </div>
+
+  <div class="product-card">
+    <div id="product" class="product-name">En attente du scan…</div>
+    <div class="product-zone">Zone : <span id="zone-display">—</span></div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <div class="field-label">DATE</div>
+      <input id="date" type="text" inputmode="numeric" autocomplete="off" placeholder="MM/YYYY">
+    </div>
+    <div class="field">
+      <div class="field-label">QUANTITÉ</div>
+      <div class="qty-control">
+        <button type="button" class="qty-btn" id="qty-minus">−</button>
+        <input id="qty" type="number" min="1" value="1">
+        <button type="button" class="qty-btn" id="qty-plus">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="field" style="margin-top:7px;">
+    <div class="field-label">ZONE PRÉ-ENREGISTRÉE</div>
+    <div class="zone-wrap">
+      <input id="zone" type="text" autocomplete="off" placeholder="Zone automatique">
+      <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
+    </div>
+  </div>
+
+  <button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER</button>
+</div>
+
+<pre id="status" class="status"></pre>
+<a href="index.html" class="back-link">← Accueil</a>
+</div>
 <script>
 // --- CONFIGURATION API GOOGLE SHEETS ---
 const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -178,7 +195,12 @@ async function initiateGoogleAndOperatorLogin() {
   }
 }
 
-// --- GESTION AUTOCOMPLÉTION DES ZONES ---
+// Interface Zebra compacte
+function updateOperatorBadge(){
+  const el=document.getElementById('operator-badge');
+  if(el && operatorName) el.textContent='👤 '+operatorName;
+}
+\n// --- GESTION AUTOCOMPLÉTION DES ZONES ---
 function initZoneAutocomplete() {
   const input = document.getElementById('zone');
   const list = document.getElementById('zone-suggestions');
@@ -257,8 +279,7 @@ function initZoneAutocomplete() {
 
 // --- RECHERCHE AUTOMATIQUE DU PRODUIT PAR CODE ---
 document.getElementById('code').addEventListener('input', async function() {
-  const codeVal = this.value.trim();
-  if (!/^\d{6}$/.test(codeVal)) return;
+  const codeVal = this.value.replace(/\D/g, '').slice(-6);
 
   try {
     const sheets = ['Feuille1', 'Feuille2'];
