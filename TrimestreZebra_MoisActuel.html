@@ -12,24 +12,24 @@
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-family:Arial,Helvetica,sans-serif;color:var(--text)}
 body{display:flex;justify-content:center}
-.app{width:100%;max-width:560px;height:100%;padding:8px 14px 6px;display:flex;flex-direction:column;min-height:0}
-header{height:70px;flex:0 0 70px;display:flex;align-items:center;justify-content:space-between;background:var(--blue);border-radius:14px;padding:0 13px;margin-bottom:6px;min-width:0}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}.logo{width:48px;height:48px;flex:0 0 48px}.logo img{width:100%;height:100%;object-fit:contain}
-.title{min-width:0;overflow:hidden}h1{font-size:22px;letter-spacing:1.2px;line-height:1;margin:0;font-weight:900;color:var(--dark)}.sub{font-size:9px;color:var(--muted);margin-top:8px;white-space:nowrap}
-.operator{text-align:right;font-size:9px;flex:0 0 auto;color:var(--muted);text-transform:uppercase}.operator strong{display:block;font-size:27px;color:var(--text);line-height:1;margin-top:6px}
-.back{height:31px;flex:0 0 31px;border:1px solid #d5e0e8;border-radius:12px;background:#fff;color:var(--text);font-size:11px;font-weight:900;margin-bottom:7px}
-.period{height:60px;flex:0 0 60px;padding:5px 14px;display:flex;align-items:center;justify-content:space-between}.month{font-size:21px;font-weight:900;text-transform:uppercase}.period small{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-top:5px}
-.rate{font-size:21px;font-weight:900;border-radius:13px;padding:8px 16px}.pink{color:var(--pink);background:var(--pinkLight);border:1px solid var(--pinkBorder)}.green{color:var(--green);background:var(--greenLight);border:1px solid #bde4d0}.blue{color:#4e7598;background:#eef5fa;border:1px solid #c9ddea;font-size:17px}
-.status{text-align:center;font-size:9px;color:var(--muted);min-height:11px;margin:1px 0 3px;flex:0 0 11px}.login{flex:1;display:flex;align-items:center;justify-content:center}.login-card{width:100%;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
+.app{width:100%;max-width:560px;height:100%;padding:5px 10px 3px;display:flex;flex-direction:column;min-height:0}
+header{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:space-between;background:var(--blue);border-radius:14px;padding:0 13px;margin-bottom:6px;min-width:0}
+.brand{display:flex;align-items:center;gap:7px;min-width:0}.logo{width:40px;height:40px;flex:0 0 40px}.logo img{width:100%;height:100%;object-fit:contain}
+.title{min-width:0;overflow:hidden}h1{font-size:19px;letter-spacing:1.2px;line-height:1;margin:0;font-weight:900;color:var(--dark)}.sub{font-size:8px;color:var(--muted);margin-top:5px;white-space:nowrap}
+.operator{text-align:right;font-size:9px;flex:0 0 auto;color:var(--muted);text-transform:uppercase}.operator strong{display:block;font-size:23px;color:var(--text);line-height:1;margin-top:6px}
+.back{height:27px;flex:0 0 27px;border:1px solid #d5e0e8;border-radius:12px;background:#fff;color:var(--text);font-size:11px;font-weight:900;margin-bottom:7px}
+.period{height:50px;flex:0 0 50px;padding:5px 14px;display:flex;align-items:center;justify-content:space-between}.month{font-size:18px;font-weight:900;text-transform:uppercase}.period small{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-top:5px}
+.rate{font-size:17px;font-weight:900;border-radius:13px;padding:5px 10px}.pink{color:var(--pink);background:var(--pinkLight);border:1px solid var(--pinkBorder)}.green{color:var(--green);background:var(--greenLight);border:1px solid #bde4d0}.blue{color:#4e7598;background:#eef5fa;border:1px solid #c9ddea;font-size:17px}
+.status{text-align:center;font-size:9px;color:var(--muted);min-height:9px;margin:0 0 2px;flex:0 0 9px}.login{flex:1;display:flex;align-items:center;justify-content:center}.login-card{width:100%;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
 .login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900;cursor:pointer}
-#productZone{display:none;flex:1 1 auto;min-height:0;flex-direction:column;overflow:hidden}.card{flex:1 1 auto;min-height:0;border:2px solid var(--line);border-radius:19px;padding:13px;box-shadow:0 5px 18px rgba(21,61,49,.07);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
-.name{font-size:20px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:9px;color:var(--muted);line-height:1.5;margin-top:8px}.line{border-top:2px solid #edf0f2;margin-top:12px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.stat{background:#f7f9fa;border-radius:10px;padding:7px;text-align:center}.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:21px;margin-top:3px}.stat:nth-child(2) b,.stat:nth-child(3) b{color:var(--green)}
-.choices{display:grid;gap:7px;margin-top:9px}.choice{border:2px solid var(--line);border-radius:14px;min-height:62px;padding:8px 10px;display:flex;align-items:center;gap:13px;text-align:left;cursor:pointer;background:#fff}.choice .box{width:28px;height:28px;flex:0 0 28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;border:3px solid currentColor}.choice .txt{font-size:12px;font-weight:900;line-height:1.15}.choice small{display:block;font-size:10px;margin-top:4px;color:var(--muted);font-weight:500}
+#productZone{display:none;flex:1 1 auto;min-height:0;flex-direction:column;overflow:hidden}.card{flex:1 1 auto;min-height:0;border:2px solid var(--line);border-radius:16px;padding:9px;box-shadow:0 3px 12px rgba(21,61,49,.06);display:flex;flex-direction:column;overflow:hidden}
+.name{font-size:17px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:8px;color:var(--muted);line-height:1.5;margin-top:8px}.line{border-top:1px solid #edf0f2;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:5px}.stat{background:#f7f9fa;border-radius:8px;padding:5px;text-align:center}.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:21px;margin-top:3px}.stat:nth-child(2) b,.stat:nth-child(3) b{color:var(--green)}
+.choices{display:grid;gap:5px;margin-top:5px}.choice{border:2px solid var(--line);border-radius:11px;min-height:49px;padding:5px 7px;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;background:#fff}.choice .box{width:23px;height:23px;flex:0 0 23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:2px solid currentColor}.choice .txt{font-size:10px;font-weight:900;line-height:1.15}.choice small{display:block;font-size:8px;margin-top:2px;color:var(--muted);font-weight:500}
 .sold{background:var(--pinkLight);border-color:var(--pinkBorder);color:var(--pink)}.sold.active{background:#ffe0e8;border-color:var(--pink)}.remaining{background:var(--greenLight);border-color:#bde4d0;color:var(--green)}.remaining.active{background:#dff4e9;border-color:var(--green)}
-.step{margin-top:8px}.step-title{text-align:center;font-size:9px;font-weight:800;color:var(--muted);margin-bottom:4px}.stepper{display:flex;gap:6px}.stepper button{width:44px;height:40px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:29px;font-weight:900}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:40px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:22px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
-.calc{margin-top:7px;background:#f7f9fa;border-radius:12px;padding:8px;text-align:center;font-size:10px;font-weight:800}.calc b{font-size:14px;color:var(--green)}
-.next{height:52px;flex:0 0 52px;border:0;border-radius:17px;margin-top:12px;background:var(--green2);color:#fff;font-size:15px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:19px;flex:0 0 19px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
+.step{margin-top:4px}.step-title{text-align:center;font-size:8px;font-weight:800;color:var(--muted);margin-bottom:2px}.stepper{display:flex;gap:4px}.stepper button{width:36px;height:32px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:17px;font-weight:900}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:32px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:17px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
+.calc{margin-top:4px;background:#f7f9fa;border-radius:8px;padding:4px;text-align:center;font-size:8px;font-weight:800}.calc b{font-size:10px;color:var(--green)}
+.next{height:43px;flex:0 0 43px;border:0;border-radius:12px;margin-top:6px;background:var(--green2);color:#fff;font-size:11px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:13px;flex:0 0 13px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
 </style>
 </head>
 <body>
@@ -39,7 +39,7 @@ header{height:70px;flex:0 0 70px;display:flex;align-items:center;justify-content
 <section class="period"><div><div class="month" id="month">—</div><small>MOIS ACTUEL</small></div><div class="rate pink">50 à 70 %</div></section>
 <div id="status" class="status">Préparation de Google Sheets…</div>
 <section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
-<section id="productZone"><div id="card" class="card"></div><button id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
+<section id="productZone"><div id="card" class="card"></div><button type="button" id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
 </main>
 <script>
 const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -134,14 +134,14 @@ function render(){
      <div class="stat"><span>RESTANT</span><b>${rem}</b></div>
    </div>
    <div class="choices">
-     <button class="choice sold ${choice==='sold'?'active':''}" onclick="choose('sold')"><span class="box">${choice==='sold'?'✓':''}</span><span class="txt">TOTALEMENT VENDU<small>Transfert vers l’historique au passage suivant</small></span></button>
-     <button class="choice remaining ${choice==='remaining'?'active':''}" onclick="choose('remaining')"><span class="box">${choice==='remaining'?'✓':''}</span><span class="txt">PRODUITS RESTANTS<small>Choisir la quantité restante</small></span></button>
+     <button type="button" class="choice sold ${choice==='sold'?'active':''}" onclick="choose('sold')"><span class="box">${choice==='sold'?'✓':''}</span><span class="txt">TOTALEMENT VENDU<small>Transfert vers l’historique au passage suivant</small></span></button>
+     <button type="button" class="choice remaining ${choice==='remaining'?'active':''}" onclick="choose('remaining')"><span class="box">${choice==='remaining'?'✓':''}</span><span class="txt">PRODUITS RESTANTS<small>Choisir la quantité restante</small></span></button>
    </div>
    <div class="step"><div class="step-title">PRODUITS RESTANTS — − / +</div>
      <div class="stepper">
-       <button onclick="change(-1)" ${choice==='remaining'?'':'disabled'}>−</button>
+       <button type="button" onclick="change(-1)" ${choice==='remaining'?'':'disabled'}>−</button>
        <input type="number" min="1" max="${Math.max(1,max)}" value="${choice==='remaining'?remaining:0}" ${choice==='remaining'?'':'disabled'} onchange="inputRemain(this.value)">
-       <button onclick="change(1)" ${choice==='remaining'?'':'disabled'}>+</button>
+       <button type="button" onclick="change(1)" ${choice==='remaining'?'':'disabled'}>+</button>
      </div>
    </div>
    <div class="calc">Vendues = Stock − Restant : <b>${sold} = ${stock} − ${rem}</b></div>`;
@@ -176,19 +176,40 @@ async function transfer(row){
 }
 async function goNext(){
   if(!choice||!products[idx])return;
-  const r=products[idx].r,row=products[idx].row,code=String(r[3]||'');
+  const r=products[idx].r,row=products[idx].row;
+  const wasSold=choice==='sold';
+  const currentCode=String(r[3]||'');
+  const currentIndex=idx;
   document.getElementById('next').disabled=true;message('Enregistrement…');
   try{
-    if(choice==='sold')await transfer(row);
+    if(wasSold)await transfer(row);
     else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
+
     localStorage.removeItem(zebraMoisActuelResume);
     choice=null;remaining=0;
+
     await load();
-    const n=products.findIndex(x=>String(x.r[3]||'')===code);
-    idx=n>=0?n:Math.min(idx,Math.max(0,products.length-1));
-    if(products.length){render();message('')}
-    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';document.getElementById('ref').textContent='Référence 0/0';message('');}
-  }catch(e){document.getElementById('next').disabled=false;message('Erreur : '+(e.result?.error?.message||e.message))}
+
+    if(products.length){
+      if(wasSold){
+        // Le produit supprimé laisse naturellement l'index courant sur le suivant.
+        idx=Math.min(currentIndex,products.length-1);
+      }else{
+        // Pour "Produits restants", le produit reste dans la liste :
+        // on avance explicitement à la ligne suivante.
+        const n=products.findIndex(x=>String(x.r[3]||'')===currentCode);
+        idx=n>=0?Math.min(n+1,products.length-1):Math.min(currentIndex,products.length-1);
+      }
+      render();message('');
+    }else{
+      document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';
+      document.getElementById('ref').textContent='Référence 0/0';
+      message('');
+    }
+  }catch(e){
+    document.getElementById('next').disabled=false;
+    message('Erreur : '+(e.result?.error?.message||e.message));
+  }
 }
 
 const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
