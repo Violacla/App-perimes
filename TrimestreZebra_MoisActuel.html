@@ -23,11 +23,11 @@ header{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content
 .status{text-align:center;font-size:9px;color:var(--muted);min-height:9px;margin:0 0 2px;flex:0 0 9px}.login{flex:1;display:flex;align-items:center;justify-content:center}.login-card{width:100%;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
 .login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900;cursor:pointer}
 #productZone{display:none;flex:1 1 auto;min-height:0;flex-direction:column;overflow:hidden}.card{flex:1 1 auto;min-height:0;border:2px solid var(--line);border-radius:16px;padding:9px;box-shadow:0 3px 12px rgba(21,61,49,.06);display:flex;flex-direction:column;overflow:hidden}
-.name{font-size:17px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:8px;color:var(--muted);line-height:1.5;margin-top:8px}.line{border-top:1px solid #edf0f2;margin-top:6px}
+.name{font-size:17px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:8px;color:var(--muted);line-height:1.5;margin-top:8px}.geo{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;background:#e7f5ff;border:2px solid #9ed8ff;color:#1776b5;font-size:14px;font-weight:900;letter-spacing:.3px;text-transform:uppercase}.line{border-top:1px solid #edf0f2;margin-top:6px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:5px}.stat{background:#f7f9fa;border-radius:8px;padding:5px;text-align:center}.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:21px;margin-top:3px}.stat:nth-child(2) b,.stat:nth-child(3) b{color:var(--green)}
 .choices{display:grid;gap:5px;margin-top:5px}.choice{border:2px solid var(--line);border-radius:11px;min-height:49px;padding:5px 7px;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;background:#fff}.choice .box{width:23px;height:23px;flex:0 0 23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:2px solid currentColor}.choice .txt{font-size:10px;font-weight:900;line-height:1.15}.choice small{display:block;font-size:8px;margin-top:2px;color:var(--muted);font-weight:500}
 .sold{background:var(--pinkLight);border-color:var(--pinkBorder);color:var(--pink)}.sold.active{background:#ffe0e8;border-color:var(--pink)}.remaining{background:var(--greenLight);border-color:#bde4d0;color:var(--green)}.remaining.active{background:#dff4e9;border-color:var(--green)}
-.step{margin-top:4px}.step-title{text-align:center;font-size:8px;font-weight:800;color:var(--muted);margin-bottom:2px}.stepper{display:flex;gap:4px}.stepper button{width:36px;height:32px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:17px;font-weight:900}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:32px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:17px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
+.step{margin-top:4px}.step-title{text-align:center;font-size:8px;font-weight:800;color:var(--muted);margin-bottom:2px}.stepper{display:flex;gap:4px}.stepper button{width:36px;height:32px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:17px;font-weight:900;cursor:pointer;touch-action:manipulation;pointer-events:auto}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:32px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:17px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
 .calc{margin-top:4px;background:#f7f9fa;border-radius:8px;padding:4px;text-align:center;font-size:8px;font-weight:800}.calc b{font-size:10px;color:var(--green)}
 .next{height:43px;flex:0 0 43px;border:0;border-radius:12px;margin-top:6px;background:var(--green2);color:#fff;font-size:11px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:13px;flex:0 0 13px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
 </style>
@@ -36,7 +36,7 @@ header{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content
 <main class="app">
 <header><div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>Mois actuel</h1><div class="sub">Produits à promouvoir fortement · Pharmacie du Libron</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
 <button class="back" onclick="location.href='TrimestreZebra.html'">← Trimestre</button>
-<section class="period"><div><div class="month" id="month">—</div><small>MOIS ACTUEL</small></div><div class="rate pink">50 à 70 %</div></section>
+<section class="period"><div><div class="month" id="month">—</div><small>MOIS ACTUEL</small></div><div class="rate pink">-50 %</div></section>
 <div id="status" class="status">Préparation de Google Sheets…</div>
 <section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
 <section id="productZone"><div id="card" class="card"></div><button type="button" id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
@@ -47,6 +47,7 @@ const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const SHEET='Feuille1',HISTORY='Feuille2';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 const OFFSET=0,zebraMoisActuelResume='zebraMoisActuelResume';
+const KEY_RESUME='zebraMoisActuelResume';
 let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
 const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
 
@@ -112,13 +113,15 @@ async function load(){
     document.getElementById('productZone').style.display='flex';
     idx=0;
     const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
-    if(saved&&saved.operator===operator&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
+    if(saved && (saved.operator!==operator || saved.period!==resumePeriod())) localStorage.removeItem(zebraMoisActuelResume);
+    if(saved&&saved.operator===operator&&saved.period===resumePeriod()&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
     if(products.length)render();
     else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
     status('Google Sheets connecté.');
   }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
-function saveResume(){if(products[idx])localStorage.setItem(zebraMoisActuelResume,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+function resumePeriod(){const d=startMonth();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function saveResume(){if(products[idx])localStorage.setItem(zebraMoisActuelResume,JSON.stringify({operator,period:resumePeriod(),code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
 function render(){
   const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
   if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
@@ -126,7 +129,7 @@ function render(){
   const rem=choice==='sold'?0:(choice==='remaining'?remaining:max);
   document.getElementById('card').innerHTML=
   `<div class="name">${esc(r[2]||'Produit sans nom')}</div>
-   <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div>
+   <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')}</div><div class="geo">ZONE GÉO : ${esc(r[5]||'—')}</div>
    <div class="line"></div>
    <div class="stats">
      <div class="stat"><span>STOCK INITIAL</span><b>${stock}</b></div>
@@ -176,32 +179,27 @@ async function transfer(row){
 }
 async function goNext(){
   if(!choice||!products[idx])return;
-  const r=products[idx].r,row=products[idx].row;
-  const wasSold=choice==='sold';
-  const currentCode=String(r[3]||'');
+  const r=products[idx].r,row=products[idx].row,code=String(r[3]||'');
   const currentIndex=idx;
+  const wasSold=choice==='sold';
   document.getElementById('next').disabled=true;message('Enregistrement…');
   try{
     if(wasSold)await transfer(row);
     else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
-
-    localStorage.removeItem(zebraMoisActuelResume);
     choice=null;remaining=0;
-
     await load();
-
     if(products.length){
       if(wasSold){
-        // Le produit supprimé laisse naturellement l'index courant sur le suivant.
         idx=Math.min(currentIndex,products.length-1);
       }else{
-        // Pour "Produits restants", le produit reste dans la liste :
-        // on avance explicitement à la ligne suivante.
-        const n=products.findIndex(x=>String(x.r[3]||'')===currentCode);
+        const n=products.findIndex(x=>String(x.r[3]||'')===code);
         idx=n>=0?Math.min(n+1,products.length-1):Math.min(currentIndex,products.length-1);
       }
-      render();message('');
+      render();
+      saveResume();
+      message('');
     }else{
+      localStorage.removeItem(KEY_RESUME);
       document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';
       document.getElementById('ref').textContent='Référence 0/0';
       message('');
