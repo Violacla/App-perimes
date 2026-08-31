@@ -39,7 +39,7 @@ header{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content
 <section class="period"><div><div class="month" id="month">—</div><small>MOIS +2</small></div><div class="rate blue">MISE EN AVANT</div></section>
 <div id="status" class="status">Préparation de Google Sheets…</div>
 <section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
-<section id="productZone"><div id="card" class="card"></div><button id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
+<section id="productZone"><div id="card" class="card"></div><button type="button" id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
 </main>
 <script>
 const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -47,7 +47,6 @@ const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const SHEET='Feuille1',HISTORY='Feuille2';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 const OFFSET=2,zebraMoisPlus2Resume='zebraMoisPlus2Resume';
-const KEY_RESUME='zebraMoisPlus2Resume';
 let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
 const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
 
@@ -55,9 +54,9 @@ function startMonth(){const d=new Date();return new Date(d.getFullYear(),d.getMo
 function dateOf(v){
   if(typeof v==='number'&&isFinite(v)){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return new Date(d.getUTCFullYear(),d.getUTCMonth(),1)}
   const s=String(v??'').trim().toLowerCase();if(!s)return null;
-  let m=s.match(/^(\\d{4})[-/.](\\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);
-  m=s.match(/^(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,1)}
-  m=s.match(/^(\\d{1,2})[-/.](\\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);
+  let m=s.match(/^(\d{4})[-/.](\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);
+  m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,1)}
+  m=s.match(/^(\d{1,2})[-/.](\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);
   const d=new Date(s);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),1)
 }
 function target(v){const d=dateOf(v),s=startMonth();return d&&d.getFullYear()===s.getFullYear()&&d.getMonth()===s.getMonth()}
@@ -100,7 +99,7 @@ function bootGIS(){
 }
 function maybeReady(){if(gapiReady&&gisReady)setReady()}
 
-async function load(restoreResume=true){
+async function load(){
   try{
     const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET});
     const rows=res.result.values||[];products=[];
@@ -112,24 +111,46 @@ async function load(restoreResume=true){
     document.getElementById('login').style.display='none';
     document.getElementById('productZone').style.display='flex';
     idx=0;
-    if(restoreResume){
-      const saved=JSON.parse(localStorage.getItem(zebraMoisPlus2Resume)||'null');
-      if(saved && (saved.operator!==operator || saved.period!==resumePeriod())){
-        localStorage.removeItem(zebraMoisPlus2Resume);
-      }else if(saved&&saved.operator===operator&&saved.period===resumePeriod()){
-        // Reprise prioritaire par code ; sinon par index mémorisé.
-        const n=saved.code?products.findIndex(x=>String(x.r[3]||'')===String(saved.code)):-1;
-        if(n>=0)idx=n;
-        else if(Number.isInteger(saved.index))idx=Math.max(0,Math.min(saved.index,products.length-1));
+    
+    const saved=JSON.parse(localStorage.getItem(zebraMoisPlus2Resume)||'null');
+    if(saved && saved.operator===operator && saved.period===resumePeriod()){
+      const code=String(saved.code||'').trim();
+      const name=String(saved.name||'').trim();
+      if(code){
+        const n=products.findIndex(x=>String(x.r[3]||'').trim()===code);
+        if(n>=0) idx=n;
+        else if(name){
+          const nn=products.findIndex(x=>String(x.r[2]||'').trim()===name);
+          if(nn>=0) idx=nn;
+          else if(Number.isInteger(saved.index)) idx=Math.max(0,Math.min(saved.index,products.length-1));
+        } else if(Number.isInteger(saved.index)) idx=Math.max(0,Math.min(saved.index,products.length-1));
+      } else if(name){
+        const nn=products.findIndex(x=>String(x.r[2]||'').trim()===name);
+        if(nn>=0) idx=nn;
+        else if(Number.isInteger(saved.index)) idx=Math.max(0,Math.min(saved.index,products.length-1));
+      } else if(Number.isInteger(saved.index)){
+        idx=Math.max(0,Math.min(saved.index,products.length-1));
       }
     }
+
     if(products.length)render();
     else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
     status('Google Sheets connecté.');
   }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
 function resumePeriod(){const d=startMonth();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
-function saveResume(){if(products[idx])localStorage.setItem(zebraMoisPlus2Resume,JSON.stringify({operator,period:resumePeriod(),index:idx,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+function saveResume(){
+  if(products[idx]){
+    localStorage.setItem(zebraMoisPlus2Resume,JSON.stringify({
+      operator,
+      period:resumePeriod(),
+      index:idx,
+      code:String(products[idx].r[3]||''),
+      name:String(products[idx].r[2]||''),
+      updatedAt:Date.now()
+    }));
+  }
+}
 function render(){
   const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
   if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
@@ -164,7 +185,7 @@ function render(){
   document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;
   saveResume();
 }
-function choose(c){const r=products[idx].r,stock=Number(r[4])||0,sold=Number(r[6])||0;choice=c;remaining=c==='remaining'?Math.max(1,stock-sold):0;render()}
+function choose(c){const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);choice=c;remaining=c==='remaining'?max:0;render()}
 function change(d){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
 function inputRemain(v){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,Number(v)||1));render()}
 async function updateSold(row,value){
@@ -191,8 +212,7 @@ async function transfer(row){
 }
 async function goNext(){
   if(!choice||!products[idx])return;
-  const r=products[idx].r,row=products[idx].row,code=String(r[3]||'');
-  const currentIndex=idx;
+  const r=products[idx].r,row=products[idx].row;
   const wasSold=choice==='sold';
   document.getElementById('next').disabled=true;message('Enregistrement…');
   try{
@@ -200,26 +220,21 @@ async function goNext(){
     else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
 
     choice=null;remaining=0;
-    // Recharge les produits sans restaurer l'ancienne référence : on va
-    // déterminer explicitement la prochaine référence juste après.
-    await load(false);
+    
+    const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET});
+    const rows=res.result.values||[];products=[];
+    rows.slice(1).forEach((rn,i)=>{
+      const stock=Number(rn[4])||0,oldSold=Number(rn[6])||0;
+      if(target(rn[1])&&stock>oldSold)products.push({r:rn,row:i+2});
+    });
+    products.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);
 
     if(products.length){
-      if(wasSold){
-        // Le produit vient d'être retiré : on reste sur la position suivante.
-        idx=Math.min(currentIndex,products.length-1);
-      }else{
-        // Le produit reste dans la liste : on avance d'une référence.
-        const n=products.findIndex(x=>String(x.r[3]||'')===code);
-        idx=n>=0?Math.min(n+1,products.length-1):Math.min(currentIndex,products.length-1);
-      }
-      // Mémorise LA référence actuellement affichée. Ainsi, après
-      // déconnexion/reconnexion, on revient exactement ici (ex. 3/36).
+      idx = Math.min(idx + 1, products.length - 1);
       saveResume();
       render();
       message('');
     }else{
-      // Tout est terminé pour cette période : aucune reprise à restaurer.
       localStorage.removeItem(zebraMoisPlus2Resume);
       document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';
       document.getElementById('ref').textContent='Référence 0/0';
