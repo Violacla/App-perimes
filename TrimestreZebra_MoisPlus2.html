@@ -21,11 +21,11 @@ header{height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content
 .status{text-align:center;font-size:9px;color:var(--muted);min-height:13px;margin:2px 0 5px}.login{flex:1;display:flex;align-items:center;justify-content:center}.login-card{width:100%;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
 .login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900;cursor:pointer}
 #productZone{display:none;flex:1;min-height:0;flex-direction:column}.card{flex:1;min-height:0;border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 5px 18px rgba(21,61,49,.07);display:flex;flex-direction:column}
-.name{font-size:23px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.line{border-top:2px solid #edf0f2;margin-top:12px}
+.name{font-size:23px;font-weight:900;line-height:1.18;text-transform:uppercase}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.geo{display:block;margin-top:10px;padding:10px 12px;border-radius:14px;background:#e7f5ff;border:2px solid #9ed8ff;color:#1776b5;font-size:17px;font-weight:900;letter-spacing:.4px;text-transform:uppercase}.line{border-top:2px solid #edf0f2;margin-top:12px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.stat{background:#f7f9fa;border-radius:12px;padding:9px;text-align:center}.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}.stat b{display:block;font-size:24px;margin-top:3px}.stat:nth-child(2) b,.stat:nth-child(3) b{color:var(--green)}
 .choices{display:grid;gap:10px;margin-top:13px}.choice{border:2px solid var(--line);border-radius:17px;min-height:72px;padding:11px 14px;display:flex;align-items:center;gap:13px;text-align:left;cursor:pointer;background:#fff}.choice .box{width:31px;height:31px;flex:0 0 31px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;border:3px solid currentColor}.choice .txt{font-size:13px;font-weight:900;line-height:1.15}.choice small{display:block;font-size:10px;margin-top:4px;color:var(--muted);font-weight:500}
 .sold{background:var(--pinkLight);border-color:var(--pinkBorder);color:var(--pink)}.sold.active{background:#ffe0e8;border-color:var(--pink)}.remaining{background:var(--greenLight);border-color:#bde4d0;color:var(--green)}.remaining.active{background:#dff4e9;border-color:var(--green)}
-.step{margin-top:12px}.step-title{text-align:center;font-size:9px;font-weight:800;color:var(--muted);margin-bottom:4px}.stepper{display:flex;gap:8px}.stepper button{width:48px;height:45px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:29px;font-weight:900}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:45px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:22px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
+.step{margin-top:12px}.step-title{text-align:center;font-size:9px;font-weight:800;color:var(--muted);margin-bottom:4px}.stepper{display:flex;gap:8px}.stepper button{width:48px;height:45px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:29px;font-weight:900;cursor:pointer;touch-action:manipulation;pointer-events:auto}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:45px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:22px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
 .calc{margin-top:9px;background:#f7f9fa;border-radius:12px;padding:8px;text-align:center;font-size:10px;font-weight:800}.calc b{font-size:14px;color:var(--green)}
 .next{height:58px;flex:0 0 58px;border:0;border-radius:17px;margin-top:12px;background:var(--green2);color:#fff;font-size:15px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:24px;flex:0 0 24px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
 </style>
@@ -45,6 +45,7 @@ const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const SHEET='Feuille1',HISTORY='Feuille2';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 const OFFSET=2,zebraMoisPlus2Resume='zebraMoisPlus2Resume';
+const KEY_RESUME='zebraMoisPlus2Resume';
 let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
 const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
 
@@ -110,13 +111,15 @@ async function load(){
     document.getElementById('productZone').style.display='flex';
     idx=0;
     const saved=JSON.parse(localStorage.getItem(zebraMoisPlus2Resume)||'null');
-    if(saved&&saved.operator===operator&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
+    if(saved && (saved.operator!==operator || saved.period!==resumePeriod())) localStorage.removeItem(zebraMoisPlus2Resume);
+    if(saved&&saved.operator===operator&&saved.period===resumePeriod()&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
     if(products.length)render();
     else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
     status('Google Sheets connecté.');
   }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
-function saveResume(){if(products[idx])localStorage.setItem(zebraMoisPlus2Resume,JSON.stringify({operator,code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
+function resumePeriod(){const d=startMonth();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function saveResume(){if(products[idx])localStorage.setItem(zebraMoisPlus2Resume,JSON.stringify({operator,period:resumePeriod(),code:String(products[idx].r[3]||''),updatedAt:Date.now()}))}
 function render(){
   const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
   if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
@@ -124,7 +127,7 @@ function render(){
   const rem=choice==='sold'?0:(choice==='remaining'?remaining:max);
   document.getElementById('card').innerHTML=
   `<div class="name">${esc(r[2]||'Produit sans nom')}</div>
-   <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')} · Zone : ${esc(r[5]||'—')}</div>
+   <div class="meta">Date : ${esc(r[1]||'—')} · Code : ${esc(r[3]||'—')}</div><div class="geo">ZONE GÉO : ${esc(r[5]||'—')}</div>
    <div class="line"></div>
    <div class="stats">
      <div class="stat"><span>STOCK INITIAL</span><b>${stock}</b></div>
@@ -175,18 +178,34 @@ async function transfer(row){
 async function goNext(){
   if(!choice||!products[idx])return;
   const r=products[idx].r,row=products[idx].row,code=String(r[3]||'');
+  const currentIndex=idx;
+  const wasSold=choice==='sold';
   document.getElementById('next').disabled=true;message('Enregistrement…');
   try{
-    if(choice==='sold')await transfer(row);
+    if(wasSold)await transfer(row);
     else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
-    localStorage.removeItem(zebraMoisPlus2Resume);
     choice=null;remaining=0;
     await load();
-    const n=products.findIndex(x=>String(x.r[3]||'')===code);
-    idx=n>=0?n:Math.min(idx,Math.max(0,products.length-1));
-    if(products.length){render();message('')}
-    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';document.getElementById('ref').textContent='Référence 0/0';message('');}
-  }catch(e){document.getElementById('next').disabled=false;message('Erreur : '+(e.result?.error?.message||e.message))}
+    if(products.length){
+      if(wasSold){
+        idx=Math.min(currentIndex,products.length-1);
+      }else{
+        const n=products.findIndex(x=>String(x.r[3]||'')===code);
+        idx=n>=0?Math.min(n+1,products.length-1):Math.min(currentIndex,products.length-1);
+      }
+      render();
+      saveResume();
+      message('');
+    }else{
+      localStorage.removeItem(KEY_RESUME);
+      document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';
+      document.getElementById('ref').textContent='Référence 0/0';
+      message('');
+    }
+  }catch(e){
+    document.getElementById('next').disabled=false;
+    message('Erreur : '+(e.result?.error?.message||e.message));
+  }
 }
 
 const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
