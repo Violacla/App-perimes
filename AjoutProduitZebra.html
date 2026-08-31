@@ -8,52 +8,39 @@
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
-:root{--bg:#eaf4fa;--card:rgba(255,255,255,.94);--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--pink-dark:#c77991;--soft-blue:#e5eff9;--soft-pink:#f7e5eb;--border:#cbddea;--shadow:0 7px 20px rgba(62,91,122,.12)}
+:root{--bg:#eaf4fa;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--pink-dark:#c77991;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;--border:#cbddea;--shadow:0 7px 20px rgba(62,91,122,.12)}
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f5fafd 100%);color:var(--text)}
+html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f8edf1 100%);color:var(--text)}
 body{min-height:100dvh;display:flex;justify-content:center}
-.app{width:100%;max-width:430px;min-height:100dvh;padding:8px 10px 12px}
-header{text-align:center;padding:4px 4px 8px}
-.logo{width:58px;height:58px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center}
-.logo img{width:100%;height:100%;object-fit:contain}
-h1{margin:0;font-size:19px;letter-spacing:.2px;color:var(--text)}
-.subtitle{margin:3px 0 0;color:var(--muted);font-size:10px}
-.session{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:10px;color:var(--muted)}
-.session strong{color:var(--blue-dark)}
-.change{border:1px solid var(--border);background:#fff;border-radius:9px;padding:5px 8px;font-size:9px}
-.panel{background:rgba(255,255,255,.88);border:1px solid rgba(203,221,234,.9);border-radius:16px;padding:10px;box-shadow:var(--shadow);margin-bottom:7px}
-.panel-title{font-size:13px;font-weight:700;color:var(--blue-dark);text-align:center;margin-bottom:5px}
-.google{width:100%;height:43px;border:0;border-radius:11px;background:var(--blue-dark);color:#fff;font-size:12px;font-weight:800}
-.google:disabled{opacity:.45}
-.scan-box{background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));border:1px solid var(--border);border-radius:14px;padding:8px}
-.scan-title{font-size:10px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:4px}
-#code{width:100%;height:48px;border:2px solid var(--blue);border-radius:9px;background:#fff;text-align:center;font-size:21px;font-weight:800;letter-spacing:1px}
-.row{display:flex;gap:6px;margin-top:6px}
-.field{flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px}
+.app{width:100%;max-width:430px;min-height:100dvh;padding:6px 9px 10px}
+header{text-align:center;padding:2px 4px 6px}
+.logo{width:48px;height:48px;margin:0 auto 3px}.logo img{width:100%;height:100%;object-fit:contain}
+h1{margin:0;font-size:18px;color:var(--text)}.subtitle{margin:2px 0 0;font-size:9px;color:var(--muted)}
+.session{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:9px;color:var(--muted)}
+.session strong{color:var(--blue-dark)}.change{border:1px solid var(--border);background:#fff;border-radius:8px;padding:4px 7px;font-size:8px;color:var(--blue-dark)}
+.panel{background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:15px;padding:8px;box-shadow:var(--shadow);margin-bottom:6px}
+.panel-title{font-size:12px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:5px}
+.google{width:100%;height:41px;border:0;border-radius:10px;background:var(--blue-dark);color:#fff;font-size:12px;font-weight:800}
+.scan-box{background:linear-gradient(135deg,var(--blue-soft),var(--pink-soft));border:1px solid var(--border);border-radius:13px;padding:7px}
+.scan-title{font-size:9px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:3px}
+#code{width:100%;height:45px;border:2px solid var(--blue);border-radius:9px;background:#fff;text-align:center;font-size:20px;font-weight:800;letter-spacing:1px}
+.product-card{background:linear-gradient(135deg,#fff,var(--pink-soft));border:1px solid #e6cbd4;border-radius:13px;padding:7px;margin-top:5px}
+.product-label{font-size:8px;font-weight:800;color:var(--pink-dark);margin-bottom:2px}.product-name{font-size:16px;font-weight:800;color:var(--blue-dark);min-height:19px}
+.row{display:flex;gap:6px;margin-top:5px}.field{flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px}
 .field-label{font-size:8px;font-weight:800;color:var(--muted);margin-bottom:3px}
-input{width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 7px;background:#fff;color:var(--text);font-size:13px}
-input:focus{outline:2px solid rgba(217,154,174,.35)}
-.qty-control{display:flex;align-items:center;gap:3px}
-.qty-btn{width:34px;height:36px;border:0;border-radius:7px;background:var(--soft-blue);color:var(--blue-dark);font-size:21px;font-weight:800}
-#qty{text-align:center;font-weight:800}
-.product-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px;margin-top:6px;box-shadow:var(--shadow)}
-.product-name{font-size:16px;font-weight:800;color:var(--blue-dark);min-height:19px}
-.product-zone{font-size:10px;font-weight:700;margin-top:3px;color:var(--muted)}
-.product-zone span{color:var(--pink-dark)}
-.zone-wrap{position:relative}
-.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:50;background:#fff;border:1px solid var(--border);border-radius:8px;list-style:none;margin:2px 0 0;padding:0;max-height:120px;overflow-y:auto}
-.autocomplete-list li{padding:7px 8px;font-size:12px;color:#26384d}
-.autocomplete-list li.active,.autocomplete-list li:hover{background:var(--soft-pink);color:var(--pink-dark)}
-.save{width:100%;height:46px;margin-top:7px;border:0;border-radius:11px;background:var(--pink);color:#fff;font-size:14px;font-weight:900}
-.save:disabled{opacity:.4}
-.status{min-height:15px;margin:4px 0;text-align:center;font-size:9px;font-weight:700;color:var(--blue-dark)}
-.back-link{display:block;text-align:center;color:var(--blue-dark);text-decoration:none;font-size:9px;font-weight:700}
-@media(max-height:650px){.app{padding-top:4px}.logo{width:48px;height:48px;margin-bottom:3px}h1{font-size:17px}.panel{padding:8px}.scan-box{padding:7px}#code{height:43px}.product-card{padding:7px}.save{height:42px}}
+input{width:100%;height:35px;border:1px solid var(--border);border-radius:8px;padding:0 6px;background:#fff;color:var(--text);font-size:13px}
+input:focus{outline:2px solid rgba(217,154,174,.4)}
+.date-control{display:flex;align-items:center;gap:3px}.date-btn{width:31px;height:35px;border:0;border-radius:7px;background:var(--pink-soft);color:var(--pink-dark);font-size:18px;font-weight:800}.date-value{flex:1;text-align:center;font-weight:800;color:var(--blue-dark);font-size:12px}
+.qty-control{display:flex;align-items:center;gap:3px}.qty-btn{width:33px;height:35px;border:0;border-radius:7px;background:var(--blue-soft);color:var(--blue-dark);font-size:20px;font-weight:800}#qty{text-align:center;font-weight:800}
+.zone-wrap{position:relative}.zone-select{height:37px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:8px;background:linear-gradient(90deg,#fff,var(--pink-soft));padding:0 9px;font-size:12px;font-weight:800;color:var(--blue-dark);cursor:pointer}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:50;background:#fff;border:1px solid var(--border);border-radius:8px;list-style:none;margin:2px 0 0;padding:0;max-height:120px;overflow-y:auto}.autocomplete-list li{padding:7px 8px;font-size:11px}.autocomplete-list li.active,.autocomplete-list li:hover{background:var(--pink-soft);color:var(--pink-dark)}
+.save{width:100%;height:44px;margin-top:6px;border:0;border-radius:10px;background:var(--pink);color:#fff;font-size:13px;font-weight:900;box-shadow:var(--shadow)}.save:disabled{opacity:.4}
+.status{min-height:13px;margin:3px 0;text-align:center;font-size:9px;font-weight:700;color:var(--blue-dark)}.back-link{display:block;text-align:center;color:var(--blue-dark);text-decoration:none;font-size:8px;font-weight:700}
+@media(max-height:650px){.app{padding-top:3px}.logo{width:40px;height:40px}h1{font-size:16px}.panel{padding:7px}#code{height:41px}.product-card{padding:6px}.save{height:41px}}
 </style>
 </head>
 <body>
 <div class="app">
-
 <header>
   <div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div>
   <h1>Ajouter un produit</h1>
@@ -71,36 +58,39 @@ input:focus{outline:2px solid rgba(217,154,174,.35)}
 </div>
 
 <div class="panel" id="entry-panel" style="display:none;">
-
   <div class="scan-box">
-    <div class="scan-title">SCAN PRODUIT</div>
-    <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Scannez le CIP">
+    <div class="scan-title">① SCANNER LE CIP</div>
+    <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 derniers chiffres">
   </div>
 
   <div class="product-card">
+    <div class="product-label">② PRODUIT RECONNU</div>
     <div id="product" class="product-name">En attente du scan…</div>
-    <div class="product-zone">Zone : <span id="zone-display">—</span></div>
   </div>
 
-  <div class="row">
-    <div class="field">
-      <div class="field-label">DATE</div>
-      <input id="date" type="text" inputmode="numeric" autocomplete="off" placeholder="MM/YYYY">
+  <div class="field" style="margin-top:5px;">
+    <div class="field-label">③ DATE — MOIS / ANNÉE</div>
+    <div class="date-control">
+      <button type="button" class="date-btn" id="date-prev">‹</button>
+      <div class="date-value" id="date-display">—</div>
+      <button type="button" class="date-btn" id="date-next">›</button>
     </div>
-    <div class="field">
-      <div class="field-label">QUANTITÉ</div>
-      <div class="qty-control">
-        <button type="button" class="qty-btn" id="qty-minus">−</button>
-        <input id="qty" type="number" min="1" value="1">
-        <button type="button" class="qty-btn" id="qty-plus">+</button>
-      </div>
+    <input id="date" type="hidden">
+  </div>
+
+  <div class="field" style="margin-top:5px;">
+    <div class="field-label">④ QUANTITÉ</div>
+    <div class="qty-control">
+      <button type="button" class="qty-btn" id="qty-minus">−</button>
+      <input id="qty" type="number" min="1" value="1">
+      <button type="button" class="qty-btn" id="qty-plus">+</button>
     </div>
   </div>
 
-  <div class="field" style="margin-top:6px;">
-    <div class="field-label">ZONE PRÉ-ENREGISTRÉE</div>
+  <div class="field" style="margin-top:5px;">
+    <div class="field-label">⑤ ZONE</div>
     <div class="zone-wrap">
-      <input id="zone" type="text" autocomplete="off" placeholder="Zone automatique">
+      <input id="zone" type="text" autocomplete="off" placeholder="Choisir la zone">
       <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
     </div>
   </div>
@@ -279,8 +269,24 @@ document.getElementById('qty-plus').onclick=()=>{const q=document.getElementById
 document.getElementById('qty').oninput=validateAdd;
 document.getElementById('date').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,6);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);e.target.value=v;validateAdd();};
 
-function todayMY(){const d=new Date();return String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
-document.getElementById('date').value=todayMY();
+let selectedMonth=new Date().getMonth()+1;
+let selectedYear=new Date().getFullYear();
+const monthNames=['JANV.','FÉVR.','MARS','AVR.','MAI','JUIN','JUIL.','AOÛT','SEPT.','OCT.','NOV.','DÉC.'];
+function renderDate(){
+  const m=String(selectedMonth).padStart(2,'0');
+  document.getElementById('date').value=m+'/'+selectedYear;
+  document.getElementById('date-display').textContent=monthNames[selectedMonth-1]+' '+selectedYear;
+  validateAdd();
+}
+function shiftMonth(delta){
+  selectedMonth+=delta;
+  if(selectedMonth<1){selectedMonth=12;selectedYear--;}
+  if(selectedMonth>12){selectedMonth=1;selectedYear++;}
+  renderDate();
+}
+document.getElementById('date-prev').onclick=()=>shiftMonth(-1);
+document.getElementById('date-next').onclick=()=>shiftMonth(1);
+renderDate();
 
 async function addRowToSheet(){
   if(document.getElementById('btn-add').disabled)return;
