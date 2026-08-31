@@ -25,7 +25,7 @@ h1{margin:0;font-size:18px;color:var(--text)}.subtitle{margin:2px 0 0;font-size:
 .scan-title{font-size:9px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:3px}
 #code{width:100%;height:45px;border:2px solid var(--blue);border-radius:9px;background:#fff;text-align:center;font-size:20px;font-weight:800;letter-spacing:1px}
 .product-card{background:linear-gradient(135deg,#fff,var(--pink-soft));border:1px solid #e6cbd4;border-radius:13px;padding:7px;margin-top:5px}
-.product-label{font-size:8px;font-weight:800;color:var(--pink-dark);margin-bottom:2px}.product-name{font-size:16px;font-weight:800;color:var(--blue-dark);min-height:19px}
+.product-label{font-size:8px;font-weight:800;color:var(--pink-dark);margin-bottom:2px}.product-name{width:100%;height:31px;border:1px solid transparent;border-radius:7px;background:rgba(255,255,255,.72);font-size:16px;font-weight:800;color:var(--blue-dark);padding:0 4px;text-align:center;min-height:19px}.product-name:focus{outline:2px solid rgba(217,154,174,.4);border-color:#e6cbd4}
 .row{display:flex;gap:6px;margin-top:5px}.field{flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px}
 .field-label{font-size:8px;font-weight:800;color:var(--muted);margin-bottom:3px}
 input{width:100%;height:35px;border:1px solid var(--border);border-radius:8px;padding:0 6px;background:#fff;color:var(--text);font-size:13px}
@@ -64,8 +64,12 @@ input:focus{outline:2px solid rgba(217,154,174,.4)}
   </div>
 
   <div class="product-card">
-    <div class="product-label">② PRODUIT RECONNU</div>
-    <div id="product" class="product-name">En attente du scan…</div>
+    <div class="product-label">② PRODUIT</div>
+    <input id="product" class="product-name" type="text" autocomplete="off"
+           placeholder="Nom automatique ou saisir si nouveau CIP">
+    <div id="product-hint" style="font-size:8px;color:var(--muted);margin-top:3px;text-align:center;">
+      Scannez un CIP pour rechercher le produit
+    </div>
   </div>
 
   <div class="field" style="margin-top:5px;">
@@ -99,7 +103,7 @@ input:focus{outline:2px solid rgba(217,154,174,.4)}
 </div>
 
 <pre id="status" class="status"></pre>
-<a href="ZebraPerimés.html" class="back-link">← Retour à l'accueil Zebra</a>
+<a href="ZebraPerimés.html" class="back-link">← Retour à ZebraPérimés</a>
 </div>
 <script>
 const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
@@ -107,7 +111,17 @@ const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const RANGE='Feuille1';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 
-const zones=["aboca","aderma","arko","aromat","avene","bain","bande","bébé","bien etre","bioderma","bi-oil","bonbon","brumes et senteurs","cerave","circulation","clearskin","collagene","coloration","confort","conseil","cooper geo","cosmeto","dentaire","deo","dermato","dexeryl","dietetique","douleurs","durex","enfants","forme","frigo","homeo","hydratis","intime","la roche posay","LRP","la rosee","levres et mains","moustik","noreva","nutergia","nuxe","ongles","oreille","pieds et mains","pileje","poux","ronflement","cheveux","corps","STUP","svr","tisanes","uriage","nature","vichy","yeux","1ersoins","4patte"];
+const zones = [
+  "aboca","aderma","arko","aromat","avene","bain","bande","bébé",
+  "bien etre","bioderma","bi-oil","bonbon","brumes et senteurs","cerave",
+  "circulation","clearskin","collagene","coloration","confort","conseil",
+  "cooper geo","cosmeto","dentaire","deo","dermato","dexeryl","dietetique",
+  "douleurs","durex","enfants","forme","frigo","homeo","hydratis","intime",
+  "la roche posay","LRP","la rosee","levres et mains","moustik",
+  "noreva","nutergia","nuxe","ongles","oreille","pieds et mains","pileje",
+  "poux","ronflement","cheveux","corps","STUP","svr","tisanes","uriage",
+  "nature","vichy","yeux","1ersoins","4patte"
+];
 
 let tokenClient=null,gapiReady=false,gisReady=false,accessToken=null;
 let operatorName=localStorage.getItem('zebraOperator')||null;
@@ -220,7 +234,7 @@ function initZoneAutocomplete(){
 async function findProduct(code){
   productFound=false;
   document.getElementById('btn-add').disabled=true;
-  document.getElementById('product').textContent='Recherche…';
+  document.getElementById('product').value='Recherche…';
   try{
     for(const sheet of ['Feuille1','Feuille2']){
       const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:sheet});
@@ -228,11 +242,12 @@ async function findProduct(code){
       for(let i=1;i<rows.length;i++){
         const sheetCode=formatLast6(rows[i][3]||'');
         if(sheetCode===code){
-          document.getElementById('product').textContent=rows[i][2]||'Produit trouvé';
+          document.getElementById('product').value=rows[i][2]||'';
           const z=zones.find(x=>x.toLowerCase()===String(rows[i][5]||'').trim().toLowerCase())||'';
           document.getElementById('zone').value=z;
           document.getElementById('zone-display').textContent=z||'—';
           productFound=true;
+          document.getElementById('product-hint').textContent='Produit reconnu — nom modifiable si besoin';
           validateAdd();
           setStatus('Produit trouvé ✓');
           document.getElementById('qty').focus();
@@ -241,14 +256,20 @@ async function findProduct(code){
         }
       }
     }
-    document.getElementById('product').textContent='Produit introuvable';
+    document.getElementById('product').value='';
     document.getElementById('zone-display').textContent='—';
     document.getElementById('zone').value='';
-    setStatus('Produit introuvable pour ce CIP.');
+    document.getElementById('product-hint').textContent='Nouveau CIP — saisissez le nom du produit ci-dessus';
+    productFound=true;
+    validateAdd();
+    setStatus('Nouveau CIP : saisissez le nom du produit.');
   }catch(e){
     console.error(e);
-    document.getElementById('product').textContent='Erreur de recherche';
-    setStatus('Erreur Google Sheets : '+(e.result?.error?.message||e.message));
+    document.getElementById('product').value='';
+    document.getElementById('product-hint').textContent='Saisissez le nom du produit si le CIP est nouveau';
+    productFound=true;
+    validateAdd();
+    setStatus('Recherche impossible — vous pouvez saisir le nom manuellement.');
   }
 }
 
@@ -261,11 +282,13 @@ function validateAdd(){
   const q=parseInt(document.getElementById('qty').value,10);
   const d=document.getElementById('date').value.trim();
   const z=zones.find(x=>x.toLowerCase()===document.getElementById('zone').value.trim().toLowerCase());
-  document.getElementById('btn-add').disabled=!(operatorName&&accessToken&&productFound&&q>0&&/^\d{2}\/\d{4}$/.test(d)&&z);
+  const productName=document.getElementById('product').value.trim();
+  document.getElementById('btn-add').disabled=!(operatorName&&accessToken&&/^\d{6}$/.test(document.getElementById('code').value)&&productName&&q>0&&/^\d{2}\/\d{4}$/.test(d)&&z);
 }
 
 document.getElementById('qty-minus').onclick=()=>{const q=document.getElementById('qty');q.value=Math.max(1,(parseInt(q.value)||1)-1);validateAdd();};
 document.getElementById('qty-plus').onclick=()=>{const q=document.getElementById('qty');q.value=(parseInt(q.value)||1)+1;validateAdd();};
+document.getElementById('product').oninput=()=>{productFound=!!document.getElementById('product').value.trim();validateAdd();};
 document.getElementById('qty').oninput=validateAdd;
 document.getElementById('date').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,6);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);e.target.value=v;validateAdd();};
 
@@ -291,7 +314,7 @@ renderDate();
 async function addRowToSheet(){
   if(document.getElementById('btn-add').disabled)return;
   const code=formatLast6(document.getElementById('code').value);
-  const product=document.getElementById('product').textContent.trim();
+  const product=document.getElementById('product').value.trim();
   const date=document.getElementById('date').value.trim();
   const qty=parseInt(document.getElementById('qty').value,10);
   const zone=zones.find(x=>x.toLowerCase()===document.getElementById('zone').value.trim().toLowerCase());
@@ -306,7 +329,8 @@ async function addRowToSheet(){
     await gapi.client.sheets.spreadsheets.values.append({spreadsheetId:SPREADSHEET_ID,range:RANGE,valueInputOption:'USER_ENTERED',resource:{values}});
     setStatus('✓ Produit ajouté');
     document.getElementById('code').value='';
-    document.getElementById('product').textContent='En attente du scan…';
+    document.getElementById('product').value='';
+    document.getElementById('product-hint').textContent='Scannez un CIP pour rechercher le produit';
     document.getElementById('zone').value='';
     document.getElementById('zone-display').textContent='—';
     document.getElementById('qty').value=1;
