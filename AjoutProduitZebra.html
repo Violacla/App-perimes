@@ -8,67 +8,70 @@
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
-:root{--bg:#eaf4fa;--card:rgba(255,255,255,.94);--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--pink-dark:#c77991;--soft-blue:#e5eff9;--soft-pink:#f7e5eb;--green:#bfdbc4;--green2:#86bf8e;--border:#cbddea;--shadow:0 7px 20px rgba(62,91,122,.12)}
+:root{--bg:#eaf4fa;--card:rgba(255,255,255,.94);--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--pink-dark:#c77991;--soft-blue:#e5eff9;--soft-pink:#f7e5eb;--border:#cbddea;--shadow:0 7px 20px rgba(62,91,122,.12)}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f5fafd 100%);color:var(--text)}
-body{display:flex;justify-content:center}
-.app{width:100%;max-width:480px;padding:7px;min-height:100dvh}
-header{background:var(--blue);border:1px solid rgba(91,143,201,.45);border-radius:16px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
-.brand{display:flex;align-items:center;gap:8px}
-.logo{width:36px;height:36px;border-radius:50%;object-fit:cover}
-h1{font-size:17px;margin:0;color:var(--blue-dark)}
-.operator-badge{font-size:11px;font-weight:bold;color:var(--dark)}
-.login,.panel{background:var(--soft);border-radius:10px;padding:9px;margin-top:8px}
-label{display:block;font-size:11px;font-weight:bold;margin:7px 0 4px;color:var(--dark)}
-input{width:100%;height:42px;border:1px solid var(--border);border-radius:9px;padding:0 9px;font-size:15px;background:white;color:var(--text)} input:focus{outline:2px solid rgba(217,154,174,.45)}
-.google,.save{width:100%;height:44px;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
-.google{margin-top:7px;background:var(--blue-dark);color:#fff}
-.save{margin-top:8px;background:var(--pink);color:#fff;font-size:16px}
-.save:disabled{opacity:.45}
-.scan-box{background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));border:1px solid var(--border);border-radius:16px;padding:10px}
-.scan-title{font-size:11px;font-weight:bold;color:var(--dark);margin-bottom:4px;text-align:center}
-#code{height:50px;border:2px solid var(--blue-dark);font-size:22px;font-weight:bold;text-align:center;letter-spacing:1px}
-.product-card{background:white;border:1px solid var(--border);border-radius:10px;padding:8px;margin-top:7px}
-.product-name{font-size:18px;font-weight:bold;color:var(--dark);min-height:22px}
-.product-zone{font-size:12px;font-weight:bold;margin-top:3px}
+body{min-height:100dvh;display:flex;justify-content:center}
+.app{width:100%;max-width:430px;min-height:100dvh;padding:8px 10px 12px}
+header{text-align:center;padding:4px 4px 8px}
+.logo{width:58px;height:58px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center}
+.logo img{width:100%;height:100%;object-fit:contain}
+h1{margin:0;font-size:19px;letter-spacing:.2px;color:var(--text)}
+.subtitle{margin:3px 0 0;color:var(--muted);font-size:10px}
+.session{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:10px;color:var(--muted)}
+.session strong{color:var(--blue-dark)}
+.change{border:1px solid var(--border);background:#fff;border-radius:9px;padding:5px 8px;font-size:9px}
+.panel{background:rgba(255,255,255,.88);border:1px solid rgba(203,221,234,.9);border-radius:16px;padding:10px;box-shadow:var(--shadow);margin-bottom:7px}
+.panel-title{font-size:13px;font-weight:700;color:var(--blue-dark);text-align:center;margin-bottom:5px}
+.google{width:100%;height:43px;border:0;border-radius:11px;background:var(--blue-dark);color:#fff;font-size:12px;font-weight:800}
+.google:disabled{opacity:.45}
+.scan-box{background:linear-gradient(135deg,var(--soft-blue),var(--soft-pink));border:1px solid var(--border);border-radius:14px;padding:8px}
+.scan-title{font-size:10px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:4px}
+#code{width:100%;height:48px;border:2px solid var(--blue);border-radius:9px;background:#fff;text-align:center;font-size:21px;font-weight:800;letter-spacing:1px}
+.row{display:flex;gap:6px;margin-top:6px}
+.field{flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px}
+.field-label{font-size:8px;font-weight:800;color:var(--muted);margin-bottom:3px}
+input{width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 7px;background:#fff;color:var(--text);font-size:13px}
+input:focus{outline:2px solid rgba(217,154,174,.35)}
+.qty-control{display:flex;align-items:center;gap:3px}
+.qty-btn{width:34px;height:36px;border:0;border-radius:7px;background:var(--soft-blue);color:var(--blue-dark);font-size:21px;font-weight:800}
+#qty{text-align:center;font-weight:800}
+.product-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px;margin-top:6px;box-shadow:var(--shadow)}
+.product-name{font-size:16px;font-weight:800;color:var(--blue-dark);min-height:19px}
+.product-zone{font-size:10px;font-weight:700;margin-top:3px;color:var(--muted)}
 .product-zone span{color:var(--pink-dark)}
-.row{display:flex;gap:7px;margin-top:7px}
-.field{flex:1;background:var(--soft);border-radius:9px;padding:7px}
-.field-label{font-size:10px;font-weight:bold;color:var(--dark);margin-bottom:3px}
-.qty-control{display:flex;align-items:center;gap:4px}
-.qty-btn{width:38px;height:38px;border:0;border-radius:7px;background:var(--soft-blue);color:var(--blue-dark);font-size:22px;font-weight:bold}
-#qty{text-align:center;height:38px;font-weight:bold}
 .zone-wrap{position:relative}
-.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:20;background:white;border:1px solid #ccc;border-radius:7px;list-style:none;margin:3px 0 0;padding:0;max-height:140px;overflow-y:auto}
-.autocomplete-list li{padding:8px 9px;color:#000;font-size:13px}
-.autocomplete-list li:hover,.autocomplete-list li.active{background:var(--green2);color:white}
-.status{min-height:17px;text-align:center;font-size:11px;font-weight:bold;color:var(--dark);margin:5px 0}
-.back-link{display:block;text-align:center;margin-top:5px;color:#16416d;text-decoration:none;font-size:11px;font-weight:bold}
-@media(max-height:650px){
- .app{padding:4px}.logo{width:31px;height:31px}h1{font-size:15px}
- #code{height:44px}.product-card{padding:6px}.row{margin-top:5px}
- .save{height:44px}
-}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:50;background:#fff;border:1px solid var(--border);border-radius:8px;list-style:none;margin:2px 0 0;padding:0;max-height:120px;overflow-y:auto}
+.autocomplete-list li{padding:7px 8px;font-size:12px;color:#26384d}
+.autocomplete-list li.active,.autocomplete-list li:hover{background:var(--soft-pink);color:var(--pink-dark)}
+.save{width:100%;height:46px;margin-top:7px;border:0;border-radius:11px;background:var(--pink);color:#fff;font-size:14px;font-weight:900}
+.save:disabled{opacity:.4}
+.status{min-height:15px;margin:4px 0;text-align:center;font-size:9px;font-weight:700;color:var(--blue-dark)}
+.back-link{display:block;text-align:center;color:var(--blue-dark);text-decoration:none;font-size:9px;font-weight:700}
+@media(max-height:650px){.app{padding-top:4px}.logo{width:48px;height:48px;margin-bottom:3px}h1{font-size:17px}.panel{padding:8px}.scan-box{padding:7px}#code{height:43px}.product-card{padding:7px}.save{height:42px}}
 </style>
 </head>
 <body>
 <div class="app">
+
 <header>
-  <div class="brand">
-    <a href="index.html">
-      <img class="logo" src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron">
-    </a>
-    <h1>Mode Zebra</h1>
-  </div>
-  <div id="operator-badge" class="operator-badge"></div>
+  <div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div>
+  <h1>Ajouter un produit</h1>
+  <p class="subtitle">Interface Zebra</p>
 </header>
 
-<div class="login" id="login-panel">
-  <div style="font-size:13px;font-weight:bold;color:#0a2f51;text-align:center;">Connexion à Google Sheets</div>
-  <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()">Se connecter à Google</button>
+<div class="session">
+  <span>Opérateur <strong id="operator-badge">—</strong></span>
+  <button class="change" onclick="location.href='ZebraPerimés.html'">Accueil</button>
+</div>
+
+<div class="panel" id="login-panel">
+  <div class="panel-title">Connexion Google Sheets</div>
+  <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()" disabled>Préparation…</button>
 </div>
 
 <div class="panel" id="entry-panel" style="display:none;">
+
   <div class="scan-box">
     <div class="scan-title">SCAN PRODUIT</div>
     <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Scannez le CIP">
@@ -94,7 +97,7 @@ input{width:100%;height:42px;border:1px solid var(--border);border-radius:9px;pa
     </div>
   </div>
 
-  <div class="field" style="margin-top:7px;">
+  <div class="field" style="margin-top:6px;">
     <div class="field-label">ZONE PRÉ-ENREGISTRÉE</div>
     <div class="zone-wrap">
       <input id="zone" type="text" autocomplete="off" placeholder="Zone automatique">
@@ -106,267 +109,217 @@ input{width:100%;height:42px;border:1px solid var(--border);border-radius:9px;pa
 </div>
 
 <pre id="status" class="status"></pre>
-<a href="index.html" class="back-link">← Accueil</a>
+<a href="ZebraPerimés.html" class="back-link">← Retour à l'accueil Zebra</a>
 </div>
 <script>
-// --- CONFIGURATION API GOOGLE SHEETS ---
-const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-const RANGE = 'Feuille1'; 
-const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+const RANGE='Feuille1';
+const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 
-// Liste identique des zones préenregistrées
-const zones = [
-  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
-  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
-  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
-  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
-  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
-  "la roche posay","LRP", "la rosee", "levres et mains", "moustik",
-  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
-  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
-  "nature", "vichy", "yeux", "1ersoins", "4patte"
-];
+const zones=["aboca","aderma","arko","aromat","avene","bain","bande","bébé","bien etre","bioderma","bi-oil","bonbon","brumes et senteurs","cerave","circulation","clearskin","collagene","coloration","confort","conseil","cooper geo","cosmeto","dentaire","deo","dermato","dexeryl","dietetique","douleurs","durex","enfants","forme","frigo","homeo","hydratis","intime","la roche posay","LRP","la rosee","levres et mains","moustik","noreva","nutergia","nuxe","ongles","oreille","pieds et mains","pileje","poux","ronflement","cheveux","corps","STUP","svr","tisanes","uriage","nature","vichy","yeux","1ersoins","4patte"];
 
-let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
-let pendingOperatorName = null;
+let tokenClient=null,gapiReady=false,gisReady=false,accessToken=null;
+let operatorName=localStorage.getItem('zebraOperator')||null;
+let productFound=false;
 
-window.onload = function() {
-  gapi.load('client', gapiLoaded);
-  gisLoaded();
-  initZoneAutocomplete();
-};
+function setStatus(t){document.getElementById('status').textContent=t||'';}
 
-async function gapiLoaded() {
-  await gapi.client.init({
-    discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
-  });
-  gapiInited = true;
-  maybeEnable();
+function updateOperator(){
+  document.getElementById('operator-badge').textContent=operatorName||'—';
 }
 
-function gisLoaded() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: (tokenResponse) => {
-      accessToken = tokenResponse.access_token;
-      if (pendingOperatorName) {
-        operatorName = pendingOperatorName;
-        document.getElementById('login-panel').style.display = 'none';
-        document.getElementById('entry-panel').style.display = 'block';
-        setStatus(`Connecté en tant que ${operatorName}.`);
-        document.getElementById('code').focus();
-      } else {
-        setStatus('Erreur : Nom d\'opérateur non trouvé.');
-      }
-      pendingOperatorName = null;
-    },
-  });
-  gisInited = true;
-  maybeEnable();
+function formatLast6(v){
+  return String(v||'').replace(/\D/g,'').slice(-6);
 }
 
-function maybeEnable() {
-  if (gapiInited && gisInited) {
-    document.getElementById('btn-login').focus();
-    setStatus('Veuillez entrer votre nom d\'opérateur.');
-  }
-}
-
-function setStatus(msg) {
-  document.getElementById('status').textContent = msg;
-}
-
-async function initiateGoogleAndOperatorLogin() {
-  if (!gapiInited || !gisInited || !tokenClient) {
-    setStatus('Google n’est pas encore prêt. Patientez une seconde.');
-    return;
-  }
-
-  // L'opérateur a déjà été choisi sur ZebraPerimés.html.
-  operatorName = localStorage.getItem('zebraOperator') || operatorName;
-  if (!operatorName) {
-    setStatus('Aucun opérateur sélectionné. Retournez à ZebraPerimés.');
-    return;
-  }
-
-  pendingOperatorName = operatorName;
-  setStatus('Connexion Google en cours…');
-
-  try {
-    tokenClient.requestAccessToken({prompt: ''});
-  } catch (error) {
-    console.error('Erreur Google:', error);
-    pendingOperatorName = null;
-    setStatus('Erreur de connexion Google. Réessayez.');
-  }
-}
-
-// Interface Zebra compacte
-function updateOperatorBadge(){
-  const el=document.getElementById('operator-badge');
-  if(el && operatorName) el.textContent='👤 '+operatorName;
-}
-\n// --- GESTION AUTOCOMPLÉTION DES ZONES ---
-function initZoneAutocomplete() {
-  const input = document.getElementById('zone');
-  const list = document.getElementById('zone-suggestions');
-  let currentFocus = -1;
-
-  input.addEventListener('input', function () {
-    const val = this.value.toLowerCase();
-    list.innerHTML = '';
-    currentFocus = -1;
-    if (val.length < 1) {
-      list.style.display = 'none';
-      return;
-    }
-
-    const matches = zones.filter(z => z.toLowerCase().includes(val));
-    if (matches.length === 0) {
-      list.style.display = 'none';
-      return;
-    }
-
-    matches.forEach((zone) => {
-      const li = document.createElement('li');
-      li.textContent = zone;
-      li.addEventListener('click', () => {
-        input.value = zone;
-        list.innerHTML = '';
-        list.style.display = 'none';
+function waitForGoogle(){
+  let tries=0;
+  const timer=setInterval(()=>{
+    if(window.gapi && !gapiReady){
+      gapi.load('client',async()=>{
+        try{
+          await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
+          gapiReady=true; maybeReady();
+        }catch(e){setStatus('Impossible de charger Google Sheets.');}
       });
+    }
+    if(window.google?.accounts?.oauth2 && !gisReady){
+      try{
+        tokenClient=google.accounts.oauth2.initTokenClient({
+          client_id:CLIENT_ID,
+          scope:SCOPES,
+          callback:(resp)=>{
+            if(!resp || !resp.access_token){
+              setStatus('Connexion Google annulée.');
+              return;
+            }
+            accessToken=resp.access_token;
+            operatorName=localStorage.getItem('zebraOperator')||operatorName||'—';
+            updateOperator();
+            document.getElementById('login-panel').style.display='none';
+            document.getElementById('entry-panel').style.display='block';
+            setStatus('✓ Google Sheets connecté.');
+            setTimeout(()=>document.getElementById('code').focus(),100);
+          }
+        });
+        gisReady=true; maybeReady();
+      }catch(e){setStatus('Erreur Google Identity : '+e.message);}
+    }
+    tries++;
+    if(gapiReady&&gisReady){clearInterval(timer);}
+    if(tries>150&&!gapiReady){clearInterval(timer);setStatus('Google Sheets n’a pas pu être chargé. Vérifiez Internet.');}
+  },100);
+}
+
+function maybeReady(){
+  if(gapiReady&&gisReady){
+    const b=document.getElementById('btn-login');
+    b.disabled=false;
+    b.textContent='Se connecter à Google';
+    updateOperator();
+    if(!operatorName) setStatus('Retournez à ZebraPérimés pour choisir l’opérateur.');
+    else setStatus('Google Sheets prêt.');
+  }
+}
+
+function initiateGoogleAndOperatorLogin(){
+  operatorName=localStorage.getItem('zebraOperator')||operatorName;
+  if(!operatorName){
+    setStatus('Aucun opérateur sélectionné. Retournez à ZebraPérimés.');
+    return;
+  }
+  if(!tokenClient||!gisReady){
+    setStatus('Google n’est pas encore prêt…');
+    return;
+  }
+  setStatus('Ouverture de la connexion Google…');
+  try{
+    tokenClient.requestAccessToken({prompt:''});
+  }catch(e){
+    console.error(e);
+    setStatus('Erreur de connexion Google : '+e.message);
+  }
+}
+
+function initZoneAutocomplete(){
+  const input=document.getElementById('zone'),list=document.getElementById('zone-suggestions');
+  let currentFocus=-1;
+  input.addEventListener('input',()=>{
+    const val=input.value.toLowerCase().trim();
+    list.innerHTML='';currentFocus=-1;
+    if(!val){list.style.display='none';return;}
+    zones.filter(z=>z.toLowerCase().includes(val)).forEach(z=>{
+      const li=document.createElement('li');li.textContent=z;
+      li.onclick=()=>{input.value=z;document.getElementById('zone-display').textContent=z;list.style.display='none';validateAdd();};
       list.appendChild(li);
     });
-
-    const rect = input.getBoundingClientRect();
-    const panelRect = input.closest('.panel').getBoundingClientRect();
-    list.style.top = (rect.bottom - panelRect.top) + 'px';
-    list.style.left = (rect.left - panelRect.left) + 'px';
-    list.style.width = input.offsetWidth + 'px';
-    list.style.display = 'block';
+    list.style.display=list.children.length?'block':'none';
   });
-
-  input.addEventListener('keydown', function (e) {
-    const items = list.querySelectorAll("li");
-    if (!items.length) return;
-
-    if (e.key === "ArrowDown") {
-      currentFocus++;
-      if (currentFocus >= items.length) currentFocus = 0;
-      updateActive(items);
-      e.preventDefault();
-    } else if (e.key === "ArrowUp") {
-      currentFocus--;
-      if (currentFocus < 0) currentFocus = items.length - 1;
-      updateActive(items);
-      e.preventDefault();
-    } else if (e.key === "Enter") {
-      if (currentFocus > -1 && items[currentFocus]) {
-        e.preventDefault();
-        items[currentFocus].click();
-      }
-    }
+  input.addEventListener('keydown',e=>{
+    const items=list.querySelectorAll('li');if(!items.length)return;
+    if(e.key==='ArrowDown'){currentFocus=(currentFocus+1)%items.length;}
+    else if(e.key==='ArrowUp'){currentFocus=(currentFocus-1+items.length)%items.length;}
+    else if(e.key==='Enter'&&currentFocus>=0){e.preventDefault();items[currentFocus].click();return;}
+    else return;
+    items.forEach(x=>x.classList.remove('active'));items[currentFocus].classList.add('active');e.preventDefault();
   });
-
-  function updateActive(items) {
-    items.forEach(i => i.classList.remove("active"));
-    if (items[currentFocus]) {
-      items[currentFocus].classList.add("active");
-      items[currentFocus].scrollIntoView({ block: "nearest" });
-    }
-  }
-
-  document.addEventListener('click', function (e) {
-    if (!input.contains(e.target) && !list.contains(e.target)) {
-      list.style.display = 'none';
-    }
-  });
+  document.addEventListener('click',e=>{if(!input.contains(e.target)&&!list.contains(e.target))list.style.display='none';});
 }
 
-// --- RECHERCHE AUTOMATIQUE DU PRODUIT PAR CODE ---
-document.getElementById('code').addEventListener('input', async function() {
-  const codeVal = this.value.replace(/\D/g, '').slice(-6);
-
-  try {
-    const sheets = ['Feuille1', 'Feuille2'];
-    for (let sheet of sheets) {
-      const res = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: sheet
-      });
-
-      const rows = res.result.values || [];
-      for (let i = 1; i < rows.length; i++) {
-        const sheetCodeFormatted = String(rows[i][3] || '').padStart(6, '0');
-        if (sheetCodeFormatted === codeVal) {
-          document.getElementById('product').value = rows[i][2] || '';
-          document.getElementById('zone').value = rows[i][5] || '';
+async function findProduct(code){
+  productFound=false;
+  document.getElementById('btn-add').disabled=true;
+  document.getElementById('product').textContent='Recherche…';
+  try{
+    for(const sheet of ['Feuille1','Feuille2']){
+      const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:sheet});
+      const rows=res.result.values||[];
+      for(let i=1;i<rows.length;i++){
+        const sheetCode=formatLast6(rows[i][3]||'');
+        if(sheetCode===code){
+          document.getElementById('product').textContent=rows[i][2]||'Produit trouvé';
+          const z=zones.find(x=>x.toLowerCase()===String(rows[i][5]||'').trim().toLowerCase())||'';
+          document.getElementById('zone').value=z;
+          document.getElementById('zone-display').textContent=z||'—';
+          productFound=true;
+          validateAdd();
+          setStatus('Produit trouvé ✓');
+          document.getElementById('qty').focus();
+          document.getElementById('qty').select();
           return;
         }
       }
     }
-  } catch (e) {
-    console.error("Erreur recherche produit :", e);
-  }
-});
-
-// --- AJOUT DE LA LIGNE DANS LE GOOGLE SHEET ---
-async function addRowToSheet() {
-  const code = document.getElementById('code').value.trim();
-  const product = document.getElementById('product').value.trim();
-  const date = document.getElementById('date').value.trim();
-  const qty = document.getElementById('qty').value.trim();
-  const zone = document.getElementById('zone').value.trim();
-
-  if (!code || !product || !date || !qty || !zone) {
-    alert("Veuillez remplir tous les champs.");
-    return;
-  }
-
-  if (!zones.includes(zone.toLowerCase())) {
-    alert("Veuillez choisir une zone valide existante dans la liste.");
-    return;
-  }
-
-  const now = new Date();
-  const ajoutVal = now.toLocaleString('fr-FR');
-
-  const newRow = [
-    operatorName, 
-    date, 
-    product, 
-    code, 
-    Number(qty), 
-    zone, 
-    "",  
-    0,   
-    ajoutVal   
-  ];
-
-  try {
-    setStatus("Ajout en cours...");
-    await gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE + '!A:I',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [newRow] }
-    });
-
-    setStatus("✓ Ligne ajoutée avec succès !");
-    
-    document.getElementById('code').value = '';
-    document.getElementById('product').value = '';
-    document.getElementById('date').value = '';
-    document.getElementById('qty').value = '';
-    document.getElementById('zone').value = '';
-    document.getElementById('code').focus();
-
-  } catch (e) {
-    setStatus("Erreur lors de l'ajout : " + e.message);
+    document.getElementById('product').textContent='Produit introuvable';
+    document.getElementById('zone-display').textContent='—';
+    document.getElementById('zone').value='';
+    setStatus('Produit introuvable pour ce CIP.');
+  }catch(e){
+    console.error(e);
+    document.getElementById('product').textContent='Erreur de recherche';
+    setStatus('Erreur Google Sheets : '+(e.result?.error?.message||e.message));
   }
 }
+
+const codeInput=document.getElementById('code');
+codeInput.addEventListener('input',()=>{setTimeout(()=>{const c=formatLast6(codeInput.value);codeInput.value=c;if(c.length===6&&accessToken)findProduct(c);},0);});
+codeInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const c=formatLast6(codeInput.value);codeInput.value=c;if(c.length===6&&accessToken)findProduct(c);}});
+codeInput.addEventListener('blur',()=>{const c=formatLast6(codeInput.value);codeInput.value=c;if(c.length===6&&accessToken)findProduct(c);});
+
+function validateAdd(){
+  const q=parseInt(document.getElementById('qty').value,10);
+  const d=document.getElementById('date').value.trim();
+  const z=zones.find(x=>x.toLowerCase()===document.getElementById('zone').value.trim().toLowerCase());
+  document.getElementById('btn-add').disabled=!(operatorName&&accessToken&&productFound&&q>0&&/^\d{2}\/\d{4}$/.test(d)&&z);
+}
+
+document.getElementById('qty-minus').onclick=()=>{const q=document.getElementById('qty');q.value=Math.max(1,(parseInt(q.value)||1)-1);validateAdd();};
+document.getElementById('qty-plus').onclick=()=>{const q=document.getElementById('qty');q.value=(parseInt(q.value)||1)+1;validateAdd();};
+document.getElementById('qty').oninput=validateAdd;
+document.getElementById('date').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,6);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);e.target.value=v;validateAdd();};
+
+function todayMY(){const d=new Date();return String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();}
+document.getElementById('date').value=todayMY();
+
+async function addRowToSheet(){
+  if(document.getElementById('btn-add').disabled)return;
+  const code=formatLast6(document.getElementById('code').value);
+  const product=document.getElementById('product').textContent.trim();
+  const date=document.getElementById('date').value.trim();
+  const qty=parseInt(document.getElementById('qty').value,10);
+  const zone=zones.find(x=>x.toLowerCase()===document.getElementById('zone').value.trim().toLowerCase());
+  if(!/^\d{6}$/.test(code)||!product||!zone||qty<1||!/^\d{2}\/\d{4}$/.test(date)){setStatus('Vérifiez les informations.');return;}
+  const [m,y]=date.split('/');
+  const lastDay=new Date(Number(y),Number(m),0).getDate();
+  const dateVal=`${y}-${m}-${lastDay}`;
+  const now=new Date().toLocaleString('fr-FR');
+  const values=[[operatorName,dateVal,product,code,qty,zone,'',0,now]];
+  const btn=document.getElementById('btn-add');btn.disabled=true;btn.textContent='AJOUT…';
+  try{
+    await gapi.client.sheets.spreadsheets.values.append({spreadsheetId:SPREADSHEET_ID,range:RANGE,valueInputOption:'USER_ENTERED',resource:{values}});
+    setStatus('✓ Produit ajouté');
+    document.getElementById('code').value='';
+    document.getElementById('product').textContent='En attente du scan…';
+    document.getElementById('zone').value='';
+    document.getElementById('zone-display').textContent='—';
+    document.getElementById('qty').value=1;
+    document.getElementById('date').value=todayMY();
+    productFound=false;
+    btn.textContent='AJOUTER';btn.disabled=true;
+    setTimeout(()=>document.getElementById('code').focus(),80);
+  }catch(e){
+    console.error(e);
+    btn.disabled=false;btn.textContent='AJOUTER';
+    setStatus('Erreur Google Sheets : '+(e.result?.error?.message||e.message));
+  }
+}
+
+window.addEventListener('load',()=>{
+  updateOperator();
+  initZoneAutocomplete();
+  waitForGoogle();
+});
 </script>
 </body>
 </html>
