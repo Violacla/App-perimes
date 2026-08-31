@@ -13,7 +13,7 @@
 html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f5fafd 100%);color:var(--text)}
 body{display:flex;justify-content:center}
 .app{width:100%;max-width:480px;padding:7px;min-height:100dvh}
-header{background:rgba(255,255,255,.78);border:1px solid rgba(203,221,234,.9);border-radius:16px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+header{background:var(--blue);border:1px solid rgba(91,143,201,.45);border-radius:16px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
 .brand{display:flex;align-items:center;gap:8px}
 .logo{width:36px;height:36px;border-radius:50%;object-fit:cover}
 h1{font-size:17px;margin:0;color:var(--blue-dark)}
@@ -169,7 +169,7 @@ function gisLoaded() {
 
 function maybeEnable() {
   if (gapiInited && gisInited) {
-    document.getElementById('operator').focus();
+    document.getElementById('btn-login').focus();
     setStatus('Veuillez entrer votre nom d\'opérateur.');
   }
 }
@@ -179,19 +179,27 @@ function setStatus(msg) {
 }
 
 async function initiateGoogleAndOperatorLogin() {
-  const op = document.getElementById('operator').value.trim();
-  if (!op) {
-    alert("Veuillez entrer un nom d'opérateur.");
+  if (!gapiInited || !gisInited || !tokenClient) {
+    setStatus('Google n’est pas encore prêt. Patientez une seconde.');
     return;
   }
-  pendingOperatorName = op;
+
+  // L'opérateur a déjà été choisi sur ZebraPerimés.html.
+  operatorName = localStorage.getItem('zebraOperator') || operatorName;
+  if (!operatorName) {
+    setStatus('Aucun opérateur sélectionné. Retournez à ZebraPerimés.');
+    return;
+  }
+
+  pendingOperatorName = operatorName;
+  setStatus('Connexion Google en cours…');
+
   try {
-    await tokenClient.requestAccessToken();
-    setStatus('Connexion Google en cours...');
+    tokenClient.requestAccessToken({prompt: ''});
   } catch (error) {
-    console.error("Erreur connexion:", error);
-    setStatus("Erreur de connexion Google.");
+    console.error('Erreur Google:', error);
     pendingOperatorName = null;
+    setStatus('Erreur de connexion Google. Réessayez.');
   }
 }
 
