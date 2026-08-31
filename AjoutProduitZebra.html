@@ -17,15 +17,40 @@ h1{margin:0;font-size:18px;color:#163f5b}
 .google, .save {width:100%;min-height:44px;border:0;border-radius:13px;font-weight:800;cursor:pointer;margin-bottom:9px}
 .google{background:#0a2f51;color:#bcd7ed}
 .google:disabled{opacity:.45;cursor:not-allowed}
-.panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:15px;box-shadow:var(--shadow)}
+.panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:15px;box-shadow:var(--shadow);position:relative}
 label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px;color:#0a2f51}
-input{width:100%;height:44px;border:1px solid var(--border);border-radius:11px;padding:0 11px;font-size:14px;background:#e1f4e4;color:var(--text)}
-input:focus{outline:2px solid #86bf8e}
+input, select{width:100%;height:44px;border:1px solid var(--border);border-radius:11px;padding:0 11px;font-size:14px;background:#e1f4e4;color:var(--text)}
+input:focus, select:focus{outline:2px solid #86bf8e}
 .save{background:#bfdbc4;color:black;margin-top:15px;margin-bottom:0}
 .save:hover{background:#86bf8e;color:white}
 .status{font-size:12px;font-weight:bold;color:#0a2f51;text-align:center;min-height:17px;margin:7px 0}
 .back-link{display:block;text-align:center;margin-top:15px;color:#16416d;text-decoration:none;font-weight:bold;font-size:12px}
 .back-link:hover{text-decoration:underline}
+
+/* Style des suggestions de zones (identique à Index) */
+.autocomplete-list {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  width: calc(100% - 30px);
+  z-index: 999;
+}
+.autocomplete-list li {
+  padding: 8px 10px;
+  cursor: pointer;
+  color: black;
+}
+.autocomplete-list li:hover,
+.autocomplete-list li.active {
+  background-color: #86bf8e;
+  color: white;
+}
 </style>
 </head>
 <body>
@@ -56,7 +81,8 @@ input:focus{outline:2px solid #86bf8e}
     <input type="number" id="qty" min="0" placeholder="Quantité" autocomplete="off">
 
     <label for="zone">Zone</label>
-    <input type="text" id="zone" placeholder="Zone de stockage" autocomplete="off">
+    <input type="text" id="zone" placeholder="Zone" autocomplete="off">
+    <ul class="autocomplete-list" id="zone-suggestions" style="display: none;"></ul>
 
     <button class="save" id="btn-add" onclick="addRowToSheet()">Ajouter la ligne</button>
   </div>
@@ -66,19 +92,32 @@ input:focus{outline:2px solid #86bf8e}
 </div>
 
 <script>
-// --- CONFIGURATION API GOOGLE SHEETS (Identique à index) ---
+// --- CONFIGURATION API GOOGLE SHEETS ---
 const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
 const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const RANGE = 'Feuille1'; 
 const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
+// Liste identique des zones préenregistrées
+const zones = [
+  "aboca", "aderma", "arko", "aromat", "avene", "bain", "bande", "bébé",
+  "bien etre", "bioderma", "bi-oil", "bonbon", "brumes et senteurs", "cerave",
+  "circulation", "clearskin", "collagene", "coloration", "confort", "conseil",
+  "cooper geo", "cosmeto", "dentaire", "deo", "dermato", "dexeryl", "dietetique",
+  "douleurs", "durex", "enfants", "forme", "frigo", "homeo", "hydratis", "intime",
+  "la roche posay","LRP", "la rosee", "levres et mains", "moustik",
+  "noreva", "nutergia", "nuxe", "ongles", "oreille", "pieds et mains", "pileje",
+  "poux", "ronflement", "cheveux", "corps", "STUP", "svr", "tisanes", "uriage",
+  "nature", "vichy", "yeux", "1ersoins", "4patte"
+];
+
 let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
 let pendingOperatorName = null;
 
-// Chargement Google API
 window.onload = function() {
   gapi.load('client', gapiLoaded);
   gisLoaded();
+  initZoneAutocomplete();
 };
 
 async function gapiLoaded() {
@@ -122,7 +161,6 @@ function setStatus(msg) {
   document.getElementById('status').textContent = msg;
 }
 
-// Lancement connexion Google
 async function initiateGoogleAndOperatorLogin() {
   const op = document.getElementById('operator').value.trim();
   if (!op) {
@@ -140,7 +178,84 @@ async function initiateGoogleAndOperatorLogin() {
   }
 }
 
-// --- RECHERCHE AUTOMATIQUE DU PRODUIT PAR CODE (Comme dans index) ---
+// --- GESTION AUTOCOMPLÉTION DES ZONES ---
+function initZoneAutocomplete() {
+  const input = document.getElementById('zone');
+  const list = document.getElementById('zone-suggestions');
+  let currentFocus = -1;
+
+  input.addEventListener('input', function () {
+    const val = this.value.toLowerCase();
+    list.innerHTML = '';
+    currentFocus = -1;
+    if (val.length < 1) {
+      list.style.display = 'none';
+      return;
+    }
+
+    const matches = zones.filter(z => z.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      list.style.display = 'none';
+      return;
+    }
+
+    matches.forEach((zone) => {
+      const li = document.createElement('li');
+      li.textContent = zone;
+      li.addEventListener('click', () => {
+        input.value = zone;
+        list.innerHTML = '';
+        list.style.display = 'none';
+      });
+      list.appendChild(li);
+    });
+
+    const rect = input.getBoundingClientRect();
+    const panelRect = input.closest('.panel').getBoundingClientRect();
+    list.style.top = (rect.bottom - panelRect.top) + 'px';
+    list.style.left = (rect.left - panelRect.left) + 'px';
+    list.style.width = input.offsetWidth + 'px';
+    list.style.display = 'block';
+  });
+
+  input.addEventListener('keydown', function (e) {
+    const items = list.querySelectorAll("li");
+    if (!items.length) return;
+
+    if (e.key === "ArrowDown") {
+      currentFocus++;
+      if (currentFocus >= items.length) currentFocus = 0;
+      updateActive(items);
+      e.preventDefault();
+    } else if (e.key === "ArrowUp") {
+      currentFocus--;
+      if (currentFocus < 0) currentFocus = items.length - 1;
+      updateActive(items);
+      e.preventDefault();
+    } else if (e.key === "Enter") {
+      if (currentFocus > -1 && items[currentFocus]) {
+        e.preventDefault();
+        items[currentFocus].click();
+      }
+    }
+  });
+
+  function updateActive(items) {
+    items.forEach(i => i.classList.remove("active"));
+    if (items[currentFocus]) {
+      items[currentFocus].classList.add("active");
+      items[currentFocus].scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!input.contains(e.target) && !list.contains(e.target)) {
+      list.style.display = 'none';
+    }
+  });
+}
+
+// --- RECHERCHE AUTOMATIQUE DU PRODUIT PAR CODE ---
 document.getElementById('code').addEventListener('input', async function() {
   const codeVal = this.value.trim();
   if (!/^\d{6}$/.test(codeVal)) return;
@@ -181,7 +296,14 @@ async function addRowToSheet() {
     return;
   }
 
-  // Format des colonnes : [Opérateur, Date, Produit, Code, Qté, Zone, VenduesTotales, Vendues, Promo]
+  if (!zones.includes(zone.toLowerCase())) {
+    alert("Veuillez choisir une zone valide existante dans la liste.");
+    return;
+  }
+
+  const now = new Date();
+  const ajoutVal = now.toLocaleString('fr-FR');
+
   const newRow = [
     operatorName, 
     date, 
@@ -189,9 +311,9 @@ async function addRowToSheet() {
     code, 
     Number(qty), 
     zone, 
-    "",  // Vendues totalement (case cochée ou non plus tard)
-    0,   // Vendues
-    ""   // Promo
+    "",  
+    0,   
+    ajoutVal   
   ];
 
   try {
@@ -205,7 +327,6 @@ async function addRowToSheet() {
 
     setStatus("✓ Ligne ajoutée avec succès !");
     
-    // Réinitialisation des champs pour le prochain scan Zebra
     document.getElementById('code').value = '';
     document.getElementById('product').value = '';
     document.getElementById('date').value = '';
