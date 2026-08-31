@@ -4,351 +4,219 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#bcd7ed">
-<title>Ajouter un produit Zebra</title>
+<title>Ajouter un produit Zebra - Pharmacie du Libron</title>
+<script async defer src="https://accounts.google.com/gsi/client"></script>
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--text:#26384d;--muted:#718096;--blue:#bcd7ed;--blue-dark:#3972ad;--pink:#e45b7a;--pink-light:#fff0f4;--green:#16834f;--green-light:#edf9f3;--border:#d5e0ec;--shadow:0 5px 18px rgba(62,91,122,.12)}
+:root{--bg:#f4f7fb;--card:#fff;--text:#26384d;--muted:#718096;--blue:#bcd7ed;--blue-dark:#3972ad;--green:#16834f;--green-light:#edf9f3;--border:#d5e0ec;--shadow:0 5px 18px rgba(62,91,122,.12)}
 *{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
 body{display:flex;justify-content:center}.app{width:100%;max-width:520px;min-height:100dvh;padding:12px}
 header{background:var(--blue);border-radius:16px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.brand{display:flex;align-items:center;gap:12px}.logo{width:56px;height:56px;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:28px}h1{margin:0;font-size:20px;color:#153d31}.sub{font-size:11px;color:var(--muted);margin-top:5px}
-.operator{text-align:right;font-size:10px;color:var(--muted)}.operator strong{display:block;font-size:28px;color:var(--text)}
-.back,.google,.save{width:100%;min-height:44px;border:0;border-radius:13px;font-weight:800;cursor:pointer;margin-bottom:9px}
-.back{background:#fff;border:1px solid var(--border);color:var(--text)}.google{background:var(--blue-dark);color:#fff}.google:disabled{opacity:.45;cursor:not-allowed}
-.panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:15px;box-shadow:var(--shadow)}label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px}input{width:100%;height:44px;border:1px solid var(--border);border-radius:11px;padding:0 11px;font-size:14px;background:#fff;color:var(--text)}input:focus{outline:2px solid #c7ddec}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.scanrow{display:grid;grid-template-columns:1fr 92px;gap:8px}.scan{border:0;border-radius:11px;background:var(--pink);color:#fff;font-weight:800;cursor:pointer}
-.save{background:var(--green);color:#fff;margin-top:15px;margin-bottom:0}.status{font-size:11px;color:var(--muted);text-align:center;min-height:17px;margin:7px 0}.hint{font-size:10px;color:var(--muted);line-height:1.45;background:#f7f9fb;border-radius:11px;padding:9px;margin-top:10px}
-
-.tableBtn{width:100%;min-height:44px;border:1px solid var(--border);border-radius:13px;background:#fff;color:var(--text);font-weight:800;cursor:pointer;margin-top:10px}
-.overlay{position:fixed;inset:0;background:rgba(21,61,49,.42);display:none;align-items:center;justify-content:center;padding:12px;z-index:50}.overlay.show{display:flex}
-.tableModal{width:100%;max-width:620px;max-height:92dvh;overflow:auto;background:#fff;border-radius:22px;padding:18px;position:relative;box-shadow:0 16px 45px rgba(0,0,0,.25)}
-.closeTable{position:absolute;right:12px;top:10px;width:36px;height:36px;border:0;border-radius:50%;background:#f0f3f5;font-size:23px;cursor:pointer}
-.tableModal h2{margin:0 45px 5px 0;font-size:19px}.tableHint{font-size:10px;color:var(--muted);line-height:1.4;margin:0 0 8px}
-.tableStatus{font-size:10px;color:var(--muted);min-height:16px;margin-bottom:8px}
-.sheetTable{overflow-x:auto}.sheetTable table{border-collapse:collapse;width:100%;font-size:10px;min-width:720px}.sheetTable th{background:var(--blue);padding:7px;text-align:left}.sheetTable td{border-bottom:1px solid var(--border);padding:5px;vertical-align:top}.sheetTable input{height:34px;min-width:80px;font-size:10px;padding:0 6px}
-.rowBtn{border:0;border-radius:8px;padding:7px 8px;font-size:9px;font-weight:800;cursor:pointer;margin:2px}.saveRow{background:var(--green);color:#fff}.deleteRow{background:var(--pink);color:#fff}
-
+.brand{display:flex;align-items:center;gap:12px}
+h1{margin:0;font-size:18px;color:#163f5b}
+.google, .save {width:100%;min-height:44px;border:0;border-radius:13px;font-weight:800;cursor:pointer;margin-bottom:9px}
+.google{background:#0a2f51;color:#bcd7ed}
+.google:disabled{opacity:.45;cursor:not-allowed}
+.panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:15px;box-shadow:var(--shadow)}
+label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px;color:#0a2f51}
+input{width:100%;height:44px;border:1px solid var(--border);border-radius:11px;padding:0 11px;font-size:14px;background:#e1f4e4;color:var(--text)}
+input:focus{outline:2px solid #86bf8e}
+.save{background:#bfdbc4;color:black;margin-top:15px;margin-bottom:0}
+.save:hover{background:#86bf8e;color:white}
+.status{font-size:12px;font-weight:bold;color:#0a2f51;text-align:center;min-height:17px;margin:7px 0}
+.back-link{display:block;text-align:center;margin-top:15px;color:#16416d;text-decoration:none;font-weight:bold;font-size:12px}
+.back-link:hover{text-decoration:underline}
 </style>
-<script src="https://accounts.google.com/gsi/client">
-async function getSheetRows(){
-  const res=await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId:SPREADSHEET_ID, range:SHEET+'!A:I'
-  });
-  return res.result.values || [];
-}
-
-function escHtml(v){
-  return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function openTable(){
-  document.getElementById('tableOverlay').classList.add('show');
-  loadTable();
-}
-function closeTable(){document.getElementById('tableOverlay').classList.remove('show')}
-function closeTableOutside(e){if(e.target.id==='tableOverlay')closeTable()}
-
-async function loadTable(){
-  const st=document.getElementById('tableStatus'), box=document.getElementById('sheetTable');
-  if(!ready){st.textContent='Connectez-vous à Google Sheets pour voir le tableau.';box.innerHTML='';return}
-  st.textContent='Chargement du tableau…';
-  try{
-    const rows=await getSheetRows();
-    if(!rows.length){box.innerHTML='<div style="padding:15px;color:var(--muted);font-size:11px">Aucune donnée.</div>';st.textContent='';return}
-    let h='<table><thead><tr><th>Ligne</th><th>Opérateur</th><th>Date</th><th>Produit</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th><th>Statut</th><th>Actions</th></tr></thead><tbody>';
-    rows.forEach((r,i)=>{
-      const row=i+1;
-      if(i===0){
-        h+='<tr><td>1</td>'+r.map(x=>'<td><strong>'+escHtml(x)+'</strong></td>').join('')+'<td>—</td></tr>';
-      }else{
-        const v=[r[0],r[1],r[2],r[3],r[4],r[5],r[6]??0,r[7]??0,r[8]??''];
-        h+='<tr><td>'+row+'</td>';
-        v.forEach((x,j)=>h+='<td><input id="cell_'+row+'_'+j+'" value="'+escHtml(x)+'"></td>');
-        h+='<td><button class="rowBtn saveRow" onclick="saveSheetRow('+row+')">Enregistrer</button><button class="rowBtn deleteRow" onclick="deleteSheetRow('+row+')">Supprimer</button></td></tr>';
-      }
-    });
-    h+='</tbody></table>';
-    box.innerHTML=h; st.textContent=rows.length>1?(rows.length-1)+' produit(s) affiché(s).':'Aucun produit.';
-  }catch(e){st.textContent='Erreur : '+e.message;box.innerHTML=''}
-}
-
-async function saveSheetRow(row){
-  const ids=[0,1,2,3,4,5,6,7,8];
-  const vals=ids.map(j=>document.getElementById('cell_'+row+'_'+j)?.value ?? '');
-  if(vals[3]) vals[3]=last6(vals[3]);
-  if(vals[4]!=='' && isNaN(Number(vals[4]))){alert('Quantité invalide.');return}
-  if(vals[6]!=='' && isNaN(Number(vals[6]))){alert('Vendues invalide.');return}
-  if(vals[7]!=='' && (isNaN(Number(vals[7])) || Number(vals[7])<0 || Number(vals[7])>100)){alert('Promotion invalide.');return}
-  try{
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId:SPREADSHEET_ID,
-      range:SHEET+'!A'+row+':I'+row,
-      valueInputOption:'USER_ENTERED',
-      resource:{values:[[vals[0],vals[1],vals[2],vals[3],Number(vals[4]||0),vals[5],Number(vals[6]||0),Number(vals[7]||0),vals[8]]]}
-    });
-    document.getElementById('tableStatus').textContent='✓ Ligne '+row+' enregistrée.';
-  }catch(e){alert('Erreur : '+e.message)}
-}
-
-async function deleteSheetRow(row){
-  if(!confirm('Supprimer définitivement la ligne '+row+' du Google Sheet ?')) return;
-  try{
-    const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID});
-    const s=(meta.result.sheets||[]).find(x=>x.properties.title===SHEET);
-    if(!s) throw new Error('Feuille1 introuvable.');
-    const sheetId=s.properties.sheetId;
-    await gapi.client.sheets.spreadsheets.batchUpdate({
-      spreadsheetId:SPREADSHEET_ID,
-      resource:{requests:[{deleteDimension:{range:{sheetId,startIndex:row-1,endIndex:row,dimension:'ROWS'}}}]}
-    });
-    await loadTable();
-    document.getElementById('tableStatus').textContent='✓ Ligne supprimée.';
-  }catch(e){alert('Suppression impossible : '+e.message)}
-}
-
-document.getElementById('tableBtn').onclick=openTable;
-
-</script>
-<script src="https://apis.google.com/js/api.js">
-async function getSheetRows(){
-  const res=await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId:SPREADSHEET_ID, range:SHEET+'!A:I'
-  });
-  return res.result.values || [];
-}
-
-function escHtml(v){
-  return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function openTable(){
-  document.getElementById('tableOverlay').classList.add('show');
-  loadTable();
-}
-function closeTable(){document.getElementById('tableOverlay').classList.remove('show')}
-function closeTableOutside(e){if(e.target.id==='tableOverlay')closeTable()}
-
-async function loadTable(){
-  const st=document.getElementById('tableStatus'), box=document.getElementById('sheetTable');
-  if(!ready){st.textContent='Connectez-vous à Google Sheets pour voir le tableau.';box.innerHTML='';return}
-  st.textContent='Chargement du tableau…';
-  try{
-    const rows=await getSheetRows();
-    if(!rows.length){box.innerHTML='<div style="padding:15px;color:var(--muted);font-size:11px">Aucune donnée.</div>';st.textContent='';return}
-    let h='<table><thead><tr><th>Ligne</th><th>Opérateur</th><th>Date</th><th>Produit</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th><th>Statut</th><th>Actions</th></tr></thead><tbody>';
-    rows.forEach((r,i)=>{
-      const row=i+1;
-      if(i===0){
-        h+='<tr><td>1</td>'+r.map(x=>'<td><strong>'+escHtml(x)+'</strong></td>').join('')+'<td>—</td></tr>';
-      }else{
-        const v=[r[0],r[1],r[2],r[3],r[4],r[5],r[6]??0,r[7]??0,r[8]??''];
-        h+='<tr><td>'+row+'</td>';
-        v.forEach((x,j)=>h+='<td><input id="cell_'+row+'_'+j+'" value="'+escHtml(x)+'"></td>');
-        h+='<td><button class="rowBtn saveRow" onclick="saveSheetRow('+row+')">Enregistrer</button><button class="rowBtn deleteRow" onclick="deleteSheetRow('+row+')">Supprimer</button></td></tr>';
-      }
-    });
-    h+='</tbody></table>';
-    box.innerHTML=h; st.textContent=rows.length>1?(rows.length-1)+' produit(s) affiché(s).':'Aucun produit.';
-  }catch(e){st.textContent='Erreur : '+e.message;box.innerHTML=''}
-}
-
-async function saveSheetRow(row){
-  const ids=[0,1,2,3,4,5,6,7,8];
-  const vals=ids.map(j=>document.getElementById('cell_'+row+'_'+j)?.value ?? '');
-  if(vals[3]) vals[3]=last6(vals[3]);
-  if(vals[4]!=='' && isNaN(Number(vals[4]))){alert('Quantité invalide.');return}
-  if(vals[6]!=='' && isNaN(Number(vals[6]))){alert('Vendues invalide.');return}
-  if(vals[7]!=='' && (isNaN(Number(vals[7])) || Number(vals[7])<0 || Number(vals[7])>100)){alert('Promotion invalide.');return}
-  try{
-    await gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId:SPREADSHEET_ID,
-      range:SHEET+'!A'+row+':I'+row,
-      valueInputOption:'USER_ENTERED',
-      resource:{values:[[vals[0],vals[1],vals[2],vals[3],Number(vals[4]||0),vals[5],Number(vals[6]||0),Number(vals[7]||0),vals[8]]]}
-    });
-    document.getElementById('tableStatus').textContent='✓ Ligne '+row+' enregistrée.';
-  }catch(e){alert('Erreur : '+e.message)}
-}
-
-async function deleteSheetRow(row){
-  if(!confirm('Supprimer définitivement la ligne '+row+' du Google Sheet ?')) return;
-  try{
-    const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID});
-    const s=(meta.result.sheets||[]).find(x=>x.properties.title===SHEET);
-    if(!s) throw new Error('Feuille1 introuvable.');
-    const sheetId=s.properties.sheetId;
-    await gapi.client.sheets.spreadsheets.batchUpdate({
-      spreadsheetId:SPREADSHEET_ID,
-      resource:{requests:[{deleteDimension:{range:{sheetId,startIndex:row-1,endIndex:row,dimension:'ROWS'}}}]}
-    });
-    await loadTable();
-    document.getElementById('tableStatus').textContent='✓ Ligne supprimée.';
-  }catch(e){alert('Suppression impossible : '+e.message)}
-}
-
-document.getElementById('tableBtn').onclick=openTable;
-
-</script>
 </head>
 <body>
-<main class="app">
-<header><div class="brand"><div class="logo">📦</div><div><h1>Ajouter un produit</h1><div class="sub">Trimestre Zebra · Google Sheets</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
-<button class="back" onclick="location.href='TrimestreZebra.html'">← Retour au Trimestre Zebra</button>
-<button id="googleBtn" class="google" disabled>Initialisation Google…</button>
-<div id="status" class="status">Préparation de la connexion…</div>
+<div class="app">
+  <header>
+    <div class="brand">
+      <h1>Mode Zebra - Ajout</h1>
+    </div>
+  </header>
 
-<section class="panel">
-<label>Code-barres</label>
-<div class="scanrow"><input id="code" inputmode="numeric" autocomplete="off" placeholder="Scanner ou saisir le code"><button class="scan" id="scanBtn">📷 Scanner</button></div>
-
-<label>Nom du produit</label><input id="name" placeholder="Nom du produit">
-
-<div class="row">
-<div><label>Date de traitement</label><input id="date" type="date"></div>
-<div><label>Quantité / stock</label><input id="qty" type="number" min="1" step="1" value="1"></div>
-</div>
-
-<label>Zone / emplacement</label><input id="zone" placeholder="Zone">
-
-<div class="hint">Le code-barres est conservé sous la forme des <strong>6 derniers chiffres</strong>. L’opérateur connecté est enregistré automatiquement avec la ligne.</div>
-<button id="saveBtn" class="save" disabled>＋ Enregistrer le produit</button>
-</section>
-
-<button id="tableBtn" class="tableBtn">📊 Voir tableau</button>
-
-<div id="tableOverlay" class="overlay" onclick="closeTableOutside(event)">
-  <div class="tableModal">
-    <button class="closeTable" onclick="closeTable()">×</button>
-    <h2>📊 Tableau Zebra</h2>
-    <p class="tableHint">Modifiez une ligne puis cliquez sur Enregistrer, ou supprimez une ligne si elle a été ajoutée par erreur.</p>
-    <div id="tableStatus" class="tableStatus">Chargement…</div>
-    <div id="sheetTable" class="sheetTable"></div>
+  <div class="panel" id="login-panel" style="margin-bottom:10px;">
+    <label for="operator">Nom de l'opérateur</label>
+    <input type="text" id="operator" placeholder="Entrez votre nom..." autocomplete="off">
+    <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()" style="margin-top:10px;">Se connecter à Google Sheets</button>
   </div>
-</div>
 
-</main>
+  <div class="panel" id="entry-panel" style="display:none;">
+    <label for="code">Code (6 chiffres)</label>
+    <input type="text" id="code" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Scannez ou tapez le code...">
+
+    <label for="product">Nom Produit</label>
+    <input type="text" id="product" placeholder="Nom du produit" autocomplete="off">
+
+    <label for="date">Date (MM/YYYY)</label>
+    <input type="text" id="date" placeholder="MM/YYYY" autocomplete="off">
+
+    <label for="qty">Nb boîtes</label>
+    <input type="number" id="qty" min="0" placeholder="Quantité" autocomplete="off">
+
+    <label for="zone">Zone</label>
+    <input type="text" id="zone" placeholder="Zone de stockage" autocomplete="off">
+
+    <button class="save" id="btn-add" onclick="addRowToSheet()">Ajouter la ligne</button>
+  </div>
+
+  <pre id="status" class="status"></pre>
+  <a href="index.html" class="back-link">← Retour à l'accueil</a>
+</div>
 
 <script>
-const CLIENT_ID='';
-const SPREADSHEET_ID='';
-const SHEET='Feuille1';
-const op=localStorage.getItem('zebraOperator')||'—';
-document.getElementById('op').textContent=op;
+// --- CONFIGURATION API GOOGLE SHEETS (Identique à index) ---
+const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+const RANGE = 'Feuille1'; 
+const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-let tokenClient=null, accessToken=null, ready=false;
+let tokenClient, gapiInited = false, gisInited = false, accessToken = null, operatorName = null;
+let pendingOperatorName = null;
 
-function setStatus(t){document.getElementById('status').textContent=t}
-function last6(v){const s=String(v||'').replace(/\D/g,''); return s.slice(-6)}
-
-async function init(){
-  if(!CLIENT_ID || !SPREADSHEET_ID){setStatus('Configuration Google Sheets absente.');return}
-  try{
-    await new Promise((resolve,reject)=>gapi.load('client',{callback:resolve,onerror:reject}));
-    await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
-    tokenClient=google.accounts.oauth2.initTokenClient({
-      client_id:CLIENT_ID,
-      scope:'https://www.googleapis.com/auth/spreadsheets',
-      callback:(r)=>{
-        if(r.error){setStatus('Connexion Google refusée.');return}
-        accessToken=r.access_token; ready=true;
-        document.getElementById('googleBtn').textContent='✓ Google Sheets connecté';
-        document.getElementById('googleBtn').disabled=true;
-        document.getElementById('saveBtn').disabled=false;
-        setStatus('Connecté. Vous pouvez enregistrer le produit.');
-      }
-    });
-    const b=document.getElementById('googleBtn');
-    b.disabled=false;b.textContent='Se connecter à Google';
-    b.onclick=()=>tokenClient.requestAccessToken({prompt:''});
-    setStatus('Google Sheets prêt.');
-  }catch(e){setStatus('Erreur Google : '+e.message)}
-}
-
-document.getElementById('scanBtn').onclick=async()=>{
-  // Sur téléphone, un scanner de code-barres du système peut alimenter directement le champ.
-  // Si BarcodeDetector est disponible, on ouvre la caméra.
-  if(!('BarcodeDetector' in window)){document.getElementById('code').focus();alert('Le scanner caméra n’est pas disponible dans ce navigateur. Vous pouvez utiliser le scanner intégré du téléphone ou saisir le code.');return}
-  try{
-    const detector=new BarcodeDetector();
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
-    const video=document.createElement('video');video.srcObject=stream;await video.play();
-    const wrap=document.createElement('div');wrap.style='position:fixed;inset:0;background:#000;z-index:99;display:flex;align-items:center;justify-content:center';
-    video.style='width:100%;max-width:520px';wrap.appendChild(video);document.body.appendChild(wrap);
-    const timer=setInterval(async()=>{
-      try{const codes=await detector.detect(video);if(codes.length){document.getElementById('code').value=last6(codes[0].rawValue);clearInterval(timer);stream.getTracks().forEach(t=>t.stop());wrap.remove()}}catch(e){}
-    },250);
-  }catch(e){alert('Impossible d’utiliser la caméra : '+e.message)}
+// Chargement Google API
+window.onload = function() {
+  gapi.load('client', gapiLoaded);
+  gisLoaded();
 };
 
-document.getElementById('saveBtn').onclick=async()=>{
-  if(!ready){alert('Connectez-vous à Google Sheets.');return}
-  const raw=document.getElementById('code').value.trim();
-  const code6=last6(raw);
-  const name=document.getElementById('name').value.trim();
-  const date=document.getElementById('date').value;
-  const qty=document.getElementById('qty').value;
-  const zone=document.getElementById('zone').value.trim();
-  if(code6.length!==6){alert('Scannez ou saisissez un code-barres valide : les 6 derniers chiffres seront enregistrés.');return}
-  if(!name){alert('Indiquez le nom du produit.');return}
-  if(!date){alert('Indiquez la date de traitement.');return}
-  if(!qty || Number(qty)<1){alert('Indiquez une quantité valide.');return}
-
-  const btn=document.getElementById('saveBtn');btn.disabled=true;setStatus('Enregistrement dans Google Sheets…');
-  try{
-    // Colonnes cohérentes avec le Trimestre Zebra : A opérateur, B date, C produit,
-    // D code, E stock/quantité, F zone, G vendues/restantes, H promotion, I statut.
-    const values=[[op,date,name,code6,Number(qty),zone,0,0,'NON TRAITÉ']];
-    await gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId:SPREADSHEET_ID,
-      range:SHEET+'!A:I',
-      valueInputOption:'USER_ENTERED',
-      insertDataOption:'INSERT_ROWS',
-      resource:{values}
-    });
-    setStatus('✓ Produit ajouté dans Google Sheets.');
-    document.getElementById('code').value='';document.getElementById('name').value='';
-    document.getElementById('date').value='';document.getElementById('qty').value='1';
-    document.getElementById('zone').value='';
-  }catch(e){setStatus('Erreur : '+e.message);alert('Impossible d’ajouter la ligne : '+e.message)}
-  finally{btn.disabled=false}
-};
-init();
-
-async function getSheetRows(){
-  const res=await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId:SPREADSHEET_ID, range:SHEET+'!A:I'
+async function gapiLoaded() {
+  await gapi.client.init({
+    discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
   });
-  return res.result.values || [];
+  gapiInited = true;
+  maybeEnable();
 }
 
-function escHtml(v){
-  return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function openTable(){
-  document.getElementById('tableOverlay').classList.add('show');
-  loadTable();
-}
-function closeTable(){document.getElementById('tableOverlay').classList.remove('show')}
-function closeTableOutside(e){if(e.target.id==='tableOverlay')closeTable()}
-
-async function loadTable(){
-  const st=document.getElementById('tableStatus'), box=document.getElementById('sheetTable');
-  if(!ready){st.textContent='Connectez-vous à Google Sheets pour voir le tableau.';box.innerHTML='';return}
-  st.textContent='Chargement du tableau…';
-  try{
-    const rows=await getSheetRows();
-    if(!rows.length){box.innerHTML='<div style="padding:15px;color:var(--muted);font-size:11px">Aucune donnée.</div>';st.textContent='';return}
-    let h='<table><thead><tr><th>Ligne</th><th>Opérateur</th><th>Date</th><th>Produit</th><th>Code</th><th>Qté</th><th>Zone</th><th>Vendues</th><th>Promo</th><th>Statut</th><th>Actions</th></tr></thead><tbody>';
-    rows.forEach((r,i)=>{
-      const row=i+1;
-      if(i===0){
-        h+='<tr><td>1</td>'+r.map(x=>'<td><strong>'+escHtml(x)+'</strong></td>').join('')+'<td>—</td></tr>';
-      }else{
-        const v=[r[0],r[1],r[2],r[3],r[4],r[5],r[6]??0,r[7]??0,r[8]??''];
-        h+='<tr><td>'+row+'</td>';
-        v.forEach((x,j)=>h+='<td><input id="cell_'+row+'_'+j+'" value="'+escHtml(x)+'"></td>');
-        h+='<td><button class="rowBtn saveRow" onclick="saveSheetRow('+row+')">Enregistrer</button><button class="rowBtn deleteRow" onclick="deleteSheetRow('+row+')">Supprimer</button></td></tr>';
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (tokenResponse) => {
+      accessToken = tokenResponse.access_token;
+      if (pendingOperatorName) {
+        operatorName = pendingOperatorName;
+        document.getElementById('login-panel').style.display = 'none';
+        document.getElementById('entry-panel').style.display = 'block';
+        setStatus(`Connecté en tant que ${operatorName}.`);
+        document.getElementById('code').focus();
+      } else {
+        setStatus('Erreur : Nom d\'opérateur non trouvé.');
       }
+      pendingOperatorName = null;
+    },
+  });
+  gisInited = true;
+  maybeEnable();
+}
+
+function maybeEnable() {
+  if (gapiInited && gisInited) {
+    document.getElementById('operator').focus();
+    setStatus('Veuillez entrer votre nom d\'opérateur.');
+  }
+}
+
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+
+// Lancement connexion Google
+async function initiateGoogleAndOperatorLogin() {
+  const op = document.getElementById('operator').value.trim();
+  if (!op) {
+    alert("Veuillez entrer un nom d'opérateur.");
+    return;
+  }
+  pendingOperatorName = op;
+  try {
+    await tokenClient.requestAccessToken();
+    setStatus('Connexion Google en cours...');
+  } catch (error) {
+    console.error("Erreur connexion:", error);
+    setStatus("Erreur de connexion Google.");
+    pendingOperatorName = null;
+  }
+}
+
+// --- RECHERCHE AUTOMATIQUE DU PRODUIT PAR CODE (Comme dans index) ---
+document.getElementById('code').addEventListener('input', async function() {
+  const codeVal = this.value.trim();
+  if (!/^\d{6}$/.test(codeVal)) return;
+
+  try {
+    const sheets = ['Feuille1', 'Feuille2'];
+    for (let sheet of sheets) {
+      const res = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: sheet
+      });
+
+      const rows = res.result.values || [];
+      for (let i = 1; i < rows.length; i++) {
+        const sheetCodeFormatted = String(rows[i][3] || '').padStart(6, '0');
+        if (sheetCodeFormatted === codeVal) {
+          document.getElementById('product').value = rows[i][2] || '';
+          document.getElementById('zone').value = rows[i][5] || '';
+          return;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Erreur recherche produit :", e);
+  }
+});
+
+// --- AJOUT DE LA LIGNE DANS LE GOOGLE SHEET ---
+async function addRowToSheet() {
+  const code = document.getElementById('code').value.trim();
+  const product = document.getElementById('product').value.trim();
+  const date = document.getElementById('date').value.trim();
+  const qty = document.getElementById('qty').value.trim();
+  const zone = document.getElementById('zone').value.trim();
+
+  if (!code || !product || !date || !qty || !zone) {
+    alert("Veuillez remplir tous les champs.");
+    return;
+  }
+
+  // Format des colonnes : [Opérateur, Date, Produit, Code, Qté, Zone, VenduesTotales, Vendues, Promo]
+  const newRow = [
+    operatorName, 
+    date, 
+    product, 
+    code, 
+    Number(qty), 
+    zone, 
+    "",  // Vendues totalement (case cochée ou non plus tard)
+    0,   // Vendues
+    ""   // Promo
+  ];
+
+  try {
+    setStatus("Ajout en cours...");
+    await gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: RANGE + '!A:I',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [newRow] }
     });
-    h+='</tbody></table>';
-    box.in
+
+    setStatus("✓ Ligne ajoutée avec succès !");
+    
+    // Réinitialisation des champs pour le prochain scan Zebra
+    document.getElementById('code').value = '';
+    document.getElementById('product').value = '';
+    document.getElementById('date').value = '';
+    document.getElementById('qty').value = '';
+    document.getElementById('zone').value = '';
+    document.getElementById('code').focus();
+
+  } catch (e) {
+    setStatus("Erreur lors de l'ajout : " + e.message);
+  }
+}
+</script>
+</body>
+</html>
