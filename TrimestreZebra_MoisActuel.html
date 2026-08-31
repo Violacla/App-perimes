@@ -100,7 +100,7 @@ function bootGIS(){
 }
 function maybeReady(){if(gapiReady&&gisReady)setReady()}
 
-async function load(){
+async function load(restoreResume=true){
   try{
     const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET});
     const rows=res.result.values||[];products=[];
@@ -112,9 +112,15 @@ async function load(){
     document.getElementById('login').style.display='none';
     document.getElementById('productZone').style.display='flex';
     idx=0;
-    const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
-    if(saved && (saved.operator!==operator || saved.period!==resumePeriod())) localStorage.removeItem(zebraMoisActuelResume);
-    if(saved&&saved.operator===operator&&saved.period===resumePeriod()&&saved.code){const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));if(n>=0)idx=n}
+    if(restoreResume){
+      const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
+      if(saved && (saved.operator!==operator || saved.period!==resumePeriod())){
+        localStorage.removeItem(zebraMoisActuelResume);
+      }else if(saved&&saved.operator===operator&&saved.period===resumePeriod()&&saved.code){
+        const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));
+        if(n>=0)idx=n;
+      }
+    }
     if(products.length)render();
     else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
     status('Google Sheets connecté.');
@@ -142,12 +148,16 @@ function render(){
    </div>
    <div class="step"><div class="step-title">PRODUITS RESTANTS — − / +</div>
      <div class="stepper">
-       <button type="button" onclick="change(-1)" ${choice==='remaining'?'':'disabled'}>−</button>
+       <button type="button" data-step="-1" ${choice==='remaining'?'':'disabled'}>−</button>
        <input type="number" min="1" max="${Math.max(1,max)}" value="${choice==='remaining'?remaining:0}" ${choice==='remaining'?'':'disabled'} onchange="inputRemain(this.value)">
-       <button type="button" onclick="change(1)" ${choice==='remaining'?'':'disabled'}>+</button>
+       <button type="button" data-step="1" ${choice==='remaining'?'':'disabled'}>+</button>
      </div>
    </div>
    <div class="calc">Vendues = Stock − Restant : <b>${sold} = ${stock} − ${rem}</b></div>`;
+  const minusBtn=document.querySelector('#card .stepper button[data-step="-1"]');
+  const plusBtn=document.querySelector('#card .stepper button[data-step="1"]');
+  if(minusBtn) minusBtn.addEventListener('click',()=>change(-1));
+  if(plusBtn) plusBtn.addEventListener('click',()=>change(1));
   document.getElementById('next').disabled=!(choice==='sold'||choice==='remaining');
   document.getElementById('ref').textContent=`Référence ${idx+1}/${products.length}`;
   saveResume();
@@ -186,20 +196,29 @@ async function goNext(){
   try{
     if(wasSold)await transfer(row);
     else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
+
     choice=null;remaining=0;
-    await load();
+    // Recharge les produits sans restaurer l'ancienne référence : on va
+    // déterminer explicitement la prochaine référence juste après.
+    await load(false);
+
     if(products.length){
       if(wasSold){
+        // Le produit vient d'être retiré : on reste sur la position suivante.
         idx=Math.min(currentIndex,products.length-1);
       }else{
+        // Le produit reste dans la liste : on avance d'une référence.
         const n=products.findIndex(x=>String(x.r[3]||'')===code);
         idx=n>=0?Math.min(n+1,products.length-1):Math.min(currentIndex,products.length-1);
       }
-      render();
+      // Mémorise LA référence actuellement affichée. Ainsi, après
+      // déconnexion/reconnexion, on revient exactement ici (ex. 3/36).
       saveResume();
+      render();
       message('');
     }else{
-      localStorage.removeItem(KEY_RESUME);
+      // Tout est terminé pour cette période : aucune reprise à restaurer.
+      localStorage.removeItem(zebraMoisActuelResume);
       document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';
       document.getElementById('ref').textContent='Référence 0/0';
       message('');
