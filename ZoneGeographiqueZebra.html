@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#bcd7ed">
-<title>Plan Interactif - Pharmacie du Libron</title>
+<title>Plan de l'Officine - Pharmacie du Libron</title>
 <style>
 :root{
   --bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
@@ -21,19 +21,30 @@ header{height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content
  background:#cfe5f4;border:1.5px solid var(--border);border-radius:10px;margin-bottom:6px}
 h1{margin:0;font-size:13px;font-weight:900;color:#153d31}
 
-/* PLAN DE LA PHARMACIE */
+/* PLAN DE LA PHARMACIE (Style carnet) */
 .map-container{flex:1;background:#ffffff;border:1.5px solid var(--border);border-radius:10px;
- position:relative;padding:8px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
-.map-title{font-size:10px;font-weight:900;color:var(--muted);text-align:center;margin-bottom:4px}
+ position:relative;padding:6px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.map-title{font-size:9px;font-weight:900;color:var(--muted);text-align:center;margin-bottom:4px}
 
-.pharmacy-floor{flex:1;border:2px dashed var(--border);border-radius:8px;background:#f8fbfe;
- position:relative;margin-bottom:4px}
+.pharmacy-floor{flex:1;border:2px solid var(--border);border-radius:8px;background:#f4f8fc;
+ position:relative;overflow:hidden}
 
-/* Icônes positionnées sur le plan (coordonnées en %) */
-.map-icon{position:absolute;width:32px;height:32px;background:#ffffff;border:2px solid var(--blue-dark);
- border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;
- cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.15);transform:translate(-50%, -50%);transition:transform 0.1s}
-.map-icon:hover{transform:translate(-50%, -50%) scale(1.15);background:var(--pink-soft);border-color:var(--pink)}
+/* Blocs du plan positionnés selon ton dessin */
+.zone-block{position:absolute;background:var(--blue-soft);border:1.5px solid var(--blue);
+ border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ cursor:pointer;padding:2px;text-align:center;transition:all 0.1s}
+.zone-block:hover{background:var(--pink-soft);border-color:var(--pink);transform:scale(1.03)}
+
+.zone-num{font-size:10px;font-weight:900;color:var(--blue-dark)}
+.zone-lbl{font-size:7px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+/* Éléments fixes du plan (Réserve, Comptoir) */
+.fixed-reserve{position:absolute;top:3%;right:3%;width:38%;height:28%;background:#e2ebf3;
+ border:2px dashed var(--muted);border-radius:6px;display:flex;align-items:center;justify-content:center;
+ font-size:10px;font-weight:900;color:var(--muted);cursor:pointer}
+.fixed-comptoir{position:absolute;top:32%;left:25%;width:45%;height:10%;background:#d2e3f3;
+ border:1.5px solid var(--blue-dark);border-radius:4px;display:flex;align-items:center;justify-content:center;
+ font-size:9px;font-weight:900;color:var(--blue-dark)}
 
 /* POPUP MODAL */
 #zone-popup{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(38,56,77,0.6);
@@ -55,10 +66,48 @@ h1{margin:0;font-size:13px;font-weight:900;color:#153d31}
 </header>
 
 <div class="map-container">
-  <div class="map-title">📍 Clique sur une icône du plan</div>
+  <div class="map-title">📍 Clique sur une zone du plan</div>
   
   <div class="pharmacy-floor" id="floor">
-    <!-- Les icônes seront injectées ici selon leur position X/Y sur le plan -->
+    <!-- Réserve -->
+    <div class="fixed-reserve" onclick="openPopup({id:'1', name:'Zone Conseil & Réserve', sub:'Réserve principale', shelf:'Réserve 1 et 2'})">
+      📦 Réserve
+    </div>
+    
+    <!-- Comptoir -->
+    <div class="fixed-comptoir">COMPTOIR</div>
+
+    <!-- Blocs numérotés 1 à 10 inspirés de ton carnet -->
+    <div class="zone-block" style="top:18%; left:35%; width:28%; height:12%;" onclick="openPopup(zones[0])">
+      <span class="zone-num">1</span><span class="zone-lbl">Conseil</span>
+    </div>
+    <div class="zone-block" style="top:20%; left:8%; width:12%; height:18%;" onclick="openPopup(zones[1])">
+      <span class="zone-num">2-3</span><span class="zone-lbl">Dermato/Yeux</span>
+    </div>
+    <div class="zone-block" style="top:44%; left:12%; width:25%; height:8%;" onclick="openPopup(zones[2])">
+      <span class="zone-num">3</span><span class="zone-lbl">Vétérinaire</span>
+    </div>
+    <div class="zone-block" style="top:78%; left:8%; width:32%; height:12%;" onclick="openPopup(zones[3])">
+      <span class="zone-num">4</span><span class="zone-lbl">Phyto / Nature</span>
+    </div>
+    <div class="zone-block" style="top:55%; left:33%; width:22%; height:8%;" onclick="openPopup(zones[4])">
+      <span class="zone-num">5</span><span class="zone-lbl">Parapharmacie</span>
+    </div>
+    <div class="zone-block" style="top:67%; left:33%; width:22%; height:8%;" onclick="openPopup(zones[5])">
+      <span class="zone-num">6</span><span class="zone-lbl">Cheveux / Corps</span>
+    </div>
+    <div class="zone-block" style="top:55%; left:60%; width:16%; height:25%;" onclick="openPopup(zones[6])">
+      <span class="zone-num">7</span><span class="zone-lbl">Hygiène Intime</span>
+    </div>
+    <div class="zone-block" style="top:80%; left:58%; width:35%; height:9%;" onclick="openPopup(zones[7])">
+      <span class="zone-num">8</span><span class="zone-lbl">Bébé</span>
+    </div>
+    <div class="zone-block" style="top:44%; left:58%; width:15%; height:20%;" onclick="openPopup(zones[8])">
+      <span class="zone-num">9</span><span class="zone-lbl">Douleurs & Soins</span>
+    </div>
+    <div class="zone-block" style="top:44%; left:77%; width:18%; height:20%;" onclick="openPopup(zones[9])">
+      <span class="zone-num">10</span><span class="zone-lbl">Bien-être</span>
+    </div>
   </div>
 </div>
 </div>
@@ -79,33 +128,18 @@ h1{margin:0;font-size:13px;font-weight:900;color:#153d31}
 </div>
 
 <script>
-const zonesMapData = [
-  {id: "1", name: "Réserve & Conseil", sub: "Zone Conseil", shelf: "Réserve 1 et 2", icon: "📦", x: 80, y: 75},
-  {id: "2", name: "Dermato Yeux & Oreille", sub: "Soins ciblés", shelf: "Étagère 8", icon: "👁️", x: 65, y: 35},
-  {id: "3", name: "Vétérinaire", sub: "Espace Animaux", shelf: "Espace Vétérinaire", icon: "🐾", x: 85, y: 35},
-  {id: "4", name: "Nature & Phyto", sub: "Arko, Nutergia, Pileje, Aromat, Homéo, Pukka", shelf: "Étagère 7", icon: "🌱", x: 45, y: 35},
-  {id: "5", name: "Parapharmacie & Dermato", sub: "Bioderma, Cerave, Kreme, La Rosée, SVR, Uriage, LRP, Nuxe, Avene & Acné", shelf: "Étagère 5", icon: "🧴", x: 35, y: 55},
-  {id: "6", name: "Cheveux, Corps & Déos", sub: "Capillaire & Hygiène corporelle", shelf: "Étagères 5 et 7", icon: "💆", x: 50, y: 55},
-  {id: "7", name: "Hygiène Intime", sub: "Soins intimes", shelf: "Étagère 7", icon: "🌸", x: 60, y: 55},
-  {id: "8", name: "Bébé", sub: "Lait bébé & Poussins", shelf: "Étagères 3 et 4", icon: "👶", x: 20, y: 70},
-  {id: "9", name: "Douleurs & Soins", sub: "1ers soins, Pieds/mains, Douleurs", shelf: "Étagère 8", icon: "🩹", x: 50, y: 85},
-  {id: "10", name: "Bien-être", sub: "Coin Bien-être", shelf: "Étagère 8", icon: "✨", x: 50, y: 68}
+const zones = [
+  {id: "1", name: "Zone Conseil & Réserve", sub: "Espace Conseil", shelf: "Réserve 1 et 2"},
+  {id: "2", name: "Dermato Yeux & Oreille", sub: "Soins ciblés", shelf: "Étagère 8"},
+  {id: "3", name: "Vétérinaire", sub: "Espace Animaux", shelf: "Espace Vétérinaire"},
+  {id: "4", name: "Nature & Phyto", sub: "Arko, Nutergia, Pileje, Aromat, Homéo, Pukka", shelf: "Étagère 7"},
+  {id: "5", name: "Parapharmacie & Dermato", sub: "Bioderma, Cerave, Kreme, La Rosée, SVR, Uriage, LRP, Nuxe, Avene & Acné", shelf: "Étagère 5"},
+  {id: "6", name: "Cheveux, Corps & Déos", sub: "Capillaire & Hygiène corporelle", shelf: "Étagères 5 et 7"},
+  {id: "7", name: "Hygiène Intime", sub: "Soins intimes", shelf: "Étagère 7"},
+  {id: "8", name: "Bébé", sub: "Lait bébé & Poussins", shelf: "Étagères 3 et 4"},
+  {id: "9", name: "Douleurs & Soins", sub: "1ers soins, Pieds/mains, Douleurs", shelf: "Étagère 8"},
+  {id: "10", name: "Bien-être", sub: "Coin Bien-être", shelf: "Étagère 8"}
 ];
-
-function buildMap(){
-  const floor = document.getElementById('floor');
-  floor.innerHTML = '';
-  zonesMapData.forEach(item => {
-    const btn = document.createElement('div');
-    btn.className = 'map-icon';
-    btn.style.left = item.x + '%';
-    btn.style.top = item.y + '%';
-    btn.textContent = item.icon;
-    btn.title = `Zone ${item.id} : ${item.name}`;
-    btn.onclick = () => openPopup(item);
-    floor.appendChild(btn);
-  });
-}
 
 function openPopup(item){
   document.getElementById('p-title').textContent = `Zone ${item.id} — ${item.name}`;
@@ -118,8 +152,6 @@ function openPopup(item){
 function closePopup(){
   document.getElementById('zone-popup').style.display = 'none';
 }
-
-window.addEventListener('load', buildMap);
 </script>
 </body>
 </html>
