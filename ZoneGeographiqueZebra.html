@@ -4,391 +4,89 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#bcd7ed">
-<title>Ajouter un produit Zebra - Pharmacie du Libron</title>
-<script async defer src="https://accounts.google.com/gsi/client"></script>
-<script src="https://apis.google.com/js/api.js"></script>
+<title>Zones Géographiques - Pharmacie du Libron</title>
 <style>
 :root{
---bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
---pink:#d99aae;--pink-dark:#c77991;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;
---border:#cbddea;--shadow:0 4px 12px rgba(62,91,122,.1)
+  --bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
+  --pink:#d99aae;--pink-dark:#c77991;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;
+  --border:#cbddea;--shadow:0 4px 12px rgba(62,91,122,.1)
 }
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;
-background:#bcd7ed;color:var(--text)}
-body{display:flex;justify-content:center}
-.app{width:100%;max-width:430px;height:100dvh;padding:4px 8px;display:flex;flex-direction:column;min-height:0}
-/* HEADER Épuré */
-header{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:space-between;
-background:#cfe5f4;border:1.5px solid var(--border);
-border-radius:10px;padding:0 8px;margin-bottom:3px}
-.brand{display:flex;align-items:center;gap:6px;min-width:0}
-.logo{width:30px;height:30px;flex:0 0 30px}.logo img{width:100%;height:100%;object-fit:contain}
-h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
-.session{display:flex;align-items:center;justify-content:space-between;margin:0 0 3px;font-size:9px;color:var(--muted);padding:0 2px}
-.session strong{color:var(--blue-dark);font-size:11px}
-.change{border:1px solid var(--border);background:#ffffff;border-radius:5px;
-padding:2px 5px;font-size:8px;color:var(--blue-dark);font-weight:800;cursor:pointer}
-/* LOGIN */
-#login-panel{flex:1;display:flex;align-items:center}
-.panel{width:100%;background:#ffffff;border:1.5px solid var(--border);
-border-radius:10px;padding:12px 10px;text-align:center;box-shadow:var(--shadow)}
-.panel-title{font-size:13px;font-weight:900;color:var(--blue-dark);margin-bottom:8px}
-.google{width:100%;height:42px;border:0;border-radius:8px;background:#3972ad;color:#fff;font-size:12px;font-weight:900;cursor:pointer}
-/* MAIN ENTRY */
-#entry-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px;overflow:hidden}
-.field-group{display:flex;flex-direction:column;gap:2px}
-.field-label{font-size:8px;font-weight:900;color:var(--blue-dark);margin-left:2px}
-#code{width:100%;height:36px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
-text-align:center;font-size:15px;font-weight:900;letter-spacing:1px;padding:0}
-#code:focus{outline:3px solid rgba(91,143,201,.2)}
-.product-name{width:100%;height:38px;border:1.5px solid var(--border);border-radius:8px;
-background:#ffffff;font-size:16px;font-weight:900;color:var(--blue-dark);
-padding:0 6px;text-align:center}
-#product-hint{font-size:7px;color:var(--muted);margin-left:2px}
-.row-dual{display:grid;grid-template-columns:1.3fr 1fr;gap:4px}
-.date-row{display:grid;grid-template-columns:1.2fr 1fr;gap:2px}
-.date-select{height:34px;border:1.5px solid var(--border);border-radius:8px;background:#ffffff;
-font-size:11px;font-weight:900;color:var(--blue-dark);text-align:center;padding:0}
-.qty-control{display:flex;align-items:center;gap:2px;height:34px}
-.qty-btn{width:28px;height:34px;flex:0 0 28px;border:1.5px solid var(--border);border-radius:7px;
-background:var(--blue-soft);color:var(--blue-dark);font-size:16px;font-weight:900;cursor:pointer}
-#qty{width:100%;height:34px;border:1.5px solid var(--border);border-radius:7px;text-align:center;
-font-size:15px;font-weight:900}
-/* ZONE INTERACTIVE & PASTILLES */
-.zone-trigger{width:100%;height:38px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
-display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:pointer}
-.zone-trigger span{font-size:12px;font-weight:900;color:var(--blue-dark)}
-.zone-trigger small{font-size:9px;color:var(--muted);font-weight:700}
-/* Modal Plan / Pastilles */
-#zone-modal{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(38,56,77,0.7);
-z-index:100;display:none;align-items:center;justify-content:center;padding:10px}
-.modal-card{width:100%;max-height:90dvh;background:#ffffff;border-radius:12px;display:flex;
-flex-direction:column;padding:10px;box-shadow:var(--shadow);overflow:hidden}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.modal-title{font-size:12px;font-weight:900;color:var(--blue-dark)}
-.close-modal{background:var(--pink-soft);color:var(--pink-dark);border:0;border-radius:6px;
-width:24px;height:24px;font-weight:900;cursor:pointer}
-.pastilles-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:6px;overflow-y:auto;padding:2px}
+ background:#bcd7ed;color:var(--text)}
+body{display:flex;justify-content:center;align-items:center}
+.app{width:100%;max-width:430px;height:100dvh;padding:8px;display:flex;flex-direction:column}
+
+header{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:center;
+ background:#cfe5f4;border:1.5px solid var(--border);border-radius:10px;margin-bottom:6px}
+h1{margin:0;font-size:14px;font-weight:900;color:#153d31}
+
+.container{flex:1;background:#ffffff;border:1.5px solid var(--border);border-radius:10px;
+ padding:10px;display:flex;flex-direction:column;box-shadow:var(--shadow);overflow:hidden}
+.title{font-size:12px;font-weight:900;color:var(--blue-dark);margin-bottom:8px;text-align:center}
+
+.pastilles-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:6px;overflow-y:auto;padding:2px;flex:1}
 .pastille{background:var(--blue-soft);border:1.5px solid var(--border);border-radius:8px;
-padding:8px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+ padding:8px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
 .pastille:hover{background:var(--pink-soft);border-color:var(--pink)}
 .pastille-icon{font-size:18px}
 .pastille-name{font-size:10px;font-weight:900;color:var(--blue-dark)}
 .pastille-shelf{font-size:8px;color:var(--muted);font-weight:700}
-/* CTA */
-.save{width:100%;height:44px;flex:0 0 44px;border:0;border-radius:9px;margin-top:auto;
-background:var(--pink);color:#fff;font-size:13px;font-weight:900;box-shadow:var(--shadow);cursor:pointer}
-.save:disabled{opacity:0.4;cursor:not-allowed;background:#b0b0b0}
-.status{min-height:14px;height:14px;flex:0 0 14px;margin:2px 0 0;text-align:center;
-font-size:9px;font-weight:800;color:var(--blue-dark)}
-.back-link{height:12px;flex:0 0 12px;display:block;text-align:center;color:var(--blue-dark);
-text-decoration:none;font-size:8px;font-weight:800}
+
+.result-box{margin-top:8px;padding:8px;background:var(--blue-soft);border:1.5px solid var(--border);
+ border-radius:8px;text-align:center}
+.result-box span{font-size:11px;font-weight:900;color:var(--blue-dark)}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-<div class="brand">
-<div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div>
-<h1>Ajouter un produit</h1>
-</div>
+  <h1>Plan de l'Officine</h1>
 </header>
-<div class="session">
-<span>Opérateur : <strong id="operator-badge">—</strong></span>
-<button class="change" onclick="location.href='ZebraPerimés.html'">Accueil</button>
-</div>
-<div class="panel" id="login-panel">
-<div class="panel-title">Connexion Google Sheets</div>
-<button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()" disabled>Préparation…</button>
-</div>
-<div class="panel" id="entry-panel" style="display:none;">
-<div class="field-group">
-<div class="field-label">① SCANNER LE CIP</div>
-<input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 derniers chiffres">
-</div>
-<div class="field-group">
-<div class="field-label" style="color:var(--pink-dark);">② NOM DU PRODUIT</div>
-<input id="product" class="product-name" type="text" autocomplete="off" placeholder="Nom du produit">
-<div id="product-hint">Scannez un CIP pour rechercher automatiquement</div>
-</div>
-<div class="row-dual">
-<div class="field-group">
-<div class="field-label">③ DATE (Mois / Année)</div>
-<div class="date-row">
-<select id="select-month" class="date-select">
-<option value="01">Janv.</option>
-<option value="02">Févr.</option>
-<option value="03">Mars</option>
-<option value="04">Avril</option>
-<option value="05">Mai</option>
-<option value="06">Juin</option>
-<option value="07">Juil.</option>
-<option value="08">Août</option>
-<option value="09">Sept.</option>
-<option value="10">Oct.</option>
-<option value="11">Nov.</option>
-<option value="12">Déc.</option>
-</select>
-<select id="select-year" class="date-select"></select>
-</div>
-<input id="date" type="hidden">
-</div>
-<div class="field-group">
-<div class="field-label">④ QUANTITÉ</div>
-<div class="qty-control">
-<button type="button" class="qty-btn" id="qty-minus">−</button>
-<input id="qty" type="number" min="1" value="1">
-<button type="button" class="qty-btn" id="qty-plus">+</button>
+
+<div class="container">
+  <div class="title">Clique sur une zone pour voir les étagères :</div>
+  <div class="pastilles-grid" id="pastilles-container"></div>
+  <div class="result-box" id="result">
+    <span>Sélection actuelle : Aucune</span>
+  </div>
 </div>
 </div>
-</div>
-<!-- ZONE INTERACTIVE PLAN -->
-<div class="field-group">
-<div class="field-label" style="color:#1776b5;">⑤ ZONE GÉOGRAPHIQUE (PLAN)</div>
-<div class="zone-trigger" onclick="openZoneModal()">
-<span id="zone-selected-label">Sélectionner sur le plan...</span>
-<small>📍 Plan</small>
-</div>
-<input id="zone" type="hidden">
-</div>
-<button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER LE PRODUIT</button>
-</div>
-<!-- MODAL PLAN PHARMACIE -->
-<div id="zone-modal">
-<div class="modal-card">
-<div class="modal-header">
-<span class="modal-title">Zones de l'Officine (Plan)</span>
-<button class="close-modal" onclick="closeZoneModal()">✕</button>
-</div>
-<div class="pastilles-grid" id="pastilles-container">
-<!-- Généré par JS -->
-</div>
-</div>
-</div>
-<div id="status" class="status"></div>
-<a href="ZebraPerimés.html" class="back-link">← Retour à ZebraPérimés</a>
-</div>
+
 <script>
-const CLIENT_ID='777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-const RANGE='Feuille1';
-const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 const zoneData = [
-{id: "1", name: "Zone Conseil & Réserve", icon: "📦", shelf: "Réserve 1 et 2"},
-{id: "2", name: "Dermato Yeux & Oreille", icon: "👁️", shelf: "Étagère 8"},
-{id: "3", name: "Vétérinaire", icon: "🐾", shelf: "Espace Vétérinaire"},
-{id: "4", name: "Nature & Phyto", icon: "🌱", shelf: "Arko, Nutergia, Pileje, Aromat, Homéo, Pukka • Étagère 7"},
-{id: "5", name: "Parapharmacie & Dermato", icon: "🧴", shelf: "Bioderma, Cerave, Kreme, La Rosée, SVR, Uriage, LRP, Nuxe, Avene & Coin Acné • Étagère 5"},
-{id: "6", name: "Cheveux, Corps & Déos", icon: "💆", shelf: "Étagères 5 et 7"},
-{id: "7", name: "Hygiène Intime", icon: "🌸", shelf: "Étagère 7"},
-{id: "8", name: "Bébé", icon: "👶", shelf: "Lait bébé • Étagères 3 et 4"},
-{id: "9", name: "Douleurs & Soins", icon: "🩹", shelf: "1ers soins, Pieds/mains, Douleurs • Étagère 8"},
-{id: "10", name: "Bien-être", icon: "✨", shelf: "Étagère 8"}
+  {id: "1", name: "Zone Conseil & Réserve", icon: "📦", shelf: "Réserve 1 et 2"},
+  {id: "2", name: "Dermato Yeux & Oreille", icon: "👁️", shelf: "Étagère 8"},
+  {id: "3", name: "Vétérinaire", icon: "🐾", shelf: "Espace Vétérinaire"},
+  {id: "4", name: "Nature & Phyto", icon: "🌱", shelf: "Arko, Nutergia, Pileje, Aromat, Homéo, Pukka • Étagère 7"},
+  {id: "5", name: "Parapharmacie & Dermato", icon: "🧴", shelf: "Bioderma, Cerave, Kreme, La Rosée, SVR, Uriage, LRP, Nuxe, Avene & Coin Acné • Étagère 5"},
+  {id: "6", name: "Cheveux, Corps & Déos", icon: "💆", shelf: "Étagères 5 et 7"},
+  {id: "7", name: "Hygiène Intime", icon: "🌸", shelf: "Étagère 7"},
+  {id: "8", name: "Bébé", icon: "👶", shelf: "Lait bébé • Étagères 3 et 4"},
+  {id: "9", name: "Douleurs & Soins", icon: "🩹", shelf: "1ers soins, Pieds/mains, Douleurs • Étagère 8"},
+  {id: "10", name: "Bien-être", icon: "✨", shelf: "Étagère 8"}
 ];
-let tokenClient=null,gapiReady=false,gisReady=false,accessToken=null;
-let operatorName=localStorage.getItem('zebraOperator')||null;
-function setStatus(t){document.getElementById('status').textContent=t||'';}
-function updateOperator(){document.getElementById('operator-badge').textContent=operatorName||'—';}
-function formatLast6(v){return String(v||'').replace(/\D/g,'').slice(-6);}
-function initDateSelectors(){
-const yearSelect = document.getElementById('select-year');
-const monthSelect = document.getElementById('select-month');
-const currentYear = new Date().getFullYear();
-yearSelect.innerHTML = '';
-for(let y = currentYear; y <= currentYear + 10; y++){
-const opt = document.createElement('option');
-opt.value = y; opt.textContent = y;
-if(y === currentYear) opt.selected = true;
-yearSelect.appendChild(opt);
-}
-const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-monthSelect.value = currentMonth;
-updateDateHidden();
-monthSelect.addEventListener('change', updateDateHidden);
-yearSelect.addEventListener('change', updateDateHidden);
-}
-function updateDateHidden(){
-const m = document.getElementById('select-month').value;
-const y = document.getElementById('select-year').value;
-document.getElementById('date').value = m + '/' + y;
-validateAdd();
-}
+
 function buildPastillesGrid(){
-const container = document.getElementById('pastilles-container');
-container.innerHTML = '';
-zoneData.forEach(item => {
-const div = document.createElement('div');
-div.className = 'pastille';
-div.innerHTML = <div class="pastille-icon">${item.icon}</div> <div class="pastille-name">Zone ${item.id} : ${item.name}</div> <div class="pastille-shelf">${item.shelf}</div>;
-div.onclick = () => selectZone(Zone ${item.id} - ${item.name}, item.shelf);
-container.appendChild(div);
-});
+  const container = document.getElementById('pastilles-container');
+  container.innerHTML = '';
+  zoneData.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'pastille';
+    div.innerHTML = `
+      <div class="pastille-icon">${item.icon}</div>
+      <div class="pastille-name">Zone ${item.id} : ${item.name}</div>
+      <div class="pastille-shelf">${item.shelf}</div>
+    `;
+    div.onclick = () => {
+      document.getElementById('result').innerHTML = `<span>Sélection : Zone ${item.id} (${item.name}) → ${item.shelf}</span>`;
+    };
+    container.appendChild(div);
+  });
 }
-function openZoneModal(){ document.getElementById('zone-modal').style.display = 'flex'; }
-function closeZoneModal(){ document.getElementById('zone-modal').style.display = 'none'; }
-function selectZone(zoneName, shelfDesc){
-document.getElementById('zone').value = zoneName;
-document.getElementById('zone-selected-label').textContent = ${zoneName} (${shelfDesc});
-closeZoneModal();
-validateAdd();
-}
-function waitForGoogle(){
-let tries=0;
-const timer=setInterval(()=>{
-if(window.gapi && !gapiReady){
-gapi.load('client',async()=>{
-try{
-await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
-gapiReady=true; maybeReady();
-}catch(e){setStatus('Impossible de charger Google Sheets.');}
-});
-}
-if(window.google?.accounts?.oauth2 && !gisReady){
-try{
-tokenClient=google.accounts.oauth2.initTokenClient({
-client_id:CLIENT_ID,
-scope:SCOPES,
-callback:(resp)=>{
-if(!resp || !resp.access_token){setStatus('Connexion Google annulée.');return;}
-accessToken=resp.access_token;
-operatorName=localStorage.getItem('zebraOperator')||operatorName||'—';
-updateOperator();
-document.getElementById('login-panel').style.display='none';
-document.getElementById('entry-panel').style.display='flex';
-setStatus('✓ Google Sheets connecté.');
-setTimeout(()=>document.getElementById('code').focus(),100);
-}
-});
-gisReady=true; maybeReady();
-}catch(e){setStatus('Erreur Google Identity : '+e.message);}
-}
-tries++;
-if(gapiReady&&gisReady){clearInterval(timer);}
-if(tries>150&&!gapiReady){clearInterval(timer);setStatus('Google Sheets n’a pas pu être chargé.');}
-},100);
-}
-function maybeReady(){
-if(gapiReady&&gisReady){
-const b=document.getElementById('btn-login');
-b.disabled=false;
-b.textContent='Se connecter à Google';
-updateOperator();
-if(!operatorName) setStatus('Choisissez d’abord un opérateur sur l’accueil.');
-else setStatus('Google Sheets prêt.');
-}
-}
-function initiateGoogleAndOperatorLogin(){
-operatorName=localStorage.getItem('zebraOperator')||operatorName;
-if(!operatorName){setStatus('Aucun opérateur sélectionné.');return;}
-if(!tokenClient||!gisReady){setStatus('Google n’est pas prêt…');return;}
-setStatus('Connexion Google en cours…');
-try{tokenClient.requestAccessToken({prompt:''});}catch(e){setStatus('Erreur : '+e.message);}
-}
-async function findProduct(code){
-document.getElementById('btn-add').disabled=true;
-document.getElementById('product').value='Recherche…';
-try{
-for(const sheet of ['Feuille1','Feuille2']){
-const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:sheet});
-const rows=res.result.values||[];
-for(let i=1;i<rows.length;i++){
-const sheetCode=formatLast6(rows[i][3]||'');
-if(sheetCode===code){
-document.getElementById('product').value=rows[i][2]||'';
-const foundZoneStr = String(rows[i][5]||'').trim();
-document.getElementById('zone').value = foundZoneStr;
-document.getElementById('zone-selected-label').textContent = foundZoneStr;
-document.getElementById('product-hint').textContent='Produit trouvé dans l’historique ✓';
-validateAdd();
-setStatus('Produit reconnu !');
-document.getElementById('qty').focus();
-document.getElementById('qty').select();
-return;
-}
-}
-}
-document.getElementById('product').value='';
-document.getElementById('product-hint').textContent='Nouveau CIP — Saisissez le nom manuellement';
-validateAdd();
-setStatus('Nouveau produit : entrez son nom.');
-document.getElementById('product').focus();
-}catch(e){
-document.getElementById('product').value='';
-document.getElementById('product-hint').textContent='Saisie manuelle requise';
-validateAdd();
-setStatus('Recherche impossible, saisissez le nom.');
-}
-}
-const codeInput=document.getElementById('code');
-codeInput.addEventListener('input',()=>{
-const c=formatLast6(codeInput.value);
-if(c.length=6 && accessToken){ findProduct(c); }
-});
-codeInput.addEventListener('keydown',e=>{
-if(e.key='Enter'){
-e.preventDefault();
-const c=formatLast6(codeInput.value);
-if(c.length===6 && accessToken){ findProduct(c); }
-}
-});
-function validateAdd(){
-const q=parseInt(document.getElementById('qty').value,10);
-const d=document.getElementById('date').value.trim();
-const z=document.getElementById('zone').value.trim();
-const productName=document.getElementById('product').value.trim();
-const codeValid=/^\d{6}/.test(document.getElementById('code').value);
-document.getElementById('btn-add').disabled=!(operatorName && accessToken && codeValid && productName && q>0 && /^\d{2}\/\d{4}/.test(d) && z);
-}
-document.getElementById('qty-minus').onclick=()=>{const q=document.getElementById('qty');q.value=Math.max(1,(parseInt(q.value)||1)-1);validateAdd();};
-document.getElementById('qty-plus').onclick=()=>{const q=document.getElementById('qty');q.value=(parseInt(q.value)||1)+1;validateAdd();};
-document.getElementById('product').oninput=validateAdd;
-document.getElementById('qty').oninput=validateAdd;
-async function addRowToSheet(){
-const btn=document.getElementById('btn-add');
-if(btn.disabled) return;
-const code=formatLast6(document.getElementById('code').value);
-const productVal=document.getElementById('product').value.trim();
-const date=document.getElementById('date').value.trim();
-const qty=parseInt(document.getElementById('qty').value,10);
-const zone=document.getElementById('zone').value.trim();
-if(!/^\d{6}/.test(code)||!productVal||!zone||qty<1||!/^\d{2}\/\d{4}/.test(date)){
-setStatus('Vérifiez les champs du formulaire.');
-return;
-}
-const [m,y]=date.split('/');
-const lastDay=new Date(Number(y),Number(m),0).getDate();
-const dateVal=${y}-${m}-${lastDay};
-const now=new Date().toLocaleString('fr-FR');
-const values=[[operatorName,dateVal,productVal,code,qty,zone,'',0,now]];
-btn.disabled=true; btn.textContent='ENREGISTREMENT…';
-try{
-await gapi.client.sheets.spreadsheets.values.append({
-spreadsheetId:SPREADSHEET_ID,
-range:RANGE,
-valueInputOption:'USER_ENTERED',
-resource:{values}
-});
-setStatus('✓ Produit ajouté avec succès !');
-document.getElementById('code').value='';
-document.getElementById('product').value='';
-document.getElementById('product-hint').textContent='Scannez un CIP pour rechercher automatiquement';
-document.getElementById('zone').value='';
-document.getElementById('zone-selected-label').textContent='Sélectionner sur le plan...';
-document.getElementById('qty').value=1;
-btn.textContent='AJOUTER LE PRODUIT';
-setTimeout(()=>document.getElementById('code').focus(),50);
-}catch(e){
-btn.disabled=false; btn.textContent='AJOUTER LE PRODUIT';
-setStatus('Erreur d’enregistrement : '+(e.result?.error?.message||e.message));
-}
-}
-window.addEventListener('load',()=>{
-updateOperator();
-initDateSelectors();
-buildPastillesGrid();
-waitForGoogle();
-});
+
+window.addEventListener('load', buildPastillesGrid);
 </script>
 </body>
 </html>
+
