@@ -96,7 +96,7 @@ h1{margin:0;font-size:17px;line-height:1;font-weight:900;color:var(--text)}
   border:2px solid var(--pink);color:#fff;background:#fff
 }
 .choice.checked{background:var(--green-soft);border-color:#bde4d0}
-.choice.checked .box{background:var(--green);border-color:var(--green)}
+.choice.checked .box{background:var(--green);border-color:#16834f}
 .choice.checked .txt{color:var(--green)}
 .choice .txt{font-size:10px;font-weight:900;line-height:1.1;color:var(--pink-dark)}
 .choice small{display:block;font-size:7px;margin-top:2px;color:var(--muted);font-weight:600}
@@ -132,1189 +132,477 @@ h1{margin:0;font-size:17px;line-height:1;font-weight:900;color:var(--text)}
   <!-- =========================
        HEADER
   ========================== -->
-
   <header>
-
     <div class="brand">
-
       <div class="logo">
-        <img
-          src="https://i.imgur.com/AExTPc7.png"
-          alt="Pharmacie du Libron"
-        >
+        <img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron">
       </div>
-
       <div class="title">
-
         <h1>À retirer</h1>
-
-        <div class="sub">
-          Produits du mois précédent · Pharmacie du Libron
-        </div>
-
+        <div class="sub">Produits du mois précédent · Pharmacie du Libron</div>
       </div>
-
     </div>
-
     <div class="operator">
-
       Opérateur
-
       <strong id="op">—</strong>
-
     </div>
-
   </header>
-
 
   <!-- =========================
        ACCUEIL
   ========================== -->
-
-  <button
-    class="back"
-    onclick="location.href='ZebraPerimés.html'"
-  >
+  <button class="back" onclick="location.href='ZebraPerimés.html'">
     ← Accueil
   </button>
-
 
   <!-- =========================
        MOIS
   ========================== -->
-
   <section class="period">
-
     <div>
-
-      <div
-        class="month"
-        id="month"
-      >
-        —
-      </div>
-
-      <small>
-        MOIS PRÉCÉDENT
-      </small>
-
+      <div class="month" id="month">—</div>
+      <small>MOIS PRÉCÉDENT</small>
     </div>
-
     <div class="rate">À RETIRER</div>
-
   </section>
-
 
   <!-- =========================
        STATUT
   ========================== -->
-
-  <div
-    id="status"
-    class="status"
-  >
+  <div id="status" class="status">
     Préparation de Google Sheets…
   </div>
-
 
   <!-- =========================
        CONNEXION GOOGLE
   ========================== -->
-
-  <section
-    id="login"
-    class="login"
-  >
-
+  <section id="login" class="login">
     <div class="login-card">
-
-      <b>
-        Connexion Google Sheets
-      </b>
-
-      <p>
-        Appuyez sur le bouton pour autoriser
-        l'accès aux produits.
-      </p>
-
-      <button
-        id="googleBtn"
-        class="google"
-        onclick="connectGoogle()"
-        disabled
-      >
+      <b>Connexion Google Sheets</b>
+      <p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p>
+      <button id="googleBtn" class="google" onclick="connectGoogle()" disabled>
         Préparation…
       </button>
-
     </div>
-
   </section>
-
 
   <!-- =========================
        PRODUITS
   ========================== -->
-
-  <section
-    id="productZone"
-  >
-
-    <div
-      id="card"
-      class="card"
-    >
-    </div>
-
-
-    <button
-      id="next"
-      class="next"
-      disabled
-      onclick="goNext()"
-    >
+  <section id="productZone">
+    <div id="card" class="card"></div>
+    <button id="next" class="next" disabled onclick="goNext()">
       PRODUIT SUIVANT →
     </button>
-
-
     <div class="bottom">
-
-      <div
-        id="ref"
-        class="ref"
-      >
-        Référence 0/0
-      </div>
-
+      <div id="ref" class="ref">Référence 0/0</div>
     </div>
-
-
-    <div
-      id="message"
-      class="message"
-    >
-    </div>
-
+    <div id="message" class="message"></div>
   </section>
 
 </main>
 
-
 <script>
-
 /* ============================================================
    CONFIGURATION GOOGLE
 ============================================================ */
+const CLIENT_ID = '777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
+const SPREADSHEET_ID = '1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
+const SHEET = 'Feuille2';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 
-const CLIENT_ID =
-'777828681958-d450tqhqunv3thi6k4k0i8t33ts26bcv.apps.googleusercontent.com';
-
-const SPREADSHEET_ID =
-'1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
-
-const SHEET =
-'Feuille2';
-
-const SCOPES =
-'https://www.googleapis.com/auth/spreadsheets';
-
-
-/*
-  Cette clé sert uniquement à mémoriser la position
-  de reprise sur le terminal.
-
-  Elle ne modifie PAS Google Sheets.
-*/
-const zebraARetirerResume =
-'zebraARetirerResume';
-
+const zebraARetirerResume = 'zebraARetirerResume';
 
 /* ============================================================
    VARIABLES
 ============================================================ */
-
 let tokenClient = null;
-
 let gapiReady = false;
 let gisReady = false;
-
 let products = [];
-
 let idx = 0;
-
 let checked = false;
-
 
 /* ============================================================
    OPERATEUR
 ============================================================ */
-
-const operator =
-localStorage.getItem('zebraOperator') || '—';
-
-document.getElementById('op').textContent =
-operator;
-
+const operator = localStorage.getItem('zebraOperator') || '—';
+document.getElementById('op').textContent = operator;
 
 /* ============================================================
    CALCUL DU MOIS PRECEDENT
 ============================================================ */
-
 function targetMonth(){
-
   const d = new Date();
-
-  return new Date(
-    d.getFullYear(),
-    d.getMonth() - 1,
-    1
-  );
-
+  return new Date(d.getFullYear(), d.getMonth() - 1, 1);
 }
-
 
 /* ============================================================
    CONVERSION DATE
 ============================================================ */
-
 function dateOf(v){
-
-  if(
-    typeof v === 'number' &&
-    isFinite(v)
-  ){
-
-    const d =
-      new Date(
-        Date.UTC(1899,11,30)
-        + v * 86400000
-      );
-
-    return new Date(
-      d.getUTCFullYear(),
-      d.getUTCMonth(),
-      1
-    );
-
+  if(typeof v === 'number' && isFinite(v)){
+    const d = new Date(Date.UTC(1899,11,30) + v * 86400000);
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), 1);
   }
+  const s = String(v ?? '').trim().toLowerCase();
+  if(!s){ return null; }
 
+  let m = s.match(/^(\d{4})[-/.](\d{1,2})/);
+  if(m){ return new Date(+m[1], +m[2] - 1, 1); }
 
-  const s =
-    String(v ?? '')
-    .trim()
-    .toLowerCase();
-
-
-  if(!s){
-    return null;
-  }
-
-
-  let m =
-    s.match(
-      /^(\d{4})[-/.](\d{1,2})/
-    );
-
-
+  m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);
   if(m){
-
-    return new Date(
-      +m[1],
-      +m[2] - 1,
-      1
-    );
-
-  }
-
-
-  m =
-    s.match(
-      /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/
-    );
-
-
-  if(m){
-
     let y = +m[3];
-
-    if(y < 100){
-      y += 2000;
-    }
-
-    return new Date(
-      y,
-      +m[2] - 1,
-      1
-    );
-
+    if(y < 100){ y += 2000; }
+    return new Date(y, +m[2] - 1, 1);
   }
 
+  m = s.match(/^(\d{1,2})[-/.](\d{4})$/);
+  if(m){ return new Date(+m[2], +m[1] - 1, 1); }
 
-  m =
-    s.match(
-      /^(\d{1,2})[-/.](\d{4})$/
-    );
-
-
-  if(m){
-
-    return new Date(
-      +m[2],
-      +m[1] - 1,
-      1
-    );
-
-  }
-
-
-  const d =
-    new Date(s);
-
-
-  return isNaN(d)
-    ? null
-    : new Date(
-        d.getFullYear(),
-        d.getMonth(),
-        1
-      );
-
+  const d = new Date(s);
+  return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), 1);
 }
-
 
 /* ============================================================
    VERIFICATION DU MOIS
 ============================================================ */
-
 function target(v){
-
   const d = dateOf(v);
-
   const s = targetMonth();
-
-  return (
-    d &&
-    d.getFullYear() === s.getFullYear() &&
-    d.getMonth() === s.getMonth()
-  );
-
+  return (d && d.getFullYear() === s.getFullYear() && d.getMonth() === s.getMonth());
 }
-
 
 /* ============================================================
    SECURITE HTML
 ============================================================ */
-
 function esc(v){
-
-  return String(v ?? '')
-    .replace(
-      /[&<>"']/g,
-      c => ({
-        '&':'&amp;',
-        '<':'&lt;',
-        '>':'&gt;',
-        '"':'&quot;',
-        "'":'&#39;'
-      }[c])
-    );
-
+  return String(v ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
 }
-
 
 /* ============================================================
    MESSAGES
 ============================================================ */
-
 function status(t){
-
-  document.getElementById('status').textContent =
-    t;
-
+  document.getElementById('status').textContent = t;
 }
-
 
 function message(t){
-
-  document.getElementById('message').textContent =
-    t;
-
+  document.getElementById('message').textContent = t;
 }
-
 
 /* ============================================================
    GOOGLE PRET
 ============================================================ */
-
 function setReady(){
-
-  const b =
-    document.getElementById('googleBtn');
-
+  const b = document.getElementById('googleBtn');
   b.disabled = false;
-
-  b.textContent =
-    'Se connecter à Google';
-
-  status(
-    'Google Sheets prêt.'
-  );
-
+  b.textContent = 'Se connecter à Google';
+  status('Google Sheets prêt.');
 }
-
 
 /* ============================================================
    ERREUR GOOGLE
 ============================================================ */
-
 function fail(t){
-
   status(t);
-
-  const b =
-    document.getElementById('googleBtn');
-
+  const b = document.getElementById('googleBtn');
   b.disabled = true;
-
-  b.textContent =
-    'Google indisponible';
-
+  b.textContent = 'Google indisponible';
 }
-
 
 /* ============================================================
    CONNEXION GOOGLE
 ============================================================ */
-
 function connectGoogle(){
-
-  if(
-    !gisReady ||
-    !tokenClient
-  ){
-
-    status(
-      'Google n’est pas encore prêt…'
-    );
-
+  if(!gisReady || !tokenClient){
+    status('Google n’est pas encore prêt…');
     return;
   }
-
-
-  status(
-    'Ouverture de la connexion Google…'
-  );
-
-
-  tokenClient.requestAccessToken({
-    prompt:''
-  });
-
+  status('Ouverture de la connexion Google…');
+  tokenClient.requestAccessToken({ prompt:'' });
 }
-
 
 /* ============================================================
    INITIALISATION GAPI
 ============================================================ */
-
 async function bootGapi(){
-
   try{
-
-    await new Promise(
-      (resolve,reject) => {
-
-        gapi.load(
-          'client',
-          {
-            callback:resolve,
-            onerror:reject
-          }
-        );
-
-      }
-    );
-
-
-    await gapi.client.init({
-
-      discoveryDocs:[
-        'https://sheets.googleapis.com/$discovery/rest?version=v4'
-      ]
-
+    await new Promise((resolve,reject) => {
+      gapi.load('client', { callback:resolve, onerror:reject });
     });
-
-
+    await gapi.client.init({
+      discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']
+    });
     gapiReady = true;
-
     maybeReady();
-
+  }catch(e){
+    fail('Impossible de charger Google Sheets : ' + e.message);
   }
-  catch(e){
-
-    fail(
-      'Impossible de charger Google Sheets : '
-      + e.message
-    );
-
-  }
-
 }
-
 
 /* ============================================================
    INITIALISATION GOOGLE IDENTITY
 ============================================================ */
-
 function bootGIS(){
-
   try{
-
-    if(
-      !window.google ||
-      !google.accounts ||
-      !google.accounts.oauth2
-    ){
-
-      throw new Error(
-        'Google Identity Services non chargé'
-      );
-
+    if(!window.google || !google.accounts || !google.accounts.oauth2){
+      throw new Error('Google Identity Services non chargé');
     }
-
-
-    tokenClient =
-      google.accounts.oauth2.initTokenClient({
-
-        client_id:CLIENT_ID,
-
-        scope:SCOPES,
-
-        callback:async response => {
-
-          if(response.error){
-
-            status(
-              'Connexion Google refusée : '
-              + response.error
-            );
-
-            return;
-          }
-
-
-          if(!response.access_token){
-
-            status(
-              'Google n’a pas fourni de jeton d’accès.'
-            );
-
-            return;
-          }
-
-
-          gapi.client.setToken({
-            access_token:
-              response.access_token
-          });
-
-
-          status(
-            'Connexion Google réussie. Chargement des produits…'
-          );
-
-
-          await load();
-
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: async response => {
+        if(response.error){
+          status('Connexion Google refusée : ' + response.error);
+          return;
         }
-
-      });
-
-
+        if(!response.access_token){
+          status('Google n’a pas fourni de jeton d’accès.');
+          return;
+        }
+        gapi.client.setToken({ access_token: response.access_token });
+        status('Connexion Google réussie. Chargement des produits…');
+        await load();
+      }
+    });
     gisReady = true;
-
     maybeReady();
-
+  }catch(e){
+    fail('Impossible de préparer la connexion Google : ' + e.message);
   }
-  catch(e){
-
-    fail(
-      'Impossible de préparer la connexion Google : '
-      + e.message
-    );
-
-  }
-
 }
-
 
 /* ============================================================
    VERIFICATION GOOGLE PRET
 ============================================================ */
-
 function maybeReady(){
-
-  if(
-    gapiReady &&
-    gisReady
-  ){
-
+  if(gapiReady && gisReady){
     setReady();
-
   }
-
 }
 
+/* ============================================================
+   SAUVEGARDE DE LA POSITION (REPRISE)
+============================================================ */
+function saveResume(){
+  if(products[idx]){
+    localStorage.setItem(zebraARetirerResume, JSON.stringify({
+      operator: operator,
+      code: String(products[idx].r[3] || '')
+    }));
+  }
+}
+
+/* ============================================================
+   AFFICHAGE DU PRODUIT COURANT
+============================================================ */
+function render(){
+  const item = products[idx];
+  if(!item) return;
+  const r = item.r;
+  const stock = Number(r[4]) || 0;
+  const oldSold = Number(r[6]) || 0;
+  const aRetirer = stock - oldSold;
+
+  document.getElementById('card').innerHTML = `
+    <div class="name">${esc(r[2] || 'Produit sans nom')}</div>
+    <div class="meta">CIP : ${esc(r[3] || '—')} · Stock : ${stock}</div>
+    <div class="geo">📍 ZONE GÉO : ${esc(r[5] || '—')}</div>
+    <div class="line"></div>
+    <div class="stats">
+      <div class="stat"><span>STOCK</span><b>${stock}</b></div>
+      <div class="stat"><span>À RETIRER</span><b>${aRetirer}</b></div>
+    </div>
+    <div class="choices">
+      <button type="button" class="choice" id="removeChoice" onclick="toggleCheck()">
+        <span class="box" id="removeBox"></span>
+        <span class="txt">PRODUIT TOTALEMENT RETIRÉ
+          <small>Appuyer ici pour confirmer le retrait</small>
+        </span>
+      </button>
+    </div>
+  `;
+
+  checked = false;
+  document.getElementById('next').disabled = true;
+  document.getElementById('ref').textContent = `Référence ${idx + 1}/${products.length}`;
+  saveResume();
+}
 
 /* ============================================================
    CHARGEMENT DES PRODUITS
 ============================================================ */
-
 async function load(){
-
   try{
+    const res = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: SHEET
+    });
 
-    /*
-      IMPORTANT :
-
-      Cette fonction lit Feuille2.
-
-      Elle ne fait AUCUNE écriture.
-
-      Donc :
-      - cliquer sur "À retirer"
-      - se connecter
-      - charger les produits
-
-      ne modifie pas l'historique.
-    */
-
-    const res =
-      await gapi.client.sheets.spreadsheets.values.get({
-
-        spreadsheetId:
-          SPREADSHEET_ID,
-
-        range:
-          SHEET
-
-      });
-
-
-    const rows =
-      res.result.values || [];
-
-
+    const rows = res.result.values || [];
     products = [];
 
+    rows.slice(1).forEach((r,i) => {
+      const stock = Number(r[4]) || 0;
+      const oldSold = Number(r[6]) || 0;
 
-    rows
-      .slice(1)
-      .forEach((r,i) => {
+      if(target(r[1]) && stock > oldSold){
+        products.push({ r, row:i + 2 });
+      }
+    });
 
-        const stock =
-          Number(r[4]) || 0;
-
-        const oldSold =
-          Number(r[6]) || 0;
-
-
-        /*
-          On affiche uniquement les produits
-          du mois précédent pour lesquels
-          il reste quelque chose à retirer.
-        */
-
-        if(
-          target(r[1]) &&
-          stock > oldSold
-        ){
-
-          products.push({
-
-            r,
-
-            row:i + 2
-
-          });
-
-        }
-
-      });
-
-
-    /*
-      Tri par date
-    */
-
-    products.sort(
-
-      (a,b) =>
-
-        (
-          dateOf(a.r[1])?.getTime() || 0
-        )
-        -
-        (
-          dateOf(b.r[1])?.getTime() || 0
-        )
-
-        ||
-
-        a.row - b.row
-
+    products.sort((a,b) =>
+      (dateOf(a.r[1])?.getTime() || 0) - (dateOf(b.r[1])?.getTime() || 0) || a.row - b.row
     );
 
-
-    /*
-      On masque la connexion
-    */
-
-    document.getElementById('login')
-      .style.display = 'none';
-
-
-    document.getElementById('productZone')
-      .style.display = 'flex';
-
-
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('productZone').style.display = 'flex';
     idx = 0;
 
-
-    /*
-      Reprise automatique
-    */
-
-    const saved =
-      JSON.parse(
-        localStorage.getItem(
-          zebraARetirerResume
-        ) || 'null'
-      );
-
-
-    if(
-      saved &&
-      saved.operator === operator &&
-      saved.code
-    ){
-
-      const n =
-        products.findIndex(
-          x =>
-            String(x.r[3] || '') ===
-            String(saved.code)
-        );
-
-
-      if(n >= 0){
-
-        idx = n;
-
-      }
-
+    const saved = JSON.parse(localStorage.getItem(zebraARetirerResume) || 'null');
+    if(saved && saved.operator === operator && saved.code){
+      const n = products.findIndex(x => String(x.r[3] || '') === String(saved.code));
+      if(n >= 0){ idx = n; }
     }
-
 
     if(products.length){
-
       render();
-
-    }
-    else{
-
+    } else {
       document.getElementById('card').innerHTML = `
-      <div class="name">${esc(r[2] || 'Produit sans nom')}</div>
-      <div class="meta">CIP : ${esc(r[3] || '—')} · Stock : ${stock}</div>
-      <div class="geo">📍 ZONE GÉO : ${esc(r[5] || '—')}</div>
-      <div class="line"></div>
-      <div class="stats">
-        <div class="stat"><span>STOCK</span><b>${stock}</b></div>
-        <div class="stat"><span>À RETIRER</span><b>${stock}</b></div>
-      </div>
-      <div class="choices">
-        <button type="button" class="choice" id="removeChoice" onclick="toggleCheck()">
-          <span class="box" id="removeBox"></span>
-          <span class="txt">PRODUIT TOTALEMENT RETIRÉ
-            <small>Appuyer ici pour confirmer le retrait</small>
-          </span>
-        </button>
-      </div>
-    `;
+        <div style="margin:auto;text-align:center;color:#657484;font-size:12px">
+          Tous les produits à retirer du mois sont traités. ✓
+        </div>
+      `;
+      document.getElementById('ref').textContent = 'Référence 0/0';
+    }
 
-    /*
-      Le bouton suivant est activé est activé
-    uniquement si le produit est coché.
-  */
+    message('');
 
-  document.getElementById('next')
-    .disabled =
-    !checked;
-
-
-  document.getElementById('ref')
-    .textContent =
-    `Référence ${idx + 1}/${products.length}`;
-
-
-  saveResume();
-
+  }catch(e){
+    fail('Erreur lors du chargement des produits : ' + (e.result?.error?.message || e.message));
+  }
 }
-
 
 /* ============================================================
    COCHER / DECOCHER
 ============================================================ */
-
 function toggleCheck(){
-  checked=!checked;
-  const c=document.getElementById('removeChoice');
-  const b=document.getElementById('removeBox');
-  if(c)c.classList.toggle('checked',checked);
-  if(b)b.textContent=checked?'✓':'';
-  const n=document.getElementById('next');
-  if(n)n.disabled=!checked;
+  checked = !checked;
+  const c = document.getElementById('removeChoice');
+  const b = document.getElementById('removeBox');
+  if(c) c.classList.toggle('checked', checked);
+  if(b) b.textContent = checked ? '✓' : '';
+  const n = document.getElementById('next');
+  if(n) n.disabled = !checked;
 }
-
 
 /* ============================================================
    ECRITURE GOOGLE SHEETS
 ============================================================ */
-
-async function updateSold(
-  row,
-  value
-){
-
-  /*
-    C'est LA SEULE fonction de ce fichier
-    qui écrit dans Google Sheets.
-
-    Elle écrit uniquement dans :
-
-    Feuille2 colonne G
-
-    Elle n'écrit PAS dans une feuille
-    "Historique".
-  */
-
-  return gapi.client
-    .sheets
-    .spreadsheets
-    .values
-    .update({
-
-      spreadsheetId:
-        SPREADSHEET_ID,
-
-      range:
-        `${SHEET}!G${row}`,
-
-      valueInputOption:
-        'USER_ENTERED',
-
-      resource:{
-        values:[
-          [value]
-        ]
-      }
-
-    });
-
+async function updateSold(row, value){
+  return gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${SHEET}!G${row}`,
+    valueInputOption: 'USER_ENTERED',
+    resource:{ values:[[value]] }
+  });
 }
-
 
 /* ============================================================
    PASSAGE AU PRODUIT SUIVANT
 ============================================================ */
-
 async function goNext(){
+  if(!checked || !products[idx]){ return; }
 
-  if(
-    !checked ||
-    !products[idx]
-  ){
+  const r = products[idx].r;
+  const row = products[idx].row;
+  const code = String(r[3] || '');
 
-    return;
-
-  }
-
-
-  const r =
-    products[idx].r;
-
-  const row =
-    products[idx].row;
-
-  const code =
-    String(
-      r[3] || ''
-    );
-
-
-  document.getElementById('next')
-    .disabled = true;
-
-
-  message(
-    'Enregistrement…'
-  );
-
+  document.getElementById('next').disabled = true;
+  message('Enregistrement…');
 
   try{
+    const stock = Number(r[4]) || 0;
 
-    const stock =
-      Number(r[4]) || 0;
+    await updateSold(row, stock);
 
-
-    /*
-      ICI seulement :
-
-      le stock retiré est enregistré
-      dans Feuille2 colonne G.
-    */
-
-    await updateSold(
-      row,
-      stock
-    );
-
-
-    /*
-      La position de reprise est supprimée
-      uniquement après l'enregistrement réussi.
-    */
-
-    localStorage.removeItem(
-      zebraARetirerResume
-    );
-
-
+    localStorage.removeItem(zebraARetirerResume);
     checked = false;
-
-
-    /*
-      Recharge les données depuis Google Sheets.
-
-      Cela permet de faire disparaître
-      le produit qui vient d'être traité.
-    */
 
     await load();
 
-
-    /*
-      On recherche le produit traité
-      pour conserver une position correcte.
-    */
-
-    const n =
-      products.findIndex(
-        x =>
-          String(x.r[3] || '') ===
-          code
-      );
-
-
-    idx =
-      n >= 0
-        ? n
-        : Math.min(
-            idx,
-            Math.max(
-              0,
-              products.length - 1
-            )
-          );
-
+    const n = products.findIndex(x => String(x.r[3] || '') === code);
+    idx = n >= 0 ? n : Math.min(idx, Math.max(0, products.length - 1));
 
     if(products.length){
-
       render();
-
       message('');
-
-    }
-    else{
-
-      document.getElementById('card')
-        .innerHTML =
-        '<div style="margin:auto;text-align:center;color:#657484;font-size:12px">' +
-        'Tous les produits à retirer du mois sont traités. ✓' +
-        '</div>';
-
-
-      document.getElementById('ref')
-        .textContent =
-        'Référence 0/0';
-
-
+    } else {
+      document.getElementById('card').innerHTML = `
+        <div style="margin:auto;text-align:center;color:#657484;font-size:12px">
+          Tous les produits à retirer du mois sont traités. ✓
+        </div>
+      `;
+      document.getElementById('ref').textContent = 'Référence 0/0';
       message('');
-
     }
 
+  }catch(e){
+    document.getElementById('next').disabled = false;
+    message('Erreur : ' + (e.result?.error?.message || e.message));
   }
-  catch(e){
-
-    /*
-      En cas d'erreur Google :
-
-      le bouton redevient actif
-      et aucune autre action n'est effectuée.
-    */
-
-    document.getElementById('next')
-      .disabled = false;
-
-
-    message(
-      'Erreur : '
-      +
-      (
-        e.result?.error?.message ||
-        e.message
-      )
-    );
-
-  }
-
 }
-
 
 /* ============================================================
    MOIS
 ============================================================ */
-
 const months = [
-
-  'janvier',
-  'février',
-  'mars',
-  'avril',
-  'mai',
-  'juin',
-  'juillet',
-  'août',
-  'septembre',
-  'octobre',
-  'novembre',
-  'décembre'
-
+  'janvier','février','mars','avril','mai','juin',
+  'juillet','août','septembre','octobre','novembre','décembre'
 ];
 
-
-const tm =
-  targetMonth();
-
-
-document.getElementById('month')
-  .textContent =
-  months[tm.getMonth()]
-  +
-  ' '
-  +
-  tm.getFullYear();
-
+const tm = targetMonth();
+document.getElementById('month').textContent = months[tm.getMonth()] + ' ' + tm.getFullYear();
 
 /* ============================================================
    DEMARRAGE GOOGLE
 ============================================================ */
-
 let gapiStarted = false;
 let gisStarted = false;
 
-
 function waitForGoogle(){
-
   let tries = 0;
-
-
-  const timer =
-    setInterval(() => {
-
-      /*
-        GAPI
-      */
-
-      if(
-        !gapiStarted &&
-        window.gapi
-      ){
-
-        gapiStarted = true;
-
-        bootGapi();
-
+  const timer = setInterval(() => {
+    if(!gapiStarted && window.gapi){
+      gapiStarted = true;
+      bootGapi();
+    }
+    if(!gisStarted && window.google?.accounts?.oauth2){
+      gisStarted = true;
+      bootGIS();
+    }
+    tries++;
+    if(gapiReady && gisReady){
+      clearInterval(timer);
+      return;
+    }
+    if(tries > 120){
+      clearInterval(timer);
+      if(!gapiReady || !gisReady){
+        fail('Google n’a pas pu être chargé. Vérifiez Internet puis rechargez la page.');
       }
-
-
-      /*
-        Google Identity
-      */
-
-      if(
-        !gisStarted &&
-        window.google?.accounts?.oauth2
-      ){
-
-        gisStarted = true;
-
-        bootGIS();
-
-      }
-
-
-      tries++;
-
-
-      if(
-        gapiReady &&
-        gisReady
-      ){
-
-        clearInterval(timer);
-
-        return;
-
-      }
-
-
-      /*
-        Après environ 12 secondes
-      */
-
-      if(tries > 120){
-
-        clearInterval(timer);
-
-
-        if(
-          !gapiReady ||
-          !gisReady
-        ){
-
-          fail(
-            'Google n’a pas pu être chargé. ' +
-            'Vérifiez Internet puis rechargez la page.'
-          );
-
-        }
-
-      }
-
-    },100);
-
+    }
+  }, 100);
 }
-
 
 /* ============================================================
    DEMARRAGE
 ============================================================ */
-
-window.addEventListener(
-  'load',
-  waitForGoogle
-);
-
+window.addEventListener('load', waitForGoogle);
 </script>
 
 </body>
