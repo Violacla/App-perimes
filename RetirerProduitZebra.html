@@ -12,453 +12,65 @@
 
 <style>
 :root{
-  --blue:#bcd7ed;
-  --green:#16834f;
-  --green2:#42b77a;
-  --greenLight:#edf9f3;
-  --dark:#153d31;
-  --text:#253746;
-  --muted:#657484;
-  --pink:#e45b7a;
-  --pinkLight:#fff0f4;
-  --pinkBorder:#f2b5c4;
-  --line:#e1e7eb;
+  --blue:#bcd7ed;--green:#16834f;--green2:#42b77a;--greenLight:#edf9f3;
+  --dark:#153d31;--text:#253746;--muted:#657484;--pink:#e45b7a;
+  --pinkLight:#fff0f4;--pinkBorder:#f2b5c4;--line:#e1e7eb
 }
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f5fafd 100%);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:560px;height:100%;padding:5px 10px 3px;display:flex;flex-direction:column;min-height:0}
+header{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#cfe5f4 0%,#bcd7ed 55%,#dceef8 100%);border-radius:14px;padding:0 13px;margin-bottom:6px;min-width:0}
+.brand{display:flex;align-items:center;gap:7px;min-width:0}
+.logo{width:40px;height:40px;flex:0 0 40px}.logo img{width:100%;height:100%;object-fit:contain}
+.title{min-width:0;overflow:hidden}
+h1{font-size:19px;letter-spacing:1.2px;line-height:1;margin:0;font-weight:900;color:var(--dark)}
+.sub{font-size:8px;color:var(--muted);margin-top:5px;white-space:nowrap}
+.operator{text-align:right;font-size:9px;flex:0 0 auto;color:var(--muted);text-transform:uppercase}
+.operator strong{display:block;font-size:23px;color:var(--text);line-height:1;margin-top:6px}
+
+.back{height:27px;flex:0 0 27px;border:1px solid #d5e0e8;border-radius:12px;background:#fff;color:var(--text);font-size:11px;font-weight:900;margin-bottom:7px}
+.period{height:50px;flex:0 0 50px;padding:5px 14px;display:flex;align-items:center;justify-content:space-between}
+.month{font-size:18px;font-weight:900;text-transform:uppercase}
+.period small{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-top:5px}
+.rate{font-size:17px;font-weight:900;border-radius:13px;padding:5px 10px;color:var(--pink);background:var(--pinkLight);border:1px solid var(--pinkBorder)}
+.status{text-align:center;font-size:9px;color:var(--muted);min-height:9px;margin:0 0 2px;flex:0 0 9px}
+
+.login{flex:1;display:flex;align-items:center;justify-content:center}
+.login-card{width:100%;border:1px solid var(--line);border-radius:18px;padding:25px 16px;text-align:center;box-shadow:0 5px 18px rgba(21,61,49,.08)}
+.login-card b{font-size:15px}.login-card p{font-size:10px;color:var(--muted);margin:7px 0 15px}
+.google{border:0;background:var(--blue);color:var(--text);border-radius:12px;height:43px;padding:0 20px;font-size:11px;font-weight:900;cursor:pointer}
+
+#productZone{display:none;flex:1 1 auto;min-height:0;flex-direction:column;overflow:hidden}
+.card{flex:1 1 auto;min-height:0;border:2px solid var(--line);border-radius:16px;padding:9px;box-shadow:0 3px 12px rgba(21,61,49,.06);display:flex;flex-direction:column;overflow:hidden}
+.name{font-size:17px;font-weight:900;line-height:1.18;text-transform:uppercase}
+.meta{font-size:8px;color:var(--muted);line-height:1.5;margin-top:6px}
+.geo{display:block;margin-top:6px;padding:7px 9px;border-radius:12px;background:#e7f5ff;border:2px solid #9ed8ff;color:#1776b5;font-size:14px;font-weight:900;letter-spacing:.3px;text-transform:uppercase}
+.line{border-top:1px solid #edf0f2;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:5px}
+.stat{background:#f7f9fa;border-radius:8px;padding:5px;text-align:center}
+.stat span{display:block;font-size:9px;color:var(--muted);font-weight:700}
+.stat b{display:block;font-size:21px;margin-top:3px}
+.stat:nth-child(2) b{color:var(--pink)}
+.choices{display:grid;gap:5px;margin-top:5px}
+.choice{border:2px solid var(--pinkBorder);border-radius:11px;min-height:49px;padding:5px 7px;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;background:var(--pinkLight)}
+.choice .box{width:23px;height:23px;flex:0 0 23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:2px solid var(--pink);color:var(--pink);background:#fff}
+.choice .txt{font-size:10px;font-weight:900;line-height:1.15;color:var(--pink)}
+.choice small{display:block;font-size:8px;margin-top:2px;color:var(--muted);font-weight:500}
+.next{height:43px;flex:0 0 43px;border:0;border-radius:12px;margin-top:6px;background:var(--pink);color:#fff;font-size:11px;font-weight:900;cursor:pointer}
+.next:disabled{background:#dfe5e8;color:#98a5ad}
+.bottom{height:13px;flex:0 0 13px;display:flex;justify-content:flex-end;align-items:end}
+.ref{font-size:10px;font-weight:900;color:var(--muted)}
+.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
+
+/* Esthétique Libron reprise de Trimestre Zebra — dimensions scanette conservées */
+.brand{gap:7px}
+.logo{background:transparent;border-radius:0;overflow:visible}
+h1{color:var(--dark)}
+.operator{letter-spacing:.7px;white-space:nowrap}
+.card{background:rgba(255,255,255,.92);box-shadow:0 3px 12px rgba(62,91,122,.10)}
+.back{background:rgba(255,255,255,.78)}
 
-*{
-  box-sizing:border-box;
-}
-
-html,
-body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#fff;
-  font-family:Arial,Helvetica,sans-serif;
-  color:var(--text);
-}
-
-body{
-  display:flex;
-  justify-content:center;
-}
-
-.app{
-  width:100%;
-  max-width:560px;
-  height:100%;
-  padding:12px 18px 9px;
-  display:flex;
-  flex-direction:column;
-}
-
-/* =========================
-   HEADER
-========================= */
-
-header{
-  height:82px;
-  flex:0 0 82px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-
-  background:var(--blue);
-  border-radius:16px;
-
-  padding:0 16px;
-  margin-bottom:8px;
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  min-width:0;
-}
-
-.logo{
-  width:58px;
-  height:58px;
-  flex:0 0 58px;
-}
-
-.logo img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-
-.title{
-  min-width:0;
-}
-
-h1{
-  font-size:23px;
-  letter-spacing:1.2px;
-  line-height:1;
-  margin:0;
-  font-weight:900;
-  color:var(--dark);
-}
-
-.sub{
-  font-size:10px;
-  color:var(--muted);
-  margin-top:8px;
-  white-space:nowrap;
-}
-
-.operator{
-  text-align:right;
-  font-size:10px;
-  color:var(--muted);
-  text-transform:uppercase;
-}
-
-.operator strong{
-  display:block;
-  font-size:32px;
-  color:var(--text);
-  line-height:1;
-  margin-top:6px;
-}
-
-/* =========================
-   RETOUR
-========================= */
-
-.back{
-  height:34px;
-  flex:0 0 34px;
-
-  border:1px solid #d5e0e8;
-  border-radius:12px;
-  background:#fff;
-
-  color:var(--text);
-  font-size:11px;
-  font-weight:900;
-
-  margin-bottom:7px;
-}
-
-/* =========================
-   PERIODE
-========================= */
-
-.period{
-  height:70px;
-  flex:0 0 70px;
-
-  padding:5px 14px;
-
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.month{
-  font-size:24px;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-.period small{
-  display:block;
-  font-size:9px;
-  color:var(--muted);
-  font-weight:800;
-  margin-top:5px;
-}
-
-.rate{
-  font-size:21px;
-  font-weight:900;
-
-  border-radius:13px;
-  padding:8px 16px;
-
-  color:var(--pink);
-  background:var(--pinkLight);
-  border:1px solid var(--pinkBorder);
-}
-
-/* =========================
-   STATUT GOOGLE
-========================= */
-
-.status{
-  text-align:center;
-  font-size:9px;
-  color:var(--muted);
-
-  min-height:13px;
-  margin:2px 0 5px;
-}
-
-/* =========================
-   CONNEXION
-========================= */
-
-.login{
-  flex:1;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.login-card{
-  width:100%;
-
-  border:1px solid var(--line);
-  border-radius:18px;
-
-  padding:25px 16px;
-
-  text-align:center;
-
-  box-shadow:0 5px 18px rgba(21,61,49,.08);
-}
-
-.login-card b{
-  font-size:15px;
-}
-
-.login-card p{
-  font-size:10px;
-  color:var(--muted);
-  margin:7px 0 15px;
-}
-
-.google{
-  border:0;
-
-  background:var(--blue);
-  color:var(--text);
-
-  border-radius:12px;
-
-  height:43px;
-  padding:0 20px;
-
-  font-size:11px;
-  font-weight:900;
-
-  cursor:pointer;
-}
-
-/* =========================
-   PRODUIT
-========================= */
-
-#productZone{
-  display:none;
-
-  flex:1;
-  min-height:0;
-
-  flex-direction:column;
-}
-
-.card{
-  flex:1;
-  min-height:0;
-
-  border:2px solid var(--line);
-  border-radius:24px;
-
-  padding:18px;
-
-  box-shadow:0 5px 18px rgba(21,61,49,.07);
-
-  display:flex;
-  flex-direction:column;
-}
-
-.name{
-  font-size:23px;
-  font-weight:900;
-  line-height:1.18;
-  text-transform:uppercase;
-}
-
-.meta{
-  font-size:10px;
-  color:var(--muted);
-  line-height:1.5;
-  margin-top:8px;
-}
-
-.line{
-  border-top:2px solid #edf0f2;
-  margin-top:12px;
-}
-
-/* =========================
-   STOCK
-========================= */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-
-  margin-top:14px;
-}
-
-.stat{
-  background:#f7f9fa;
-  border-radius:12px;
-
-  padding:12px;
-
-  text-align:center;
-}
-
-.stat span{
-  display:block;
-  font-size:10px;
-  color:var(--muted);
-  font-weight:700;
-}
-
-.stat b{
-  display:block;
-  font-size:28px;
-  margin-top:4px;
-}
-
-.stat:nth-child(2) b{
-  color:var(--pink);
-}
-
-/* =========================
-   CHOIX
-========================= */
-
-.choices{
-  display:grid;
-  gap:10px;
-  margin-top:16px;
-}
-
-.choice{
-  border:2px solid var(--pinkBorder);
-  border-radius:17px;
-
-  min-height:76px;
-
-  padding:12px 16px;
-
-  display:flex;
-  align-items:center;
-  gap:14px;
-
-  text-align:left;
-
-  cursor:pointer;
-
-  background:var(--pinkLight);
-}
-
-.choice .box{
-  width:33px;
-  height:33px;
-  flex:0 0 33px;
-
-  border-radius:50%;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  font-weight:900;
-  font-size:20px;
-
-  border:3px solid var(--pink);
-
-  color:var(--pink);
-
-  background:#fff;
-}
-
-.choice .txt{
-  font-size:14px;
-  font-weight:900;
-  line-height:1.2;
-  color:var(--pink);
-}
-
-.choice small{
-  display:block;
-
-  font-size:10px;
-
-  margin-top:4px;
-
-  color:var(--muted);
-
-  font-weight:500;
-}
-
-/* =========================
-   BOUTON SUIVANT
-========================= */
-
-.next{
-  height:58px;
-  flex:0 0 58px;
-
-  border:0;
-  border-radius:17px;
-
-  margin-top:14px;
-
-  background:var(--pink);
-  color:#fff;
-
-  font-size:15px;
-  font-weight:900;
-
-  cursor:pointer;
-}
-
-.next:disabled{
-  background:#dfe5e8;
-  color:#98a5ad;
-
-  cursor:not-allowed;
-}
-
-/* =========================
-   BAS
-========================= */
-
-.bottom{
-  height:24px;
-  flex:0 0 24px;
-
-  display:flex;
-  justify-content:flex-end;
-  align-items:end;
-}
-
-.ref{
-  font-size:10px;
-  font-weight:900;
-  color:var(--muted);
-}
-
-.message{
-  text-align:center;
-  font-size:9px;
-  color:#c05d6f;
-  height:12px;
-}
 </style>
 </head>
 
@@ -537,9 +149,7 @@ h1{
 
     </div>
 
-    <div class="rate">
-      À RETIRER
-    </div>
+    <div class="rate">À RETIRER</div>
 
   </section>
 
@@ -611,7 +221,7 @@ h1{
       disabled
       onclick="goNext()"
     >
-      VALIDER ET PASSER AU SUIVANT →
+      PRODUIT SUIVANT →
     </button>
 
 
@@ -1262,172 +872,51 @@ async function load(){
     else{
 
       document.getElementById('card')
-        .innerHTML =
-        '<div style="margin:auto;text-align:center;color:#657484;font-size:12px">' +
-        'Aucun produit à retirer pour ce mois. ✓' +
-        '</div>';
-
-
-      document.getElementById('ref')
-        .textContent =
-        'Référence 0/0';
-
-    }
-
-
-    status(
-      'Google Sheets connecté.'
-    );
-
-  }
-  catch(e){
-
-    status(
-      'Erreur Google Sheets : '
-      +
-      (
-        e.result?.error?.message ||
-        e.message
-      )
-    );
-
-  }
-
-}
-
-
-/* ============================================================
-   SAUVEGARDE POSITION
-============================================================ */
-
-function saveResume(){
-
-  if(products[idx]){
-
-    /*
-      Ceci est uniquement enregistré
-      dans le stockage local du terminal.
-
-      Aucune modification Google Sheets.
-    */
-
-    localStorage.setItem(
-
-      zebraARetirerResume,
-
-      JSON.stringify({
-
-        operator,
-
-        code:
-          String(
-            products[idx].r[3] || ''
-          ),
-
-        updatedAt:
-          Date.now()
-
-      })
-
-    );
-
-  }
-
-}
-
-
-/* ============================================================
-   AFFICHAGE PRODUIT
-============================================================ */
-
-function render(){
-
-  const r =
-    products[idx].r;
-
-
-  const stock =
-    Number(r[4]) || 0;
-
-
-  document.getElementById('card')
     .innerHTML =
-
     `
       <div class="name">
-        ${esc(
-          r[2] ||
-          'Produit sans nom'
-        )}
+        ${esc(r[2] || 'Produit sans nom')}
       </div>
 
       <div class="meta">
-        Date : ${esc(r[1] || '—')}
-        · Code : ${esc(r[3] || '—')}
-        · Zone : ${esc(r[5] || '—')}
+        Date : ${esc(r[1] || '—')} · Code : ${esc(r[3] || '—')}
+      </div>
+
+      <div class="geo">
+        ZONE GÉO : ${esc(r[5] || '—')}
       </div>
 
       <div class="line"></div>
 
       <div class="stats">
-
         <div class="stat">
-
-          <span>
-            STOCK INITIAL
-          </span>
-
-          <b>
-            ${stock}
-          </b>
-
+          <span>STOCK INITIAL</span>
+          <b>${stock}</b>
         </div>
 
-
         <div class="stat">
-
-          <span>
-            À RETIRER
-          </span>
-
-          <b>
-            ${stock}
-          </b>
-
+          <span>À RETIRER</span>
+          <b>${stock}</b>
         </div>
-
       </div>
 
-
       <div class="choices">
-
-        <div
+        <button
+          type="button"
           class="choice"
           onclick="toggleCheck()"
         >
-
-          <span class="box">
-            ${checked ? '✓' : ''}
-          </span>
-
-          <div class="txt">
-
+          <span class="box">${checked ? '✓' : ''}</span>
+          <span class="txt">
             PRODUIT TOTALEMENT RETIRÉ
-
-            <small>
-              Cocher pour valider et passer au suivant
-            </small>
-
-          </div>
-
-        </div>
-
+            <small>Cocher pour passer au produit suivant</small>
+          </span>
+        </button>
       </div>
     `;
 
-
-  /*
-    Le bouton suivant est activé
+    /*
+      Le bouton suivant est activé est activé
     uniquement si le produit est coché.
   */
 
