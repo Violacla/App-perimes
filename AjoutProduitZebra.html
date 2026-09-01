@@ -8,35 +8,106 @@
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
-:root{--bg:#eaf4fa;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;--pink:#d99aae;--pink-dark:#c77991;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;--border:#cbddea;--shadow:0 7px 20px rgba(62,91,122,.12)}
+:root{
+  --bg:#eaf4fa;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
+  --pink:#d99aae;--pink-dark:#c77991;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;
+  --border:#cbddea;--shadow:0 5px 15px rgba(62,91,122,.12);
+  --green:#16834f;--green-soft:#edf9f3
+}
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f8edf1 100%);color:var(--text)}
-body{min-height:100dvh;display:flex;justify-content:center}
-.app{width:100%;max-width:430px;min-height:100dvh;padding:6px 9px 10px}
-header{text-align:center;padding:2px 4px 6px}
-.logo{width:48px;height:48px;margin:0 auto 3px}.logo img{width:100%;height:100%;object-fit:contain}
-h1{margin:0;font-size:18px;color:var(--text)}.subtitle{margin:2px 0 0;font-size:9px;color:var(--muted)}
-.session{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:9px;color:var(--muted)}
-.session strong{color:var(--blue-dark)}.change{border:1px solid var(--border);background:#fff;border-radius:8px;padding:4px 7px;font-size:8px;color:var(--blue-dark)}
-.panel{background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:15px;padding:8px;box-shadow:var(--shadow);margin-bottom:6px}
-.panel-title{font-size:12px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:5px}
-.google{width:100%;height:41px;border:0;border-radius:10px;background:var(--blue-dark);color:#fff;font-size:12px;font-weight:800}
-.scan-box{background:linear-gradient(135deg,var(--blue-soft),var(--pink-soft));border:1px solid var(--border);border-radius:13px;padding:7px}
-.scan-title{font-size:9px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:3px}
-#code{width:100%;height:45px;border:2px solid var(--blue);border-radius:9px;background:#fff;text-align:center;font-size:20px;font-weight:800;letter-spacing:1px}
-.product-card{background:linear-gradient(135deg,#fff,var(--pink-soft));border:1px solid #e6cbd4;border-radius:13px;padding:7px;margin-top:5px}
-.product-label{font-size:8px;font-weight:800;color:var(--pink-dark);margin-bottom:2px}.product-name{width:100%;height:31px;border:1px solid transparent;border-radius:7px;background:rgba(255,255,255,.72);font-size:16px;font-weight:800;color:var(--blue-dark);padding:0 4px;text-align:center;min-height:19px}.product-name:focus{outline:2px solid rgba(217,154,174,.4);border-color:#e6cbd4}
-.row{display:flex;gap:6px;margin-top:5px}.field{flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px}
-.field-label{font-size:8px;font-weight:800;color:var(--muted);margin-bottom:3px}
-input{width:100%;height:35px;border:1px solid var(--border);border-radius:8px;padding:0 6px;background:#fff;color:var(--text);font-size:13px}
-input:focus{outline:2px solid rgba(217,154,174,.4)}
-.date-control{display:flex;align-items:center;gap:3px}.date-btn{width:31px;height:35px;border:0;border-radius:7px;background:var(--pink-soft);color:var(--pink-dark);font-size:18px;font-weight:800}.date-value{flex:1;text-align:center;font-weight:800;color:var(--blue-dark);font-size:12px}
-.qty-control{display:flex;align-items:center;gap:3px}.qty-btn{width:33px;height:35px;border:0;border-radius:7px;background:var(--blue-soft);color:var(--blue-dark);font-size:20px;font-weight:800}#qty{text-align:center;font-weight:800}
-.zone-wrap{position:relative}.zone-select{height:37px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:8px;background:linear-gradient(90deg,#fff,var(--pink-soft));padding:0 9px;font-size:12px;font-weight:800;color:var(--blue-dark);cursor:pointer}
-.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:50;background:#fff;border:1px solid var(--border);border-radius:8px;list-style:none;margin:2px 0 0;padding:0;max-height:120px;overflow-y:auto}.autocomplete-list li{padding:7px 8px;font-size:11px}.autocomplete-list li.active,.autocomplete-list li:hover{background:var(--pink-soft);color:var(--pink-dark)}
-.save{width:100%;height:44px;margin-top:6px;border:0;border-radius:10px;background:var(--pink);color:#fff;font-size:13px;font-weight:900;box-shadow:var(--shadow)}.save:disabled{opacity:.4}
-.status{min-height:13px;margin:3px 0;text-align:center;font-size:9px;font-weight:700;color:var(--blue-dark)}.back-link{display:block;text-align:center;color:var(--blue-dark);text-decoration:none;font-size:8px;font-weight:700}
-@media(max-height:650px){.app{padding-top:3px}.logo{width:40px;height:40px}h1{font-size:16px}.panel{padding:7px}#code{height:41px}.product-card{padding:6px}.save{height:41px}}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;
+ background:linear-gradient(145deg,#dceef8 0%,#bcd7ed 48%,#f8edf1 100%);color:var(--text)}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:430px;height:100dvh;padding:5px 9px 5px;display:flex;flex-direction:column;min-height:0}
+
+/* HEADER */
+header{height:48px;flex:0 0 48px;display:flex;align-items:center;justify-content:space-between;
+ background:linear-gradient(135deg,#cfe5f4 0%,#bcd7ed 55%,#dceef8 100%);
+ border-radius:14px;padding:0 10px;margin-bottom:5px}
+.brand{display:flex;align-items:center;gap:7px;min-width:0}
+.logo{width:38px;height:38px;flex:0 0 38px}.logo img{width:100%;height:100%;object-fit:contain}
+.title{min-width:0}
+h1{margin:0;font-size:17px;line-height:1;font-weight:900;color:#153d31}
+.subtitle{margin:4px 0 0;font-size:7.5px;color:var(--muted);white-space:nowrap}
+.session{display:flex;align-items:center;gap:7px;margin:0 0 5px;font-size:8px;color:var(--muted)}
+.session strong{color:var(--blue-dark);font-size:12px}
+.change{border:1px solid var(--border);background:rgba(255,255,255,.85);border-radius:8px;
+ padding:4px 7px;font-size:8px;color:var(--blue-dark);font-weight:800}
+
+/* LOGIN */
+#login-panel{flex:1;display:flex;align-items:center}
+.panel{width:100%;background:rgba(255,255,255,.93);border:1px solid var(--border);
+ border-radius:15px;padding:10px;box-shadow:var(--shadow)}
+.panel-title{font-size:12px;font-weight:900;color:var(--blue-dark);text-align:center;margin-bottom:7px}
+.google{width:100%;height:40px;border:0;border-radius:10px;background:#3972ad;color:#fff;font-size:11px;font-weight:900}
+
+/* MAIN ENTRY — one screen, no scrolling */
+#entry-panel{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.step{font-size:7.5px;color:var(--muted);font-weight:900;margin:0 0 3px 2px;letter-spacing:.3px}
+.scan-box{background:linear-gradient(135deg,#e4f0fa,#f8e3ea);border:1px solid var(--border);
+ border-radius:13px;padding:7px;margin-bottom:5px;flex:0 0 auto}
+.scan-title{font-size:8px;font-weight:900;color:var(--blue-dark);text-align:center;margin-bottom:3px}
+#code{width:100%;height:43px;border:2px solid var(--blue);border-radius:9px;background:#fff;
+ text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;padding:0}
+#code:focus{outline:3px solid rgba(91,143,201,.18)}
+
+/* PRODUCT */
+.product-card{background:linear-gradient(135deg,#fff,var(--pink-soft));border:1px solid #e6cbd4;
+ border-radius:12px;padding:6px;margin-bottom:5px;flex:0 0 auto}
+.product-label{font-size:7.5px;font-weight:900;color:var(--pink-dark);margin-bottom:2px}
+.product-name{width:100%;height:30px;border:1px solid transparent;border-radius:7px;
+ background:rgba(255,255,255,.75);font-size:15px;font-weight:900;color:var(--blue-dark);
+ padding:0 5px;text-align:center}
+.product-name:focus{outline:2px solid rgba(217,154,174,.4);border-color:#e6cbd4}
+#product-hint{font-size:7px!important;margin-top:2px!important}
+
+/* 3 compact controls in one row */
+.quick-row{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:5px;flex:0 0 auto;margin-bottom:5px}
+.field{background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:10px;padding:5px;min-width:0}
+.field-label{font-size:7px;font-weight:900;color:var(--muted);margin-bottom:3px;white-space:nowrap}
+.date-control,.qty-control{display:flex;align-items:center;gap:3px;height:33px}
+.date-btn,.qty-btn{width:28px;height:33px;flex:0 0 28px;border:0;border-radius:7px;
+ background:var(--blue-soft);color:var(--blue-dark);font-size:17px;font-weight:900}
+.date-value{flex:1;text-align:center;font-size:9px;font-weight:900;color:var(--blue-dark);white-space:nowrap}
+#qty{width:100%;height:33px;border:1px solid var(--border);border-radius:7px;padding:0;text-align:center;
+ font-size:14px;font-weight:900}
+#qty:focus{outline:2px solid rgba(91,143,201,.18)}
+
+/* ZONE — large and obvious */
+.zone-panel{background:#e4f3ff;border:2px solid #9ed8ff;border-radius:11px;padding:6px;
+ flex:0 0 auto;margin-bottom:5px}
+.zone-panel .field-label{color:#1776b5}
+.zone-wrap{position:relative}
+#zone{width:100%;height:38px;border:1px solid #8cccf5;border-radius:8px;background:#fff;
+ padding:0 8px;font-size:13px;font-weight:900;color:var(--blue-dark);text-align:center}
+#zone:focus{outline:3px solid rgba(91,143,201,.15)}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;z-index:50;background:#fff;
+ border:1px solid var(--border);border-radius:8px;list-style:none;margin:2px 0 0;padding:0;
+ max-height:110px;overflow-y:auto}
+.autocomplete-list li{padding:8px;font-size:11px;font-weight:700}
+.autocomplete-list li.active,.autocomplete-list li:hover{background:var(--pink-soft);color:var(--pink-dark)}
+
+/* CTA */
+.save{width:100%;height:45px;flex:0 0 45px;border:0;border-radius:11px;margin-top:auto;
+ background:var(--pink);color:#fff;font-size:13px;font-weight:900;box-shadow:var(--shadow)}
+.save:disabled{opacity:.38}
+.status{min-height:12px;height:12px;flex:0 0 12px;margin:2px 0 0;text-align:center;
+ font-size:8px;font-weight:800;color:var(--blue-dark)}
+.back-link{height:10px;flex:0 0 10px;display:block;text-align:center;color:var(--blue-dark);
+ text-decoration:none;font-size:7px;font-weight:800}
+
+@media(max-height:650px){
+ .app{padding-top:3px}
+ header{height:45px;flex-basis:45px}
+ .logo{width:35px;height:35px;flex-basis:35px}
+ h1{font-size:16px}
+ #code{height:39px}
+ .product-name{height:28px}
+ .date-control,.qty-control,#qty,.date-btn,.qty-btn{height:30px}
+ .zone-panel{padding:5px}
+ #zone{height:35px}
+ .save{height:42px;flex-basis:42px}
+}
 </style>
 </head>
 <body>
@@ -66,43 +137,43 @@ input:focus{outline:2px solid rgba(217,154,174,.4)}
   <div class="product-card">
     <div class="product-label">② PRODUIT</div>
     <input id="product" class="product-name" type="text" autocomplete="off"
-           placeholder="Nom automatique ou saisir si nouveau CIP">
-    <div id="product-hint" style="font-size:8px;color:var(--muted);margin-top:3px;text-align:center;">
-      Scannez un CIP pour rechercher le produit
-    </div>
+           placeholder="Nom du produit">
+    <div id="product-hint">Scannez un CIP pour rechercher le produit</div>
   </div>
 
-  <div class="field" style="margin-top:5px;">
-    <div class="field-label">③ DATE — MOIS / ANNÉE</div>
-    <div class="date-control">
-      <button type="button" class="date-btn" id="date-prev">‹</button>
-      <div class="date-value" id="date-display">—</div>
-      <button type="button" class="date-btn" id="date-next">›</button>
+  <div class="quick-row">
+    <div class="field">
+      <div class="field-label">③ DATE</div>
+      <div class="date-control">
+        <button type="button" class="date-btn" id="date-prev">‹</button>
+        <div class="date-value" id="date-display">—</div>
+        <button type="button" class="date-btn" id="date-next">›</button>
+      </div>
+      <input id="date" type="hidden">
     </div>
-    <input id="date" type="hidden">
-  </div>
 
-  <div class="field" style="margin-top:5px;">
-    <div class="field-label">④ QUANTITÉ</div>
-    <div class="qty-control">
-      <button type="button" class="qty-btn" id="qty-minus">−</button>
-      <input id="qty" type="number" min="1" value="1">
-      <button type="button" class="qty-btn" id="qty-plus">+</button>
+    <div class="field">
+      <div class="field-label">④ QUANTITÉ</div>
+      <div class="qty-control">
+        <button type="button" class="qty-btn" id="qty-minus">−</button>
+        <input id="qty" type="number" min="1" value="1">
+        <button type="button" class="qty-btn" id="qty-plus">+</button>
+      </div>
     </div>
-  </div>
 
-  <div class="field" style="margin-top:5px;">
-    <div class="field-label">⑤ ZONE</div>
-    <div class="zone-wrap">
-      <input id="zone" type="text" autocomplete="off" placeholder="Choisir la zone">
-      <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
+    <div class="field">
+      <div class="field-label">⑤ ZONE</div>
+      <div class="zone-wrap">
+        <input id="zone" type="text" autocomplete="off" placeholder="Zone">
+        <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
+      </div>
     </div>
   </div>
 
   <button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER</button>
 </div>
 
-<pre id="status" class="status"></pre>
+<pre id="status" class="status"> class="status"></pre>
 <a href="ZebraPerimés.html" class="back-link">← Retour à ZebraPérimés</a>
 </div>
 <script>
