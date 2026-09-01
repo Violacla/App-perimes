@@ -3,91 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#3972ad">
+<meta name="theme-color" content="#bcd7ed">
 <title>Ajouter un produit Zebra - Pharmacie du Libron</title>
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
 :root{
-  --bg:#f0f4f8;--text:#1a2b3c;--muted:#556b82;--blue:#3972ad;--blue-dark:#224c78;
-  --pink:#c7517a;--pink-dark:#9e3d5f;--pink-soft:#fbe8ef;--blue-soft:#e6f0fa;
-  --border:#a8c2de;--shadow:0 3px 10px rgba(34,76,120,.1);
-  --green:#16834f;--green-soft:#e8f7f0
+  --bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
+  --pink:#d99aae;--pink-dark:#c77991;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;
+  --border:#cbddea;--shadow:0 4px 12px rgba(62,91,122,.1)
 }
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;
- background:var(--bg);color:var(--text)}
+ background:#bcd7ed;color:var(--text)}
 body{display:flex;justify-content:center}
-.app{width:100%;max-width:430px;height:100dvh;padding:6px 10px;display:flex;flex-direction:column;min-height:0}
+.app{width:100%;max-width:430px;height:100dvh;padding:4px 8px;display:flex;flex-direction:column;min-height:0}
 
-/* HEADER - Uni, clair, sans dégradé */
-header{height:46px;flex:0 0 46px;display:flex;align-items:center;justify-content:space-between;
- background:#ffffff;border:2px solid var(--border);
- border-radius:12px;padding:0 10px;margin-bottom:4px}
+/* HEADER Épuré */
+header{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:space-between;
+ background:#cfe5f4;border:1.5px solid var(--border);
+ border-radius:10px;padding:0 8px;margin-bottom:3px}
 .brand{display:flex;align-items:center;gap:6px;min-width:0}
-.logo{width:34px;height:34px;flex:0 0 34px}.logo img{width:100%;height:100%;object-fit:contain}
-h1{margin:0;font-size:15px;line-height:1;font-weight:900;color:var(--blue-dark)}
-.session{display:flex;align-items:center;justify-content:space-between;margin:0 0 4px;font-size:9px;color:var(--muted);padding:0 2px}
+.logo{width:30px;height:30px;flex:0 0 30px}.logo img{width:100%;height:100%;object-fit:contain}
+h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
+.session{display:flex;align-items:center;justify-content:space-between;margin:0 0 3px;font-size:9px;color:var(--muted);padding:0 2px}
 .session strong{color:var(--blue-dark);font-size:11px}
-.change{border:1px solid var(--border);background:#ffffff;border-radius:6px;
- padding:4px 8px;font-size:9px;color:var(--blue-dark);font-weight:800;cursor:pointer}
+.change{border:1px solid var(--border);background:#ffffff;border-radius:5px;
+ padding:2px 5px;font-size:8px;color:var(--blue-dark);font-weight:800;cursor:pointer}
 
 /* LOGIN */
 #login-panel{flex:1;display:flex;align-items:center}
-.panel{width:100%;background:#ffffff;border:2px solid var(--border);
- border-radius:12px;padding:15px 10px;text-align:center;box-shadow:var(--shadow)}
+.panel{width:100%;background:#ffffff;border:1.5px solid var(--border);
+ border-radius:10px;padding:12px 10px;text-align:center;box-shadow:var(--shadow)}
 .panel-title{font-size:13px;font-weight:900;color:var(--blue-dark);margin-bottom:8px}
-.google{width:100%;height:44px;border:0;border-radius:10px;background:var(--blue-dark);color:#fff;font-size:12px;font-weight:900;cursor:pointer}
+.google{width:100%;height:42px;border:0;border-radius:8px;background:#3972ad;color:#fff;font-size:12px;font-weight:900;cursor:pointer}
 
-/* MAIN ENTRY */
-#entry-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:5px;overflow:hidden}
+/* MAIN ENTRY - Sans cadres superflus */
+#entry-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px;overflow:hidden}
 
-.scan-box{background:#ffffff;border:2px solid var(--border);
- border-radius:11px;padding:6px;flex:0 0 auto}
-.scan-title{font-size:9px;font-weight:900;color:var(--blue-dark);margin-bottom:2px}
-#code{width:100%;height:42px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
- text-align:center;font-size:22px;font-weight:900;letter-spacing:2px;padding:0;color:var(--text)}
-#code:focus{outline:3px solid rgba(57,114,173,.2)}
+.field-group{display:flex;flex-direction:column;gap:2px}
+.field-label{font-size:8px;font-weight:900;color:var(--blue-dark);margin-left:2px}
 
-/* PRODUCT */
-.product-card{background:#ffffff;border:2px solid var(--border);
- border-radius:11px;padding:6px;flex:0 0 auto}
-.product-label{font-size:9px;font-weight:900;color:var(--pink-dark);margin-bottom:2px}
-.product-name{width:100%;height:32px;border:1px solid var(--border);border-radius:6px;
- background:#ffffff;font-size:14px;font-weight:900;color:var(--blue-dark);
+/* Champs simplifiés sans bordures de boîtes lourdes */
+#code{width:100%;height:38px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
+ text-align:center;font-size:20px;font-weight:900;letter-spacing:2px;padding:0}
+#code:focus{outline:3px solid rgba(91,143,201,.2)}
+
+.product-name{width:100%;height:34px;border:1.5px solid var(--border);border-radius:8px;
+ background:#ffffff;font-size:13px;font-weight:900;color:var(--blue-dark);
  padding:0 6px;text-align:center}
-#product-hint{font-size:7.5px;color:var(--muted);margin-top:2px}
+#product-hint{font-size:7px;color:var(--muted);margin-left:2px}
 
-/* CONTROLS GRID */
-.controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex:0 0 auto}
-.field{background:#ffffff;border:2px solid var(--border);border-radius:10px;padding:5px}
-.field-label{font-size:9px;font-weight:900;color:var(--muted);margin-bottom:2px}
+/* Ligne Date + Quantité combinée pour alléger */
+.row-dual{display:grid;grid-template-columns:1.3fr 1fr;gap:4px}
+.date-row{display:grid;grid-template-columns:1.2fr 1fr;gap:2px}
+.date-select{height:34px;border:1.5px solid var(--border);border-radius:8px;background:#ffffff;
+ font-size:11px;font-weight:900;color:var(--blue-dark);text-align:center;padding:0}
 
-.qty-control{display:flex;align-items:center;gap:3px;height:36px}
-.qty-btn{width:34px;height:36px;flex:0 0 34px;border:1px solid var(--border);border-radius:7px;
- background:var(--blue-soft);color:var(--blue-dark);font-size:18px;font-weight:900;cursor:pointer}
-#qty{width:100%;height:36px;border:1px solid var(--border);border-radius:7px;text-align:center;
- font-size:16px;font-weight:900;color:var(--text)}
+.qty-control{display:flex;align-items:center;gap:2px;height:34px}
+.qty-btn{width:28px;height:34px;flex:0 0 28px;border:1.5px solid var(--border);border-radius:7px;
+ background:var(--blue-soft);color:var(--blue-dark);font-size:16px;font-weight:900;cursor:pointer}
+#qty{width:100%;height:34px;border:1.5px solid var(--border);border-radius:7px;text-align:center;
+ font-size:15px;font-weight:900}
 
-/* DATE SELECTORS (Déroulant) */
-.date-row{display:grid;grid-template-columns:1.3fr 1fr;gap:3px;height:36px}
-.date-select{height:36px;border:1px solid var(--border);border-radius:7px;background:#ffffff;
- font-size:12px;font-weight:900;color:var(--blue-dark);text-align:center;padding:0 2px;}
-
-/* ZONE PANEL */
-.zone-panel{background:#ffffff;border:2px solid var(--border);border-radius:11px;padding:6px;flex:0 0 auto;position:relative}
-.zone-panel .field-label{color:var(--blue-dark)}
-#zone{width:100%;height:38px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
- padding:0 8px;font-size:14px;font-weight:900;color:var(--blue-dark);text-align:center}
+/* ZONE PANEL Épuré */
+.zone-wrap{position:relative}
+#zone{width:100%;height:36px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
+ padding:0 8px;font-size:13px;font-weight:900;color:var(--blue-dark);text-align:center}
 .autocomplete-list{position:absolute;bottom:100%;left:0;right:0;z-index:50;background:#ffffff;
- border:2px solid var(--border);border-radius:8px;list-style:none;margin:0 0 3px 0;padding:0;
- max-height:130px;overflow-y:auto;box-shadow:var(--shadow)}
-.autocomplete-list li{padding:9px;font-size:12px;font-weight:700;cursor:pointer;border-bottom:1px solid #f0f0f0}
-.autocomplete-list li:hover{background:var(--blue-soft);color:var(--blue-dark)}
+ border:1.5px solid var(--border);border-radius:8px;list-style:none;margin:0 0 3px 0;padding:0;
+ max-height:120px;overflow-y:auto;box-shadow:var(--shadow)}
+.autocomplete-list li{padding:7px;font-size:11px;font-weight:700;cursor:pointer;border-bottom:1px solid #f0f0f0}
+.autocomplete-list li:hover{background:var(--pink-soft);color:var(--pink-dark)}
 
 /* CTA */
-.save{width:100%;height:48px;flex:0 0 48px;border:0;border-radius:11px;margin-top:auto;
- background:var(--pink);color:#fff;font-size:14px;font-weight:900;box-shadow:var(--shadow);cursor:pointer}
+.save{width:100%;height:44px;flex:0 0 44px;border:0;border-radius:9px;margin-top:auto;
+ background:var(--pink);color:#fff;font-size:13px;font-weight:900;box-shadow:var(--shadow);cursor:pointer}
 .save:disabled{opacity:0.4;cursor:not-allowed;background:#b0b0b0}
 .status{min-height:14px;height:14px;flex:0 0 14px;margin:2px 0 0;text-align:center;
  font-size:9px;font-weight:800;color:var(--blue-dark)}
@@ -115,43 +106,43 @@ h1{margin:0;font-size:15px;line-height:1;font-weight:900;color:var(--blue-dark)}
 </div>
 
 <div class="panel" id="entry-panel" style="display:none;">
-  <div class="scan-box">
-    <div class="scan-title">① SCANNER LE CIP</div>
+  <div class="field-group">
+    <div class="field-label">① SCANNER LE CIP</div>
     <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 derniers chiffres">
   </div>
 
-  <div class="product-card">
-    <div class="product-label">② NOM DU PRODUIT</div>
+  <div class="field-group">
+    <div class="field-label" style="color:var(--pink-dark);">② NOM DU PRODUIT</div>
     <input id="product" class="product-name" type="text" autocomplete="off" placeholder="Nom du produit">
     <div id="product-hint">Scannez un CIP pour rechercher automatiquement</div>
   </div>
 
-  <div class="controls-grid">
-    <div class="field">
+  <div class="row-dual">
+    <div class="field-group">
       <div class="field-label">③ DATE (Mois / Année)</div>
       <div class="date-row">
         <select id="select-month" class="date-select">
-          <option value="01">Janvier</option>
-          <option value="02">Février</option>
+          <option value="01">Janv.</option>
+          <option value="02">Févr.</option>
           <option value="03">Mars</option>
           <option value="04">Avril</option>
           <option value="05">Mai</option>
           <option value="06">Juin</option>
-          <option value="07">Juillet</option>
+          <option value="07">Juil.</option>
           <option value="08">Août</option>
-          <option value="09">Septembre</option>
-          <option value="10">Octobre</option>
-          <option value="11">Novembre</option>
-          <option value="12">Décembre</option>
+          <option value="09">Sept.</option>
+          <option value="10">Oct.</option>
+          <option value="11">Nov.</option>
+          <option value="12">Déc.</option>
         </select>
         <select id="select-year" class="date-select">
-          <!-- Rempli dynamiquement par JS -->
+          <!-- Dynamique par JS -->
         </select>
       </div>
       <input id="date" type="hidden">
     </div>
 
-    <div class="field">
+    <div class="field-group">
       <div class="field-label">④ QUANTITÉ</div>
       <div class="qty-control">
         <button type="button" class="qty-btn" id="qty-minus">−</button>
@@ -161,12 +152,10 @@ h1{margin:0;font-size:15px;line-height:1;font-weight:900;color:var(--blue-dark)}
     </div>
   </div>
 
-  <div class="zone-panel">
-    <div class="field-label">⑤ ZONE GÉOGRAPHIQUE</div>
-    <div class="zone-wrap">
-      <input id="zone" type="text" autocomplete="off" placeholder="Tapez ou cherchez la zone...">
-      <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
-    </div>
+  <div class="field-group zone-wrap">
+    <div class="field-label" style="color:#1776b5;">⑤ ZONE GÉOGRAPHIQUE</div>
+    <input id="zone" type="text" autocomplete="off" placeholder="Tapez ou cherchez la zone...">
+    <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
   </div>
 
   <button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER LE PRODUIT</button>
@@ -198,14 +187,8 @@ let tokenClient=null,gapiReady=false,gisReady=false,accessToken=null;
 let operatorName=localStorage.getItem('zebraOperator')||null;
 
 function setStatus(t){document.getElementById('status').textContent=t||'';}
-
-function updateOperator(){
-  document.getElementById('operator-badge').textContent=operatorName||'—';
-}
-
-function formatLast6(v){
-  return String(v||'').replace(/\D/g,'').slice(-6);
-}
+function updateOperator(){document.getElementById('operator-badge').textContent=operatorName||'—';}
+function formatLast6(v){return String(v||'').replace(/\D/g,'').slice(-6);}
 
 function initDateSelectors(){
   const yearSelect = document.getElementById('select-year');
@@ -213,7 +196,7 @@ function initDateSelectors(){
   
   const currentYear = new Date().getFullYear();
   yearSelect.innerHTML = '';
-  for(let y = currentYear - 2; y <= currentYear + 3; y++){
+  for(let y = currentYear; y <= currentYear + 10; y++){
     const opt = document.createElement('option');
     opt.value = y;
     opt.textContent = y;
@@ -223,7 +206,6 @@ function initDateSelectors(){
   
   const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
   monthSelect.value = currentMonth;
-  
   updateDateHidden();
   
   monthSelect.addEventListener('change', updateDateHidden);
@@ -254,10 +236,7 @@ function waitForGoogle(){
           client_id:CLIENT_ID,
           scope:SCOPES,
           callback:(resp)=>{
-            if(!resp || !resp.access_token){
-              setStatus('Connexion Google annulée.');
-              return;
-            }
+            if(!resp || !resp.access_token){setStatus('Connexion Google annulée.');return;}
             accessToken=resp.access_token;
             operatorName=localStorage.getItem('zebraOperator')||operatorName||'—';
             updateOperator();
@@ -289,20 +268,10 @@ function maybeReady(){
 
 function initiateGoogleAndOperatorLogin(){
   operatorName=localStorage.getItem('zebraOperator')||operatorName;
-  if(!operatorName){
-    setStatus('Aucun opérateur sélectionné.');
-    return;
-  }
-  if(!tokenClient||!gisReady){
-    setStatus('Google n’est pas prêt…');
-    return;
-  }
+  if(!operatorName){setStatus('Aucun opérateur sélectionné.');return;}
+  if(!tokenClient||!gisReady){setStatus('Google n’est pas prêt…');return;}
   setStatus('Connexion Google en cours…');
-  try{
-    tokenClient.requestAccessToken({prompt:''});
-  }catch(e){
-    setStatus('Erreur : '+e.message);
-  }
+  try{tokenClient.requestAccessToken({prompt:''});}catch(e){setStatus('Erreur : '+e.message);}
 }
 
 function initZoneAutocomplete(){
@@ -397,12 +366,12 @@ async function addRowToSheet(){
   const btn=document.getElementById('btn-add');
   if(btn.disabled) return;
   const code=formatLast6(document.getElementById('code').value);
-  const product=document.getElementById('product').value.trim();
+  const productVal=document.getElementById('product').value.trim();
   const date=document.getElementById('date').value.trim();
   const qty=parseInt(document.getElementById('qty').value,10);
   const zone=zones.find(x=>x.toLowerCase()===document.getElementById('zone').value.trim().toLowerCase());
   
-  if(!/^\d{6}$/.test(code)||!product||!zone||qty<1||!/^\d{2}\/\d{4}$/.test(date)){
+  if(!/^\d{6}$/.test(code)||!productVal||!zone||qty<1||!/^\d{2}\/\d{4}$/.test(date)){
     setStatus('Vérifiez les champs du formulaire.');
     return;
   }
@@ -411,7 +380,7 @@ async function addRowToSheet(){
   const lastDay=new Date(Number(y),Number(m),0).getDate();
   const dateVal=`${y}-${m}-${lastDay}`;
   const now=new Date().toLocaleString('fr-FR');
-  const values=[[operatorName,dateVal,product,code,qty,zone,'',0,now]];
+  const values=[[operatorName,dateVal,productVal,code,qty,zone,'',0,now]];
   
   btn.disabled=true; btn.textContent='ENREGISTREMENT…';
   try{
