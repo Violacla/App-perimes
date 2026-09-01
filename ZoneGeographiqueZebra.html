@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#bcd7ed">
-<title>Zones Géographiques - Pharmacie du Libron</title>
+<title>Plan Interactif - Pharmacie du Libron</title>
 <style>
 :root{
   --bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
@@ -17,25 +17,35 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helv
 body{display:flex;justify-content:center;align-items:center}
 .app{width:100%;max-width:430px;height:100dvh;padding:8px;display:flex;flex-direction:column}
 
-header{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:center;
+header{height:40px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;
  background:#cfe5f4;border:1.5px solid var(--border);border-radius:10px;margin-bottom:6px}
-h1{margin:0;font-size:14px;font-weight:900;color:#153d31}
+h1{margin:0;font-size:13px;font-weight:900;color:#153d31}
 
-.container{flex:1;background:#ffffff;border:1.5px solid var(--border);border-radius:10px;
- padding:10px;display:flex;flex-direction:column;box-shadow:var(--shadow);overflow:hidden}
-.title{font-size:12px;font-weight:900;color:var(--blue-dark);margin-bottom:8px;text-align:center}
+/* PLAN DE LA PHARMACIE */
+.map-container{flex:1;background:#ffffff;border:1.5px solid var(--border);border-radius:10px;
+ position:relative;padding:8px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.map-title{font-size:10px;font-weight:900;color:var(--muted);text-align:center;margin-bottom:4px}
 
-.pastilles-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:6px;overflow-y:auto;padding:2px;flex:1}
-.pastille{background:var(--blue-soft);border:1.5px solid var(--border);border-radius:8px;
- padding:8px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
-.pastille:hover{background:var(--pink-soft);border-color:var(--pink)}
-.pastille-icon{font-size:18px}
-.pastille-name{font-size:10px;font-weight:900;color:var(--blue-dark)}
-.pastille-shelf{font-size:8px;color:var(--muted);font-weight:700}
+.pharmacy-floor{flex:1;border:2px dashed var(--border);border-radius:8px;background:#f8fbfe;
+ position:relative;margin-bottom:4px}
 
-.result-box{margin-top:8px;padding:8px;background:var(--blue-soft);border:1.5px solid var(--border);
- border-radius:8px;text-align:center}
-.result-box span{font-size:11px;font-weight:900;color:var(--blue-dark)}
+/* Icônes positionnées sur le plan (coordonnées en %) */
+.map-icon{position:absolute;width:32px;height:32px;background:#ffffff;border:2px solid var(--blue-dark);
+ border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;
+ cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.15);transform:translate(-50%, -50%);transition:transform 0.1s}
+.map-icon:hover{transform:translate(-50%, -50%) scale(1.15);background:var(--pink-soft);border-color:var(--pink)}
+
+/* POPUP MODAL */
+#zone-popup{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(38,56,77,0.6);
+ display:none;align-items:center;justify-content:center;z-index:10;padding:15px}
+.popup-card{width:100%;background:#ffffff;border-radius:12px;padding:14px;box-shadow:var(--shadow);
+ display:flex;flex-direction:column;gap:8px;border:2px solid var(--blue)}
+.popup-header{display:flex;justify-content:space-between;align-items:center}
+.popup-title{font-size:12px;font-weight:900;color:var(--blue-dark)}
+.close-popup{background:var(--pink-soft);color:var(--pink-dark);border:0;border-radius:6px;
+ width:24px;height:24px;font-weight:900;cursor:pointer}
+.popup-body{font-size:11px;line-height:1.4;color:var(--text);display:flex;flex-direction:column;gap:4px}
+.popup-body strong{color:var(--blue-dark)}
 </style>
 </head>
 <body>
@@ -44,49 +54,72 @@ h1{margin:0;font-size:14px;font-weight:900;color:#153d31}
   <h1>Plan de l'Officine</h1>
 </header>
 
-<div class="container">
-  <div class="title">Clique sur une zone pour voir les étagères :</div>
-  <div class="pastilles-grid" id="pastilles-container"></div>
-  <div class="result-box" id="result">
-    <span>Sélection actuelle : Aucune</span>
+<div class="map-container">
+  <div class="map-title">📍 Clique sur une icône du plan</div>
+  
+  <div class="pharmacy-floor" id="floor">
+    <!-- Les icônes seront injectées ici selon leur position X/Y sur le plan -->
   </div>
 </div>
 </div>
 
+<!-- POPUP -->
+<div id="zone-popup">
+  <div class="popup-card">
+    <div class="popup-header">
+      <span class="popup-title" id="p-title">Détail de la zone</span>
+      <button class="close-popup" onclick="closePopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <div><strong>Nom de zone :</strong> <span id="p-zone">—</span></div>
+      <div><strong>Sous-zone :</strong> <span id="p-sub">—</span></div>
+      <div><strong>Rangement / Réserve :</strong> <span id="p-shelf">—</span></div>
+    </div>
+  </div>
+</div>
+
 <script>
-const zoneData = [
-  {id: "1", name: "Zone Conseil & Réserve", icon: "📦", shelf: "Réserve 1 et 2"},
-  {id: "2", name: "Dermato Yeux & Oreille", icon: "👁️", shelf: "Étagère 8"},
-  {id: "3", name: "Vétérinaire", icon: "🐾", shelf: "Espace Vétérinaire"},
-  {id: "4", name: "Nature & Phyto", icon: "🌱", shelf: "Arko, Nutergia, Pileje, Aromat, Homéo, Pukka • Étagère 7"},
-  {id: "5", name: "Parapharmacie & Dermato", icon: "🧴", shelf: "Bioderma, Cerave, Kreme, La Rosée, SVR, Uriage, LRP, Nuxe, Avene & Coin Acné • Étagère 5"},
-  {id: "6", name: "Cheveux, Corps & Déos", icon: "💆", shelf: "Étagères 5 et 7"},
-  {id: "7", name: "Hygiène Intime", icon: "🌸", shelf: "Étagère 7"},
-  {id: "8", name: "Bébé", icon: "👶", shelf: "Lait bébé • Étagères 3 et 4"},
-  {id: "9", name: "Douleurs & Soins", icon: "🩹", shelf: "1ers soins, Pieds/mains, Douleurs • Étagère 8"},
-  {id: "10", name: "Bien-être", icon: "✨", shelf: "Étagère 8"}
+const zonesMapData = [
+  {id: "1", name: "Réserve & Conseil", sub: "Zone Conseil", shelf: "Réserve 1 et 2", icon: "📦", x: 80, y: 75},
+  {id: "2", name: "Dermato Yeux & Oreille", sub: "Soins ciblés", shelf: "Étagère 8", icon: "👁️", x: 65, y: 35},
+  {id: "3", name: "Vétérinaire", sub: "Espace Animaux", shelf: "Espace Vétérinaire", icon: "🐾", x: 85, y: 35},
+  {id: "4", name: "Nature & Phyto", sub: "Arko, Nutergia, Pileje, Aromat, Homéo, Pukka", shelf: "Étagère 7", icon: "🌱", x: 45, y: 35},
+  {id: "5", name: "Parapharmacie & Dermato", sub: "Bioderma, Cerave, Kreme, La Rosée, SVR, Uriage, LRP, Nuxe, Avene & Acné", shelf: "Étagère 5", icon: "🧴", x: 35, y: 55},
+  {id: "6", name: "Cheveux, Corps & Déos", sub: "Capillaire & Hygiène corporelle", shelf: "Étagères 5 et 7", icon: "💆", x: 50, y: 55},
+  {id: "7", name: "Hygiène Intime", sub: "Soins intimes", shelf: "Étagère 7", icon: "🌸", x: 60, y: 55},
+  {id: "8", name: "Bébé", sub: "Lait bébé & Poussins", shelf: "Étagères 3 et 4", icon: "👶", x: 20, y: 70},
+  {id: "9", name: "Douleurs & Soins", sub: "1ers soins, Pieds/mains, Douleurs", shelf: "Étagère 8", icon: "🩹", x: 50, y: 85},
+  {id: "10", name: "Bien-être", sub: "Coin Bien-être", shelf: "Étagère 8", icon: "✨", x: 50, y: 68}
 ];
 
-function buildPastillesGrid(){
-  const container = document.getElementById('pastilles-container');
-  container.innerHTML = '';
-  zoneData.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'pastille';
-    div.innerHTML = `
-      <div class="pastille-icon">${item.icon}</div>
-      <div class="pastille-name">Zone ${item.id} : ${item.name}</div>
-      <div class="pastille-shelf">${item.shelf}</div>
-    `;
-    div.onclick = () => {
-      document.getElementById('result').innerHTML = `<span>Sélection : Zone ${item.id} (${item.name}) → ${item.shelf}</span>`;
-    };
-    container.appendChild(div);
+function buildMap(){
+  const floor = document.getElementById('floor');
+  floor.innerHTML = '';
+  zonesMapData.forEach(item => {
+    const btn = document.createElement('div');
+    btn.className = 'map-icon';
+    btn.style.left = item.x + '%';
+    btn.style.top = item.y + '%';
+    btn.textContent = item.icon;
+    btn.title = `Zone ${item.id} : ${item.name}`;
+    btn.onclick = () => openPopup(item);
+    floor.appendChild(btn);
   });
 }
 
-window.addEventListener('load', buildPastillesGrid);
+function openPopup(item){
+  document.getElementById('p-title').textContent = `Zone ${item.id} — ${item.name}`;
+  document.getElementById('p-zone').textContent = item.name;
+  document.getElementById('p-sub').textContent = item.sub;
+  document.getElementById('p-shelf').textContent = item.shelf;
+  document.getElementById('zone-popup').style.display = 'flex';
+}
+
+function closePopup(){
+  document.getElementById('zone-popup').style.display = 'none';
+}
+
+window.addEventListener('load', buildMap);
 </script>
 </body>
 </html>
-
