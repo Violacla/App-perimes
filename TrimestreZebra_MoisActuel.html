@@ -113,7 +113,7 @@ async function load(){
     idx=0;
     
     const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
-    if(saved && saved.operator===operator && saved.period===resumePeriod()){
+    if(saved && saved.period===resumePeriod()){
       if(saved.code){
         const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));
         if(n>=0) idx=n;
@@ -124,7 +124,7 @@ async function load(){
     }
 
     if(products.length)render();
-    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
+    else{showFinished('La liste est finie ✓')}
     status('Google Sheets connecté.');
   }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
@@ -132,7 +132,6 @@ function resumePeriod(){const d=startMonth();return d.getFullYear()+'-'+String(d
 function saveResume(){
   if(products[idx]){
     localStorage.setItem(zebraMoisActuelResume,JSON.stringify({
-      operator,
       period:resumePeriod(),
       index:idx,
       code:String(products[idx].r[3]||''),
@@ -140,6 +139,14 @@ function saveResume(){
     }));
   }
 }
+function showFinished(text='La liste est finie ✓'){
+  localStorage.removeItem(zebraMoisActuelResume);
+  document.getElementById('card').innerHTML=`<div style="margin:auto;text-align:center;color:#16834f;font-size:18px;font-weight:900;line-height:1.4">${esc(text)}</div>`;
+  document.getElementById('ref').textContent=`Référence ${products.length}/${products.length}`;
+  document.getElementById('next').disabled=true;
+  message('');
+}
+
 function render(){
   const r=products[idx].r,stock=Number(r[4])||0,oldSold=Number(r[6])||0,max=Math.max(0,stock-oldSold);
   if(choice==='remaining')remaining=Math.max(1,Math.min(max,remaining||max));
@@ -194,44 +201,56 @@ async function transfer(row){
     insertDataOption:'INSERT_ROWS',includeValuesInResponse:true,resource:{values:[vals]}
   });
   if(!ap.result?.updates?.updatedRows)throw Error('Transfert historique non confirmé.');
-  await gapi.client.spreadsheets.batchUpdate({
+  await gapi.client.sheets.spreadsheets.batchUpdate({
     spreadsheetId:SPREADSHEET_ID,
     resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}
   });
 }
 async function goNext(){
   if(!choice||!products[idx])return;
-  const r=products[idx].r,row=products[idx].row;
+  const current=products[idx],r=current.r,row=current.row;
+  const currentCode=String(r[3]||'');
   const wasSold=choice==='sold';
-  document.getElementById('next').disabled=true;message('Enregistrement…');
+  document.getElementById('next').disabled=true;
+  message(wasSold?'Transfert vers l’historique…':'Enregistrement…');
   try{
-    if(wasSold)await transfer(row);
+    if(wasSold) await transfer(row);
     else await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
 
     choice=null;remaining=0;
-    
-    // Recharge les produits depuis Google Sheets
+
+    // Recharge la liste réelle après modification de Google Sheets.
     const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET});
     const rows=res.result.values||[];products=[];
     rows.slice(1).forEach((rn,i)=>{
       const stock=Number(rn[4])||0,oldSold=Number(rn[6])||0;
-      if(target(rn[1])&&stock>oldSold)products.push({r:rn,row:i+2});
+      if(target(rn[1])&&stock>oldSold) products.push({r:rn,row:i+2});
     });
     products.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);
 
-    if(products.length){
-      // CORRECTION : Qu'on ait choisi "vendu" ou "restant", on avance toujours à l'élément suivant !
-      idx = Math.min(idx + 1, products.length - 1);
-      
-      saveResume();
-      render();
-      message('');
-    }else{
-      localStorage.removeItem(zebraMoisActuelResume);
-      document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';
-      document.getElementById('ref').textContent='Référence 0/0';
-      message('');
+    if(!products.length){
+      showFinished('La liste est finie ✓');
+      return;
     }
+
+    // Reprendre sur la référence qui suit réellement celle qui vient d'être traitée.
+    // Si la ligne a été supprimée (vendu totalement), l'élément suivant a pris sa place : on garde le même index.
+    // Si la ligne existe encore (produits restants), on passe à l'index suivant.
+    if(wasSold){
+      idx=Math.min(idx,products.length-1);
+    }else{
+      const stillHere=products.findIndex(x=>String(x.r[3]||'')===currentCode);
+      idx=stillHere>=0 ? stillHere+1 : idx;
+      if(idx>=products.length){
+        showFinished('La liste est finie ✓');
+        return;
+      }
+    }
+
+    saveResume();
+    render();
+    message(wasSold?'Transfert historique effectué ✓':'Enregistré ✓');
+    setTimeout(()=>message(''),1200);
   }catch(e){
     document.getElementById('next').disabled=false;
     message('Erreur : '+(e.result?.error?.message||e.message));
