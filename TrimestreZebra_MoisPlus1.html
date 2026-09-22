@@ -36,7 +36,7 @@ header{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content
 <main class="app">
 <header><div class="brand"><div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div><div class="title"><h1>Mois +1</h1><div class="sub">Produits à promouvoir en anticipation · Pharmacie du Libron</div></div></div><div class="operator">Opérateur<strong id="op">—</strong></div></header>
 <button class="back" onclick="location.href='TrimestreZebra.html'">← Trimestre</button>
-<section class="period"><div><div class="month" id="month">—</div><small>MOIS +1</small></div><div class="rate green">10 à 30 %</div></section>
+<section class="period"><div><div class="month" id="month">—</div><small>MOIS +1</small></div><div class="rate green" aria-label="Promotion de 10 à 30 pour cent">10 à 30 %</div></section>
 <div id="status" class="status">Préparation de Google Sheets…</div>
 <section id="login" class="login"><div class="login-card"><b>Connexion Google Sheets</b><p>Appuyez sur le bouton pour autoriser l'accès aux produits.</p><button id="googleBtn" class="google" onclick="connectGoogle()" disabled>Préparation…</button></div></section>
 <section id="productZone"><div id="card" class="card"></div><button type="button" id="next" class="next" disabled onclick="goNext()">PRODUIT SUIVANT →</button><div class="bottom"><div id="ref" class="ref">Référence 0/0</div></div><div id="message" class="message"></div></section>
@@ -120,7 +120,7 @@ async function load(){
     idx=0;
     
     const saved=JSON.parse(localStorage.getItem(zebraMoisPlus1Resume)||'null');
-    if(saved && saved.operator===operator && saved.period===resumePeriod()){
+    if(saved && saved.period===resumePeriod()){
       const code=String(saved.code||'').trim();
       const name=String(saved.name||'').trim();
       if(code){
@@ -141,7 +141,7 @@ async function load(){
     }
 
     if(products.length)render();
-    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Aucun produit à traiter pour ce mois. ✓</div>';document.getElementById('ref').textContent='Référence 0/0'}
+    else{document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#16834f;font-size:15px;font-weight:900">LA LISTE EST FINIE ✓</div>';document.getElementById('ref').textContent='Référence 0/0';document.getElementById('next').disabled=true}
     status('Google Sheets connecté.');
   }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
@@ -149,7 +149,6 @@ function resumePeriod(){const d=startMonth();return d.getFullYear()+'-'+String(d
 function saveResume(){
   if(products[idx]){
     localStorage.setItem(zebraMoisPlus1Resume,JSON.stringify({
-      operator,
       period:resumePeriod(),
       index:idx,
       code:String(products[idx].r[3]||''),
@@ -212,7 +211,7 @@ async function transfer(row){
     insertDataOption:'INSERT_ROWS',includeValuesInResponse:true,resource:{values:[vals]}
   });
   if(!ap.result?.updates?.updatedRows)throw Error('Transfert historique non confirmé.');
-  await gapi.client.spreadsheets.batchUpdate({
+  await gapi.client.sheets.spreadsheets.batchUpdate({
     spreadsheetId:SPREADSHEET_ID,
     resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}
   });
@@ -237,13 +236,16 @@ async function goNext(){
     products.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);
 
     if(products.length){
-      idx = Math.min(idx + 1, products.length - 1);
+      // Après suppression d'une ligne, le produit suivant prend le même index.
+      // Pour un produit partiellement vendu, on cherche la référence suivante
+      // et on conserve la position commune.
+      idx = Math.min(idx, products.length - 1);
       saveResume();
       render();
       message('');
     }else{
       localStorage.removeItem(zebraMoisPlus1Resume);
-      document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#657484;font-size:12px">Tous les produits du mois sont traités. ✓</div>';
+      document.getElementById('card').innerHTML='<div style="margin:auto;text-align:center;color:#16834f;font-size:15px;font-weight:900">LA LISTE EST FINIE ✓</div>';document.getElementById('next').disabled=true;
       document.getElementById('ref').textContent='Référence 0/0';
       message('');
     }
