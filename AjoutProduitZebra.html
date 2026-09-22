@@ -7,6 +7,7 @@
 <title>Ajouter un produit Zebra - Pharmacie du Libron</title>
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
+<script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
 <style>
 :root{
   --bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
@@ -84,6 +85,28 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
  font-size:9px;font-weight:800;color:var(--blue-dark)}
 .back-link{height:12px;flex:0 0 12px;display:block;text-align:center;color:var(--blue-dark);
  text-decoration:none;font-size:8px;font-weight:800}
+
+/* Scanner Data Matrix + aperçu tableau */
+.scan-row{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.scan-btn,.table-btn{height:38px;border:1.5px solid var(--border);border-radius:8px;background:#fff;
+  color:var(--blue-dark);font-size:11px;font-weight:900;cursor:pointer}
+.scan-btn{background:var(--blue-soft)}
+.scan-btn:active,.table-btn:active{transform:scale(.99)}
+.modal{position:fixed;inset:0;background:rgba(21,61,49,.48);display:none;align-items:center;justify-content:center;
+  z-index:100;padding:12px}
+.modal-card{width:100%;max-width:430px;max-height:92dvh;background:#fff;border-radius:14px;padding:10px;
+  box-shadow:0 12px 35px rgba(21,61,49,.25);display:flex;flex-direction:column;gap:7px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;font-weight:900;color:var(--blue-dark);font-size:13px}
+.modal-close{border:0;background:#eef5fa;border-radius:8px;width:32px;height:30px;font-size:18px;font-weight:900;cursor:pointer}
+#scanner-video{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#111}
+#scanner-status{font-size:9px;text-align:center;color:var(--muted);min-height:12px}
+.table-wrap{overflow:auto;max-height:70dvh;border:1px solid var(--border);border-radius:9px}
+#sheet-table{width:100%;border-collapse:collapse;font-size:8px}
+#sheet-table th,#sheet-table td{padding:6px 5px;border-bottom:1px solid #edf0f2;text-align:left;white-space:nowrap}
+#sheet-table th{position:sticky;top:0;background:#e4f0fa;color:var(--blue-dark);font-weight:900}
+#sheet-table tr:last-child td{border-bottom:0}
+.empty-table{padding:15px;text-align:center;color:var(--muted);font-size:10px}
+
 </style>
 </head>
 <body>
@@ -107,14 +130,17 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
 
 <div class="panel" id="entry-panel" style="display:none;">
   <div class="field-group">
-    <div class="field-label">① SCANNER LE CIP</div>
-    <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 derniers chiffres">
+    <div class="field-label">① SCANNER LE DATA MATRIX / CIP</div>
+    <div class="scan-row">
+      <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 derniers chiffres">
+      <button type="button" class="scan-btn" id="scan-btn">▣ SCANNER</button>
+    </div>
+    <div id="product-hint">Scannez le Data Matrix ou saisissez les 6 derniers chiffres</div>
   </div>
 
   <div class="field-group">
     <div class="field-label" style="color:var(--pink-dark);">② NOM DU PRODUIT</div>
     <input id="product" class="product-name" type="text" autocomplete="off" placeholder="Nom du produit">
-    <div id="product-hint">Scannez un CIP pour rechercher automatiquement</div>
   </div>
 
   <div class="row-dual">
@@ -143,7 +169,12 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
     </div>
 
     <div class="field-group">
-      <div class="field-label">④ QUANTITÉ</div>
+      <div class="field-label">④ LOT (Data Matrix)</div>
+      <input id="lot" type="text" autocomplete="off" placeholder="Lot détecté automatiquement" readonly>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">⑤ QUANTITÉ</div>
       <div class="qty-control">
         <button type="button" class="qty-btn" id="qty-minus">−</button>
         <input id="qty" type="number" min="1" value="1">
@@ -153,12 +184,28 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
   </div>
 
   <div class="field-group zone-wrap">
-    <div class="field-label" style="color:#1776b5;">⑤ ZONE GÉOGRAPHIQUE</div>
+    <div class="field-label" style="color:#1776b5;">⑥ ZONE GÉOGRAPHIQUE</div>
     <input id="zone" type="text" autocomplete="off" placeholder="Tapez ou cherchez la zone...">
     <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
   </div>
 
   <button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER LE PRODUIT</button>
+</div>
+
+
+<div class="modal" id="scanner-modal">
+  <div class="modal-card">
+    <div class="modal-head"><span>Scanner un Data Matrix</span><button class="modal-close" type="button" onclick="closeScanner()">×</button></div>
+    <video id="scanner-video" playsinline muted></video>
+    <div id="scanner-status">Autorisation caméra…</div>
+  </div>
+</div>
+
+<div class="modal" id="table-modal">
+  <div class="modal-card">
+    <div class="modal-head"><span>Feuille1 — produits ajoutés</span><button class="modal-close" type="button" onclick="closeTable()">×</button></div>
+    <div class="table-wrap"><div id="table-content" class="empty-table">Chargement…</div></div>
+  </div>
 </div>
 
 <div id="status" class="status"></div>
@@ -183,12 +230,70 @@ const zones = [
   "nature","vichy","yeux","1ersoins","4patte"
 ];
 
-let tokenClient=null,gapiReady=false,gisReady=false,accessToken=null;
+let tokenClient=null,gapiReady=false,gisReady=false,accessToken=null,codeReader=null,scannerStream=null,scannerControls=null;
 let operatorName=localStorage.getItem('zebraOperator')||null;
 
 function setStatus(t){document.getElementById('status').textContent=t||'';}
 function updateOperator(){document.getElementById('operator-badge').textContent=operatorName||'—';}
-function formatLast6(v){return String(v||'').replace(/\D/g,'').slice(-6);}
+function parseGS1DataMatrix(raw){
+  const s=String(raw||'').replace(/\u001d/g,'<GS>');
+  const out={gtin:'',cip:'',expiry:'',lot:'',serial:''};
+
+  // Supports both scanner output with (01)(17)(10) and raw GS1 AIs.
+  const gtin = s.match(/\(01\)(\d{14})/) || s.match(/(?:^|<GS>)01(\d{14})/);
+  if(gtin){
+    out.gtin=gtin[1];
+    out.cip=gtin[1].slice(-6);
+  }
+
+  const exp = s.match(/\(17\)(\d{6})/) || s.match(/(?:^|<GS>)17(\d{6})/);
+  if(exp){
+    const yy=Number(exp[1].slice(0,2));
+    const mm=exp[1].slice(2,4);
+    const year=2000+yy;
+    if(Number(mm)>=1 && Number(mm)<=12) out.expiry={month:mm,year:String(year)};
+  }
+
+  const lot = s.match(/\(10\)([^<]{1,30})/) || s.match(/(?:^|<GS>)10([^<]{1,30})/);
+  if(lot) out.lot=lot[1].trim();
+
+  const serial = s.match(/\(21\)([^<]{1,30})/) || s.match(/(?:^|<GS>)21([^<]{1,30})/);
+  if(serial) out.serial=serial[1].trim();
+
+  // Fallback for scanners that remove parentheses/separators but keep the fixed AIs.
+  if(!out.cip){
+    const m=s.match(/01(\d{14})/);
+    if(m) out.cip=m[1].slice(-6);
+  }
+  if(!out.expiry){
+    const m=s.match(/17(\d{6})/);
+    if(m){
+      const mm=m[1].slice(2,4), yy=Number(m[1].slice(0,2));
+      if(Number(mm)>=1 && Number(mm)<=12) out.expiry={month:mm,year:String(2000+yy)};
+    }
+  }
+
+  return out;
+}
+
+function formatLast6(v){
+  const parsed=parseGS1DataMatrix(v);
+  if(parsed.cip) return parsed.cip;
+  const digits=String(v||'').replace(/\D/g,'');
+  return digits.slice(-6);
+}
+
+function applyDataMatrixData(raw){
+  const d=parseGS1DataMatrix(raw);
+  if(d.cip) document.getElementById('code').value=d.cip;
+  if(d.expiry){
+    document.getElementById('select-month').value=d.expiry.month;
+    document.getElementById('select-year').value=d.expiry.year;
+    updateDateHidden();
+  }
+  document.getElementById('lot').value=d.lot||'';
+  return d;
+}
 
 function initDateSelectors(){
   const yearSelect = document.getElementById('select-year');
@@ -299,40 +404,126 @@ function initZoneAutocomplete(){
   document.addEventListener('click',e=>{if(!input.contains(e.target)&&!list.contains(e.target))list.style.display='none';});
 }
 
-async function findProduct(code){
+async function findProduct(code, dmData=null){
   document.getElementById('btn-add').disabled=true;
   document.getElementById('product').value='Recherche…';
   try{
-    for(const sheet of ['Feuille1','Feuille2']){
-      const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:sheet});
-      const rows=res.result.values||[];
-      for(let i=1;i<rows.length;i++){
-        const sheetCode=formatLast6(rows[i][3]||'');
-        if(sheetCode===code){
-          document.getElementById('product').value=rows[i][2]||'';
-          const z=zones.find(x=>x.toLowerCase()===String(rows[i][5]||'').trim().toLowerCase())||'';
-          document.getElementById('zone').value=z;
-          document.getElementById('product-hint').textContent='Produit trouvé dans l’historique ✓';
-          validateAdd();
-          setStatus('Produit reconnu !');
-          document.getElementById('qty').focus();
-          document.getElementById('qty').select();
-          return;
+    const res=await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId:SPREADSHEET_ID,range:RANGE
+    });
+    const rows=res.result.values||[];
+    for(let i=1;i<rows.length;i++){
+      const sheetCode=formatLast6(rows[i][3]||'');
+      if(sheetCode===code){
+        document.getElementById('product').value=rows[i][2]||'';
+        // Data Matrix : on préremplit CIP, nom et date.
+        // La zone géographique et la quantité restent volontairement à saisir.
+        const rawDate=String(rows[i][1]||'').trim();
+        if(dmData?.expiry){
+          document.getElementById('select-year').value=dmData.expiry.year;
+          document.getElementById('select-month').value=dmData.expiry.month;
+          updateDateHidden();
+        }else{
+          const dm=rawDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+          if(dm){
+            document.getElementById('select-year').value=dm[1];
+            document.getElementById('select-month').value=String(dm[2]).padStart(2,'0');
+            updateDateHidden();
+          }
         }
+        document.getElementById('lot').value=dmData?.lot||document.getElementById('lot').value||'';
+        document.getElementById('zone').value='';
+        document.getElementById('qty').value=1;
+        document.getElementById('product-hint').textContent='Produit reconnu ✓ — zone et quantité à renseigner';
+        validateAdd();
+        setStatus('Produit reconnu !');
+        document.getElementById('zone').focus();
+        return;
+      }
+    }
+    // Recherche aussi dans l'historique si le produit n'est plus dans Feuille1.
+    const hist=await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId:SPREADSHEET_ID,range:'Feuille2'
+    });
+    const hrows=hist.result.values||[];
+    for(let i=1;i<hrows.length;i++){
+      if(formatLast6(hrows[i][3]||'')===code){
+        document.getElementById('product').value=hrows[i][2]||'';
+        const rawDate=String(hrows[i][1]||'').trim();
+        if(dmData?.expiry){
+          document.getElementById('select-year').value=dmData.expiry.year;
+          document.getElementById('select-month').value=dmData.expiry.month;
+          updateDateHidden();
+        }else{
+          const dm=rawDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+          if(dm){
+            document.getElementById('select-year').value=dm[1];
+            document.getElementById('select-month').value=String(dm[2]).padStart(2,'0');
+            updateDateHidden();
+          }
+        }
+        document.getElementById('lot').value=dmData?.lot||document.getElementById('lot').value||'';
+        document.getElementById('zone').value='';
+        document.getElementById('qty').value=1;
+        document.getElementById('product-hint').textContent='Produit reconnu dans l’historique ✓ — zone et quantité à renseigner';
+        validateAdd();
+        setStatus('Produit reconnu dans l’historique !');
+        document.getElementById('zone').focus();
+        return;
       }
     }
     document.getElementById('product').value='';
     document.getElementById('zone').value='';
-    document.getElementById('product-hint').textContent='Nouveau CIP — Saisissez le nom manuellement';
+    document.getElementById('product-hint').textContent='CIP inconnu — saisissez le nom manuellement';
     validateAdd();
-    setStatus('Nouveau produit : entrez son nom.');
+    setStatus('CIP non trouvé : entrez le nom du produit.');
     document.getElementById('product').focus();
   }catch(e){
     document.getElementById('product').value='';
-    document.getElementById('product-hint').textContent='Saisie manuelle requise';
+    document.getElementById('product-hint').textContent='Recherche impossible — saisie manuelle';
     validateAdd();
-    setStatus('Recherche impossible, saisissez le nom.');
+    setStatus('Recherche impossible : '+(e.result?.error?.message||e.message));
   }
+}
+
+async function openScanner(){
+  const modal=document.getElementById('scanner-modal');
+  const video=document.getElementById('scanner-video');
+  const info=document.getElementById('scanner-status');
+  modal.style.display='flex';
+  info.textContent='Démarrage de la caméra…';
+  try{
+    if(!window.ZXingBrowser)throw new Error('Le module de scan n’est pas chargé.');
+    if(codeReader){try{codeReader.reset();}catch(_){}} 
+    codeReader=new ZXingBrowser.BrowserMultiFormatReader();
+    const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+    if(!devices.length)throw new Error('Aucune caméra disponible.');
+    const preferred=devices.find(d=>/back|rear|environment|arrière/i.test(d.label))||devices[devices.length-1];
+    info.textContent='Visez le Data Matrix avec la caméra arrière…';
+    scannerControls=await codeReader.decodeFromVideoDevice(preferred.deviceId,video,(result,err)=>{
+      if(result){
+        const raw=result.getText();
+        const dmData=parseGS1DataMatrix(raw);
+        const code=dmData.cip||formatLast6(raw);
+        if(code.length===6){
+          applyDataMatrixData(raw);
+          closeScanner();
+          findProduct(code,dmData);
+        }else{
+          info.textContent='Code lu mais CIP introuvable — essayez de rapprocher le Data Matrix.';
+        }
+      }
+    });
+  }catch(e){
+    info.textContent='Scanner indisponible : '+(e.message||e);
+  }
+}
+function closeScanner(){
+  if(scannerControls){try{scannerControls.stop();}catch(_){ }scannerControls=null;}
+  if(codeReader){try{codeReader.reset();}catch(_){ }}
+  const video=document.getElementById('scanner-video');
+  if(video&&video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
+  document.getElementById('scanner-modal').style.display='none';
 }
 
 const codeInput=document.getElementById('code');
@@ -357,10 +548,41 @@ function validateAdd(){
   document.getElementById('btn-add').disabled=!(operatorName && accessToken && codeValid && productName && q>0 && /^\d{2}\/\d{4}$/.test(d) && z);
 }
 
+document.getElementById('scan-btn').onclick=openScanner;
+document.getElementById('view-table-btn').onclick=openTable;
+
 document.getElementById('qty-minus').onclick=()=>{const q=document.getElementById('qty');q.value=Math.max(1,(parseInt(q.value)||1)-1);validateAdd();};
 document.getElementById('qty-plus').onclick=()=>{const q=document.getElementById('qty');q.value=(parseInt(q.value)||1)+1;validateAdd();};
 document.getElementById('product').oninput=validateAdd;
 document.getElementById('qty').oninput=validateAdd;
+
+async function openTable(){
+  const modal=document.getElementById('table-modal');
+  const content=document.getElementById('table-content');
+  modal.style.display='flex';
+  content.innerHTML='<div class="empty-table">Chargement de Feuille1…</div>';
+  try{
+    const res=await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId:SPREADSHEET_ID,range:RANGE
+    });
+    const rows=res.result.values||[];
+    if(rows.length<=1){
+      content.innerHTML='<div class="empty-table">Feuille1 est vide.</div>';
+      return;
+    }
+    const data=rows.slice(Math.max(1,rows.length-30));
+    const escHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const head=['Opérateur','Date','Produit','CIP','Qté','Zone','Vendu','Vendu avant','Ajouté le'];
+    content.innerHTML='<table id="sheet-table"><thead><tr>'+
+      head.map(h=>'<th>'+h+'</th>').join('')+
+      '</tr></thead><tbody>'+
+      data.map(r=>'<tr>'+Array.from({length:9},(_,i)=>'<td>'+escHtml(r[i]||'')+'</td>').join('')+'</tr>').join('')+
+      '</tbody></table>';
+  }catch(e){
+    content.innerHTML='<div class="empty-table">Erreur : '+String(e.result?.error?.message||e.message||e)+'</div>';
+  }
+}
+function closeTable(){document.getElementById('table-modal').style.display='none';}
 
 async function addRowToSheet(){
   const btn=document.getElementById('btn-add');
@@ -380,7 +602,8 @@ async function addRowToSheet(){
   const lastDay=new Date(Number(y),Number(m),0).getDate();
   const dateVal=`${y}-${m}-${lastDay}`;
   const now=new Date().toLocaleString('fr-FR');
-  const values=[[operatorName,dateVal,productVal,code,qty,zone,'',0,now]];
+  const lot=document.getElementById('lot').value.trim();
+  const values=[[operatorName,dateVal,productVal,code,qty,zone,'',0,now,lot]];
   
   btn.disabled=true; btn.textContent='ENREGISTREMENT…';
   try{
@@ -390,13 +613,14 @@ async function addRowToSheet(){
       valueInputOption:'USER_ENTERED',
       resource:{values}
     });
-    setStatus('✓ Produit ajouté avec succès !');
+    setStatus('✓ Produit ajouté avec succès ! — Ouvrez « VOIR TABLEAU » pour vérifier.');
     
     document.getElementById('code').value='';
     document.getElementById('product').value='';
     document.getElementById('product-hint').textContent='Scannez un CIP pour rechercher automatiquement';
     document.getElementById('zone').value='';
     document.getElementById('qty').value=1;
+    document.getElementById('lot').value='';
     btn.textContent='AJOUTER LE PRODUIT';
     setTimeout(()=>document.getElementById('code').focus(),50);
   }catch(e){
@@ -404,6 +628,8 @@ async function addRowToSheet(){
     setStatus('Erreur d’enregistrement : '+(e.result?.error?.message||e.message));
   }
 }
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeScanner();closeTable();}});
 
 window.addEventListener('load',()=>{
   updateOperator();
