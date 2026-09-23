@@ -7,7 +7,6 @@
 <title>Ajouter un produit Zebra - Pharmacie du Libron</title>
 <script async defer src="https://accounts.google.com/gsi/client"></script>
 <script src="https://apis.google.com/js/api.js"></script>
-<script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
 <style>
 :root{
   --bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
@@ -87,11 +86,8 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
  text-decoration:none;font-size:8px;font-weight:800}
 
 /* Scanner Data Matrix + aperçu tableau */
-.scan-row{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.scan-btn,.table-btn{height:38px;border:1.5px solid var(--border);border-radius:8px;background:#fff;
-  color:var(--blue-dark);font-size:11px;font-weight:900;cursor:pointer}
-.scan-btn{background:var(--blue-soft)}
-.scan-btn:active,.table-btn:active{transform:scale(.99)}
+.scan-row{display:grid;grid-template-columns:1fr;gap:5px}
+.table-btn{height:38px;border:1.5px solid var(--border);border-radius:8px;background:#fff;color:var(--blue-dark);font-size:11px;font-weight:900;cursor:pointer}.table-btn:active{transform:scale(.99)}
 .modal{position:fixed;inset:0;background:rgba(21,61,49,.48);display:none;align-items:center;justify-content:center;
   z-index:100;padding:12px}
 .modal-card{width:100%;max-width:430px;max-height:92dvh;background:#fff;border-radius:14px;padding:10px;
@@ -133,7 +129,6 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
     <div class="field-label">① SCANNER LE DATA MATRIX / CIP</div>
     <div class="scan-row">
       <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 derniers chiffres">
-      <button type="button" class="scan-btn" id="scan-btn">▣ SCANNER</button>
     </div>
     <div id="product-hint">Scannez le Data Matrix ou saisissez les 6 derniers chiffres</div>
   </div>
@@ -167,40 +162,17 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
       </div>
       <input id="date" type="hidden">
     </div>
-
-    <div class="field-group">
-      <div class="field-label">④ LOT (Data Matrix)</div>
-      <input id="lot" type="text" autocomplete="off" placeholder="Lot détecté automatiquement" readonly>
-    </div>
-
-    <div class="field-group">
-      <div class="field-label">⑤ QUANTITÉ</div>
-      <div class="qty-control">
-        <button type="button" class="qty-btn" id="qty-minus">−</button>
-        <input id="qty" type="number" min="1" value="1">
-        <button type="button" class="qty-btn" id="qty-plus">+</button>
-      </div>
-    </div>
   </div>
 
   <div class="field-group zone-wrap">
-    <div class="field-label" style="color:#1776b5;">⑥ ZONE GÉOGRAPHIQUE</div>
+    <div class="field-label" style="color:#1776b5;">⑤ ZONE GÉOGRAPHIQUE</div>
     <input id="zone" type="text" autocomplete="off" placeholder="Tapez ou cherchez la zone...">
     <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
   </div>
 
+  <button type="button" class="table-btn" id="view-table-btn" onclick="openTable()">VOIR TABLEAU</button>
   <button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER LE PRODUIT</button>
 </div>
-
-
-<div class="modal" id="scanner-modal">
-  <div class="modal-card">
-    <div class="modal-head"><span>Scanner un Data Matrix</span><button class="modal-close" type="button" onclick="closeScanner()">×</button></div>
-    <video id="scanner-video" playsinline muted></video>
-    <div id="scanner-status">Autorisation caméra…</div>
-  </div>
-</div>
-
 <div class="modal" id="table-modal">
   <div class="modal-card">
     <div class="modal-head"><span>Feuille1 — produits ajoutés</span><button class="modal-close" type="button" onclick="closeTable()">×</button></div>
@@ -254,9 +226,6 @@ function parseGS1DataMatrix(raw){
     if(Number(mm)>=1 && Number(mm)<=12) out.expiry={month:mm,year:String(year)};
   }
 
-  const lot = s.match(/\(10\)([^<]{1,30})/) || s.match(/(?:^|<GS>)10([^<]{1,30})/);
-  if(lot) out.lot=lot[1].trim();
-
   const serial = s.match(/\(21\)([^<]{1,30})/) || s.match(/(?:^|<GS>)21([^<]{1,30})/);
   if(serial) out.serial=serial[1].trim();
 
@@ -291,7 +260,6 @@ function applyDataMatrixData(raw){
     document.getElementById('select-year').value=d.expiry.year;
     updateDateHidden();
   }
-  document.getElementById('lot').value=d.lot||'';
   return d;
 }
 
@@ -483,7 +451,6 @@ async function findProduct(code, dmData=null){
             updateDateHidden();
           }
         }
-        document.getElementById('lot').value=dmData?.lot||document.getElementById('lot').value||'';
         document.getElementById('zone').value='';
         document.getElementById('qty').value=1;
         document.getElementById('product-hint').textContent='Produit reconnu ✓ — zone et quantité à renseigner';
@@ -514,7 +481,6 @@ async function findProduct(code, dmData=null){
             updateDateHidden();
           }
         }
-        document.getElementById('lot').value=dmData?.lot||document.getElementById('lot').value||'';
         document.getElementById('zone').value='';
         document.getElementById('qty').value=1;
         document.getElementById('product-hint').textContent='Produit reconnu dans l’historique ✓ — zone et quantité à renseigner';
@@ -538,45 +504,6 @@ async function findProduct(code, dmData=null){
   }
 }
 
-async function openScanner(){
-  const modal=document.getElementById('scanner-modal');
-  const video=document.getElementById('scanner-video');
-  const info=document.getElementById('scanner-status');
-  modal.style.display='flex';
-  info.textContent='Démarrage de la caméra…';
-  try{
-    if(!window.ZXingBrowser)throw new Error('Le module de scan n’est pas chargé.');
-    if(codeReader){try{codeReader.reset();}catch(_){}} 
-    codeReader=new ZXingBrowser.BrowserMultiFormatReader();
-    const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
-    if(!devices.length)throw new Error('Aucune caméra disponible.');
-    const preferred=devices.find(d=>/back|rear|environment|arrière/i.test(d.label))||devices[devices.length-1];
-    info.textContent='Visez le Data Matrix avec la caméra arrière…';
-    scannerControls=await codeReader.decodeFromVideoDevice(preferred.deviceId,video,(result,err)=>{
-      if(result){
-        const raw=result.getText();
-        const dmData=parseGS1DataMatrix(raw);
-        const code=dmData.cip||formatLast6(raw);
-        if(code.length===6){
-          applyDataMatrixData(raw);
-          closeScanner();
-          findProduct(code,dmData);
-        }else{
-          info.textContent='Code lu mais CIP introuvable — essayez de rapprocher le Data Matrix.';
-        }
-      }
-    });
-  }catch(e){
-    info.textContent='Scanner indisponible : '+(e.message||e);
-  }
-}
-function closeScanner(){
-  if(scannerControls){try{scannerControls.stop();}catch(_){ }scannerControls=null;}
-  if(codeReader){try{codeReader.reset();}catch(_){ }}
-  const video=document.getElementById('scanner-video');
-  if(video&&video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
-  document.getElementById('scanner-modal').style.display='none';
-}
 
 const codeInput=document.getElementById('code');
 codeInput.addEventListener('input',()=>{
@@ -600,7 +527,6 @@ function validateAdd(){
   document.getElementById('btn-add').disabled=!(operatorName && accessToken && codeValid && productName && q>0 && /^\d{2}\/\d{4}$/.test(d) && z);
 }
 
-document.getElementById('scan-btn').onclick=openScanner;
 
 document.getElementById('qty-minus').onclick=()=>{const q=document.getElementById('qty');q.value=Math.max(1,(parseInt(q.value)||1)-1);validateAdd();};
 document.getElementById('qty-plus').onclick=()=>{const q=document.getElementById('qty');q.value=(parseInt(q.value)||1)+1;validateAdd();};
@@ -653,8 +579,7 @@ async function addRowToSheet(){
   const lastDay=new Date(Number(y),Number(m),0).getDate();
   const dateVal=`${y}-${m}-${lastDay}`;
   const now=new Date().toLocaleString('fr-FR');
-  const lot=document.getElementById('lot').value.trim();
-  const values=[[operatorName,dateVal,productVal,code,qty,zone,'',0,now,lot]];
+  const values=[[operatorName,dateVal,productVal,code,qty,zone,'',0,now]];
   
   btn.disabled=true; btn.textContent='ENREGISTREMENT…';
   try{
@@ -671,7 +596,6 @@ async function addRowToSheet(){
     document.getElementById('product-hint').textContent='Scannez un CIP pour rechercher automatiquement';
     document.getElementById('zone').value='';
     document.getElementById('qty').value=1;
-    document.getElementById('lot').value='';
     btn.textContent='AJOUTER LE PRODUIT';
     setTimeout(()=>document.getElementById('code').focus(),50);
   }catch(e){
@@ -680,7 +604,7 @@ async function addRowToSheet(){
   }
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeScanner();closeTable();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeTable();}});
 
 window.addEventListener('load',()=>{
   updateOperator();
