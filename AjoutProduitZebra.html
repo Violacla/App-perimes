@@ -121,7 +121,7 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
 
 <div class="panel" id="login-panel">
   <div class="panel-title">Connexion Google Sheets</div>
-  <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()" disabled>Préparation…</button>
+  <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()" disabled>Chargement de Google…</button>
 </div>
 
 <div class="panel" id="entry-panel" style="display:none;">
@@ -294,6 +294,7 @@ function updateDateHidden(){
 
 let googleInitStarted=false;
 let googleWaitTries=0;
+let googleInitTimeout=null;
 
 function maybeReady(){
   const b=document.getElementById('btn-login');
@@ -302,20 +303,27 @@ function maybeReady(){
     b.textContent='Se connecter à Google';
     updateOperator();
     setStatus(operatorName ? 'Google Sheets prêt.' : 'Choisissez d’abord un opérateur sur l’accueil.');
-  }else if(googleWaitTries>100){
+    return;
+  }
+
+  // Give up after ~15 seconds instead of leaving the user indefinitely on "Préparation".
+  if(googleWaitTries>150){
     b.disabled=false;
     b.textContent='Réessayer la connexion';
-    setStatus('Google n’est pas encore chargé. Vérifiez Internet puis réessayez.');
+    setStatus('Google n’a pas pu être chargé. Vérifiez Internet, puis appuyez sur « Réessayer la connexion ».');
   }
 }
 
 function initGoogle(){
+  // Google API client (Sheets)
   if(window.gapi && !gapiReady && !googleInitStarted){
     googleInitStarted=true;
     try{
       gapi.load('client',async()=>{
         try{
-          await gapi.client.init({discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']});
+          await gapi.client.init({
+            discoveryDocs:['https://sheets.googleapis.com/$discovery/rest?version=v4']
+          });
           gapiReady=true;
           maybeReady();
         }catch(e){
@@ -326,31 +334,36 @@ function initGoogle(){
       });
     }catch(e){
       googleInitStarted=false;
-      setStatus('Erreur de chargement Google Sheets.');
+      setStatus('Erreur de chargement de Google Sheets.');
       maybeReady();
     }
   }
 
+  // Google Identity Services (OAuth)
   if(window.google?.accounts?.oauth2 && !gisReady){
     try{
       tokenClient=google.accounts.oauth2.initTokenClient({
         client_id:CLIENT_ID,
         scope:SCOPES,
         callback:(resp)=>{
-          if(!resp || !resp.access_token){
-            setStatus('Connexion Google annulée.');
+          if(!resp || resp.error || !resp.access_token){
+            setStatus('Connexion Google annulée ou refusée.');
             return;
           }
+
           accessToken=resp.access_token;
           operatorName=localStorage.getItem('zebraOperator')||operatorName||'—';
           updateOperator();
+
           document.getElementById('login-panel').style.display='none';
           document.getElementById('entry-panel').style.display='flex';
+
           setStatus('✓ Google Sheets connecté.');
           setTimeout(()=>document.getElementById('code').focus(),100);
           validateAdd();
         }
       });
+
       gisReady=true;
       maybeReady();
     }catch(e){
@@ -360,40 +373,63 @@ function initGoogle(){
 }
 
 function waitForGoogle(){
+  const b=document.getElementById('btn-login');
+  b.disabled=true;
+  b.textContent='Chargement de Google…';
+  setStatus('Connexion aux services Google…');
+
   const timer=setInterval(()=>{
     googleWaitTries++;
     initGoogle();
     maybeReady();
-    if(gapiReady && gisReady) clearInterval(timer);
+
+    if(gapiReady && gisReady){
+      clearInterval(timer);
+      return;
+    }
+
     if(googleWaitTries>150){
       clearInterval(timer);
-      const b=document.getElementById('btn-login');
       b.disabled=false;
       b.textContent='Réessayer la connexion';
-      setStatus('Google n’a pas pu être initialisé. Rechargez la page puis réessayez.');
+      setStatus('Google n’a pas pu être chargé. Vérifiez Internet puis réessayez.');
     }
   },100);
+
   initGoogle();
 }
 
 function initiateGoogleAndOperatorLogin(){
   operatorName=localStorage.getItem('zebraOperator')||operatorName;
+
   if(!operatorName){
     setStatus('Aucun opérateur sélectionné. Retournez à l’accueil pour le choisir.');
     return;
   }
+
   if(!tokenClient || !gisReady){
     setStatus('Initialisation de Google…');
     initGoogle();
+
     setTimeout(()=>{
-      if(tokenClient && gisReady) initiateGoogleAndOperatorLogin();
-      else setStatus('Google n’est pas disponible. Rechargez la page et réessayez.');
-    },500);
+      if(tokenClient && gisReady){
+        initiateGoogleAndOperatorLogin();
+      }else{
+        const b=document.getElementById('btn-login');
+        b.disabled=false;
+        b.textContent='Réessayer la connexion';
+        setStatus('Google n’est pas disponible. Rechargez la page et réessayez.');
+      }
+    },800);
     return;
   }
+
   setStatus('Connexion Google en cours…');
+
   try{
-    tokenClient.requestAccessToken({prompt:''});
+    // "select_account" forces the Google account chooser, which is useful
+    // when the browser has no active Google session or the wrong account.
+    tokenClient.requestAccessToken({prompt:'select_account'});
   }catch(e){
     setStatus('Erreur de connexion Google : '+(e?.message||e));
   }
@@ -528,8 +564,13 @@ function validateAdd(){
 }
 
 
+const qtyMinus=document.getElementById('qty-minus');
+const qtyPlus=document.getElementById('qty-plus');
+const qtyInput=document.getElementById('qty');
+if(qtyMinus) qtyMinus.onclick=()=>{qtyInput.value=Math.max(1,(parseInt(qtyInput.value)||1)-1);validateAdd();};
+if(qtyPlus) qtyPlus.onclick=()=>{qtyInput.value=(parseInt(qtyInput.value)||1)+1;validateAdd();};
 document.getElementById('product').oninput=validateAdd;
-document.getElementById('qty').oninput=validateAdd;
+if(qtyInput) qtyInput.oninput=validateAdd;
 
 async function openTable(){
   const modal=document.getElementById('table-modal');
@@ -601,6 +642,15 @@ async function addRowToSheet(){
     setStatus('Erreur d’enregistrement : '+(e.result?.error?.message||e.message));
   }
 }
+
+window.addEventListener('error',e=>{
+  if(!gapiReady || !gisReady){
+    const b=document.getElementById('btn-login');
+    b.disabled=false;
+    b.textContent='Réessayer la connexion';
+    setStatus('Erreur de chargement : '+(e.message||'Google n’est pas disponible.'));
+  }
+});
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeTable();}});
 
