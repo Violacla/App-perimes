@@ -559,7 +559,7 @@ Déconnexion
 <form id="entry-form" onsubmit="return false;" style="display: none;">
 <h3>Ajouter un produit</h3>
 <!--<input id="code" maxlength="6" minlength="6" pattern="\d{6}" placeholder="Code (6 chiffres)" required="" type="text"/>-->
-  <input id="code" inputmode="numeric" autocomplete="off" placeholder="Code (6 chiffres)" required type="text" />
+  <input id="code" inputmode="numeric" autocomplete="off" placeholder="Scanner ou code (6 chiffres)" required type="text" />
 <input id="product" placeholder="Nom Produit" type="text"/>
 <input id="date" placeholder="MM/YYYY" type="text"/>
   <div id="date-error">DATE<br>INVALIDE</div>
@@ -1658,7 +1658,7 @@ document.getElementById("btn-open-my-pdf").addEventListener("click", () => {
  const dateInputField = document.getElementById('date');
 const dateErrorDiv = document.getElementById('date-error');
 
-dateInputField.addEventListener('blur', () => {
+function checkDateField() {
   const val = dateInputField.value.trim();
   const parts = val.split('/');
   if (parts.length !== 2) {
@@ -1684,7 +1684,8 @@ dateInputField.addEventListener('blur', () => {
   } else {
     dateErrorDiv.style.display = 'none';
   }
-});
+}
+dateInputField.addEventListener('blur', checkDateField);
 
 </script>
  <script>
@@ -1883,31 +1884,102 @@ if (monthsToInclude.includes(ym)) {
 <script>
 const codeInput = document.getElementById('code');
 if (codeInput) {
-  function formatCodeKeepLast6() {
-    // Garde uniquement les chiffres
-    let val = codeInput.value.replace(/[^\d]/g, '');
-    // Prend les 6 derniers chiffres (si la chaîne est plus courte, on garde tout)
-    val = val.slice(-6);
-    codeInput.value = val;
+
+  // --- Lecture d'un Data Matrix de médicament (norme GS1) ---------------------------------
+  // Exemple : 01 03400936123456 17 261130 10 LOT 21 SERIE
+  //           01 = GTIN (CIP13 précédé d'un 0) | 17 = péremption AAMMJJ | 10 = lot | 21 = n° de série
+  function parseGS1DataMatrix(raw) {
+    const out = { gtin: '', cip: '', expiry: null, lot: '', serial: '' };
+    // Nettoyage : préfixe AIM (]d2), parenthèses, espaces, caractères de contrôle ; séparateur GS (0x1D) -> "|"
+    let s = String(raw || '').replace(/^\]d2/i, '').replace(/\u001d/g, '|').replace(/[()\s\u0000-\u001c]/g, '');
+
+    let g = s.match(/^01(\d{14})/);
+    if (!g) {                                    // champ pas vidé avant le scan : on cherche le début du code
+      const i = s.search(/01\d{14}17\d{2}(?:0[1-9]|1[0-2])/);
+      if (i > 0) { s = s.slice(i); g = s.match(/^01(\d{14})/); }
+    }
+    if (!g) return out;                          // pas un Data Matrix : saisie manuelle / CIP13
+    out.gtin = g[1];
+    out.cip = g[1].slice(-6);                    // 6 derniers chiffres du CIP13
+
+    const setExp = (yy, mm) => {
+      if (Number(mm) >= 1 && Number(mm) <= 12) out.expiry = { month: mm, year: String(2000 + Number(yy)) };
+    };
+
+    let rest = s.slice(16);
+    while (rest.length >= 2) {
+      rest = rest.replace(/^\|+/, '');
+      const ai = rest.slice(0, 2);
+      if (ai === '17' && /^17\d{6}/.test(rest)) {
+        setExp(rest.slice(2, 4), rest.slice(4, 6));
+        rest = rest.slice(8);
+      } else if (ai === '10' || ai === '21') {
+        const i = rest.indexOf('|');
+        const val = i < 0 ? rest.slice(2) : rest.slice(2, i);
+        if (ai === '10') out.lot = val; else out.serial = val;
+        rest = i < 0 ? '' : rest.slice(i);
+      } else break;
+    }
+    // Secours : autre ordre des champs et séparateur GS non transmis par le scanner
+    if (!out.expiry) {
+      const f = s.slice(16).match(/17(\d{2})(0[1-9]|1[0-2])([0-3]\d)/);
+      if (f) setExp(f[1], f[2]);
+    }
+    return out;
   }
 
-  // Sur saisie / collage / perte de focus -> formate
+  let scanTimer = null;
+
+  // Lit le champ Code :
+  //  - Data Matrix  -> code = 6 derniers chiffres du CIP + date MM/YYYY remplie automatiquement
+  //  - CIP13 / saisie manuelle -> code = 6 derniers chiffres, la date reste à saisir
+  function processCodeField() {
+    clearTimeout(scanTimer);
+    const raw = codeInput.value;
+    if (!raw.trim()) return null;
+    const dm = parseGS1DataMatrix(raw);
+    if (dm.cip) {
+      codeInput.value = dm.cip;
+      const dateEl = document.getElementById('date');
+      if (dm.expiry && dateEl) {
+        dateEl.value = dm.expiry.month + '/' + dm.expiry.year;
+        if (typeof checkDateField === 'function') checkDateField();   // même contrôle « DATE INVALIDE » qu'en manuel
+      }
+      return dm;
+    }
+    codeInput.value = raw.replace(/[^\d]/g, '').slice(-6);
+    return null;
+  }
+
+  function focusAfterCode(dm, found) {
+    const id = (dm && dm.expiry) ? (found ? 'qty' : 'product') : 'product';
+    const el = document.getElementById(id);
+    if (el) el.focus();
+  }
+
+  // Le scanner "tape" tout le code d'un coup : on attend la fin de la saisie avant de le lire
+  async function onScanPause() {
+    const dm = processCodeField();
+    if (!dm) return;                              // saisie manuelle : on ne touche à rien
+    const found = typeof autofillProductFromCode === 'function' ? await autofillProductFromCode() : false;
+    focusAfterCode(dm, found);
+  }
   codeInput.addEventListener('input', () => {
-    // setTimeout pour laisser le navigateur finir l'opération de collage si nécessaire
-    setTimeout(formatCodeKeepLast6, 0);
-  });
-  codeInput.addEventListener('blur', formatCodeKeepLast6);
-  codeInput.addEventListener('paste', () => {
-    // le paste peut être asynchrone -> delay
-    setTimeout(formatCodeKeepLast6, 0);
+    clearTimeout(scanTimer);
+    scanTimer = setTimeout(onScanPause, 250);
   });
 
-  // Touche Entrée : formate puis lance autofill
-  codeInput.addEventListener('keydown', (e) => {
-    if (e.key === "Enter") {
+  codeInput.addEventListener('blur', () => { processCodeField(); });
+  codeInput.addEventListener('focus', () => codeInput.select());   // un nouveau scan remplace l'ancien contenu
+
+  // Touche Entrée (envoyée par la plupart des scanners) : lecture immédiate
+  codeInput.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      formatCodeKeepLast6();
-      autofillProductFromCode();
+      e.stopImmediatePropagation();
+      const dm = processCodeField();
+      const found = typeof autofillProductFromCode === 'function' ? await autofillProductFromCode() : false;
+      focusAfterCode(dm, found);
     }
   });
 }
@@ -1917,7 +1989,7 @@ async function autofillProductFromCode() {
   const codeVal = document.getElementById('code').value.trim();
 
   // Vérifie que c'est bien un code à 6 chiffres
-  if (!/^\d{6}$/.test(codeVal)) return;
+  if (!/^\d{6}$/.test(codeVal)) return false;
 
   try {
     // On va chercher dans Feuille1 et Feuille2
@@ -1936,14 +2008,16 @@ async function autofillProductFromCode() {
         if (sheetCodeFormatted === codeVal) { // Colonne Code (4ème col dans Sheets)
           document.getElementById('product').value = rows[i][2] || ''; // Nom produit
           document.getElementById('zone').value = rows[i][5] || '';    // Zone
-          return;
+          return true;
         }
       }
     }
    // alert("Produit introuvable dans Feuille1/Feuille2.");
   } catch (e) {
     console.error("Erreur recherche produit :", e);
+    return false;
   }
+  return false;
 }
 
 // Quand on scanne / quitte le champ code → auto-remplissage
@@ -1957,4 +2031,3 @@ document.getElementById('code').addEventListener('keydown', (e) => {
 </script>
 </body>
 </html>
-
