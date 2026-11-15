@@ -29,7 +29,7 @@ header{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content
 .sold{background:var(--pinkLight);border-color:var(--pinkBorder);color:var(--pink)}.sold.active{background:#ffe0e8;border-color:var(--pink)}.remaining{background:var(--greenLight);border-color:#bde4d0;color:var(--green)}.remaining.active{background:#dff4e9;border-color:var(--green)}
 .step{margin-top:4px}.step-title{text-align:center;font-size:8px;font-weight:800;color:var(--muted);margin-bottom:2px}.stepper{display:flex;gap:4px}.stepper button{width:36px;height:32px;border:0;border-radius:13px;background:var(--green2);color:#fff;font-size:17px;font-weight:900;cursor:pointer;touch-action:manipulation;pointer-events:auto}.stepper button:disabled{background:#e0e5e8;color:#9da8b0}.stepper input{flex:1;height:32px;border:2px solid var(--line);border-radius:13px;text-align:center;font-size:17px;font-weight:900}.stepper input:disabled{background:#f5f7f8;color:#9da8b0}
 .calc{margin-top:4px;background:#f7f9fa;border-radius:8px;padding:4px;text-align:center;font-size:8px;font-weight:800}.calc b{font-size:10px;color:var(--green)}
-.next{height:43px;flex:0 0 43px;border:0;border-radius:12px;margin-top:6px;background:var(--green2);color:#fff;font-size:11px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:13px;flex:0 0 13px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:9px;color:#c05d6f;height:12px}
+.next{height:43px;flex:0 0 43px;border:0;border-radius:12px;margin-top:6px;background:var(--green2);color:#fff;font-size:11px;font-weight:900;cursor:pointer}.next:disabled{background:#dfe5e8;color:#98a5ad}.bottom{height:13px;flex:0 0 13px;display:flex;justify-content:flex-end;align-items:end}.ref{font-size:10px;font-weight:900;color:var(--muted)}.message{text-align:center;font-size:11px;font-weight:800;color:#c0392b;min-height:28px;flex:0 0 auto;line-height:1.2;padding-top:2px}
 </style>
 </head>
 <body>
@@ -47,6 +47,7 @@ const SPREADSHEET_ID='1KzO5snEYkAtKjIUm1VHvnAPR8lYjOtwhUQg2dgvjPzE';
 const SHEET='Feuille1',HISTORY='Feuille2';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets';
 const OFFSET=0,zebraMoisActuelResume='zebraMoisActuelResume';
+let ignoredRows=0,sheetIds=null;
 let tokenClient=null,gapiReady=false,gisReady=false,products=[],idx=0,choice=null,remaining=0;
 const operator=localStorage.getItem('zebraOperator')||'—';document.getElementById('op').textContent=operator;
 
@@ -57,15 +58,32 @@ function dateOf(v){
   let m=s.match(/^(\d{4})[-/.](\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);
   m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,1)}
   m=s.match(/^(\d{1,2})[-/.](\d{4})$/);if(m)return new Date(+m[2],+m[1]-1,1);
+  m=s.match(/^(?:\d{1,2}\s+)?([a-zéûè.]+)\s+(\d{4})$/);       // « 30 nov. 2026 », « novembre 2026 »
+  if(m){const w=m[1].replace(/\./g,''),names=['janv','f[eé]vr','mars','avr','mai','juin','juil','ao[uû]t','sept','oct','nov','d[eé]c'];
+    const k=names.findIndex(n=>new RegExp('^'+n).test(w));if(k>=0)return new Date(+m[2],k,1)}
   const d=new Date(s);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),1)
 }
 function target(v){const d=dateOf(v),s=startMonth();return d&&d.getFullYear()===s.getFullYear()&&d.getMonth()===s.getMonth()}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function status(t){document.getElementById('status').textContent=t}
-function message(t){document.getElementById('message').textContent=t}
-function setReady(){const b=document.getElementById('googleBtn');b.disabled=false;b.textContent='Se connecter à Google';status('Google Sheets prêt.');}
-function fail(t){status(t);const b=document.getElementById('googleBtn');b.disabled=true;b.textContent='Google indisponible';}
+function message(t,err){const m=document.getElementById('message');m.textContent=t;m.style.color=err?'#c0392b':'#16834f'}
+function setReady(){const b=document.getElementById('googleBtn');b.disabled=false;b.textContent='Se connecter à Google';b.onclick=connectGoogle;status('Google Sheets prêt.');}
+function fail(t){status(t);const b=document.getElementById('googleBtn');b.disabled=false;b.textContent='Recharger la page';b.onclick=()=>location.reload();}
 
+async function gcall(fn,idem=true){
+  const waits=[1500,4000,9000];
+  for(let i=0;;i++){
+    try{return await fn()}
+    catch(e){
+      const code=e?.status??e?.result?.error?.code;
+      // 429 = requête refusée donc rejouable ; 5xx/réseau seulement pour les appels sans risque de doublon
+      const transient=code===429||(idem&&(code===0||code>=500));
+      if(!transient||i>=waits.length)throw e;
+      message('Google est occupé, nouvel essai '+(i+1)+'/3…');
+      await new Promise(r=>setTimeout(r,waits[i]));
+    }
+  }
+}
 function connectGoogle(){
   if(!gisReady||!tokenClient){status('Google n’est pas encore prêt…');return}
   status('Ouverture de la connexion Google…');
@@ -99,34 +117,48 @@ function bootGIS(){
 }
 function maybeReady(){if(gapiReady&&gisReady)setReady()}
 
+async function fetchProducts(){
+  const res=await gcall(()=>gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET}));
+  const rows=res.result.values||[],list=[];ignoredRows=0;
+  rows.slice(1).forEach((r,i)=>{
+    const stock=Number(r[4])||0,oldSold=Number(r[6])||0;
+    if(target(r[1])&&stock>oldSold)list.push({r,row:i+2});
+    else if(stock>oldSold&&String(r[1]??'').trim()&&!dateOf(r[1]))ignoredRows++;   // date illisible : signalé à l'écran
+  });
+  list.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);
+  return list;
+}
+// Session Google expirée (jeton ~1 h) : on réaffiche la connexion, la position est conservée
+function handleAuthError(e){
+  const code=e?.status||e?.result?.error?.code;
+  if(code!==401)return false;
+  document.getElementById('productZone').style.display='none';
+  document.getElementById('login').style.display='';
+  status('Session Google expirée — appuyez sur « Se connecter » pour reprendre où vous étiez.');
+  try{if(tokenClient)tokenClient.requestAccessToken({prompt:''})}catch(_){}
+  return true;
+}
 async function load(){
   try{
-    const res=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:SHEET});
-    const rows=res.result.values||[];products=[];
-    rows.slice(1).forEach((r,i)=>{
-      const stock=Number(r[4])||0,oldSold=Number(r[6])||0;
-      if(target(r[1])&&stock>oldSold)products.push({r,row:i+2});
-    });
-    products.sort((a,b)=>(dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)||a.row-b.row);
+    products=await fetchProducts();
     document.getElementById('login').style.display='none';
     document.getElementById('productZone').style.display='flex';
     idx=0;
     
-    const saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null');
-    if(saved && saved.period===resumePeriod()){
-      if(saved.code){
-        const n=products.findIndex(x=>String(x.r[3]||'')===String(saved.code));
-        if(n>=0) idx=n;
-        else if(Number.isInteger(saved.index)) idx=Math.max(0,Math.min(saved.index,products.length-1));
-      } else if(Number.isInteger(saved.index)){
-        idx=Math.max(0,Math.min(saved.index,products.length-1));
-      }
+    let saved=null;
+    try{saved=JSON.parse(localStorage.getItem(zebraMoisActuelResume)||'null')}catch(_){}
+    if(saved && saved.period===resumePeriod() && products.length){
+      const code=String(saved.code||'');
+      const sameCode=n=>products[n]&&String(products[n].r[3]||'')===code;
+      if(Number.isInteger(saved.index) && (!code||sameCode(saved.index))) idx=saved.index;
+      else if(code){const n=products.findIndex(x=>String(x.r[3]||'')===code);if(n>=0)idx=n}
+      else if(Number.isInteger(saved.index)) idx=Math.max(0,Math.min(saved.index,products.length-1));
     }
 
     if(products.length)render();
     else{showFinished('La liste est finie ✓')}
-    status('Google Sheets connecté.');
-  }catch(e){status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
+    status('Google Sheets connecté · '+products.length+' produit(s) ce mois-ci'+(ignoredRows?' · ⚠ '+ignoredRows+' ligne(s) ignorée(s) (date illisible)':''));
+  }catch(e){if(handleAuthError(e))return;status('Erreur Google Sheets : '+(e.result?.error?.message||e.message))}
 }
 function resumePeriod(){const d=startMonth();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 function saveResume(){
@@ -141,7 +173,7 @@ function saveResume(){
 }
 function showFinished(text='La liste est finie ✓'){
   localStorage.removeItem(zebraMoisActuelResume);
-  document.getElementById('card').innerHTML=`<div style="margin:auto;text-align:center;color:#16834f;font-size:18px;font-weight:900;line-height:1.4">${esc(text)}</div>`;
+  document.getElementById('card').innerHTML=`<div style="margin:auto;text-align:center;color:#16834f;font-size:18px;font-weight:900;line-height:1.4">${esc(text)}${ignoredRows?`<div style="font-size:11px;color:#c0392b;margin-top:8px">⚠ ${ignoredRows} ligne(s) ignorée(s) : date illisible</div>`:''}</div>`;
   document.getElementById('ref').textContent=`Référence ${products.length}/${products.length}`;
   document.getElementById('next').disabled=true;
   message('');
@@ -185,104 +217,77 @@ function choose(c){const r=products[idx].r,stock=Number(r[4])||0,sold=Number(r[6
 function change(d){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,remaining+d));render()}
 function inputRemain(v){if(choice!=='remaining')return;const r=products[idx].r,max=Math.max(1,(Number(r[4])||0)-(Number(r[6])||0));remaining=Math.max(1,Math.min(max,Number(v)||1));render()}
 async function updateSold(row,value){
-  return gapi.client.sheets.spreadsheets.values.update({
+  return gcall(()=>gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId:SPREADSHEET_ID,range:`${SHEET}!G${row}`,
     valueInputOption:'USER_ENTERED',resource:{values:[[value]]}
-  })
+  }))
 }
 async function transfer(row){
-  const meta=await gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'});
-  const sheets=meta.result.sheets||[],f1=sheets.find(x=>x.properties.title===SHEET),f2=sheets.find(x=>x.properties.title===HISTORY);
-  if(!f1||!f2)throw Error('Feuille1 ou Feuille2 introuvable.');
-  const get=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`${SHEET}!A${row}:Z${row}`});
+  // identifiants des feuilles : lus une seule fois (moins d'appels Google = moins de quota)
+  if(!sheetIds){
+    const meta=await gcall(()=>gapi.client.sheets.spreadsheets.get({spreadsheetId:SPREADSHEET_ID,fields:'sheets.properties(sheetId,title)'}));
+    const sheets=meta.result.sheets||[],f1=sheets.find(x=>x.properties.title===SHEET),f2=sheets.find(x=>x.properties.title===HISTORY);
+    if(!f1||!f2)throw Error('Feuille1 ou Feuille2 introuvable.');
+    sheetIds={f1:f1.properties.sheetId,f2:f2.properties.sheetId};
+  }
+  const get=await gcall(()=>gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:`${SHEET}!A${row}:Z${row}`}));
   const vals=get.result.values?.[0];if(!vals)throw Error('Ligne introuvable.');
-  const ap=await gapi.client.sheets.spreadsheets.values.append({
+  const ap=await gcall(()=>gapi.client.sheets.spreadsheets.values.append({
     spreadsheetId:SPREADSHEET_ID,range:`${HISTORY}!A1`,valueInputOption:'USER_ENTERED',
     insertDataOption:'INSERT_ROWS',includeValuesInResponse:true,resource:{values:[vals]}
-  });
+  }),false);
   if(!ap.result?.updates?.updatedRows)throw Error('Transfert historique non confirmé.');
-  await gapi.client.sheets.spreadsheets.batchUpdate({
+  await gcall(()=>gapi.client.sheets.spreadsheets.batchUpdate({
     spreadsheetId:SPREADSHEET_ID,
-    resource:{requests:[{deleteDimension:{range:{sheetId:f1.properties.sheetId,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}
-  });
+    resource:{requests:[{deleteDimension:{range:{sheetId:sheetIds.f1,dimension:'ROWS',startIndex:row-1,endIndex:row}}}]}
+  }),false);
 }
-function productKey(p){
-  if(!p||!p.r)return '';
-  const r=p.r;
-  return [
-    String(r[1]||'').trim(),
-    String(r[2]||'').trim(),
-    String(r[3]||'').trim(),
-    String(r[5]||'').trim()
-  ].join('¦');
-}
-
 async function goNext(){
   if(!choice||!products[idx])return;
 
   const current=products[idx],r=current.r,row=current.row;
   const wasSold=choice==='sold';
-  const nextKey=productKey(products[idx+1]);
+  const newSold=Math.max(0,(Number(r[4])||0)-remaining);
+  const nextP=products[idx+1];
+  let nextRow=nextP?nextP.row:null;          // on suit le produit suivant par sa LIGNE (pas par son contenu : les doublons le faisaient boucler)
+  const btn=document.getElementById('next');
 
-  document.getElementById('next').disabled=true;
+  btn.disabled=true;
   message(wasSold?'Transfert vers l’historique…':'Enregistrement…');
 
+  // 1) écriture dans Google Sheets
   try{
-    if(wasSold){
-      await transfer(row);
-    }else{
-      await updateSold(row,Math.max(0,(Number(r[4])||0)-remaining));
-    }
-
-    choice=null;
-    remaining=0;
-
-    const res=await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId:SPREADSHEET_ID,
-      range:SHEET
-    });
-    const rows=res.result.values||[];
-    products=[];
-
-    rows.slice(1).forEach((rn,i)=>{
-      const stock=Number(rn[4])||0;
-      const oldSold=Number(rn[6])||0;
-      if(target(rn[1])&&stock>oldSold){
-        products.push({r:rn,row:i+2});
-      }
-    });
-
-    products.sort((a,b)=>
-      (dateOf(a.r[1])?.getTime()||0)-(dateOf(b.r[1])?.getTime()||0)
-      || a.row-b.row
-    );
-
-    if(!products.length){
-      showFinished('La liste est finie ✓');
-      return;
-    }
-
-    if(nextKey){
-      const nextIndex=products.findIndex(p=>productKey(p)===nextKey);
-      if(nextIndex>=0){
-        idx=nextIndex;
-      }else{
-        idx=Math.min(idx,products.length-1);
-      }
-    }else{
-      showFinished('La liste est finie ✓');
-      return;
-    }
-
-    saveResume();
-    render();
-    message(wasSold?'Transfert historique effectué ✓':'Enregistré ✓');
-    setTimeout(()=>message(''),1200);
-
+    if(wasSold)await transfer(row);
+    else await updateSold(row,newSold);
   }catch(e){
-    document.getElementById('next').disabled=false;
-    message('Erreur : '+(e.result?.error?.message||e.message));
+    btn.disabled=false;
+    if(handleAuthError(e))return;
+    message('⚠ '+(e.result?.error?.message||e.message||'Erreur Google')+' — touchez « Produit suivant » pour réessayer',true);
+    return;
   }
+
+  // 2) écriture OK : à partir d'ici on ne bloque plus jamais l'utilisateur
+  if(wasSold&&nextRow!==null&&nextRow>row)nextRow--;   // la ligne supprimée décale les suivantes
+  choice=null;remaining=0;
+
+  try{
+    products=await fetchProducts();
+  }catch(e){
+    // rechargement impossible (réseau, jeton) : mise à jour locale, on continue quand même
+    if(wasSold){products.splice(idx,1);products.forEach(p=>{if(p.row>row)p.row--})}
+    else r[6]=String(newSold);
+  }
+
+  if(nextRow===null||!products.length){showFinished('La liste est finie ✓');return}
+
+  let n=products.findIndex(p=>p.row===nextRow);
+  if(n<0)n=Math.min(wasSold?idx:idx+1,products.length-1);
+  idx=n;
+
+  saveResume();
+  render();
+  message(wasSold?'Transfert historique effectué ✓':'Enregistré ✓');
+  setTimeout(()=>message(''),1200);
 }
 
 const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
