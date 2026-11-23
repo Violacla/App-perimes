@@ -9,100 +9,96 @@
 <script src="https://apis.google.com/js/api.js"></script>
 <style>
 :root{
-  --bg:#bcd7ed;--text:#26384d;--muted:#718096;--blue:#5b8fc9;--blue-dark:#3972ad;
-  --pink:#d99aae;--pink-dark:#c77991;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;
-  --border:#cbddea;--shadow:0 4px 12px rgba(62,91,122,.1)
+  --bg:#bcd7ed;--text:#26384d;--muted:#5f7289;--blue:#5b8fc9;--blue-dark:#3972ad;
+  --pink:#d99aae;--pink-dark:#b9647f;--pink-soft:#f8e3ea;--blue-soft:#e4f0fa;
+  --border:#cbddea;--ok:#2f8f6b;--shadow:0 4px 12px rgba(62,91,122,.12)
 }
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;
- background:#bcd7ed;color:var(--text)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;
+ font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
 body{display:flex;justify-content:center}
-.app{width:100%;max-width:430px;height:100dvh;padding:4px 8px;display:flex;flex-direction:column;min-height:0}
+.app{width:100%;max-width:430px;height:100dvh;display:flex;flex-direction:column;gap:6px;min-height:0;
+ padding:calc(6px + env(safe-area-inset-top,0px)) 10px calc(6px + env(safe-area-inset-bottom,0px))}
 
-/* HEADER Épuré */
-header{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:space-between;
- background:#cfe5f4;border:1.5px solid var(--border);
- border-radius:10px;padding:0 8px;margin-bottom:3px}
-.brand{display:flex;align-items:center;gap:6px;min-width:0}
-.logo{width:30px;height:30px;flex:0 0 30px}.logo img{width:100%;height:100%;object-fit:contain}
-h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
-.session{display:flex;align-items:center;justify-content:space-between;margin:0 0 3px;font-size:9px;color:var(--muted);padding:0 2px}
-.session strong{color:var(--blue-dark);font-size:11px}
-.change{border:1px solid var(--border);background:#ffffff;border-radius:5px;
- padding:2px 5px;font-size:8px;color:var(--blue-dark);font-weight:800;cursor:pointer}
+/* HEADER */
+header{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;
+ background:#cfe5f4;border:1.5px solid var(--border);border-radius:12px;padding:6px 10px}
+.brand{display:flex;align-items:center;gap:8px;min-width:0}
+.logo{width:34px;height:34px;flex:0 0 34px}.logo img{width:100%;height:100%;object-fit:contain}
+.brand-text{min-width:0}
+h1{margin:0;font-size:15px;line-height:1.15;font-weight:900;color:#153d31;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.op{font-size:11px;color:var(--muted)}.op strong{color:var(--blue-dark)}
+.change{flex:0 0 auto;border:1.5px solid var(--border);background:#fff;border-radius:8px;
+ padding:8px 12px;font-size:12px;color:var(--blue-dark);font-weight:800;cursor:pointer}
 
 /* LOGIN */
-#login-panel{flex:1;display:flex;align-items:center}
-.panel{width:100%;background:#ffffff;border:1.5px solid var(--border);
- border-radius:10px;padding:12px 10px;text-align:center;box-shadow:var(--shadow)}
-.panel-title{font-size:13px;font-weight:900;color:var(--blue-dark);margin-bottom:8px}
-.google{width:100%;height:42px;border:0;border-radius:8px;background:#3972ad;color:#fff;font-size:12px;font-weight:900;cursor:pointer}
+#login-panel{flex:0 0 auto;margin:auto 0;display:flex;flex-direction:column;gap:10px}
+.panel{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 12px;text-align:center;box-shadow:var(--shadow)}
+.panel-title{font-size:15px;font-weight:900;color:var(--blue-dark)}
+.google{width:100%;height:48px;border:0;border-radius:10px;background:var(--blue-dark);color:#fff;font-size:14px;font-weight:900;cursor:pointer}
+.google:disabled{opacity:.6}
 
-/* MAIN ENTRY - Sans cadres superflus */
-#entry-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+/* SAISIE */
+#entry-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
+.field-group{display:flex;flex-direction:column;gap:3px}
+.field-label{font-size:11px;font-weight:900;color:var(--blue-dark);letter-spacing:.3px;margin-left:2px}
+input,select,button{font-family:inherit}
+#code{width:100%;height:46px;border:2px solid var(--blue);border-radius:10px;background:#fff;color:var(--text);
+ text-align:center;font-size:18px;font-weight:900;letter-spacing:1px;padding:0 8px}
+.product-name{width:100%;height:44px;border:1.5px solid var(--border);border-radius:10px;background:#fff;
+ font-size:16px;font-weight:900;color:var(--blue-dark);padding:0 8px;text-align:center}
+#code:focus,.product-name:focus,#zone:focus,#qty:focus,.date-select:focus{outline:3px solid rgba(91,143,201,.3)}
+#product-hint{font-size:11px;color:var(--muted);margin-left:2px;min-height:14px}
+#product-hint.ok{color:var(--ok);font-weight:800}
+#date-src{color:var(--ok);font-weight:800;margin-left:4px}
 
-.field-group{display:flex;flex-direction:column;gap:2px}
-.field-label{font-size:8px;font-weight:900;color:var(--blue-dark);margin-left:2px}
+.row-dual{display:grid;grid-template-columns:1.5fr 1fr;gap:8px}
+.date-row{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.date-select{height:44px;border:1.5px solid var(--border);border-radius:10px;background:#fff;
+ font-size:14px;font-weight:900;color:var(--blue-dark);text-align:center;text-align-last:center;padding:0}
+.qty-control{display:flex;align-items:center;gap:4px;height:44px}
+.qty-btn{width:40px;height:44px;flex:0 0 40px;border:1.5px solid var(--border);border-radius:10px;
+ background:var(--blue-soft);color:var(--blue-dark);font-size:22px;font-weight:900;cursor:pointer;padding:0}
+.qty-btn:active{background:var(--border)}
+#qty{width:100%;min-width:0;height:44px;border:1.5px solid var(--border);border-radius:10px;text-align:center;
+ font-size:17px;font-weight:900;color:var(--text);padding:0;-moz-appearance:textfield}
+#qty::-webkit-inner-spin-button,#qty::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 
-/* Champs simplifiés sans bordures de boîtes lourdes */
-#code{width:100%;height:36px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
- text-align:center;font-size:15px;font-weight:900;letter-spacing:1px;padding:0}
-#code:focus{outline:3px solid rgba(91,143,201,.2)}
+/* ZONES : liste toujours visible */
+.zone-group{flex:1;min-height:90px;display:flex;flex-direction:column;gap:4px}
+#zone{flex:0 0 40px;width:100%;height:40px;border:2px solid var(--blue);border-radius:10px;background:#fff;
+ padding:0 10px;font-size:15px;font-weight:900;color:var(--blue-dark);text-align:center}
+.zone-grid{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-wrap:wrap;
+ align-content:flex-start;gap:6px;padding:8px;background:rgba(255,255,255,.6);border:1.5px solid var(--border);border-radius:10px}
+.chip{border:1.5px solid var(--border);background:#fff;color:var(--blue-dark);border-radius:999px;
+ padding:8px 12px;font-size:13px;font-weight:800;cursor:pointer}
+.chip:active{transform:scale(.96)}
+.chip.sel{background:var(--pink-dark);border-color:var(--pink-dark);color:#fff}
+.zone-empty{width:100%;text-align:center;font-size:12px;color:var(--muted);padding:10px}
 
-.product-name{width:100%;height:38px;border:1.5px solid var(--border);border-radius:8px;
- background:#ffffff;font-size:16px;font-weight:900;color:var(--blue-dark);
- padding:0 6px;text-align:center}
-#product-hint{font-size:7px;color:var(--muted);margin-left:2px}
+/* ACTIONS */
+.actions{flex:0 0 auto;display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.table-btn{height:50px;border:1.5px solid var(--blue);border-radius:10px;background:#fff;color:var(--blue-dark);
+ font-size:13px;font-weight:900;cursor:pointer}
+.table-btn:active{transform:scale(.98)}
+.save{height:50px;border:0;border-radius:10px;background:var(--pink-dark);color:#fff;font-size:14px;font-weight:900;
+ box-shadow:var(--shadow);cursor:pointer}
+.save:disabled{opacity:.45;cursor:not-allowed;background:#8d9aa8}
+.status{flex:0 0 auto;min-height:16px;text-align:center;font-size:12px;font-weight:800;color:var(--blue-dark)}
+.back-link{flex:0 0 auto;display:block;text-align:center;color:var(--blue-dark);text-decoration:none;font-size:11px;font-weight:800;padding:2px 0}
 
-/* Ligne Date + Quantité combinée pour alléger */
-.row-dual{display:grid;grid-template-columns:1.3fr 1fr;gap:4px}
-.date-row{display:grid;grid-template-columns:1.2fr 1fr;gap:2px}
-.date-select{height:34px;border:1.5px solid var(--border);border-radius:8px;background:#ffffff;
- font-size:11px;font-weight:900;color:var(--blue-dark);text-align:center;padding:0}
-
-.qty-control{display:flex;align-items:center;gap:2px;height:34px}
-.qty-btn{width:28px;height:34px;flex:0 0 28px;border:1.5px solid var(--border);border-radius:7px;
- background:var(--blue-soft);color:var(--blue-dark);font-size:16px;font-weight:900;cursor:pointer}
-#qty{width:100%;height:34px;border:1.5px solid var(--border);border-radius:7px;text-align:center;
- font-size:15px;font-weight:900}
-
-/* ZONE PANEL Épuré */
-.zone-wrap{position:relative}
-#zone{width:100%;height:36px;border:2px solid var(--blue);border-radius:8px;background:#ffffff;
- padding:0 8px;font-size:13px;font-weight:900;color:var(--blue-dark);text-align:center}
-.autocomplete-list{position:absolute;bottom:100%;left:0;right:0;z-index:50;background:#ffffff;
- border:1.5px solid var(--border);border-radius:8px;list-style:none;margin:0 0 3px 0;padding:0;
- max-height:120px;overflow-y:auto;box-shadow:var(--shadow)}
-.autocomplete-list li{padding:7px;font-size:11px;font-weight:700;cursor:pointer;border-bottom:1px solid #f0f0f0}
-.autocomplete-list li:hover{background:var(--pink-soft);color:var(--pink-dark)}
-
-/* CTA */
-.save{width:100%;height:44px;flex:0 0 44px;border:0;border-radius:9px;margin-top:auto;
- background:var(--pink);color:#fff;font-size:13px;font-weight:900;box-shadow:var(--shadow);cursor:pointer}
-.save:disabled{opacity:0.4;cursor:not-allowed;background:#b0b0b0}
-.status{min-height:14px;height:14px;flex:0 0 14px;margin:2px 0 0;text-align:center;
- font-size:9px;font-weight:800;color:var(--blue-dark)}
-.back-link{height:12px;flex:0 0 12px;display:block;text-align:center;color:var(--blue-dark);
- text-decoration:none;font-size:8px;font-weight:800}
-
-/* Scanner Data Matrix + aperçu tableau */
-.scan-row{display:grid;grid-template-columns:1fr;gap:5px}
-.table-btn{height:38px;border:1.5px solid var(--border);border-radius:8px;background:#fff;color:var(--blue-dark);font-size:11px;font-weight:900;cursor:pointer}.table-btn:active{transform:scale(.99)}
-.modal{position:fixed;inset:0;background:rgba(21,61,49,.48);display:none;align-items:center;justify-content:center;
-  z-index:100;padding:12px}
+/* TABLEAU (Excel) */
+.modal{position:fixed;inset:0;background:rgba(21,61,49,.48);display:none;align-items:center;justify-content:center;z-index:100;padding:12px}
 .modal-card{width:100%;max-width:430px;max-height:92dvh;background:#fff;border-radius:14px;padding:10px;
-  box-shadow:0 12px 35px rgba(21,61,49,.25);display:flex;flex-direction:column;gap:7px}
-.modal-head{display:flex;align-items:center;justify-content:space-between;font-weight:900;color:var(--blue-dark);font-size:13px}
-.modal-close{border:0;background:#eef5fa;border-radius:8px;width:32px;height:30px;font-size:18px;font-weight:900;cursor:pointer}
-#scanner-video{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#111}
-#scanner-status{font-size:9px;text-align:center;color:var(--muted);min-height:12px}
+ box-shadow:0 12px 35px rgba(21,61,49,.25);display:flex;flex-direction:column;gap:8px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;font-weight:900;color:var(--blue-dark);font-size:14px}
+.modal-close{border:0;background:#eef5fa;border-radius:8px;width:40px;height:36px;font-size:20px;font-weight:900;cursor:pointer}
 .table-wrap{overflow:auto;max-height:70dvh;border:1px solid var(--border);border-radius:9px}
-#sheet-table{width:100%;border-collapse:collapse;font-size:8px}
-#sheet-table th,#sheet-table td{padding:6px 5px;border-bottom:1px solid #edf0f2;text-align:left;white-space:nowrap}
+#sheet-table{width:100%;border-collapse:collapse;font-size:11px}
+#sheet-table th,#sheet-table td{padding:7px 6px;border-bottom:1px solid #edf0f2;text-align:left;white-space:nowrap}
 #sheet-table th{position:sticky;top:0;background:#e4f0fa;color:var(--blue-dark);font-weight:900}
 #sheet-table tr:last-child td{border-bottom:0}
-.empty-table{padding:15px;text-align:center;color:var(--muted);font-size:10px}
-
+.empty-table{padding:15px;text-align:center;color:var(--muted);font-size:12px}
 </style>
 </head>
 <body>
@@ -110,27 +106,24 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
 <header>
   <div class="brand">
     <div class="logo"><img src="https://i.imgur.com/AExTPc7.png" alt="Pharmacie du Libron"></div>
-    <h1>Ajouter un produit</h1>
+    <div class="brand-text">
+      <h1>Ajouter un produit</h1>
+      <div class="op">Opérateur : <strong id="operator-badge">—</strong></div>
+    </div>
   </div>
-</header>
-
-<div class="session">
-  <span>Opérateur : <strong id="operator-badge">—</strong></span>
   <button class="change" onclick="location.href='ZebraPerimés.html'">Accueil</button>
-</div>
+</header>
 
 <div class="panel" id="login-panel">
   <div class="panel-title">Connexion Google Sheets</div>
   <button class="google" id="btn-login" onclick="initiateGoogleAndOperatorLogin()" disabled>Chargement de Google…</button>
 </div>
 
-<div class="panel" id="entry-panel" style="display:none;">
+<div id="entry-panel" style="display:none;">
   <div class="field-group">
     <div class="field-label">① SCANNER LE DATA MATRIX / CIP</div>
-    <div class="scan-row">
-      <input id="code" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 derniers chiffres">
-    </div>
-    <div id="product-hint">Scannez le Data Matrix ou saisissez les 6 derniers chiffres</div>
+    <input id="code" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Scannez le Data Matrix…">
+    <div id="product-hint">CIP et date lus automatiquement — ou saisissez 6 chiffres</div>
   </div>
 
   <div class="field-group">
@@ -140,42 +133,43 @@ h1{margin:0;font-size:14px;line-height:1;font-weight:900;color:#153d31}
 
   <div class="row-dual">
     <div class="field-group">
-      <div class="field-label">③ DATE (Mois / Année)</div>
+      <div class="field-label">③ PÉREMPTION<span id="date-src"></span></div>
       <div class="date-row">
         <select id="select-month" class="date-select">
-          <option value="01">Janv.</option>
-          <option value="02">Févr.</option>
-          <option value="03">Mars</option>
-          <option value="04">Avril</option>
-          <option value="05">Mai</option>
-          <option value="06">Juin</option>
-          <option value="07">Juil.</option>
-          <option value="08">Août</option>
-          <option value="09">Sept.</option>
-          <option value="10">Oct.</option>
-          <option value="11">Nov.</option>
-          <option value="12">Déc.</option>
+          <option value="01">Janv.</option><option value="02">Févr.</option><option value="03">Mars</option>
+          <option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option>
+          <option value="07">Juil.</option><option value="08">Août</option><option value="09">Sept.</option>
+          <option value="10">Oct.</option><option value="11">Nov.</option><option value="12">Déc.</option>
         </select>
-        <select id="select-year" class="date-select">
-          <!-- Dynamique par JS -->
-        </select>
+        <select id="select-year" class="date-select"></select>
       </div>
       <input id="date" type="hidden">
     </div>
+    <div class="field-group">
+      <div class="field-label">④ QUANTITÉ</div>
+      <div class="qty-control">
+        <button type="button" class="qty-btn" id="qty-minus" aria-label="Moins">−</button>
+        <input id="qty" type="number" inputmode="numeric" min="1" value="1">
+        <button type="button" class="qty-btn" id="qty-plus" aria-label="Plus">+</button>
+      </div>
+    </div>
   </div>
 
-  <div class="field-group zone-wrap">
+  <div class="zone-group">
     <div class="field-label" style="color:#1776b5;">⑤ ZONE GÉOGRAPHIQUE</div>
-    <input id="zone" type="text" autocomplete="off" placeholder="Tapez ou cherchez la zone...">
-    <ul class="autocomplete-list" id="zone-suggestions" style="display:none;"></ul>
+    <input id="zone" type="text" autocomplete="off" placeholder="Touchez une zone ou tapez pour filtrer…">
+    <div class="zone-grid" id="zone-grid"></div>
   </div>
 
-  <button type="button" class="table-btn" id="view-table-btn" onclick="openTable()">VOIR TABLEAU</button>
-  <button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER LE PRODUIT</button>
+  <div class="actions">
+    <button type="button" class="table-btn" id="view-table-btn" onclick="openTable()">📊 VOIR TABLEAU</button>
+    <button class="save" id="btn-add" onclick="addRowToSheet()" disabled>AJOUTER LE PRODUIT</button>
+  </div>
 </div>
+
 <div class="modal" id="table-modal">
   <div class="modal-card">
-    <div class="modal-head"><span>Feuille1 — produits ajoutés</span><button class="modal-close" type="button" onclick="closeTable()">×</button></div>
+    <div class="modal-head"><span>Feuille1 — derniers produits ajoutés</span><button class="modal-close" type="button" onclick="closeTable()">×</button></div>
     <div class="table-wrap"><div id="table-content" class="empty-table">Chargement…</div></div>
   </div>
 </div>
@@ -208,60 +202,62 @@ let operatorName=localStorage.getItem('zebraOperator')||null;
 function setStatus(t){document.getElementById('status').textContent=t||'';}
 function updateOperator(){document.getElementById('operator-badge').textContent=operatorName||'—';}
 function parseGS1DataMatrix(raw){
-  const s=String(raw||'').replace(/\u001d/g,'<GS>');
   const out={gtin:'',cip:'',expiry:'',lot:'',serial:''};
-
-  // Supports both scanner output with (01)(17)(10) and raw GS1 AIs.
-  const gtin = s.match(/\(01\)(\d{14})/) || s.match(/(?:^|<GS>)01(\d{14})/);
-  if(gtin){
-    out.gtin=gtin[1];
-    out.cip=gtin[1].slice(-6);
-  }
-
-  const exp = s.match(/\(17\)(\d{6})/) || s.match(/(?:^|<GS>)17(\d{6})/);
-  if(exp){
-    const yy=Number(exp[1].slice(0,2));
-    const mm=exp[1].slice(2,4);
-    const year=2000+yy;
-    if(Number(mm)>=1 && Number(mm)<=12) out.expiry={month:mm,year:String(year)};
-  }
-
-  const serial = s.match(/\(21\)([^<]{1,30})/) || s.match(/(?:^|<GS>)21([^<]{1,30})/);
-  if(serial) out.serial=serial[1].trim();
-
-  // Fallback for scanners that remove parentheses/separators but keep the fixed AIs.
-  if(!out.cip){
-    const m=s.match(/01(\d{14})/);
-    if(m) out.cip=m[1].slice(-6);
-  }
-  if(!out.expiry){
-    const m=s.match(/17(\d{6})/);
-    if(m){
-      const mm=m[1].slice(2,4), yy=Number(m[1].slice(0,2));
-      if(Number(mm)>=1 && Number(mm)<=12) out.expiry={month:mm,year:String(2000+yy)};
+  const s=String(raw||'').replace(/^\]d2/i,'').replace(/\u001d/g,'|').trim();
+  let exp='';
+  if(s.includes('(')){
+    // Format lisible : (01)...(17)...(10)...(21)...
+    const g=s.match(/\(01\)(\d{14})/),e=s.match(/\(17\)(\d{6})/),l=s.match(/\(10\)([^(|]+)/),n=s.match(/\(21\)([^(|]+)/);
+    if(g)out.gtin=g[1];if(e)exp=e[1];if(l)out.lot=l[1];if(n)out.serial=n[1];
+  }else{
+    // Format brut : lecture séquentielle des identifiants (01 puis 17 puis 10 / 21).
+    const p=s.search(/01\d{14}/);
+    let rest=p>=0?s.slice(p):'',m;
+    while(rest){
+      rest=rest.replace(/^\|+/,'');
+      if((m=rest.match(/^01(\d{14})/))){out.gtin=m[1];rest=rest.slice(16);}
+      else if((m=rest.match(/^17(\d{6})/))){exp=m[1];rest=rest.slice(8);}
+      else if((m=rest.match(/^11(\d{6})/))){rest=rest.slice(8);}
+      else if((m=rest.match(/^10([^|]*)/))){out.lot=m[1];rest=rest.slice(2+m[1].length);}
+      else if((m=rest.match(/^21([^|]*)/))){out.serial=m[1];rest=rest.slice(2+m[1].length);}
+      else break;
     }
   }
-
+  if(out.gtin)out.cip=out.gtin.slice(-6);
+  if(exp){
+    const mm=exp.slice(2,4),yy=Number(exp.slice(0,2));
+    if(Number(mm)>=1&&Number(mm)<=12)out.expiry={month:mm,year:String(2000+yy)};
+  }
   return out;
 }
 
 function formatLast6(v){
   const parsed=parseGS1DataMatrix(v);
   if(parsed.cip) return parsed.cip;
-  const digits=String(v||'').replace(/\D/g,'');
-  return digits.slice(-6);
+  return String(v||'').replace(/\D/g,'').slice(-6);
+}
+
+function setDate(m,y){
+  const ys=document.getElementById('select-year');
+  if(![...ys.options].some(o=>o.value===String(y))){
+    ys.add(new Option(y,y));
+    [...ys.options].sort((a,b)=>a.value-b.value).forEach(o=>ys.add(o));
+  }
+  ys.value=String(y);
+  document.getElementById('select-month').value=m;
+  updateDateHidden();
 }
 
 function applyDataMatrixData(raw){
   const d=parseGS1DataMatrix(raw);
+  const src=document.getElementById('date-src');
   if(d.cip) document.getElementById('code').value=d.cip;
-  if(d.expiry){
-    document.getElementById('select-month').value=d.expiry.month;
-    document.getElementById('select-year').value=d.expiry.year;
-    updateDateHidden();
-  }
+  if(d.expiry){ setDate(d.expiry.month,d.expiry.year); src.textContent='✓ scannée'; }
+  else src.textContent='';
   return d;
 }
+['select-month','select-year'].forEach(id=>
+  document.getElementById(id).addEventListener('change',()=>{document.getElementById('date-src').textContent='';}));
 
 function initDateSelectors(){
   const yearSelect = document.getElementById('select-year');
@@ -436,122 +432,108 @@ function initiateGoogleAndOperatorLogin(){
 }
 
 function initZoneAutocomplete(){
-  const input=document.getElementById('zone'),list=document.getElementById('zone-suggestions');
-  let currentFocus=-1;
-  input.addEventListener('input',()=>{
-    const val=input.value.toLowerCase().trim();
-    list.innerHTML='';currentFocus=-1;
-    if(!val){list.style.display='none';validateAdd();return;}
-    zones.filter(z=>z.toLowerCase().includes(val)).forEach(z=>{
-      const li=document.createElement('li');li.textContent=z;
-      li.onclick=()=>{input.value=z;list.style.display='none';validateAdd();};
-      list.appendChild(li);
-    });
-    list.style.display=list.children.length?'block':'none';
-    validateAdd();
-  });
+  const input=document.getElementById('zone');
+  input.addEventListener('input',()=>{renderZones();validateAdd();});
   input.addEventListener('keydown',e=>{
-    const items=list.querySelectorAll('li');if(!items.length)return;
-    if(e.key==='ArrowDown'){currentFocus=(currentFocus+1)%items.length;}
-    else if(e.key==='ArrowUp'){currentFocus=(currentFocus-1+items.length)%items.length;}
-    else if(e.key==='Enter'&&currentFocus>=0){e.preventDefault();items[currentFocus].click();return;}
-    items.forEach(x=>x.classList.remove('active'));if(items[currentFocus])items[currentFocus].classList.add('active');
+    if(e.key!=='Enter')return;
+    e.preventDefault();
+    const first=document.querySelector('#zone-grid .chip');
+    if(first&&!document.querySelector('#zone-grid .chip.sel'))selectZone(first.dataset.zone);
+    input.blur();
   });
-  document.addEventListener('click',e=>{if(!input.contains(e.target)&&!list.contains(e.target))list.style.display='none';});
+  renderZones();
+}
+function renderZones(){
+  const grid=document.getElementById('zone-grid');
+  const v=document.getElementById('zone').value.trim().toLowerCase();
+  const exact=zones.find(z=>z.toLowerCase()===v);
+  const list=(!v||exact?zones:zones.filter(z=>z.toLowerCase().includes(v)))
+    .slice().sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase(),'fr'));
+  grid.innerHTML='';
+  list.forEach(z=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='chip'+(z===exact?' sel':'');
+    b.textContent=z;b.dataset.zone=z;b.onclick=()=>selectZone(z);
+    grid.appendChild(b);
+  });
+  if(!list.length)grid.innerHTML='<div class="zone-empty">Aucune zone ne correspond</div>';
+}
+function selectZone(z){
+  document.getElementById('zone').value=z;
+  renderZones();validateAdd();
+  const s=document.querySelector('#zone-grid .chip.sel');
+  if(s&&s.scrollIntoView)s.scrollIntoView({block:'nearest'});
 }
 
-async function findProduct(code, dmData=null){
-  document.getElementById('btn-add').disabled=true;
-  document.getElementById('product').value='Recherche…';
-  try{
-    const res=await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId:SPREADSHEET_ID,range:RANGE
-    });
-    const rows=res.result.values||[];
+let catalog=null;
+async function loadCatalog(force){
+  if(catalog&&!force)return catalog;
+  const get=r=>gapi.client.sheets.spreadsheets.values.get({spreadsheetId:SPREADSHEET_ID,range:r});
+  const [hist,cur]=await Promise.all([get('Feuille2').catch(()=>({result:{}})),get(RANGE)]);
+  const m=new Map();
+  const fill=(rows,isHist)=>{
     for(let i=1;i<rows.length;i++){
-      const sheetCode=formatLast6(rows[i][3]||'');
-      if(sheetCode===code){
-        document.getElementById('product').value=rows[i][2]||'';
-        // Data Matrix : on préremplit CIP, nom et date.
-        // La zone géographique et la quantité restent volontairement à saisir.
-        const rawDate=String(rows[i][1]||'').trim();
-        if(dmData?.expiry){
-          document.getElementById('select-year').value=dmData.expiry.year;
-          document.getElementById('select-month').value=dmData.expiry.month;
-          updateDateHidden();
-        }else{
-          const dm=rawDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-          if(dm){
-            document.getElementById('select-year').value=dm[1];
-            document.getElementById('select-month').value=String(dm[2]).padStart(2,'0');
-            updateDateHidden();
-          }
-        }
-        document.getElementById('zone').value='';
-        document.getElementById('qty').value=1;
-        document.getElementById('product-hint').textContent='Produit reconnu ✓ — zone et quantité à renseigner';
-        validateAdd();
-        setStatus('Produit reconnu !');
-        document.getElementById('zone').focus();
-        return;
-      }
+      const r=rows[i],c=formatLast6(r[3]||'');
+      if(c&&r[2])m.set(c,{name:r[2],date:String(r[1]||'').trim(),hist:isHist});
     }
-    // Recherche aussi dans l'historique si le produit n'est plus dans Feuille1.
-    const hist=await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId:SPREADSHEET_ID,range:'Feuille2'
-    });
-    const hrows=hist.result.values||[];
-    for(let i=1;i<hrows.length;i++){
-      if(formatLast6(hrows[i][3]||'')===code){
-        document.getElementById('product').value=hrows[i][2]||'';
-        const rawDate=String(hrows[i][1]||'').trim();
-        if(dmData?.expiry){
-          document.getElementById('select-year').value=dmData.expiry.year;
-          document.getElementById('select-month').value=dmData.expiry.month;
-          updateDateHidden();
-        }else{
-          const dm=rawDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-          if(dm){
-            document.getElementById('select-year').value=dm[1];
-            document.getElementById('select-month').value=String(dm[2]).padStart(2,'0');
-            updateDateHidden();
-          }
-        }
-        document.getElementById('zone').value='';
-        document.getElementById('qty').value=1;
-        document.getElementById('product-hint').textContent='Produit reconnu dans l’historique ✓ — zone et quantité à renseigner';
-        validateAdd();
-        setStatus('Produit reconnu dans l’historique !');
-        document.getElementById('zone').focus();
-        return;
+  };
+  fill(hist.result.values||[],true);   // l'historique d'abord…
+  fill(cur.result.values||[],false);   // …Feuille1 prioritaire
+  return (catalog=m);
+}
+
+async function findProduct(code,dm=null){
+  const prod=document.getElementById('product'),hint=document.getElementById('product-hint');
+  document.getElementById('btn-add').disabled=true;
+  prod.value='Recherche…';hint.className='';
+  try{
+    const hit=(await loadCatalog()).get(code);
+    if(hit){
+      prod.value=hit.name;
+      if(!dm?.expiry){
+        const iso=hit.date.match(/^(\d{4})-(\d{1,2})/),fr=hit.date.match(/^\d{1,2}\/(\d{1,2})\/(\d{4})/);
+        const y=iso?iso[1]:fr&&fr[2],mo=iso?iso[2]:fr&&fr[1];
+        if(y){setDate(String(mo).padStart(2,'0'),y);document.getElementById('date-src').textContent='↺ dernier ajout';}
       }
+      document.getElementById('qty').value=1;
+      document.getElementById('zone').value='';renderZones();
+      hint.textContent='Produit reconnu ✓'+(hit.hist?' (historique)':'')+' — choisissez la zone';
+      hint.className='ok';
+      setStatus('Produit reconnu !');
+      document.getElementById('code').blur();   // ferme le clavier : la liste des zones reste visible
+    }else{
+      prod.value='';
+      hint.textContent='CIP inconnu — saisissez le nom manuellement';
+      setStatus('CIP non trouvé : entrez le nom du produit.');
+      prod.focus();
     }
-    document.getElementById('product').value='';
-    document.getElementById('zone').value='';
-    document.getElementById('product-hint').textContent='CIP inconnu — saisissez le nom manuellement';
-    validateAdd();
-    setStatus('CIP non trouvé : entrez le nom du produit.');
-    document.getElementById('product').focus();
   }catch(e){
-    document.getElementById('product').value='';
-    document.getElementById('product-hint').textContent='Recherche impossible — saisie manuelle';
-    validateAdd();
+    prod.value='';
+    hint.textContent='Recherche impossible — saisie manuelle';
     setStatus('Recherche impossible : '+(e.result?.error?.message||e.message));
   }
+  validateAdd();
 }
 
-
 const codeInput=document.getElementById('code');
-codeInput.addEventListener('input',()=>{
-  const c=formatLast6(codeInput.value);
-  if(c.length===6 && accessToken){ findProduct(c); }
-});
+let scanTimer=null;
+function handleCodeInput(){
+  const raw=codeInput.value.trim();
+  if(!raw)return;
+  if(!accessToken){setStatus('Connectez-vous à Google d’abord.');return;}
+  const isDM=!!parseGS1DataMatrix(raw).gtin;
+  if(!isDM&&raw.replace(/\D/g,'').length<6)return;   // saisie manuelle en cours
+  const cip=formatLast6(raw);
+  if(cip.length!==6)return;
+  const d=applyDataMatrixData(raw);                  // CIP + date de péremption pré-enregistrés
+  codeInput.value=cip;
+  if(navigator.vibrate)navigator.vibrate(40);
+  findProduct(cip,d);
+}
+codeInput.addEventListener('focus',()=>codeInput.select());   // un nouveau scan remplace l'ancien
+codeInput.addEventListener('input',()=>{clearTimeout(scanTimer);scanTimer=setTimeout(handleCodeInput,150);validateAdd();});
 codeInput.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    e.preventDefault();
-    const c=formatLast6(codeInput.value);
-    if(c.length===6 && accessToken){ findProduct(c); }
-  }
+  if(e.key==='Enter'){e.preventDefault();clearTimeout(scanTimer);handleCodeInput();}
 });
 
 function validateAdd(){
@@ -592,7 +574,7 @@ async function openTable(){
     content.innerHTML='<table id="sheet-table"><thead><tr>'+
       head.map(h=>'<th>'+h+'</th>').join('')+
       '</tr></thead><tbody>'+
-      data.map(r=>'<tr>'+Array.from({length:9},(_,i)=>'<td>'+escHtml(r[i]||'')+'</td>').join('')+'</tr>').join('')+
+      data.slice().reverse().map(r=>'<tr>'+Array.from({length:9},(_,i)=>'<td>'+escHtml(r[i]||'')+'</td>').join('')+'</tr>').join('')+
       '</tbody></table>';
   }catch(e){
     content.innerHTML='<div class="empty-table">Erreur : '+String(e.result?.error?.message||e.message||e)+'</div>';
@@ -630,12 +612,16 @@ async function addRowToSheet(){
     });
     setStatus('✓ Produit ajouté avec succès ! — Ouvrez « VOIR TABLEAU » pour vérifier.');
     
+    if(catalog)catalog.set(code,{name:productVal,date:dateVal,hist:false});
     document.getElementById('code').value='';
     document.getElementById('product').value='';
-    document.getElementById('product-hint').textContent='Scannez un CIP pour rechercher automatiquement';
-    document.getElementById('zone').value='';
+    const hint=document.getElementById('product-hint');
+    hint.textContent='Scannez le Data Matrix du produit suivant';hint.className='';
+    document.getElementById('zone').value='';renderZones();
     document.getElementById('qty').value=1;
+    document.getElementById('date-src').textContent='';
     btn.textContent='AJOUTER LE PRODUIT';
+    validateAdd();
     setTimeout(()=>document.getElementById('code').focus(),50);
   }catch(e){
     btn.disabled=false; btn.textContent='AJOUTER LE PRODUIT';
